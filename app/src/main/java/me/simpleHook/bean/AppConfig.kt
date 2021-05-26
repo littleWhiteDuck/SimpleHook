@@ -8,7 +8,6 @@ package me.simpleHook.bean
  * @param description 描述
  * @param versionName 版本名
  * @param config 具体的方法配置
- * @param canUse 是否能使用
  */
 data class AppConfig(
     val appName: String,
@@ -19,7 +18,7 @@ data class AppConfig(
     val config: String
 ) {
     override fun toString(): String {
-        return "{\"appName\":\"$appName\",\"packageName\":\"$packageName\"," +
+        return "{\"appName\":\"$appName\",\"packageName\":\"$packageName\",\"versionName\":\"$versionName\"," +
                 "\"mode\":$mode,\"description\":\"$description\",$config}"
     }
 }

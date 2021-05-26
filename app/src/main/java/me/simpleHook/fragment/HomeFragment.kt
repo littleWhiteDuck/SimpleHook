@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
@@ -18,7 +19,9 @@ import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentHomeBinding
+import me.simpleHook.utils.ToolUtils
 import me.simpleHook.viewmodel.MethodViewModel
+import org.json.JSONArray
 
 
 class HomeFragment : Fragment() {
@@ -34,8 +37,7 @@ class HomeFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        binding.floatingActionButton.setOnClickListener { toAddFragment() }
+        initView()
         val adapter = HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) })
         viewModel = ViewModelProvider(
@@ -52,7 +54,7 @@ class HomeFragment : Fragment() {
             layoutManager = linearLayoutManager
         }
         ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END){
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -67,7 +69,11 @@ class HomeFragment : Fragment() {
                 if (configDelete != null) {
                     viewModel.deleteConfigs(configDelete)
                 }
-                Snackbar.make(requireActivity().findViewById(R.id.fragment),"已删除此配置",Snackbar.LENGTH_LONG).setAction(
+                Snackbar.make(
+                    requireActivity().findViewById(R.id.fragment),
+                    "已删除此配置",
+                    Snackbar.LENGTH_LONG
+                ).setAction(
                     "撤销", View.OnClickListener {
                         if (configDelete != null) {
                             viewModel.insertConfigs(configDelete)
@@ -76,6 +82,49 @@ class HomeFragment : Fragment() {
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
+    }
+
+    private fun initView() {
+        binding.addConfig.setOnClickListener { toAddFragment() }
+        binding.importConfigs.setOnClickListener {
+            ToolUtils.getClipboardContent(requireContext())?.let { toInsertConfigs(it) }
+        }
+        binding.shareConfigs.setOnClickListener {
+            val list = viewModel.getAllConfigs().value
+            val configs = StringBuilder()
+            for (i in list!!.indices) {
+                configs.append("${list[i].config},")
+            }
+            ToolUtils.toClip(requireContext(), "[${configs.substring(0, configs.length - 1)}]")
+            Toast.makeText(requireContext(), "已复制到剪切板", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun toInsertConfigs(configs: String) {
+        var tip = "导入成功"
+        try {
+            val configsJsonArray = JSONArray(configs)
+            /* val arrayConfig = arrayOf<AppConfigEntity>()*/
+            for (i in 0 until configsJsonArray.length()) {
+                configsJsonArray.getJSONObject(i).apply {
+                    viewModel.insertConfigs(
+                        AppConfigEntity(
+                            getString("packageName"),
+                            getString("appName"),
+                            getString("versionName"),
+                            getString("description"),
+                            toString()
+                        )
+                    )
+                }
+            }
+            /*viewModel.insertConfigs(*arrayConfig)*/
+
+        } catch (e: Exception) {
+            e.stackTrace
+            tip = "导入失败"
+        }
+        Toast.makeText(requireContext(), tip, Toast.LENGTH_LONG).show()
     }
 
     private fun switchOnChange(appConfigEntity: AppConfigEntity, isChecked: Boolean) {

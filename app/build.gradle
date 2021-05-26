@@ -59,4 +59,7 @@ dependencies {
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+
+    //fab
+    implementation 'com.github.clans:fab:1.6.4'
 }
