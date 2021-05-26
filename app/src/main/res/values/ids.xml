@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="item_position" type="id"/>
+    <item name="item_select_position" type="id"/>
+    <item name="item_home_position" type="id"/>
+</resources>

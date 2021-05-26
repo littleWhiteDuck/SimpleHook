@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">SimpleHook</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_config_description">添加配置</string>
+    <string name="method_config">方法配置</string>
+    <string name="mode_select">选择模式：</string>
+    <string name="class_name_edit_tip">输入类名</string>
+    <string name="class_input_helper">例如：com.example.example</string>
+    <string name="method_input_tip">输入方法名</string>
+    <string name="method_input_helper">例如：isVip</string>
+    <string name="application_input_helper">例如：com.example.MyApplication</string>
+    <string name="params_input_tip">输入参数</string>
+    <string name="result_value_input_iip">输入修改值</string>
+    <string name="help">帮助</string>
+    <string name="application_input_tip">输入入口名</string>
+    <string name="package_input_tip">输入包名</string>
+    <string name="package_input_helper">例如：com.example.example</string>
+    <string name="app_name_input_tip">输入应用名</string>
+    <string name="app_name_input_helper">例如：SimpleHook</string>
+    <string name="version_input_tip">输入版本名</string>
+    <string name="version_input_helper">例如：1.0.0</string>
+    <string name="add_method_string">添加方法</string>
+    <string name="description_input_tip">输入描述</string>
+    <string name="save_config">保存配置</string>
+    <string name="main_item_app_name">应用名</string>
+    <string name="main_item_hook_intro">介绍</string>
+    <string name="main_item_app_icon_desc">图标</string>
+    <string name="select_app">选择app</string>
+</resources>
