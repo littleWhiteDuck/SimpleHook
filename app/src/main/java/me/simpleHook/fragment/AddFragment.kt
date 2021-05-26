@@ -3,6 +3,7 @@ package me.simpleHook.fragment
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import me.simpleHook.R
 import me.simpleHook.adapter.MethodAdapter
 import me.simpleHook.bean.AppConfig
@@ -25,18 +27,17 @@ import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.reflect.Field
+import java.text.FieldPosition
 
 class AddFragment : BaseFragment() {
     private lateinit var viewModel: MethodViewModel
     private val methodsList = ArrayList<MethodConfig>()
     private var mode = ModeConstant.HOOK_RETURN
-    private var appMode = ModeConstant.HOOK_ORIGIN
     private lateinit var binding: FragmentAddBinding
     private lateinit var appViewModel: AppViewModel
     private var modify = false
     private var modifyMethodConfig = false
     private var modifyMethodConfigPosition = 0
-    private var toSelectApp = false
     private var configId = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,7 +62,7 @@ class AddFragment : BaseFragment() {
                     position: Int,
                     id: Long
                 ) {
-                    appMode = position
+                    mode = position
                     when (list[position]) {
                         "其他加固" -> binding.applicationEdit.visibility = View.VISIBLE
                         else -> binding.applicationEdit.visibility = View.GONE
@@ -97,7 +98,8 @@ class AddFragment : BaseFragment() {
                 MethodViewModel::class.java
             )
         viewModel.getMethodLive()?.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+            adapter.setMethodList(it)
+            adapter.notifyDataSetChanged()
         }
         viewModel.configLive.value?.let {
             modify = true
@@ -111,18 +113,15 @@ class AddFragment : BaseFragment() {
                 descStringEdit.setText(it.description)
                 modeSelectSpinner.setSelection(jsonObject.getInt("mode"))
                 val jsonArray = JSONArray(jsonObject.getString("config"))
-                methodsList.clear()
                 for (i in 0 until jsonArray.length()) {
                     jsonArray.getJSONObject(i).apply {
-                        methodsList.add(
-                            MethodConfig(
-                                getInt("mode"),
-                                getString("className"),
-                                getString("methodName"),
-                                getString("params"),
-                                getString("resultValues")
-                            )
-                        )
+                        methodsList.add(MethodConfig(
+                            getInt("mode"),
+                            getString("className"),
+                            getString("methodName"),
+                            getString("params"),
+                            getString("resultValues")
+                        ))
                     }
                 }
                 viewModel.getMethodLive()?.value = methodsList
@@ -200,21 +199,19 @@ class AddFragment : BaseFragment() {
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             setCancelable(false)
-            if (className.isNotEmpty()) {
+            if (className.isNotEmpty()){
                 modifyMethodConfig = true
                 setPositiveButton("修改") { d, _ ->
-                    dialogDismiss(
-                        d, toCheck(dialogBinding)
+                    dialogDismiss(d, toCheck(dialogBinding)
                     )
                 }
-            } else {
+            } else{
                 setPositiveButton("确认") { d, _ ->
-                    dialogDismiss(
-                        d, toCheck(dialogBinding)
+                    dialogDismiss(d, toCheck(dialogBinding)
                     )
                 }
             }
-            setNegativeButton("取消", null)
+                setNegativeButton("取消", null)
                 .create().show()
         }
 
@@ -249,9 +246,9 @@ class AddFragment : BaseFragment() {
                     /*val methodConfigItem = MethodConfig(mode, className, methodName, params, results)*/
                     val methodConfig =
                         MethodConfig(mode, className, methodName, params, results)
-                    if (modifyMethodConfig) {
+                    if (modifyMethodConfig){
                         methodsList[modifyMethodConfigPosition] = methodConfig
-                    } else {
+                    }else{
                         methodsList.add(methodConfig)
                     }
                     viewModel.getMethodLive()?.value = methodsList
@@ -264,9 +261,9 @@ class AddFragment : BaseFragment() {
         } else {
             val methodConfig = MethodConfig(mode, className, methodName, params, results)
             MethodConfig(mode, className, methodName, params, results)
-            if (modifyMethodConfig) {
+            if (modifyMethodConfig){
                 methodsList[modifyMethodConfigPosition] = methodConfig
-            } else {
+            }else{
                 methodsList.add(methodConfig)
             }
             viewModel.getMethodLive()?.value = methodsList
@@ -286,11 +283,12 @@ class AddFragment : BaseFragment() {
                 back()
             }
             R.id.save_config -> {
-                if (methodsList.size == 0) {
-                    Toast.makeText(requireContext(), "这是什么东西，不能保存", Toast.LENGTH_LONG).show()
+                if (methodsList.size == 0){
+                    Toast.makeText(requireContext(),"这是什么东西，不能保存",Toast.LENGTH_LONG).show()
                     return true
                 }
                 val appConfig = toCheckCanSave().toString()
+                Log.d("======", appConfig)
                 binding.apply {
                     val appName = binding.appNameEdit.text.toString()
                     val packageName = binding.packageNameEdit.text.toString()
@@ -314,7 +312,6 @@ class AddFragment : BaseFragment() {
                 back()
             }
             R.id.select_app -> {
-                toSelectApp = true
                 val navHostFragment =
                     requireActivity().supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
                 val navController = navHostFragment.navController
@@ -333,16 +330,16 @@ class AddFragment : BaseFragment() {
         val versionName = binding.appVersionNameEdit.text.toString()
         val config = StringBuilder()
         config.append("\"config\": [")
-        for (i in 0 until methodsList.size) {
+        for (i in 0 until methodsList.size){
             config.append("${methodsList[i].toString()},")
         }
         return AppConfig(
             appName,
             packageName,
-            appMode,
+            mode,
             description,
             versionName,
-            config.substring(0, config.length - 1) + "]"
+            config.substring(0,config.length-1)+"]"
         )
     }
 
