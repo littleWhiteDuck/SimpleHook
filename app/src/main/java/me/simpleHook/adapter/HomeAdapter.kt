@@ -66,7 +66,8 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
                     oldItem.packageName == newItem.packageName &&
                     oldItem.versionName == newItem.versionName &&
                     oldItem.description == newItem.description &&
-                    oldItem.config == newItem.config
+                    oldItem.config == newItem.config &&
+                    oldItem.canUse == newItem.canUse
         }
     }
 

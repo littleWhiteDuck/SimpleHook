@@ -214,7 +214,9 @@ class AddFragment : BaseFragment() {
                     )
                 }
             }
-            setNegativeButton("取消", null)
+            setNegativeButton("取消") { d, _ ->
+                dialogDismiss(d, true)
+            }
                 .create().show()
         }
 

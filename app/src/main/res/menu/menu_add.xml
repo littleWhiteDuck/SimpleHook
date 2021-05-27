@@ -17,6 +17,6 @@
     <item
         android:id="@+id/add_method_config"
         android:title="@string/add_method_string"
-        android:icon="@drawable/ic_add"
+        android:icon="@drawable/ic_add_24"
         app:showAsAction="always"/>
 </menu>

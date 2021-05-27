@@ -24,6 +24,7 @@ import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 
 
+@Suppress("COMPATIBILITY_WARNING")
 class HomeFragment : Fragment() {
     private lateinit var viewModel: AppViewModel
     private lateinit var binding: FragmentHomeBinding
