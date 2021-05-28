@@ -1,5 +1,6 @@
 package me.simpleHook.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -17,22 +18,11 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
     private lateinit var binding: MainItemLayoutBinding
 
     inner class ViewHolder(binding: MainItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(appConfig: AppConfigEntity) {
-            binding.apply {
-                appConfig.apply {
-                    itemName.text = appName
-                    itemDesc.text = description
-                    ableSwitch.isChecked = canUse
-                    itemAppIcon.setImageDrawable(
-                        AppUtils.getIcon(
-                            binding.root.context,
-                            packageName
-                        )
-                    )
-                }
-
-            }
-        }
+        val itemName = binding.itemName
+        val itemDesc = binding.itemDesc
+        @SuppressLint("UseSwitchCompatOrMaterialCode")
+        val ableSwitch = binding.ableSwitch
+        val itemAppIcon = binding.itemAppIcon
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,8 +40,16 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.setTag(R.id.item_home_position, getItem(position))
-        holder.bind(getItem(position))
+        val appConfigEntity = getItem(position)
+        holder.itemView.setTag(R.id.item_home_position, appConfigEntity)
+        holder.apply {
+            appConfigEntity.apply {
+                itemName.text = appName
+                itemDesc.text = description
+                ableSwitch.isChecked = canUse
+                itemAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context,packageName))
+            }
+        }
     }
 
     object AppDiffCallback : DiffUtil.ItemCallback<AppConfigEntity>() {
