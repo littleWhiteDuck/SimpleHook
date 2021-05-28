@@ -17,9 +17,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteConfigs(*appConfigEntity)
     }
 
-    fun deleteAllConfigs() {
+  /*  fun deleteAllConfigs() {
         appRepository.deleteAllConfigs()
-    }
+    }*/
 
     fun getAllConfigs() = appRepository.getAllConfigs()
 }

@@ -2,6 +2,7 @@ package me.simpleHook.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.lxj.xpopup.XPopup
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
+import me.simpleHook.custom.BottomDialog
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentHomeBinding
@@ -46,7 +49,8 @@ class HomeFragment : Fragment() {
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
         )[AppViewModel::class.java]
         val allConfigs = viewModel.getAllConfigs()
-        allConfigs.observe(viewLifecycleOwner) {
+        allConfigs.observe(requireActivity()) {
+            Log.d("======", "onActivityCreated: =============")
             adapter.submitList(it)
         }
         val linearLayoutManager = LinearLayoutManager(requireContext())
@@ -75,11 +79,12 @@ class HomeFragment : Fragment() {
                     "已删除此配置",
                     Snackbar.LENGTH_LONG
                 ).setAction(
-                    "撤销", View.OnClickListener {
-                        if (configDelete != null) {
-                            viewModel.insertConfigs(configDelete)
-                        }
-                    }).show()
+                    "撤销"
+                ) {
+                    if (configDelete != null) {
+                        viewModel.insertConfigs(configDelete)
+                    }
+                }.show()
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
@@ -134,12 +139,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun adapterOnClick(appConfig: AppConfigEntity) {
-        val viewModel = ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.NewInstanceFactory()
-        )[MethodViewModel::class.java]
-        viewModel.configLive.value = appConfig
-        toAddFragment()
+        val onClick = {
+            val viewModel = ViewModelProvider(
+                requireActivity(),
+                ViewModelProvider.NewInstanceFactory()
+            )[MethodViewModel::class.java]
+            viewModel.configLive.value = appConfig
+            toAddFragment()
+        }
+        XPopup.Builder(requireContext())
+            .isDestroyOnDismiss(true)
+            .asCustom(BottomDialog(requireContext(), appConfig, onClick))
+            .show()
     }
 
     private fun toAddFragment() {

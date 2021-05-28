@@ -1,6 +1,6 @@
 package me.simpleHook.constant
 
-object ModeConstant {
+object Constant {
     // app 整体hook模式
     const val HOOK_ORIGIN = 0
     const val HOOK_360 = 1

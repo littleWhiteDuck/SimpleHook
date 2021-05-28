@@ -27,4 +27,12 @@
     <string name="main_item_hook_intro">介绍</string>
     <string name="main_item_app_icon_desc">图标</string>
     <string name="select_app">选择app</string>
+    <string name="add_method_config">添加方法配置</string>
+    <string name="download">下载</string>
+    <string name="edit">编辑</string>
+    <string name="config_description">配置介绍</string>
+    <string name="app_icon">应用图标</string>
+    <string name="package_name">包名</string>
+    <string name="applicable_version">可用的版本</string>
+    <string name="current_installed_version">当前安装版本</string>
 </resources>

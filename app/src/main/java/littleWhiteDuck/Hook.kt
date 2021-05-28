@@ -3,12 +3,11 @@ package littleWhiteDuck
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.Keep
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import me.simpleHook.constant.ModeConstant
+import me.simpleHook.constant.Constant
 import org.json.JSONObject
 
 private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
@@ -112,21 +111,21 @@ fun hook(
         }
     }
     when (mode) {
-        ModeConstant.HOOK_RETURN -> {
+        Constant.HOOK_RETURN -> {
             obj[realSize] = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     param.result = Type.getDataType(values)
                 }
             }
         }
-        ModeConstant.HOOK_BREAK -> {
+        Constant.HOOK_BREAK -> {
             obj[realSize] = object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     param.result = null
                 }
             }
         }
-        ModeConstant.HOOK_PARAM -> {
+        Constant.HOOK_PARAM -> {
             obj[realSize] = object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     for (i in methodParams.indices) {

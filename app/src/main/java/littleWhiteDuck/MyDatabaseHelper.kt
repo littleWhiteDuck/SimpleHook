@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class MyDatabaseHelper(private val context: Context,name:String,version:Int):SQLiteOpenHelper(context,name,null,version) {
+class MyDatabaseHelper(context: Context,name:String,version:Int):SQLiteOpenHelper(context,name,null,version) {
     private val createConfig = "create table AppConfigEntity (" +
             "packageName text," +
             "appName text," +

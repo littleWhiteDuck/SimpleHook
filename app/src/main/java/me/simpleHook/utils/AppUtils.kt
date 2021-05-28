@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import me.simpleHook.R
+import java.lang.Exception
 
 
 object AppUtils {
@@ -48,7 +49,13 @@ object AppUtils {
 
 
     fun getAppVersionName(context: Context, packageName: String): String {
-        return context.packageManager.getPackageInfo(packageName, 0).versionName
+        var versionName = "未安装"
+        try {
+            versionName = context.packageManager.getPackageInfo(packageName, 0).versionName
+        }catch (e:Exception){
+
+        }
+        return versionName
     }
 
 }

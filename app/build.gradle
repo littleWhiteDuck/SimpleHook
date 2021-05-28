@@ -62,4 +62,7 @@ dependencies {
 
     //fab
     implementation 'com.github.clans:fab:1.6.4'
+
+    //xPopup
+    implementation 'com.github.li-xiaojun:XPopup:2.3.4'
 }

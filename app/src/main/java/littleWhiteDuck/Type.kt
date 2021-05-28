@@ -21,9 +21,12 @@ object Type {
         else -> value
     }
     fun getClassType(className:String) = when(className){
-        "java.lang.Long" -> Long::class.java
-        "java.lang.Boolean" -> Boolean::class.java
-        "java.lang.Int" -> Int::class.java
+        "long" -> Long::class.java
+        "boolean" -> Boolean::class.java
+        "int" -> Int::class.java
+        "float" -> Float::class.java
+        "double" -> Double::class.java
+        "string" -> String::class.java
         else -> null
     }
 }

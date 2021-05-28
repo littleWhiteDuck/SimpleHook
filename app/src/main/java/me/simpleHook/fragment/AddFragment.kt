@@ -3,6 +3,7 @@ package me.simpleHook.fragment
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
+import android.text.Html
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -16,10 +17,10 @@ import me.simpleHook.R
 import me.simpleHook.adapter.MethodAdapter
 import me.simpleHook.bean.AppConfig
 import me.simpleHook.bean.MethodConfig
-import me.simpleHook.constant.ModeConstant
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
-import me.simpleHook.databinding.ClassConfigDialogBinding
+import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.databinding.FragmentAddBinding
 import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
@@ -29,14 +30,13 @@ import java.lang.reflect.Field
 class AddFragment : BaseFragment() {
     private lateinit var viewModel: MethodViewModel
     private val methodsList = ArrayList<MethodConfig>()
-    private var mode = ModeConstant.HOOK_RETURN
-    private var appMode = ModeConstant.HOOK_ORIGIN
+    private var mode = Constant.HOOK_RETURN
+    private var appMode = Constant.HOOK_ORIGIN
     private lateinit var binding: FragmentAddBinding
     private lateinit var appViewModel: AppViewModel
     private var modify = false
     private var modifyMethodConfig = false
     private var modifyMethodConfigPosition = 0
-    private var toSelectApp = false
     private var configId = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,7 +74,11 @@ class AddFragment : BaseFragment() {
                 }
             }
         initViewModel()
+        initView()
+    }
 
+    private fun initView() {
+        binding.addMethodConfig.setOnClickListener { showDialog() }
     }
 
 
@@ -165,12 +169,14 @@ class AddFragment : BaseFragment() {
         params: String = "",
         results: String = "",
     ) {
-        val dialogBinding = ClassConfigDialogBinding.inflate(layoutInflater, null, false)
+        val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
             classNameEdit.setText(className)
             methodNameEdit.setText(methodName)
             paramsEdit.setText(params)
             resultValueEdit.setText(results)
+            if (mode == Constant.HOOK_BREAK) dialogBinding.resultValueInput.visibility = View.GONE
+            help.setOnClickListener{showHelpDialog()}
         }
         AlertDialog.Builder(requireActivity()).apply {
             setView(dialogBinding.root)
@@ -220,7 +226,35 @@ class AddFragment : BaseFragment() {
                 .create().show()
         }
 
+    }
 
+    private fun showHelpDialog() {
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle("帮助")
+            setMessage(
+                Html.fromHtml(
+                    "<p><strong>返回值和修改值</strong></p><p>暂时支持的类型和使用方法如下(不区分大小写)：</p>" +
+                            "<p><em>-- 布尔值：true,false</em></p>" +
+                            "<p><em>-- 整数：0,1,2,3... ...</em></p>" +
+                            "<p><em>-- 长整型：66666l,666666L</em></p>" +
+                            "<p><em>-- null：null,Null,NULL</em></p>" +
+                            "<p><em>-- 字符串：</em></p>" +
+                            "<p><em>    -- 布尔类型的字符串：trues,falses</em></p>" +
+                            "<p><em>    -- 整数类型的字符串：2332s,2231232ls</em></p>" +
+                            "<p><em>    -- null型的字符串：nulls</em></p>" +
+                            "<p><em>-- 以及不符合上述类型的：我喜欢你啊！！！</em></p>" +
+                            "<p><strong>参数值(区分大小写)</strong><p>" +
+                            "<p><em>示例如下：</em></p>" +
+                            "<p><em>布尔类型：boolean</em></p>" +
+                            "<p><em>整型：int、long</em></p>" +
+                            "<p><em>浮点型：float、double</em></p>" +
+                            "<p><em>字符串：java.lang.String、string</em></p>" +
+                            "<p><em>其他类型如：android.content.Context,java.util.ArrayList等</em></p>"
+                ))
+            setPositiveButton("取消",null)
+                .create().show()
+
+        }
     }
 
     private fun dialogDismiss(dialog: DialogInterface, canCancel: Boolean) {
@@ -236,7 +270,7 @@ class AddFragment : BaseFragment() {
     }
 
 
-    private fun toCheck(dialogBinding: ClassConfigDialogBinding): Boolean {
+    private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
         var canCancel = true
         val className = dialogBinding.classNameEdit.text.toString().trim()
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
@@ -283,10 +317,6 @@ class AddFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.add_method_config -> showDialog()
-            android.R.id.home -> {
-                back()
-            }
             R.id.save_config -> {
                 if (methodsList.size == 0) {
                     Toast.makeText(requireContext(), "这是什么东西，不能保存", Toast.LENGTH_LONG).show()
@@ -316,7 +346,6 @@ class AddFragment : BaseFragment() {
                 back()
             }
             R.id.select_app -> {
-                toSelectApp = true
                 val navHostFragment =
                     requireActivity().supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
                 val navController = navHostFragment.navController
@@ -336,7 +365,7 @@ class AddFragment : BaseFragment() {
         val config = StringBuilder()
         config.append("\"config\": [")
         for (i in 0 until methodsList.size) {
-            config.append("${methodsList[i].toString()},")
+            config.append("${methodsList[i]},")
         }
         return AppConfig(
             appName,

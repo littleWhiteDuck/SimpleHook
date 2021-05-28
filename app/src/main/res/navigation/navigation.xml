@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/addFragment"
         android:name="me.simpleHook.fragment.AddFragment"
-        android:label="详细"
+        android:label="配置"
         tools:layout="@layout/fragment_add" >
         <action
             android:id="@+id/action_addFragment_to_appSelectFragment"

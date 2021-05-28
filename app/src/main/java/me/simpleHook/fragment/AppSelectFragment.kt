@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -23,7 +25,6 @@ class AppSelectFragment : BaseFragment(), CoroutineScope by MainScope() {
     private lateinit var list: ArrayList<AppItem>
     private lateinit var binding: FragmentAppSelectBinding
     private lateinit var viewModel: MethodViewModel
-    private var cancel = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,9 +62,7 @@ class AppSelectFragment : BaseFragment(), CoroutineScope by MainScope() {
                 this.adapter = adapter
                 layoutManager = linearLayoutManager
             }
-            if (cancel) {
-                pr.dismiss()
-            }
+
         }
     }
 
@@ -83,7 +82,6 @@ class AppSelectFragment : BaseFragment(), CoroutineScope by MainScope() {
             val versionName = AppUtils.getAppVersionName(context, packageName)
             appList.add(AppItem(appName, packageName, appIcon, versionName))
         }
-        cancel = true
         return appList
     }
 
