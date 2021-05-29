@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.AddFragment">
+    tools:context=".fragment.AddFragment"
+    android:theme="@style/EditTextTheme">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_method_config"
@@ -47,7 +48,8 @@
         app:helperText="@string/application_input_helper"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3">
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+      >
 
         <com.google.android.material.textfield.TextInputEditText
             style="@style/add_edit_text_style"
@@ -92,7 +94,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/app_version_name_edit"
             style="@style/add_edit_text_style"
-            android:hint="@string/version_input_tip" />
+            android:hint="@string/version_input_tip"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

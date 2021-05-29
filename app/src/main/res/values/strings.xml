@@ -35,4 +35,7 @@
     <string name="package_name">包名</string>
     <string name="applicable_version">可用的版本</string>
     <string name="current_installed_version">当前安装版本</string>
+    <string name="class_name">类名</string>
+    <string name="method_name">方法名</string>
+    <string name="version_name">版本名</string>
 </resources>

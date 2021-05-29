@@ -6,13 +6,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.lxj.xpopup.XPopup
 import me.simpleHook.R
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.databinding.MainItemLayoutBinding
 import me.simpleHook.utils.AppUtils
 
-class HomeAdapter(private val onClick: (AppConfigEntity) -> Unit,
-private val onChange: (AppConfigEntity,Boolean) -> Unit) :
+class HomeAdapter(
+    private val onClick: (AppConfigEntity) -> Unit,
+    private val onChange: (AppConfigEntity, Boolean) -> Unit,
+    private val onLongClick: (AppConfigEntity, XPopup.Builder) -> Unit
+) :
     ListAdapter<AppConfigEntity, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
     private lateinit var binding: MainItemLayoutBinding
@@ -28,13 +32,25 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         binding = MainItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = ViewHolder(binding)
-        binding.constraintLayout.setOnClickListener {
-            val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfigEntity
-            onClick(appConfig)
+        binding.constraintLayout.apply {
+            setOnClickListener {
+                val appConfig =
+                    viewHolder.itemView.getTag(R.id.item_home_position) as AppConfigEntity
+                onClick(appConfig)
+            }
+            val builder = XPopup.Builder(context)
+                .hasShadowBg(false)
+                .watchView(this)
+            setOnLongClickListener {
+                val appConfig =
+                    viewHolder.itemView.getTag(R.id.item_home_position) as AppConfigEntity
+                onLongClick(appConfig, builder)
+                true
+            }
         }
         binding.ableSwitch.setOnCheckedChangeListener { _, isChecked ->
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfigEntity
-            onChange(appConfig,isChecked)
+            onChange(appConfig, isChecked)
         }
         return viewHolder
     }
@@ -47,7 +63,7 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
                 itemName.text = appName
                 itemDesc.text = description
                 ableSwitch.isChecked = canUse
-                itemAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context,packageName))
+                itemAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context, packageName))
             }
         }
     }
@@ -59,7 +75,7 @@ private val onChange: (AppConfigEntity,Boolean) -> Unit) :
         override fun areContentsTheSame(
             oldItem: AppConfigEntity,
             newItem: AppConfigEntity
-        ): Boolean{
+        ): Boolean {
             return oldItem.appName == newItem.appName &&
                     oldItem.packageName == newItem.packageName &&
                     oldItem.versionName == newItem.versionName &&

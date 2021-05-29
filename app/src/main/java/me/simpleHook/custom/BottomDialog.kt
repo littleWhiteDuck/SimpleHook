@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.util.XPopupUtils
 import me.simpleHook.R
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.databinding.CustomBottomPopupBinding
 import me.simpleHook.utils.AppUtils
+import me.simpleHook.utils.toast
 
 @SuppressLint("ViewConstructor")
 class BottomDialog(
@@ -47,7 +47,7 @@ class BottomDialog(
                     try {
                         context.startActivity(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(context, "出现错误", Toast.LENGTH_SHORT).show()
+                        "出现错误".toast(context)
                     }
                 }
             }

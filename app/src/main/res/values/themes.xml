@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.SimpleHook" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/purple_500</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -15,5 +15,13 @@
     </style>
     <style name="ButtonTheme" parent="Theme.SimpleHook">
         <item name="colorPrimary">#434a54</item>
+    </style>
+    <style name="EditTextTheme" parent="Theme.SimpleHook">
+        <item name="colorPrimary">@color/teal_200</item>
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:textColorHint">@color/teal_200</item>
+    </style>
+    <style name="ToolbarTheme" parent="Theme.SimpleHook">
+        <item name="colorControlNormal">@color/white</item>
     </style>
 </resources>

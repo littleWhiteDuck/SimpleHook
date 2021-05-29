@@ -18,38 +18,46 @@
     <com.github.clans.fab.FloatingActionMenu
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
         app:menu_labels_ellipsize="end"
-        app:menu_labels_singleLine="true"
-        >
+        app:menu_labels_singleLine="true">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/add_config"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add"
-            app:fab_size="mini"
-            app:fab_label="添加配置" />
+            app:fab_label="添加配置"
+            app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/import_configs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_copy"
-            app:fab_size="mini"
-            app:fab_label="导入配置" />
+            android:src="@drawable/ic_paste"
+            app:fab_label="导入配置"
+            app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/share_configs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_share"
-            app:fab_size="mini"
-            app:fab_label="分享配置" />
+            app:fab_label="分享配置"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/import_learnHook_configs"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_paste"
+            app:fab_label="导入learnHook配置"
+            app:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>
 </androidx.constraintlayout.widget.ConstraintLayout>

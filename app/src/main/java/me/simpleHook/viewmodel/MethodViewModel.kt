@@ -10,9 +10,9 @@ import me.simpleHook.database.AppConfigEntity
 class MethodViewModel : ViewModel() {
     var configLive = MutableLiveData<AppConfigEntity>()
     var appLive = MutableLiveData<AppItem>()
-    private var methodLive: MutableLiveData<List<MethodConfig>>? =null
+    private var methodLive: MutableLiveData<ArrayList<MethodConfig>>? =null
 
-    fun getMethodLive(): MutableLiveData<List<MethodConfig>>? {
+    fun getMethodLive(): MutableLiveData<ArrayList<MethodConfig>>? {
         if (methodLive == null){
             methodLive = MutableLiveData(ArrayList<MethodConfig>())
         }

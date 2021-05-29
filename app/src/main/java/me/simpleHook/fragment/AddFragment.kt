@@ -87,13 +87,7 @@ class AddFragment : BaseFragment() {
             override fun onItemClickListener(position: Int) {
                 modifyMethodConfigPosition = position
                 val methodConfig = methodsList[position]
-                showDialog(
-                    methodConfig.mode,
-                    methodConfig.className,
-                    methodConfig.methodName,
-                    methodConfig.params,
-                    methodConfig.resultValues,
-                )
+                showDialog(methodConfig)
             }
         })
         viewModel =
@@ -102,6 +96,7 @@ class AddFragment : BaseFragment() {
             )
         viewModel.getMethodLive()?.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+            adapter.notifyDataSetChanged()
         }
         viewModel.configLive.value?.let {
             modify = true
@@ -162,21 +157,17 @@ class AddFragment : BaseFragment() {
         viewModel.configLive.value = null
     }
 
-    private fun showDialog(
-        mode: Int = 0,
-        className: String = "",
-        methodName: String = "",
-        params: String = "",
-        results: String = "",
-    ) {
+    private fun showDialog(methodConfig: MethodConfig = MethodConfig(0,"","","","")) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
-            classNameEdit.setText(className)
-            methodNameEdit.setText(methodName)
-            paramsEdit.setText(params)
-            resultValueEdit.setText(results)
-            if (mode == Constant.HOOK_BREAK) dialogBinding.resultValueInput.visibility = View.GONE
-            help.setOnClickListener{showHelpDialog()}
+            methodConfig.apply {
+                classNameEdit.setText(className)
+                methodNameEdit.setText(methodName)
+                paramsEdit.setText(params)
+                resultValueEdit.setText(resultValues)
+                if (mode == Constant.HOOK_BREAK) dialogBinding.resultValueInput.visibility = View.GONE
+                help.setOnClickListener{showHelpDialog()}
+            }
         }
         AlertDialog.Builder(requireActivity()).apply {
             setView(dialogBinding.root)
@@ -206,18 +197,20 @@ class AddFragment : BaseFragment() {
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             setCancelable(false)
-            if (className.isNotEmpty()) {
-                modifyMethodConfig = true
-                setPositiveButton("修改") { d, _ ->
+            modifyMethodConfig = methodConfig.className.isNotEmpty().also {
+                val positiveButtonText = if (it)"修改" else "增加"
+                setPositiveButton(positiveButtonText) { d, _ ->
                     dialogDismiss(
                         d, toCheck(dialogBinding)
                     )
                 }
-            } else {
-                setPositiveButton("确认") { d, _ ->
-                    dialogDismiss(
-                        d, toCheck(dialogBinding)
-                    )
+                if (it){
+                    setNeutralButton("删除"){ d, _ ->
+                        deleteConfig(methodConfig)
+                        dialogDismiss(
+                            d, true
+                        )
+                    }
                 }
             }
             setNegativeButton("取消") { d, _ ->
@@ -226,6 +219,11 @@ class AddFragment : BaseFragment() {
                 .create().show()
         }
 
+    }
+
+    private fun deleteConfig(methodConfig: MethodConfig) {
+        methodsList.remove(methodConfig)
+        viewModel.getMethodLive()!!.value = methodsList
     }
 
     private fun showHelpDialog() {
@@ -282,7 +280,6 @@ class AddFragment : BaseFragment() {
                     methodName.isNotEmpty() &&
                     results.isNotEmpty()
                 ) {
-                    /*val methodConfigItem = MethodConfig(mode, className, methodName, params, results)*/
                     val methodConfig =
                         MethodConfig(mode, className, methodName, params, results)
                     if (modifyMethodConfig) {
@@ -317,6 +314,7 @@ class AddFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            android.R.id.home -> back()
             R.id.save_config -> {
                 if (methodsList.size == 0) {
                     Toast.makeText(requireContext(), "这是什么东西，不能保存", Toast.LENGTH_LONG).show()
@@ -362,10 +360,10 @@ class AddFragment : BaseFragment() {
         val packageName = binding.packageNameEdit.text.toString()
         val description = binding.descStringEdit.text.toString()
         val versionName = binding.appVersionNameEdit.text.toString()
-        val config = StringBuilder()
-        config.append("\"config\": [")
-        for (i in 0 until methodsList.size) {
-            config.append("${methodsList[i]},")
+        val config = StringBuilder().also {
+            for (i in 0 until methodsList.size) {
+                it.append("${methodsList[i]},")
+            }
         }
         return AppConfig(
             appName,
@@ -373,7 +371,7 @@ class AddFragment : BaseFragment() {
             appMode,
             description,
             versionName,
-            config.substring(0, config.length - 1) + "]"
+            "\"config\": [${ config.substring(0, config.length - 1)}]"
         )
     }
 

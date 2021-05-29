@@ -1,6 +1,5 @@
 package me.simpleHook.fragment
 
-import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -8,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.core.BasePopupView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -47,16 +44,10 @@ class AppSelectFragment : BaseFragment(), CoroutineScope by MainScope() {
             }
         })
         val linearLayoutManager = LinearLayoutManager(requireContext())
-        val pr = ProgressDialog(requireContext()).apply {
-            setTitle("正在加载...")
-            setCancelable(false)
-            create()
-            show()
-        }
         launch {
             list = getList()
             adapter.setAppList(list).also {
-                pr.dismiss()
+                binding.progressBar.visibility = View.GONE
             }
             binding.appSelectRec.apply {
                 this.adapter = adapter
