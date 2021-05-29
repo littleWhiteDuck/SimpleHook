@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
@@ -83,19 +82,19 @@ class HomeFragment : Fragment() {
         viewModel.deleteConfigs(appConfigEntity)
         Snackbar.make(
             requireActivity().findViewById(R.id.fragment),
-            "已删除此配置", Snackbar.LENGTH_LONG
-        ).setAction("撤销") {
+            getString(R.string.delete_config_tip), Snackbar.LENGTH_LONG
+        ).setAction(getString(R.string.revocation)) {
             viewModel.insertConfigs(appConfigEntity)
         }.show()
     }
 
     private fun itemOnLongClick(appConfigEntity: AppConfigEntity, builder: XPopup.Builder) {
-        val arrayOfString = arrayOf("编辑", "删除", "分享")
+        val arrayOfString = requireContext().resources.getStringArray(R.array.home_item_select_item)
         builder.asAttachList(arrayOfString, null) { _, text ->
             when (text) {
-                "编辑" -> editConfig(appConfigEntity)
-                "删除" -> deleteConfig(appConfigEntity)
-                "分享" -> copyConfigs(appConfigEntity.config)
+                getString(R.string.edit) -> editConfig(appConfigEntity)
+                getString(R.string.delete) -> deleteConfig(appConfigEntity)
+                getString(R.string.share) -> copyConfigs(appConfigEntity.config)
             }
         }.show()
 
@@ -112,7 +111,7 @@ class HomeFragment : Fragment() {
 
     private fun copyConfigs(config: String) {
         ToolUtils.toClip(requireContext(), JsonUtil.formatJson(config))
-        Toast.makeText(requireContext(), "已复制到剪切板", Toast.LENGTH_LONG).show()
+        getString(R.string.export_configs_tip).toast(requireContext())
     }
 
     private fun initView() {
@@ -126,7 +125,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun shareConfigs(){
+    private fun shareConfigs() {
         val list = viewModel.getAllConfigs().value
         val configs = StringBuilder()
         for (i in list!!.indices) {
@@ -136,11 +135,11 @@ class HomeFragment : Fragment() {
             requireContext(),
             JsonUtil.formatJson("[${configs.substring(0, configs.length - 1)}]")
         )
-        "已复制到剪切板".toast(requireContext())
+        getString(R.string.export_configs_tip).toast(requireContext())
     }
 
-    private fun importLearnHookConfigs(configs: String){
-        when{
+    private fun importLearnHookConfigs(configs: String) {
+        when {
             JsonUtil.isJsonArray(configs) -> {
 
             }
@@ -156,7 +155,7 @@ class HomeFragment : Fragment() {
     private fun importConfigs(configs: String) {
         when {
             JsonUtil.isJsonArray(configs) -> {
-                var tip = "导入成功"
+                var tip = getString(R.string.import_success_tip)
                 try {
                     val configsJsonArray = JSONArray(configs)
                     /* val arrayConfig = arrayOf<AppConfigEntity>()*/
@@ -175,8 +174,8 @@ class HomeFragment : Fragment() {
                     }
                     /*viewModel.insertConfigs(*arrayConfig)*/
                 } catch (e: Exception) {
-                    e.stackTrace
-                    tip = "导入失败"
+                    e.printStackTrace()
+                    tip = getString(R.string.import_fail_tip)
                 }
                 tip.toast(requireContext())
             }
@@ -195,7 +194,7 @@ class HomeFragment : Fragment() {
 
             }
             else -> {
-                "格式错误".toast(requireContext())
+                getString(R.string.incorrect_format_tip).toast(requireContext())
             }
         }
     }

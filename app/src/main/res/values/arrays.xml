@@ -3,4 +3,9 @@
     <string-array name="xposed_scope">
         <item>me.hookTest</item>
     </string-array>
+    <string-array name="home_item_select_item">
+        <item>编辑</item>
+        <item>删除</item>
+        <item>分享</item>
+    </string-array>
 </resources>

@@ -47,7 +47,7 @@ class BottomDialog(
                     try {
                         context.startActivity(intent)
                     } catch (e: Exception) {
-                        "出现错误".toast(context)
+                        context.getString(R.string.error_tip).toast(context)
                     }
                 }
             }

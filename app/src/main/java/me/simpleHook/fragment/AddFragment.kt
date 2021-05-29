@@ -7,6 +7,7 @@ import android.text.Html
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
@@ -226,29 +227,11 @@ class AddFragment : BaseFragment() {
         viewModel.getMethodLive()!!.value = methodsList
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showHelpDialog() {
         AlertDialog.Builder(requireContext()).apply {
             setTitle("帮助")
-            setMessage(
-                Html.fromHtml(
-                    "<p><strong>返回值和修改值</strong></p><p>暂时支持的类型和使用方法如下(不区分大小写)：</p>" +
-                            "<p><em>-- 布尔值：true,false</em></p>" +
-                            "<p><em>-- 整数：0,1,2,3... ...</em></p>" +
-                            "<p><em>-- 长整型：66666l,666666L</em></p>" +
-                            "<p><em>-- null：null,Null,NULL</em></p>" +
-                            "<p><em>-- 字符串：</em></p>" +
-                            "<p><em>    -- 布尔类型的字符串：trues,falses</em></p>" +
-                            "<p><em>    -- 整数类型的字符串：2332s,2231232ls</em></p>" +
-                            "<p><em>    -- null型的字符串：nulls</em></p>" +
-                            "<p><em>-- 以及不符合上述类型的：我喜欢你啊！！！</em></p>" +
-                            "<p><strong>参数值(区分大小写)</strong><p>" +
-                            "<p><em>示例如下：</em></p>" +
-                            "<p><em>布尔类型：boolean</em></p>" +
-                            "<p><em>整型：int、long</em></p>" +
-                            "<p><em>浮点型：float、double</em></p>" +
-                            "<p><em>字符串：java.lang.String、string</em></p>" +
-                            "<p><em>其他类型如：android.content.Context,java.util.ArrayList等</em></p>"
-                ))
+            setMessage(R.string.use_help)
             setPositiveButton("取消",null)
                 .create().show()
 

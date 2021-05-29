@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">SimpleHook</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -38,4 +38,16 @@
     <string name="class_name">类名</string>
     <string name="method_name">方法名</string>
     <string name="version_name">版本名</string>
+    <string name="search">搜索</string>
+    <string name="search_hint">输入应用名或包名</string>
+    <string name="delete_config_tip">已删除此配置</string>
+    <string name="revocation">撤销</string>
+    <string name="delete">删除</string>
+    <string name="share">分享</string>
+    <string name="export_configs_tip">已复制到剪切板</string>
+    <string name="import_success_tip">导入成功</string>
+    <string name="import_fail_tip">导入失败</string>
+    <string name="incorrect_format_tip">格式错误</string>
+    <string name="error_tip">出现错误</string>
+    <string name="use_help" tools:ignore="TypographyEllipsis">一、返回值\n\t暂时支持的类型和使用方法如下(不区分大小写)：\n\t布尔值：true,false\n\t整数：0,1,2,3… ...\n\t长整型：66666l,666666L\n\tnull：null,Null,NULL\n\t字符串：\n\t布尔类型的字符串：trues,falses\n\t整数类型的字符串：2332s,2231232ls\n\t以及不符合上述类型的：我喜欢你啊！！！\n二、参数值(区分大小写)：\n\t布尔类型：boolean\n\t整型：int、long \n\t浮点型：float、double \n\t字符串：java.lang.String、string \n\t其他类型如：android.content.Context,java.util.ArrayList等\n三、模式的选择： \n\tHook返回值：修改值必须填写，且只能有一个值 \n\tHook参数值：参数值填写在修改值那里，多参数以逗号分割，如果某个参数值不需要更改，留空即可（保留逗号）\n\t中断执行：正常填写即可</string>
 </resources>

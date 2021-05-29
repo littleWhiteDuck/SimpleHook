@@ -19,8 +19,6 @@ class HomeAdapter(
 ) :
     ListAdapter<AppConfigEntity, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
-    private lateinit var binding: MainItemLayoutBinding
-
     inner class ViewHolder(binding: MainItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
         val itemName = binding.itemName
         val itemDesc = binding.itemDesc
@@ -30,7 +28,7 @@ class HomeAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        binding = MainItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = MainItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = ViewHolder(binding)
         binding.constraintLayout.apply {
             setOnClickListener {
