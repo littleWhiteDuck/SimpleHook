@@ -2,10 +2,10 @@ package me.simpleHook.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.NavHostFragment
@@ -26,12 +26,25 @@ import me.simpleHook.utils.toast
 import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.regex.Pattern
+import kotlin.concurrent.thread
 
 
 @Suppress("COMPATIBILITY_WARNING")
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
     private lateinit var viewModel: AppViewModel
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var filterConfigsLive: LiveData<List<AppConfigEntity>>
+    private var config = "错误"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,15 +56,18 @@ class HomeFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         initView()
-        val adapter = HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
+        val adapter = HomeAdapter.getHomeAdapter(   { appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             { appConfigEntity, builder -> itemOnLongClick(appConfigEntity, builder) })
         viewModel = ViewModelProvider(
             requireActivity(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
         )[AppViewModel::class.java]
-        val allConfigs = viewModel.getAllConfigs()
-        allConfigs.observe(requireActivity()) {
+        if (this::filterConfigsLive.isInitialized && filterConfigsLive.hasObservers()){
+            filterConfigsLive.removeObservers(requireActivity())
+        }
+        filterConfigsLive = viewModel.getAllConfigs()
+        filterConfigsLive.observe(requireActivity()) {
             adapter.submitList(it)
         }
         val linearLayoutManager = LinearLayoutManager(requireContext())
@@ -71,7 +87,7 @@ class HomeFragment : Fragment() {
 
             @SuppressLint("ShowToast")
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val configDelete = allConfigs.value!![viewHolder.adapterPosition]
+                val configDelete = filterConfigsLive.value!![viewHolder.adapterPosition]
                 deleteConfig(configDelete)
             }
 
@@ -116,17 +132,67 @@ class HomeFragment : Fragment() {
 
     private fun initView() {
         binding.addConfig.setOnClickListener { toAddFragment() }
-        binding.importConfigs.setOnClickListener {
+        binding.importConfigsFromPaste.setOnClickListener {
             ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
         }
         binding.shareConfigs.setOnClickListener { shareConfigs() }
         binding.importLearnHookConfigs.setOnClickListener {
             ToolUtils.getClipboardContent(requireContext())?.let { importLearnHookConfigs(it) }
         }
+        binding.importConfigsFromInternet.setOnClickListener {
+            showInternetImportConfigDialog()
+        }
     }
 
+    private fun showInternetImportConfigDialog() {
+        XPopup.Builder(requireContext())
+            .hasStatusBarShadow(false)
+            .isDestroyOnDismiss(true)
+            .autoOpenSoftInput(true)
+            .isDarkTheme(false)
+            .asInputConfirm("请输入网址",null,null){
+                importConfigsFromInternet(it.trim())
+            }
+            .show()
+    }
+
+    private fun importConfigsFromInternet(urlString: String) {
+        val regex = """((http|ftp|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?)""";//设置正则表达式
+        if (Pattern.matches(regex,urlString)){
+            thread {
+                var connection: HttpURLConnection? = null
+                try {
+                    val response = StringBuilder()
+                    val url = URL(urlString)
+                    connection = url.openConnection() as HttpURLConnection
+                    connection.connectTimeout = 8000
+                    connection.readTimeout = 8000
+                    val input = connection.inputStream
+                    val reader = BufferedReader(InputStreamReader(input))
+                    reader.use {
+                        reader.forEachLine {
+                            response.append(it)
+                        }
+                    }
+                    config = response.toString()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    connection?.disconnect()
+                }
+            }
+            if (config == "错误"){
+                "稍后再试，网络错误或者其他错误".toast(requireContext())
+            }else{
+                importConfigs(config)
+            }
+        }else{
+            "网址不正确".toast(requireContext())
+        }
+
+    }
     private fun shareConfigs() {
-        val list = viewModel.getAllConfigs().value
+        val list = filterConfigsLive.value
         val configs = StringBuilder()
         for (i in list!!.indices) {
             configs.append("${list[i].config},")
@@ -221,6 +287,31 @@ class HomeFragment : Fragment() {
             requireActivity().supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
         val navController = navHostFragment.navController
         navController.navigate(R.id.action_homeFragment_to_addFragment)
+    }
+
+    override fun onQueryTextSubmit(query: String?) = false
+
+    override fun onQueryTextChange(newText: String): Boolean {
+        val adapter = HomeAdapter.getHomeAdapter(   { appConfigEntity -> adapterOnClick(appConfigEntity) },
+            { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
+            { appConfigEntity, builder -> itemOnLongClick(appConfigEntity, builder) })
+        val pattern = "%${newText.trim()}%"
+        filterConfigsLive.removeObservers(requireActivity())
+        filterConfigsLive = viewModel.getFilterConfigs(pattern)
+        filterConfigsLive.observe(requireActivity()){
+            adapter.submitList(it)
+        }
+
+        return true
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_home,menu)
+        val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+        searchView.queryHint = "输入应用名或包名"
+        searchView.setOnQueryTextListener(this)
     }
 
 }

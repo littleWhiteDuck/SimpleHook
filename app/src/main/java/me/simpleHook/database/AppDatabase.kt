@@ -11,6 +11,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         private var instance: AppDatabase? = null
+        @Synchronized
         fun getDatabase(context: Context) = instance?.let {
             it
         } ?: Room.databaseBuilder(

@@ -5,7 +5,6 @@ import android.os.AsyncTask
 
 class AppRepository(context: Context) {
     private val appConfigDao = AppDatabase.getDatabase(context).getAppConfigDao()
-    private var allConfigLive = appConfigDao.queryAll()
 
     fun insertConfigs(vararg appConfigEntity: AppConfigEntity) {
         InsertAsyncTask(appConfigDao).execute(*appConfigEntity)
@@ -22,7 +21,9 @@ class AppRepository(context: Context) {
     fun deleteAllConfigs() {
         DeleteAllAsyncTask(appConfigDao).execute()
     }
-    fun getAllConfigs() = allConfigLive
+    fun getAllConfigs() = appConfigDao.queryAll()
+
+    fun getFilterConfigs(pattern:String) = appConfigDao.filterConfigs(pattern)
 
     class InsertAsyncTask(private val appConfigDao: AppConfigDao) :
         AsyncTask<AppConfigEntity, Unit, Unit>() {

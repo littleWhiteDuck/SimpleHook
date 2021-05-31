@@ -22,4 +22,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }*/
 
     fun getAllConfigs() = appRepository.getAllConfigs()
+
+    fun getFilterConfigs(pattern:String) = appRepository.getFilterConfigs(pattern)
 }

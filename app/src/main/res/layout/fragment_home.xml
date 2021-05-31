@@ -35,11 +35,19 @@
             app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/import_configs"
+            android:id="@+id/import_configs_from_paste"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_paste"
             app:fab_label="导入配置"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/import_configs_from_internet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_cloud_download_12"
+            app:fab_label="从网络导入配置"
             app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton

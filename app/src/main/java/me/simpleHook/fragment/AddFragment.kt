@@ -175,7 +175,7 @@ class AddFragment : BaseFragment() {
             val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行")
             dialogBinding.modeSelectSpinner.adapter =
                 ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, list)
-            dialogBinding.modeSelectSpinner.setSelection(mode)
+            dialogBinding.modeSelectSpinner.setSelection(methodConfig.mode)
             dialogBinding.modeSelectSpinner.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(
@@ -324,6 +324,7 @@ class AddFragment : BaseFragment() {
                         }
                     }
                 }
+                Thread.sleep(100)
                 back()
             }
             R.id.select_app -> {

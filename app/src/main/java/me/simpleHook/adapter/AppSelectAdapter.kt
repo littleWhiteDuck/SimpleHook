@@ -50,6 +50,7 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
 
     companion object{
         private var instance:AppSelectAdapter? =null
+        @Synchronized
         fun getAppSelectAdapter():AppSelectAdapter = instance?.let {
             it
         }?: AppSelectAdapter().also {

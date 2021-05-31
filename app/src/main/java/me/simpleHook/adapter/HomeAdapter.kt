@@ -82,5 +82,16 @@ class HomeAdapter(
                     oldItem.canUse == newItem.canUse
         }
     }
+    companion object{
+        private var instance:HomeAdapter? = null
+        @Synchronized
+        fun getHomeAdapter( onClick: (AppConfigEntity) -> Unit, onChange: (AppConfigEntity, Boolean) -> Unit, onLongClick: (AppConfigEntity, XPopup.Builder) -> Unit) = instance?.let {
+            it
+        }?: HomeAdapter(onClick,onChange,onLongClick).also {
+            instance = it
+        }
+    }
+
+
 
 }
