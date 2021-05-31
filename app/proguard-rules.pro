@@ -19,3 +19,20 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-repackageclasses "littleWhiteDuck"
+
+#指定外部模糊字典
+-obfuscationdictionary ./proguard-keys.txt
+#指定class模糊字典
+-classobfuscationdictionary ./proguard-keys.txt
+#指定package模糊字典
+#-packageobfuscationdictionary ./proguard-keys.txt
+
+
+-keep class * implements de.robv.android.xposed.IXposedHookLoadPackage {
+    public void *(de.robv.android.xposed.callbacks.XC_LoadPackage$LoadPackageParam);
+}
+
+-keep class * implements de.robv.android.xposed.IXposedHookInitPackageResources {
+    public void *(de.robv.android.xposed.callbacks.XC_InitPackageResources$InitPackageResourcesParam);
+}
