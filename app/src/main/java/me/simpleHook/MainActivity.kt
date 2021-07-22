@@ -1,15 +1,18 @@
-package me.simpleHook
+ package me.simpleHook
 
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import me.simpleHook.databinding.ActivityMainBinding
+import me.simpleHook.utils.FileUtils
+import me.simpleHook.utils.toast
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,9 +38,14 @@ class MainActivity : AppCompatActivity() {
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         }
+        if (isModuleLive()) "模块已激活".toast(this)
+        FileUtils.verifyStoragePermissions(this)
       /*  val controller = window.insetsController
         controller?.hide(WindowInsets.Type.navigationBars())*/
     }
+
+    @Keep
+    fun isModuleLive() = false
 
     /* override fun onSupportNavigateUp(): Boolean {
          val inputMethodManage = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager

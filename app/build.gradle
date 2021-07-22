@@ -3,6 +3,10 @@ plugins {
     id 'kotlin-android'
 }
 
+static def getVersionCode(){
+    return new Date().format("yyMMddhh", TimeZone.getTimeZone("UTC")).toInteger()
+}
+
 android {
     compileSdkVersion 30
     apply plugin: 'kotlin-kapt'
@@ -10,9 +14,8 @@ android {
         applicationId "me.simpleHook"
         minSdkVersion 22
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-
+        versionCode getVersionCode()
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,6 +36,11 @@ android {
     }
     buildFeatures {
         viewBinding true
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "simlpeHook_${variant.versionName}__${variant.name}.apk"
+        }
     }
 }
 

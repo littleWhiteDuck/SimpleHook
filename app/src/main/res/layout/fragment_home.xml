@@ -58,14 +58,5 @@
             app:fab_label="分享配置"
             app:fab_size="mini" />
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/import_learnHook_configs"
-            android:layout_width="wrap_content"
-            android:visibility="gone"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_paste"
-            app:fab_label="导入learnHook配置"
-            app:fab_size="mini" />
-
     </com.github.clans.fab.FloatingActionMenu>
 </androidx.constraintlayout.widget.ConstraintLayout>

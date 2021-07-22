@@ -3,11 +3,10 @@ package me.simpleHook.fragment
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Html
 import android.view.*
+import android.webkit.WebView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +22,7 @@ import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.databinding.FragmentAddBinding
+import me.simpleHook.utils.FileUtils
 import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,7 +51,7 @@ class AddFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val list = arrayListOf("普通模式", "360加固", "腾讯御安全", "其他加固")
+        val list = arrayListOf("普通模式", "加固模式")
         binding.modeSelectSpinner.adapter =
             ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, list)
         binding.modeSelectSpinner.onItemSelectedListener =
@@ -229,9 +229,12 @@ class AddFragment : BaseFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun showHelpDialog() {
+        val webView = WebView(requireContext())
+        webView.loadUrl("file:///android_asset/introduce.html")
         AlertDialog.Builder(requireContext()).apply {
             setTitle("帮助")
-            setMessage(R.string.use_help)
+            setView(webView)
+           /* setMessage(R.string.use_help)*/
             setPositiveButton("取消",null)
                 .create().show()
 
@@ -322,9 +325,10 @@ class AddFragment : BaseFragment() {
                         } else {
                             appViewModel.insertConfigs(this)
                         }
+                        FileUtils.writeData("${Constant.CONFIG_DIRECTORY+packageName}/","config",appConfig)
                     }
                 }
-                Thread.sleep(100)
+                Thread.sleep(150)
                 back()
             }
             R.id.select_app -> {

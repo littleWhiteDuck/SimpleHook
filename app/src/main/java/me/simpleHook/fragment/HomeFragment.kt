@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
@@ -20,6 +19,7 @@ import me.simpleHook.custom.BottomDialog
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentHomeBinding
+import me.simpleHook.utils.FileUtils
 import me.simpleHook.utils.JsonUtil
 import me.simpleHook.utils.ToolUtils
 import me.simpleHook.utils.toast
@@ -35,16 +35,12 @@ import kotlin.concurrent.thread
 
 
 @Suppress("COMPATIBILITY_WARNING")
-class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
+class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
     private lateinit var viewModel: AppViewModel
     private lateinit var binding: FragmentHomeBinding
     private lateinit var filterConfigsLive: LiveData<List<AppConfigEntity>>
     private var config = "错误"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -92,6 +88,7 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
+
     }
 
     fun deleteConfig(appConfigEntity: AppConfigEntity) {
@@ -113,7 +110,6 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
                 getString(R.string.share) -> copyConfigs(appConfigEntity.config)
             }
         }.show()
-
     }
 
     private fun editConfig(appConfigEntity: AppConfigEntity) {
@@ -136,9 +132,6 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
             ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
         }
         binding.shareConfigs.setOnClickListener { shareConfigs() }
-        binding.importLearnHookConfigs.setOnClickListener {
-            ToolUtils.getClipboardContent(requireContext())?.let { importLearnHookConfigs(it) }
-        }
         binding.importConfigsFromInternet.setOnClickListener {
             showInternetImportConfigDialog()
         }
@@ -157,7 +150,7 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
     }
 
     private fun importConfigsFromInternet(urlString: String) {
-        val regex = """((http|ftp|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?)""";//设置正则表达式
+        val regex = """((http|ftp|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?)"""//设置正则表达式
         if (Pattern.matches(regex,urlString)){
             thread {
                 var connection: HttpURLConnection? = null
@@ -192,32 +185,11 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
 
     }
     private fun shareConfigs() {
-        val list = filterConfigsLive.value
-        val configs = StringBuilder()
-        for (i in list!!.indices) {
-            configs.append("${list[i].config},")
-        }
-        ToolUtils.toClip(
-            requireContext(),
-            JsonUtil.formatJson("[${configs.substring(0, configs.length - 1)}]")
-        )
+        val strConfig = getStrConfig(filterConfigsLive.value)
+        refreshConfig("$/storage/emulated/0/simpleHook/data/fdfdfdf/","config",strConfig)
+        ToolUtils.toClip(requireContext(),strConfig)
         getString(R.string.export_configs_tip).toast(requireContext())
     }
-
-    private fun importLearnHookConfigs(configs: String) {
-        when {
-            JsonUtil.isJsonArray(configs) -> {
-
-            }
-            JsonUtil.isJsonObject(configs) -> {
-
-            }
-            else -> {
-
-            }
-        }
-    }
-
     private fun importConfigs(configs: String) {
         when {
             JsonUtil.isJsonArray(configs) -> {
@@ -266,8 +238,16 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
     }
 
     private fun switchOnChange(appConfigEntity: AppConfigEntity, isChecked: Boolean) {
-        appConfigEntity.canUse = isChecked
+        val oldCan = appConfigEntity.canUse
+        val newConfig = appConfigEntity.config.replace("canUse\":$oldCan","canUse\":$isChecked")
+        appConfigEntity.apply {
+            config = newConfig
+            canUse = isChecked
+        }
         viewModel.updateConfigs(appConfigEntity)
+        FileUtils.verifyStoragePermissions(requireActivity())
+        refreshConfig("/storage/emulated/0/simpleHook/data/${appConfigEntity.packageName}/","config",appConfigEntity.config)
+
     }
 
     private fun adapterOnClick(appConfig: AppConfigEntity) {
@@ -291,7 +271,7 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?) = false
 
-    override fun onQueryTextChange(newText: String): Boolean {
+    override fun onQueryTextChange(newText: String) = true.also {
         val adapter = HomeAdapter.getHomeAdapter(   { appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             { appConfigEntity, builder -> itemOnLongClick(appConfigEntity, builder) })
@@ -301,9 +281,6 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
         filterConfigsLive.observe(requireActivity()){
             adapter.submitList(it)
         }
-
-        return true
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -313,5 +290,27 @@ class HomeFragment : Fragment(),SearchView.OnQueryTextListener {
         searchView.queryHint = "输入应用名或包名"
         searchView.setOnQueryTextListener(this)
     }
+
+    /**
+     * 刷新配置
+     */
+    private fun refreshConfig(url:String, name:String,fileContent:String){
+
+        FileUtils.writeData(url,name,fileContent)
+    }
+
+    /**
+     * 获取所有配置文本形式
+     */
+    private fun getStrConfig(list: List<AppConfigEntity>?,formatConfig:Boolean = true) = list?.let {
+        val configs = StringBuilder()
+        for (i in it.indices) {
+            configs.append("${it[i].config},")
+        }
+        val strConfigs = "[${configs.substring(0, configs.length - 1)}]"
+        val strConfig = if (formatConfig) JsonUtil.formatJson(strConfigs) else strConfigs
+        strConfig
+    }?:""
+
 
 }
