@@ -15,10 +15,11 @@ data class AppConfig(
     val mode: Int,
     val description: String,
     val versionName: String,
-    val config: String
+    val config: String,
+    val canUse:Boolean = true
 ) {
     override fun toString(): String {
         return "{\"appName\":\"$appName\",\"packageName\":\"$packageName\",\"versionName\":\"$versionName\"," +
-                "\"mode\":$mode,\"description\":\"$description\",$config}"
+                "\"mode\":$mode,\"description\":\"$description\",$config,\"canUse\":$canUse}"
     }
 }

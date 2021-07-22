@@ -11,7 +11,7 @@ object Type {
     private const val NULL_PATTERN = """(?i)null"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
 
-    fun getDataType(value: String) = when{
+    fun getDataTypeValue(value: String) = when{
         matches(BOOLEAN_PATTERN,value) -> value.toBoolean()
         matches(INT_PATTERN,value) -> value.toInt()
         matches(LONG_PATTERN,value) -> value.replace(Regex("""[l|L]"""),"").toLong()

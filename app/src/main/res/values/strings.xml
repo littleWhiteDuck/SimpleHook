@@ -49,5 +49,4 @@
     <string name="import_fail_tip">导入失败</string>
     <string name="incorrect_format_tip">格式错误</string>
     <string name="error_tip">出现错误</string>
-    <string name="use_help" tools:ignore="TypographyEllipsis">一、返回值\n\t暂时支持的类型和使用方法如下(不区分大小写)：\n\t布尔值：true,false\n\t整数：0,1,2,3… ...\n\t长整型：66666l,666666L\n\tnull：null,Null,NULL\n\t字符串：\n\t布尔类型的字符串：trues,falses\n\t整数类型的字符串：2332s,2231232ls\n\t以及不符合上述类型的：我喜欢你啊！！！\n二、参数值(区分大小写)：\n\t布尔类型：boolean\n\t整型：int、long \n\t浮点型：float、double \n\t字符串：java.lang.String、string \n\t其他类型如：android.content.Context,java.util.ArrayList等\n三、模式的选择： \n\tHook返回值：修改值必须填写，且只能有一个值 \n\tHook参数值：参数值填写在修改值那里，多参数以逗号分割，如果某个参数值不需要更改，留空即可（保留逗号）\n\t中断执行：正常填写即可</string>
 </resources>
