@@ -1,4 +1,4 @@
-package me.simpleHook.utils
+package me.simpleHook.util
 
 import org.json.JSONArray
 import org.json.JSONObject
@@ -18,6 +18,13 @@ object JsonUtil {
             true
         } catch (e: Exception) {
             false
+        }
+
+    fun getElementString(jsonObject: JSONObject,name:String): String =
+        try {
+            jsonObject.getString(name)
+        }catch (e:java.lang.Exception){
+            ""
         }
 
     fun formatJson(jsonStr: String?): String {

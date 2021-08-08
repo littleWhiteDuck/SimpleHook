@@ -9,8 +9,8 @@ import com.lxj.xpopup.util.XPopupUtils
 import me.simpleHook.R
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.databinding.CustomBottomPopupBinding
-import me.simpleHook.utils.AppUtils
-import me.simpleHook.utils.toast
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.toast
 
 @SuppressLint("ViewConstructor")
 class BottomDialog(

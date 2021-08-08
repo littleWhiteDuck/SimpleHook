@@ -1,6 +1,7 @@
 package me.simpleHook.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
@@ -13,16 +14,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.lxj.xpopup.XPopup
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
+import me.simpleHook.constant.Constant
 import me.simpleHook.custom.BottomDialog
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentHomeBinding
-import me.simpleHook.utils.FileUtils
-import me.simpleHook.utils.JsonUtil
-import me.simpleHook.utils.ToolUtils
-import me.simpleHook.utils.toast
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.ToolUtils
+import me.simpleHook.util.toast
 import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 import org.json.JSONObject
@@ -35,11 +40,12 @@ import kotlin.concurrent.thread
 
 
 @Suppress("COMPATIBILITY_WARNING")
-class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
+class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener, CoroutineScope by MainScope() {
     private lateinit var viewModel: AppViewModel
     private lateinit var binding: FragmentHomeBinding
     private lateinit var filterConfigsLive: LiveData<List<AppConfigEntity>>
     private var config = "错误"
+    private var mContext:Context? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +57,7 @@ class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        mContext = requireContext()
         initView()
         val adapter = HomeAdapter.getHomeAdapter(   { appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
@@ -62,14 +69,18 @@ class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
         if (this::filterConfigsLive.isInitialized && filterConfigsLive.hasObservers()){
             filterConfigsLive.removeObservers(requireActivity())
         }
-        filterConfigsLive = viewModel.getAllConfigs()
-        filterConfigsLive.observe(requireActivity()) {
-            adapter.submitList(it)
-        }
-        val linearLayoutManager = LinearLayoutManager(requireContext())
-        binding.mainRecycler.apply {
-            this.adapter = adapter
-            layoutManager = linearLayoutManager
+        launch {
+            filterConfigsLive = viewModel.getAllConfigs()
+            filterConfigsLive.observe(requireActivity()) {
+                adapter.submitList(it).also {
+                    binding.progressBar2.visibility = View.GONE
+                }
+            }
+            val linearLayoutManager = LinearLayoutManager(requireContext())
+            binding.mainRecycler.apply {
+                this.adapter = adapter
+                layoutManager = linearLayoutManager
+            }
         }
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
@@ -186,7 +197,6 @@ class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
     }
     private fun shareConfigs() {
         val strConfig = getStrConfig(filterConfigsLive.value)
-        refreshConfig("$/storage/emulated/0/simpleHook/data/fdfdfdf/","config",strConfig)
         ToolUtils.toClip(requireContext(),strConfig)
         getString(R.string.export_configs_tip).toast(requireContext())
     }
@@ -246,8 +256,7 @@ class HomeFragment : BaseFragment(),SearchView.OnQueryTextListener {
         }
         viewModel.updateConfigs(appConfigEntity)
         FileUtils.verifyStoragePermissions(requireActivity())
-        refreshConfig("/storage/emulated/0/simpleHook/data/${appConfigEntity.packageName}/","config",appConfigEntity.config)
-
+        refreshConfig("${Constant.CONFIG_DIRECTORY+appConfigEntity.packageName}/","config",appConfigEntity.config)
     }
 
     private fun adapterOnClick(appConfig: AppConfigEntity) {

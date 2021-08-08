@@ -11,19 +11,22 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import me.simpleHook.databinding.ActivityMainBinding
-import me.simpleHook.utils.FileUtils
-import me.simpleHook.utils.toast
+import me.simpleHook.fragment.HomeFragment
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.toast
+import kotlin.system.exitProcess
 
-class MainActivity : AppCompatActivity() {
+ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var navHostFragment: NavHostFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        val navHostFragment =
+        navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
         navController = navHostFragment.navController
         NavigationUI.setupActionBarWithNavController(this, navController)
@@ -47,9 +50,9 @@ class MainActivity : AppCompatActivity() {
     @Keep
     fun isModuleLive() = false
 
-    /* override fun onSupportNavigateUp(): Boolean {
-         val inputMethodManage = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-         inputMethodManage.hideSoftInputFromWindow(findViewById<FragmentContainerView>(R.id.fragment).windowToken, 0)
-         return super.onSupportNavigateUp()
-     }*/
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val fragment = navHostFragment.childFragmentManager.primaryNavigationFragment
+        if (fragment is HomeFragment) exitProcess(0)
+    }
 }

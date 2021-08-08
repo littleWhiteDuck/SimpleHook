@@ -10,7 +10,7 @@ import com.lxj.xpopup.XPopup
 import me.simpleHook.R
 import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.databinding.MainItemLayoutBinding
-import me.simpleHook.utils.AppUtils
+import me.simpleHook.util.AppUtils
 
 class HomeAdapter(
     private val onClick: (AppConfigEntity) -> Unit,

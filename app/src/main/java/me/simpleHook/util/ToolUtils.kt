@@ -1,4 +1,4 @@
-package me.simpleHook.utils
+package me.simpleHook.util
 
 import android.annotation.SuppressLint
 import android.content.ClipData

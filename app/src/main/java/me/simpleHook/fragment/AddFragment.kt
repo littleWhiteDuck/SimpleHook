@@ -22,7 +22,9 @@ import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.databinding.FragmentAddBinding
-import me.simpleHook.utils.FileUtils
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.toast
 import me.simpleHook.viewmodel.MethodViewModel
 import org.json.JSONArray
 import org.json.JSONObject
@@ -120,6 +122,8 @@ class AddFragment : BaseFragment() {
                                 getString("className"),
                                 getString("methodName"),
                                 getString("params"),
+                                JsonUtil.getElementString(this,"fieldName"),
+                                JsonUtil.getElementString(this,"fieldType"),
                                 getString("resultValues")
                             )
                         )
@@ -130,7 +134,7 @@ class AddFragment : BaseFragment() {
         }
         viewModel.appLive.observe(viewLifecycleOwner) {
             binding.apply {
-                appNameEdit.setText(it.appName)
+                appNameEdit.setText(it.name)
                 appVersionNameEdit.setText(it.versionName)
                 packageNameEdit.setText(it.packageName)
             }
@@ -158,21 +162,26 @@ class AddFragment : BaseFragment() {
         viewModel.configLive.value = null
     }
 
-    private fun showDialog(methodConfig: MethodConfig = MethodConfig(0,"","","","")) {
+    private fun showDialog(methodConfig: MethodConfig = MethodConfig(0,"","","","","","")) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
             methodConfig.apply {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
                 paramsEdit.setText(params)
+                filedNameEdit.setText(fieldName)
+                fieldTypeEdit.setText(fieldType)
                 resultValueEdit.setText(resultValues)
-                if (mode == Constant.HOOK_BREAK) dialogBinding.resultValueInput.visibility = View.GONE
                 help.setOnClickListener{showHelpDialog()}
+                when(mode){
+                    2 -> breakHook(dialogBinding)
+                    3 -> staticFieldHook(dialogBinding)
+                }
             }
         }
         AlertDialog.Builder(requireActivity()).apply {
             setView(dialogBinding.root)
-            val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行")
+            val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行","Hook静态变量")
             dialogBinding.modeSelectSpinner.adapter =
                 ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, list)
             dialogBinding.modeSelectSpinner.setSelection(methodConfig.mode)
@@ -184,17 +193,13 @@ class AddFragment : BaseFragment() {
                         position: Int,
                         id: Long
                     ) {
-                        this@AddFragment.mode = position
+                        mode = position
                         when (list[position]) {
-                            "中断执行" -> {
-                                dialogBinding.resultValueInput.visibility = View.GONE
-                            }
-                            else -> {
-                                dialogBinding.resultValueInput.visibility = View.VISIBLE
-                            }
+                            "中断执行" -> breakHook(dialogBinding)
+                            "Hook静态变量" -> staticFieldHook(dialogBinding)
+                            else -> othersHook(dialogBinding)
                         }
                     }
-
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             setCancelable(false)
@@ -219,7 +224,38 @@ class AddFragment : BaseFragment() {
             }
                 .create().show()
         }
+    }
+    private fun othersHook(dialogBinding: ConfigDialogBinding){
+        dialogBinding.apply {
+            setViewShow(fieldTypeInput)
+            setViewShow(filedNameInput)
+            setViewShow(resultValueInput,true)
+            setViewShow(paramsTypeInput,true)
+            setViewShow(methodNameInput,true)
+        }
+    }
+    private fun breakHook(dialogBinding: ConfigDialogBinding){
+        dialogBinding.apply {
+            setViewShow(resultValueInput)
+            setViewShow(fieldTypeInput)
+            setViewShow(filedNameInput)
+            setViewShow(paramsTypeInput,true)
+            setViewShow(methodNameInput,true)
+        }
+    }
 
+    private fun staticFieldHook(dialogBinding: ConfigDialogBinding){
+        dialogBinding.apply {
+            setViewShow(paramsTypeInput)
+            setViewShow(methodNameInput)
+            setViewShow(fieldTypeInput,true)
+            setViewShow(filedNameInput,true)
+            setViewShow(resultValueInput,true)
+        }
+    }
+
+    private fun setViewShow(view:View,isShow:Boolean = false){
+        view.visibility = if (isShow)View.VISIBLE else View.GONE
     }
 
     private fun deleteConfig(methodConfig: MethodConfig) {
@@ -234,7 +270,6 @@ class AddFragment : BaseFragment() {
         AlertDialog.Builder(requireContext()).apply {
             setTitle("帮助")
             setView(webView)
-           /* setMessage(R.string.use_help)*/
             setPositiveButton("取消",null)
                 .create().show()
 
@@ -253,44 +288,53 @@ class AddFragment : BaseFragment() {
         }
     }
 
-
     private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
         var canCancel = true
         val className = dialogBinding.classNameEdit.text.toString().trim()
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
         val params = dialogBinding.paramsEdit.text.toString().trim()
         val results = dialogBinding.resultValueEdit.text.toString().trim()
-        if (mode != 2) {
-            dialogBinding.apply {
-                if (className.isNotEmpty() &&
-                    methodName.isNotEmpty() &&
-                    results.isNotEmpty()
-                ) {
-                    val methodConfig =
-                        MethodConfig(mode, className, methodName, params, results)
-                    if (modifyMethodConfig) {
-                        methodsList[modifyMethodConfigPosition] = methodConfig
-                    } else {
-                        methodsList.add(methodConfig)
-                    }
-                    viewModel.getMethodLive()?.value = methodsList
-                } else {
-                    Toast.makeText(requireActivity(), "有必填项为空", Toast.LENGTH_SHORT).show()
+        val fieldName = dialogBinding.filedNameEdit.text.toString()
+        val fieldType = dialogBinding.fieldTypeEdit.text.toString()
+        when(mode){
+            2 -> {
+                if (className.isNotEmpty()&&methodName.isNotEmpty()){
+                    val methodConfig = MethodConfig(mode, className, methodName, params)
+                    addConfig(methodConfig)
+                }else{
+                    "有必填项为空".toast(requireContext())
                     canCancel = false
                 }
             }
-
-        } else {
-            val methodConfig = MethodConfig(mode, className, methodName, params, results)
-            MethodConfig(mode, className, methodName, params, results)
-            if (modifyMethodConfig) {
-                methodsList[modifyMethodConfigPosition] = methodConfig
-            } else {
-                methodsList.add(methodConfig)
+            3 -> {
+                if(className.isNotEmpty()&&fieldName.isNotEmpty()&&fieldType.isNotEmpty()&&results.isNotEmpty()){
+                    val methodConfig = MethodConfig(mode, className, fieldName = fieldName, fieldType = fieldType, resultValues = results)
+                    addConfig(methodConfig)
+                }else{
+                    "有必填项为空".toast(requireContext())
+                    canCancel = false
+                }
             }
-            viewModel.getMethodLive()?.value = methodsList
+            else -> {
+                if (className.isNotEmpty() && methodName.isNotEmpty() && results.isNotEmpty()) {
+                    val methodConfig = MethodConfig(mode, className, methodName, params, resultValues = results)
+                    addConfig(methodConfig)
+                } else {
+                    "有必填项为空".toast(requireContext())
+                    canCancel = false
+                }
+            }
         }
         return canCancel
+    }
+
+    private fun addConfig(methodConfig: MethodConfig){
+        if (modifyMethodConfig) {
+            methodsList[modifyMethodConfigPosition] = methodConfig
+        } else {
+            methodsList.add(methodConfig)
+        }
+        viewModel.getMethodLive()?.value = methodsList
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

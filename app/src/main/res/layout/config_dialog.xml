@@ -67,7 +67,7 @@
             app:layout_constraintGuide_percent="0.95" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout3"
+            android:id="@+id/method_name_input"
             style="@style/config_dialog_input_layout_style"
             app:helperText="@string/method_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
@@ -84,12 +84,12 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout4"
+            android:id="@+id/params_type_input"
             style="@style/config_dialog_input_layout_style"
             app:helperText="例如：boolean,int,java.lang.String"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout3">
+            app:layout_constraintTop_toBottomOf="@+id/method_name_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/paramsEdit"
@@ -105,7 +105,7 @@
             app:helperText="例如：true,0,isVip"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout4">
+            app:layout_constraintTop_toBottomOf="@+id/field_type_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/resultValueEdit"
@@ -124,10 +124,43 @@
             android:clickable="true"
             android:contentDescription="@string/help"
             android:focusable="true"
+            android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toTopOf="@+id/textView"
             app:srcCompat="@drawable/ic_help" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/filed_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/params_type_input"
+            app:helperText="@string/field_name_input_tip"
+            android:visibility="gone">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/filedNameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="@string/field_name_edit_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/field_type_input"
+            style="@style/config_dialog_input_layout_style"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/filed_name_input"
+            app:helperText="@string/field_type_input_tip"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/field_type_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/field_type_edit_hint"
+                android:background="@android:color/transparent"/>
+        </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

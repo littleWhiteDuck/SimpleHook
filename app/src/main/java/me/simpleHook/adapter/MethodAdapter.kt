@@ -18,7 +18,7 @@ class MethodAdapter(private val listener: OnItemClickListener) :
         fun bind(methodConfig: MethodConfig, position: Int) {
             binding.apply {
                 classSimpleName.text = methodConfig.className
-                methodName.text = methodConfig.methodName
+                methodName.text = if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
                 num.text = (position + 1).toString()
             }
         }

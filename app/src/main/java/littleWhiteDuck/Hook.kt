@@ -5,10 +5,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.Keep
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.constant.Constant
+import me.simpleHook.util.log
 import org.json.JSONObject
 import java.io.File
 import java.io.FileNotFoundException
@@ -31,24 +31,43 @@ fun readyHook(param: XC_LoadPackage.LoadPackageParam?) {
 
 fun fileHook(currentPackageName: String, classLoader: ClassLoader) {
     try {
-        val text = File("/storage/emulated/0/simpleHook/data/${currentPackageName}/config.json").readText()
-        XposedBridge.log("===获取配置成功===")
+        val text = File("${Constant.CONFIG_DIRECTORY + currentPackageName}/config.json").readText()
+        "获取配置成功".log()
         val jsonObject = JSONObject(text)
         val mode = jsonObject.getInt("mode")
         val canUse = jsonObject.getBoolean("canUse")
         if (canUse) {
             if (mode == Constant.HOOK_ORIGIN) {
-                XposedBridge.log("===开始hook（普通）===")
+                "开始hook（普通）".log()
                 startHook(jsonObject, classLoader)
             } else {
-                XposedBridge.log("===开始hook（加固）===")
+                "开始hook（加固）".log()
                 specialHook(jsonObject)
             }
         }
-    }catch (e:FileNotFoundException){
-        XposedBridge.log("===无运行中软件配置，或软件没有储存权限===")
+    } catch (e: FileNotFoundException) {
+        "无运行中软件配置，或软件没有储存权限".log()
+        "准备使用Context获取配置".log()
+        toContextHook(currentPackageName)
     }
 
+}
+
+fun toContextHook(currentPackageName: String) {
+    XposedHelpers.findAndHookMethod(
+        Application::class.java,
+        "attach",
+        Context::class.java,
+        object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam?) {
+                super.afterHookedMethod(param)
+                val context: Context = param!!.args[0] as Context
+                context.classLoader.also {
+                    toHook(currentPackageName, context, it)
+                }
+            }
+        }
+    )
 }
 
 fun toHook(packageName: String, context: Context, classLoader: ClassLoader) {
@@ -57,11 +76,12 @@ fun toHook(packageName: String, context: Context, classLoader: ClassLoader) {
             if (getInt(getColumnIndex("canUse")) == 1) {
                 val configString = getString(getColumnIndex("app_config"))
                 val configJsonObject = JSONObject(configString)
+                "配置获取成功(context)".log()
                 startHook(configJsonObject, classLoader)
             }
         }
         close()
-    }
+    } ?: "cursor is null,获取配置失败".log()
 }
 
 fun specialHook(jsonObject: JSONObject) {
@@ -91,8 +111,8 @@ fun startHook(jsonObject: JSONObject, classLoader: ClassLoader) {
         val values = methodJsonObject.getString("resultValues")
         if (mode == Constant.HOOK_STATIC_FIELD) {
             val fieldName = methodJsonObject.getString("fieldName")
-            val valueType = methodJsonObject.getString("valueType")
-            hookStaticField(className, classLoader, fieldName, values,valueType)
+            val valueType = methodJsonObject.getString("fieldType")
+            hookStaticField(className, classLoader, fieldName, values, valueType)
         } else {
             val methodName = methodJsonObject.getString("methodName")
             val params = methodJsonObject.getString("params")
@@ -106,16 +126,16 @@ fun hookStaticField(
     classLoader: ClassLoader,
     fieldName: String,
     values: String,
-    valueType:String
+    valueType: String
 ) {
     val clazz: Class<*> = XposedHelpers.findClass(className, classLoader)
     when (valueType) {
         "boolean" -> XposedHelpers.setStaticBooleanField(clazz, fieldName, values.toBoolean())
-        "int" -> XposedHelpers.setStaticIntField(clazz,fieldName,values.toInt())
-        "long" -> XposedHelpers.setStaticLongField(clazz,fieldName,values.toLong())
-        "float" -> XposedHelpers.setStaticFloatField(clazz,fieldName,values.toFloat())
-        "double" -> XposedHelpers.setStaticDoubleField(clazz,fieldName,values.toDouble())
-        "null" -> XposedHelpers.setStaticObjectField(clazz,fieldName,null)
+        "int" -> XposedHelpers.setStaticIntField(clazz, fieldName, values.toInt())
+        "long" -> XposedHelpers.setStaticLongField(clazz, fieldName, values.toLong())
+        "float" -> XposedHelpers.setStaticFloatField(clazz, fieldName, values.toFloat())
+        "double" -> XposedHelpers.setStaticDoubleField(clazz, fieldName, values.toDouble())
+        "null" -> XposedHelpers.setStaticObjectField(clazz, fieldName, null)
     }
 
 }

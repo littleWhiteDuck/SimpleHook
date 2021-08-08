@@ -8,22 +8,23 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
-import me.simpleHook.databinding.AppSelectLayoutBinding
+import me.simpleHook.databinding.ItemSelectAppBinding
 
 class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffCallback) {
     private lateinit var listener:OnItemClickListener
-    private lateinit var binding: AppSelectLayoutBinding
-    inner class ViewHolder(binding: AppSelectLayoutBinding):RecyclerView.ViewHolder(binding.root){
-        val appNameText = binding.appName
-        val packageNameText = binding.appPackageName
-        val versionNameText = binding.appVersionName
-        val appIconImage = binding.appIcon
+    private lateinit var binding: ItemSelectAppBinding
+    inner class ViewHolder(binding: ItemSelectAppBinding):RecyclerView.ViewHolder(binding.root){
+        val ivIcon = binding.ivIcon
+        val tvAppName = binding.tvAppName
+        val tvPackageName = binding.tvPackageName
+        val tvInstallTime = binding.tvInstallTime
+        val tvVersionName = binding.tvVersionName
     }
     fun setOnClickListener(listener: OnItemClickListener){
         this.listener = listener
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        binding = AppSelectLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        binding = ItemSelectAppBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         val holder = ViewHolder(binding)
         holder.itemView.setOnClickListener {
             val appItem:AppItem = holder.itemView.getTag(R.id.item_select_position) as AppItem
@@ -36,10 +37,11 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
         holder.itemView.setTag(R.id.item_select_position,appItem)
         holder.apply {
             appItem.apply {
-                appNameText.text = appName
-                packageNameText.text = packageName
-                versionNameText.text = versionName
-                appIconImage.setImageDrawable(appIcon)
+                ivIcon.setImageDrawable(icon)
+                tvAppName.text = name
+                tvPackageName.text = packageName
+                tvInstallTime.text = installedTime
+                tvVersionName.text = versionName
             }
         }
     }
@@ -49,12 +51,19 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
     }
 
     companion object{
-        private var instance:AppSelectAdapter? =null
+        private var instance1:AppSelectAdapter? =null
         @Synchronized
-        fun getAppSelectAdapter():AppSelectAdapter = instance?.let {
+        fun getAppSelectAdapter1():AppSelectAdapter = instance1?.let {
             it
         }?: AppSelectAdapter().also {
-            instance = it
+            instance1 = it
+        }
+        private var instance2:AppSelectAdapter? =null
+        @Synchronized
+        fun getAppSelectAdapter2():AppSelectAdapter = instance2?.let {
+            it
+        }?: AppSelectAdapter().also {
+            instance2 = it
         }
     }
 
@@ -64,9 +73,11 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
 
         @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: AppItem, newItem: AppItem): Boolean =
-            oldItem.appName == newItem.appName &&
+            oldItem.name == newItem.name &&
+                    oldItem.icon == newItem.icon &&
+                    oldItem.packageName == newItem.packageName &&
                     oldItem.versionName == newItem.versionName &&
-                    oldItem.appIcon == newItem.appIcon
+                    oldItem.installedTime == newItem.installedTime
 
     }
 

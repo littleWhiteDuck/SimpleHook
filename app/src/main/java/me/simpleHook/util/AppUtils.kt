@@ -1,4 +1,4 @@
-package me.simpleHook.utils
+package me.simpleHook.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -23,11 +23,17 @@ object AppUtils {
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    fun getInstalledApp(context: Context, containSystem: Boolean = false): List<PackageInfo> {
+    fun getInstalledSystemApp(context: Context): List<PackageInfo> {
         val packageManager = context.packageManager
         return packageManager.getInstalledPackages(0).filter {
-            if (containSystem) (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            else (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+            (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        }
+    }
+    @SuppressLint("QueryPermissionsNeeded")
+    fun getInstalledUserApp(context: Context): List<PackageInfo> {
+        val packageManager = context.packageManager
+        return packageManager.getInstalledPackages(0).filter {
+            (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0
         }
     }
 

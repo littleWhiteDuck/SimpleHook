@@ -15,7 +15,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 30
         versionCode getVersionCode()
-        versionName "1.0.0"
+        versionName "1.0.0_beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -39,7 +39,7 @@ android {
     }
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "simlpeHook_${variant.versionName}__${variant.name}.apk"
+            outputFileName = "simlpeHook(${variant.versionCode})_${variant.versionName}.apk"
         }
     }
 }
@@ -51,6 +51,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
