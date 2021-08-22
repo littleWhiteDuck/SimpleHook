@@ -7,6 +7,8 @@ import android.net.Uri
 
 class MyProvider:ContentProvider() {
     private val configDir = 0
+    private val printLogDir = 1
+    private val assistConfig = 2
     private val authority = "littleWhiteDuck"
     private var dbHelper: MyDatabaseHelper? = null
 
@@ -14,6 +16,8 @@ class MyProvider:ContentProvider() {
         val matcher = UriMatcher(UriMatcher.NO_MATCH)
         matcher.apply {
             addURI(authority, "app_configs", configDir)
+            addURI(authority, "print_logs", printLogDir)
+            addURI(authority, "assist_configs",assistConfig)
         }
         matcher
     }
@@ -23,7 +27,9 @@ class MyProvider:ContentProvider() {
     }
 
     override fun getType(uri: Uri) = when (uriMatcher.match(uri)) {
-        configDir -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.app_configs"
+        configDir -> "vnd.android.cursor.item/vnd.littleWhiteDuck.app_configs"
+        printLogDir -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.print_logs"
+        assistConfig -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.assist_configs"
         else -> null
     }
 
@@ -31,8 +37,12 @@ class MyProvider:ContentProvider() {
         val db = it.readableDatabase
         val uriReturn = when (uriMatcher.match(uri)) {
             configDir -> {
-                val newConfigId = db.insert("Config", null, values)
-                Uri.parse("content://$authority/config/$newConfigId")
+                val newConfigId = db.insert("AppConfig", null, values)
+                Uri.parse("content://$authority/AppConfig/$newConfigId")
+            }
+            printLogDir -> {
+                val newLogId = db.insert("PrintLog", null , values)
+                Uri.parse("content://$authority/PrintLog/$newLogId")
             }
             else -> null
         }
@@ -40,7 +50,7 @@ class MyProvider:ContentProvider() {
     }
 
     override fun onCreate() = context?.let {
-        dbHelper = MyDatabaseHelper(it, "app_configs.db", 1)
+        dbHelper = MyDatabaseHelper(it, "app_configs.db", 2)
         true
     } ?: false
 
@@ -48,7 +58,9 @@ class MyProvider:ContentProvider() {
                        selectionArgs: Array<String>?, sortOrder: String?) = dbHelper?.let {
         val db = it.writableDatabase
         val cursor = when (uriMatcher.match(uri)) {
-            configDir -> db.query("AppConfigEntity", projection, selection, selectionArgs, null, null, null)
+            configDir -> db.query("AppConfig", projection, selection, selectionArgs, null, null, null)
+            printLogDir -> db.query("PrintLog", projection, selection, selectionArgs, null, null, null)
+            assistConfig -> db.query("AssistConfig", projection, selection, selectionArgs, null, null, null)
             else -> null
         }
         cursor
@@ -58,7 +70,7 @@ class MyProvider:ContentProvider() {
                         selectionArgs: Array<String>?) = dbHelper?.let {
         val db = it.readableDatabase
         val updateRows = when(uriMatcher.match(uri)){
-            configDir -> db.update("Config",values,selection,selectionArgs)
+            configDir -> db.update("AppConfig",values,selection,selectionArgs)
             else -> 0
         }
         updateRows

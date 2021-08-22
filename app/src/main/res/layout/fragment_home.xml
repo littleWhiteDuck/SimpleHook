@@ -20,12 +20,17 @@
         android:id="@+id/main_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fadeScrollbars="false"
+        android:scrollbarSize="6dp"
+        android:scrollbarThumbVertical="@drawable/scroll_layer"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fab"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
@@ -33,6 +38,9 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="10dp"
+        app:layout_behavior="me.simpleHook.behavior.FabBehavior"
+        app:menu_colorNormal="@color/colorPrimaryVariant"
+        app:menu_colorPressed="@color/colorPrimary"
         app:menu_labels_ellipsize="end"
         app:menu_labels_singleLine="true">
 
@@ -41,6 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add"
+            app:fab_colorNormal="@color/colorPrimaryVariant"
+            app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="添加配置"
             app:fab_size="mini" />
 
@@ -49,6 +59,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_paste"
+            app:fab_colorNormal="@color/colorPrimaryVariant"
+            app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="导入配置"
             app:fab_size="mini" />
 
@@ -57,6 +69,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_cloud_download_12"
+            app:fab_colorNormal="@color/colorPrimaryVariant"
+            app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="从网络导入配置"
             app:fab_size="mini" />
 
@@ -65,6 +79,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_share"
+            app:fab_colorNormal="@color/colorPrimaryVariant"
+            app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="分享配置"
             app:fab_size="mini" />
 

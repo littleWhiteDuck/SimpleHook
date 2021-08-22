@@ -1,8 +1,12 @@
 package me.simpleHook.fragment
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.*
 import android.webkit.WebView
 import android.widget.AdapterView
@@ -13,12 +17,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import me.simpleHook.R
 import me.simpleHook.adapter.MethodAdapter
 import me.simpleHook.bean.AppConfig
 import me.simpleHook.bean.MethodConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppConfigEntity
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.databinding.FragmentAddBinding
@@ -41,62 +45,59 @@ class AddFragment : BaseFragment() {
     private var modifyMethodConfig = false
     private var modifyMethodConfigPosition = 0
     private var configId = 0
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentAddBinding.inflate(inflater, container, false).let {
-        binding = it
-        it.root
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAddBinding.inflate(inflater, container, false)
+        initView()
+        initViewModel()
+        return binding.root
     }
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    private fun initView() {
+        binding.addMethodConfig.setOnClickListener { showDialog() }
         val list = arrayListOf("普通模式", "加固模式")
         binding.modeSelectSpinner.adapter =
             ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, list)
         binding.modeSelectSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     appMode = position
                     when (list[position]) {
                         "其他加固" -> binding.applicationEdit.visibility = View.VISIBLE
                         else -> binding.applicationEdit.visibility = View.GONE
                     }
-
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-
-                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-        initViewModel()
-        initView()
-    }
-
-    private fun initView() {
-        binding.addMethodConfig.setOnClickListener { showDialog() }
     }
 
 
     private fun initViewModel() {
+        viewModel = ViewModelProvider(requireActivity(), ViewModelProvider.NewInstanceFactory()).get(MethodViewModel::class.java)
         val adapter = MethodAdapter(object : MethodAdapter.OnItemClickListener {
             override fun onItemClickListener(position: Int) {
                 modifyMethodConfigPosition = position
                 val methodConfig = methodsList[position]
                 showDialog(methodConfig)
             }
+
+            override fun onItemLongClickListener(position: Int) {
+                val methodConfig = methodsList[position]
+                methodsList.add(methodConfig)
+                viewModel.getMethodLive()?.value = methodsList
+                Snackbar.make(binding.addMethodConfig, "已经重复新增了一个，快去更改",Snackbar.LENGTH_LONG)
+                    .setAction("撤销"){
+                        methodsList.removeAt(methodsList.size - 1)
+                        viewModel.getMethodLive()?.value = methodsList
+                    }.show()
+            }
         })
-        viewModel =
-            ViewModelProvider(requireActivity(), ViewModelProvider.NewInstanceFactory()).get(
-                MethodViewModel::class.java
-            )
+
         viewModel.getMethodLive()?.observe(viewLifecycleOwner) {
             adapter.submitList(it)
             adapter.notifyDataSetChanged()
@@ -122,8 +123,8 @@ class AddFragment : BaseFragment() {
                                 getString("className"),
                                 getString("methodName"),
                                 getString("params"),
-                                JsonUtil.getElementString(this,"fieldName"),
-                                JsonUtil.getElementString(this,"fieldType"),
+                                JsonUtil.getElementString(this, "fieldName"),
+                                JsonUtil.getElementString(this, "fieldType"),
                                 getString("resultValues")
                             )
                         )
@@ -134,9 +135,11 @@ class AddFragment : BaseFragment() {
         }
         viewModel.appLive.observe(viewLifecycleOwner) {
             binding.apply {
-                appNameEdit.setText(it.name)
-                appVersionNameEdit.setText(it.versionName)
-                packageNameEdit.setText(it.packageName)
+                if (viewModel.appLive.value != null){
+                    appNameEdit.setText(it.name)
+                    appVersionNameEdit.setText(it.versionName)
+                    packageNameEdit.setText(it.packageName)
+                }
             }
         }
         binding.methodRV.apply {
@@ -158,11 +161,13 @@ class AddFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("====================", "onDestroy: ")
         viewModel.getMethodLive()?.value = ArrayList()
         viewModel.configLive.value = null
+        viewModel.appLive.value = null
     }
 
-    private fun showDialog(methodConfig: MethodConfig = MethodConfig(0,"","","","","","")) {
+    private fun showDialog(methodConfig: MethodConfig = MethodConfig(0, "", "", "", "", "", "")) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
             methodConfig.apply {
@@ -172,16 +177,17 @@ class AddFragment : BaseFragment() {
                 filedNameEdit.setText(fieldName)
                 fieldTypeEdit.setText(fieldType)
                 resultValueEdit.setText(resultValues)
-                help.setOnClickListener{showHelpDialog()}
-                when(mode){
-                    2 -> breakHook(dialogBinding)
-                    3 -> staticFieldHook(dialogBinding)
+                help.setOnClickListener { showHelpDialog() }
+                when (mode) {
+                    Constant.HOOK_BREAK -> breakHook(dialogBinding)
+                    Constant.HOOK_STATIC_FIELD -> staticFieldHook(dialogBinding)
+                    Constant.HOOK_FIELD -> fieldHook(dialogBinding)
                 }
             }
         }
         AlertDialog.Builder(requireActivity()).apply {
             setView(dialogBinding.root)
-            val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行","Hook静态变量")
+            val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量")
             dialogBinding.modeSelectSpinner.adapter =
                 ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, list)
             dialogBinding.modeSelectSpinner.setSelection(methodConfig.mode)
@@ -197,21 +203,23 @@ class AddFragment : BaseFragment() {
                         when (list[position]) {
                             "中断执行" -> breakHook(dialogBinding)
                             "Hook静态变量" -> staticFieldHook(dialogBinding)
+                            "Hook变量" -> fieldHook(dialogBinding)
                             else -> othersHook(dialogBinding)
                         }
                     }
+
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             setCancelable(false)
             modifyMethodConfig = methodConfig.className.isNotEmpty().also {
-                val positiveButtonText = if (it)"修改" else "增加"
+                val positiveButtonText = if (it) "修改" else "增加"
                 setPositiveButton(positiveButtonText) { d, _ ->
                     dialogDismiss(
                         d, toCheck(dialogBinding)
                     )
                 }
-                if (it){
-                    setNeutralButton("删除"){ d, _ ->
+                if (it) {
+                    setNeutralButton("删除") { d, _ ->
                         deleteConfig(methodConfig)
                         dialogDismiss(
                             d, true
@@ -225,37 +233,52 @@ class AddFragment : BaseFragment() {
                 .create().show()
         }
     }
-    private fun othersHook(dialogBinding: ConfigDialogBinding){
+
+    private fun fieldHook(dialogBinding: ConfigDialogBinding) {
         dialogBinding.apply {
-            setViewShow(fieldTypeInput)
-            setViewShow(filedNameInput)
-            setViewShow(resultValueInput,true)
-            setViewShow(paramsTypeInput,true)
-            setViewShow(methodNameInput,true)
+            paramsTypeInput.helperText = "输入构造方法参数类型(注意用了哪个构造方法)"
+            filedNameInput.hint = "输入变量名"
+            setViewShow(paramsTypeInput, true)
+            setViewShow(methodNameInput)
+            setViewShow(fieldTypeInput, true)
+            setViewShow(filedNameInput, true)
+            setViewShow(resultValueInput, true)
         }
     }
-    private fun breakHook(dialogBinding: ConfigDialogBinding){
+
+    private fun othersHook(dialogBinding: ConfigDialogBinding) {
+        dialogBinding.apply {
+            paramsTypeInput.helperText = "例如：boolean,int,java.lang.String"
+            setViewShow(fieldTypeInput)
+            setViewShow(filedNameInput)
+            setViewShow(resultValueInput, true)
+            setViewShow(paramsTypeInput, true)
+            setViewShow(methodNameInput, true)
+        }
+    }
+
+    private fun breakHook(dialogBinding: ConfigDialogBinding) {
         dialogBinding.apply {
             setViewShow(resultValueInput)
             setViewShow(fieldTypeInput)
             setViewShow(filedNameInput)
-            setViewShow(paramsTypeInput,true)
-            setViewShow(methodNameInput,true)
+            setViewShow(paramsTypeInput, true)
+            setViewShow(methodNameInput, true)
         }
     }
 
-    private fun staticFieldHook(dialogBinding: ConfigDialogBinding){
+    private fun staticFieldHook(dialogBinding: ConfigDialogBinding) {
         dialogBinding.apply {
             setViewShow(paramsTypeInput)
             setViewShow(methodNameInput)
-            setViewShow(fieldTypeInput,true)
-            setViewShow(filedNameInput,true)
-            setViewShow(resultValueInput,true)
+            setViewShow(fieldTypeInput, true)
+            setViewShow(filedNameInput, true)
+            setViewShow(resultValueInput, true)
         }
     }
 
-    private fun setViewShow(view:View,isShow:Boolean = false){
-        view.visibility = if (isShow)View.VISIBLE else View.GONE
+    private fun setViewShow(view: View, isShow: Boolean = false) {
+        view.visibility = if (isShow) View.VISIBLE else View.GONE
     }
 
     private fun deleteConfig(methodConfig: MethodConfig) {
@@ -270,7 +293,7 @@ class AddFragment : BaseFragment() {
         AlertDialog.Builder(requireContext()).apply {
             setTitle("帮助")
             setView(webView)
-            setPositiveButton("取消",null)
+            setPositiveButton("取消", null)
                 .create().show()
 
         }
@@ -296,28 +319,51 @@ class AddFragment : BaseFragment() {
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.filedNameEdit.text.toString()
         val fieldType = dialogBinding.fieldTypeEdit.text.toString()
-        when(mode){
-            2 -> {
-                if (className.isNotEmpty()&&methodName.isNotEmpty()){
+        when (mode) {
+            Constant.HOOK_BREAK -> {
+                if (className.isNotEmpty() && methodName.isNotEmpty()) {
                     val methodConfig = MethodConfig(mode, className, methodName, params)
                     addConfig(methodConfig)
-                }else{
+                } else {
                     "有必填项为空".toast(requireContext())
                     canCancel = false
                 }
             }
-            3 -> {
-                if(className.isNotEmpty()&&fieldName.isNotEmpty()&&fieldType.isNotEmpty()&&results.isNotEmpty()){
-                    val methodConfig = MethodConfig(mode, className, fieldName = fieldName, fieldType = fieldType, resultValues = results)
+            Constant.HOOK_STATIC_FIELD -> {
+                if (className.isNotEmpty() && fieldName.isNotEmpty() && fieldType.isNotEmpty() && results.isNotEmpty()) {
+                    val methodConfig = MethodConfig(
+                        mode,
+                        className,
+                        fieldName = fieldName,
+                        fieldType = fieldType,
+                        resultValues = results
+                    )
                     addConfig(methodConfig)
-                }else{
+                } else {
+                    "有必填项为空".toast(requireContext())
+                    canCancel = false
+                }
+            }
+            Constant.HOOK_FIELD -> {
+                if (className.isNotEmpty() && fieldName.isNotEmpty() && fieldType.isNotEmpty() && results.isNotEmpty()) {
+                    val methodConfig = MethodConfig(
+                        mode,
+                        className,
+                        params = params,
+                        fieldName = fieldName,
+                        fieldType = fieldType,
+                        resultValues = results
+                    )
+                    addConfig(methodConfig)
+                } else {
                     "有必填项为空".toast(requireContext())
                     canCancel = false
                 }
             }
             else -> {
                 if (className.isNotEmpty() && methodName.isNotEmpty() && results.isNotEmpty()) {
-                    val methodConfig = MethodConfig(mode, className, methodName, params, resultValues = results)
+                    val methodConfig =
+                        MethodConfig(mode, className, methodName, params, resultValues = results)
                     addConfig(methodConfig)
                 } else {
                     "有必填项为空".toast(requireContext())
@@ -328,7 +374,7 @@ class AddFragment : BaseFragment() {
         return canCancel
     }
 
-    private fun addConfig(methodConfig: MethodConfig){
+    private fun addConfig(methodConfig: MethodConfig) {
         if (modifyMethodConfig) {
             methodsList[modifyMethodConfigPosition] = methodConfig
         } else {
@@ -356,7 +402,7 @@ class AddFragment : BaseFragment() {
                     val packageName = binding.packageNameEdit.text.toString()
                     val description = binding.descStringEdit.text.toString()
                     val versionName = binding.appVersionNameEdit.text.toString()
-                    AppConfigEntity(
+                    me.simpleHook.database.entity.AppConfig(
                         packageName,
                         appName,
                         versionName,
@@ -369,11 +415,24 @@ class AddFragment : BaseFragment() {
                         } else {
                             appViewModel.insertConfigs(this)
                         }
-                        FileUtils.writeData("${Constant.CONFIG_DIRECTORY+packageName}/","config",appConfig)
+                        FileUtils.writeData(
+                            "${Constant.CONFIG_DIRECTORY + packageName}/",
+                            "config",
+                            appConfig
+                        )
+                        val pref = try {
+                            requireContext().getSharedPreferences(
+                                "hookConfig",
+                                Context.MODE_WORLD_READABLE
+                            )
+                        } catch (e: SecurityException) {
+                            null
+                        }
+                        pref?.edit()?.putString(packageName, appConfig)?.apply()
+                            ?: "模块未激活，将无法使用New XSharePreferences获取配置".toast(requireContext())
                     }
                 }
-                Thread.sleep(150)
-                back()
+                progressDialog()
             }
             R.id.select_app -> {
                 val navHostFragment =
@@ -383,6 +442,17 @@ class AddFragment : BaseFragment() {
             }
         }
         return true
+    }
+
+    private fun progressDialog() {
+        val progress = ProgressDialog(requireContext())
+        progress.setTitle("正在保存...")
+        progress.setCancelable(false)
+        progress.show()
+        Handler().postDelayed(Runnable {
+            progress.dismiss()
+            back()
+        }, 1500)
     }
 
 
@@ -403,7 +473,7 @@ class AddFragment : BaseFragment() {
             appMode,
             description,
             versionName,
-            "\"config\": [${ config.substring(0, config.length - 1)}]"
+            "\"config\": [${config.substring(0, config.length - 1)}]"
         )
     }
 

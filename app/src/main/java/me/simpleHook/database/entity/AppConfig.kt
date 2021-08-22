@@ -1,11 +1,11 @@
-package me.simpleHook.database
+package me.simpleHook.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class AppConfigEntity(
+data class AppConfig(
     @ColumnInfo(name = "packageName")
     var packageName:String,
     @ColumnInfo(name = "appName")

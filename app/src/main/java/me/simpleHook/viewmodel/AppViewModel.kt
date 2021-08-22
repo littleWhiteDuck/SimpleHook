@@ -5,15 +5,15 @@ import android.app.Application
 import android.content.pm.PackageInfo
 import android.icu.text.SimpleDateFormat
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import me.simpleHook.bean.AppItem
 import me.simpleHook.util.AppUtils
 import java.util.*
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
-  /*  private val _userApps = MutableLiveData<List<AppItem>>()
+    private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
     val userApps: LiveData<List<AppItem>>
         get() = _userApps
@@ -23,13 +23,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun fetchData() {
         _userApps.value = getAppList(AppUtils.getInstalledUserApp(getApplication()))
         _systemApps.value = getAppList(AppUtils.getInstalledSystemApp(getApplication()))
-    }*/
-    val userApps = MutableLiveData<List<AppItem>>()
-    val systemApps = MutableLiveData<List<AppItem>>()
-    fun fetchData() {
-        userApps.value = getAppList(AppUtils.getInstalledUserApp(getApplication()))
-        systemApps.value = getAppList(AppUtils.getInstalledSystemApp(getApplication()))
     }
+
+    /* val userApps = MutableLiveData<List<AppItem>>()
+     val systemApps = MutableLiveData<List<AppItem>>()
+     fun fetchData() {
+         userApps.value = getAppList(AppUtils.getInstalledUserApp(getApplication()))
+         systemApps.value = getAppList(AppUtils.getInstalledSystemApp(getApplication()))
+     }*/
     private fun getAppList(packageInfoList: List<PackageInfo>): List<AppItem> {
         val appList = ArrayList<AppItem>()
         for (i in packageInfoList.indices) {
@@ -40,23 +41,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         AppUtils.getAppIcon(getApplication(), this),
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
-                        ""
+                        getDateTime(lastUpdateTime)
                     )
                 )
             }
         }
         return appList
     }
-
-    @RequiresApi(Build.VERSION_CODES.N)
+    /**
+     * 获取最后一次更新时间
+     */
     @SuppressLint("SimpleDateFormat")
-    private fun getDateTime(s: String): String {
-        return try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
-            val netDate = Date(s.toLong())
-            sdf.format(netDate)
-        } catch (e: Exception) {
-            "error"
-        }
-    }
+    private fun getDateTime(time: Long) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        SimpleDateFormat("yy-MM-dd").format(time)
+    } else ""
 }

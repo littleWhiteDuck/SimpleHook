@@ -7,5 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="item_background">#cfcfcf</color>
+    <color name="item_background">@color/white</color>
+    <color name="colorPrimary">#4F9BFA</color>
+    <color name="colorPrimaryVariant">#4F9BFA</color>
+    <color name="popup_window_background">#eeeeee</color>
 </resources>

@@ -16,6 +16,7 @@
         android:clickable="true"
         android:contentDescription="@string/add_method_config"
         android:focusable="true"
+        android:backgroundTint="@color/colorPrimaryVariant"
         android:src="@drawable/ic_add_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -29,7 +30,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".fragment.AddFragment"
-    android:theme="@style/EditTextTheme">
+   >
 
     <TextView
         android:id="@+id/textView3"

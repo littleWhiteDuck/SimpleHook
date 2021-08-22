@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.databinding.ItemSelectAppBinding
+import me.simpleHook.util.marquee
 
 class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffCallback) {
     private lateinit var listener:OnItemClickListener
@@ -39,7 +40,9 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
             appItem.apply {
                 ivIcon.setImageDrawable(icon)
                 tvAppName.text = name
+                tvAppName.marquee()
                 tvPackageName.text = packageName
+                tvPackageName.marquee()
                 tvInstallTime.text = installedTime
                 tvVersionName.text = versionName
             }
@@ -53,16 +56,12 @@ class AppSelectAdapter:ListAdapter<AppItem,AppSelectAdapter.ViewHolder>(AppDiffC
     companion object{
         private var instance1:AppSelectAdapter? =null
         @Synchronized
-        fun getAppSelectAdapter1():AppSelectAdapter = instance1?.let {
-            it
-        }?: AppSelectAdapter().also {
+        fun getAppSelectAdapter1():AppSelectAdapter = instance1 ?: AppSelectAdapter().also {
             instance1 = it
         }
         private var instance2:AppSelectAdapter? =null
         @Synchronized
-        fun getAppSelectAdapter2():AppSelectAdapter = instance2?.let {
-            it
-        }?: AppSelectAdapter().also {
+        fun getAppSelectAdapter2():AppSelectAdapter = instance2 ?: AppSelectAdapter().also {
             instance2 = it
         }
     }

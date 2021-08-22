@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="item_background">#252B4d</color>
+    <color name="item_background">@android:color/black</color>
+    <color name="popup_window_background">#0c0c0c</color>
 </resources>

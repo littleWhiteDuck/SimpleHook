@@ -10,8 +10,7 @@
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="5dp"
-    >
+    app:cardCornerRadius="5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -40,6 +39,7 @@
             android:id="@+id/tv_app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:marqueeRepeatLimit="marquee_forever"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/tv_version_name"
             app:layout_constraintStart_toStartOf="@+id/guideline9"
@@ -59,6 +59,7 @@
             android:id="@+id/tv_package_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxLines="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_version_name"
             app:layout_constraintTop_toBottomOf="@+id/tv_version_name"

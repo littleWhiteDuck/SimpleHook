@@ -28,6 +28,23 @@
     <fragment
         android:id="@+id/appSelectFragment"
         android:name="me.simpleHook.fragment.AppSelectFragment"
-        android:label="选取app"
-        tools:layout="@layout/fragment_app_select" />
+        android:label="选取应用"
+        tools:layout="@layout/fragment_app_select" >
+    </fragment>
+    <fragment
+        android:id="@+id/assistFragment"
+        android:name="me.simpleHook.fragment.AssistFragment"
+        android:label="辅助">
+        <action
+            android:id="@+id/action_assistFragment_to_assistSettingsFragment"
+            app:destination="@id/assistSettingsFragment" />
+        <action
+            android:id="@+id/action_assistFragment_to_appSelectFragment"
+            app:destination="@id/appSelectFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/assistSettingsFragment"
+        android:name="me.simpleHook.fragment.AssistSettingsFragment"
+        android:label="配置"
+        tools:layout="@layout/fragment_assist_settings" />
 </navigation>

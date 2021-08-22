@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bottom_dialog_background">
+   >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+        app:layout_constraintTop_toBottomOf="@+id/app_summary">
 
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="2dp"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
-            android:background="?android:attr/listDivider"
+            android:background="@color/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -46,22 +46,26 @@
             app:layout_constraintTop_toBottomOf="@+id/divider">
 
             <TextView
+                android:textAppearance="?android:textAppearanceListItemSecondary"
+                android:padding="5dp"
                 android:id="@+id/config_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/config_description"
-                android:textSize="20sp"
+                android:scrollbars="vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout2"
+        android:id="@+id/app_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?selectableItemBackground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -78,11 +82,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.75" />
+            app:layout_constraintGuide_percent="0.7" />
 
         <ImageView
             android:id="@+id/appIcon"
-            android:layout_width="0dp"
+            android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="5dp"
             android:contentDescription="@string/app_icon"
@@ -93,6 +97,7 @@
             app:srcCompat="@drawable/ic_launcher_foreground" />
 
         <TextView
+            android:textAppearance="?android:textAppearanceListItem"
             android:id="@+id/appNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -102,18 +107,17 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:textAppearance="?android:textAppearanceListItemSecondary"
             android:id="@+id/packageNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/package_name"
-            android:maxEms="12"
-            android:maxLines="2"
-            android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/appNameText"
             app:layout_constraintTop_toBottomOf="@+id/appNameText" />
 
         <TextView
+            android:textAppearance="?android:textAppearanceListItemSecondary"
             android:id="@+id/applicableVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -123,11 +127,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:textAppearance="?android:textAppearanceListItemSecondary"
             android:id="@+id/currentVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/current_installed_version"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/applicableVersion"
             app:layout_constraintTop_toBottomOf="@+id/applicableVersion" />

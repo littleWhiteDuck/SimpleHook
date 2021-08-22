@@ -54,4 +54,26 @@
     <string name="field_name_input_tip">例如：isPro</string>
     <string name="field_type_input_tip">例如：boolean、int</string>
     <string name="field_type_edit_hint">请输入变量类型</string>
+    <string name="print_log">打印输出</string>
+    <string name="minify">最小化</string>
+    <string name="importLog">导出</string>
+    <string name="clear">清空</string>
+    <string name="pause">暂停</string>
+    <string name="close_window_for_print">close window for print</string>
+    <string name="home">首页</string>
+    <string name="assistant">辅助</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>

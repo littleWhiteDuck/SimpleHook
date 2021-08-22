@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.MethodConfig
 import me.simpleHook.databinding.MethodItemLayoutBinding
+import me.simpleHook.util.marquee
 
 class MethodAdapter(private val listener: OnItemClickListener) :
     ListAdapter<MethodConfig, MethodAdapter.ViewHolder>(MethodConfigDiffCallback) {
@@ -15,34 +16,47 @@ class MethodAdapter(private val listener: OnItemClickListener) :
 
     inner class ViewHolder(binding: MethodItemLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(methodConfig: MethodConfig, position: Int) {
-            binding.apply {
-                classSimpleName.text = methodConfig.className
-                methodName.text = if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
-                num.text = (position + 1).toString()
-            }
-        }
+        val className = binding.classSimpleName
+        val methodName = binding.methodName
+        val number = binding.num
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         binding =
             MethodItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = ViewHolder(binding)
-        viewHolder.itemView.setOnClickListener {
-            val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
-            listener.onItemClickListener(position)
+        viewHolder.itemView.apply {
+            setOnClickListener {
+                val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
+                listener.onItemClickListener(position)
+            }
+            setOnLongClickListener {
+                val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
+                listener.onItemLongClickListener(position)
+                true
+            }
+        }
+        viewHolder.apply {
+            className.marquee()
+            methodName.marquee()
         }
         return viewHolder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.setTag(R.id.item_position, position)
-        holder.bind(getItem(position), position)
+        val methodConfig = getItem(position)
+        holder.apply {
+            className.text = methodConfig.className
+            methodName.text = if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
+            number.text = (position + 1).toString()
+        }
     }
 
 
     interface OnItemClickListener {
         fun onItemClickListener(position: Int)
+        fun onItemLongClickListener(position: Int)
     }
 
     object MethodConfigDiffCallback : DiffUtil.ItemCallback<MethodConfig>() {
@@ -51,7 +65,9 @@ class MethodAdapter(private val listener: OnItemClickListener) :
                     oldItem.methodName == newItem.methodName &&
                     oldItem.mode == newItem.mode &&
                     oldItem.params == newItem.params &&
-                    oldItem.resultValues == oldItem.resultValues
+                    oldItem.resultValues == newItem.resultValues &&
+                    oldItem.fieldType == newItem.fieldType &&
+                    oldItem.fieldName == newItem.fieldName
         }
 
         override fun areContentsTheSame(oldItem: MethodConfig, newItem: MethodConfig): Boolean {
@@ -59,7 +75,9 @@ class MethodAdapter(private val listener: OnItemClickListener) :
                     oldItem.methodName == newItem.methodName &&
                     oldItem.mode == newItem.mode &&
                     oldItem.params == newItem.params &&
-                    oldItem.resultValues == oldItem.resultValues
+                    oldItem.resultValues == newItem.resultValues &&
+                    oldItem.fieldType == newItem.fieldType &&
+                    oldItem.fieldName == newItem.fieldName
         }
     }
 

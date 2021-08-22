@@ -4,34 +4,31 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.lxj.xpopup.core.BottomPopupView
-import com.lxj.xpopup.util.XPopupUtils
+import android.text.method.ScrollingMovementMethod
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import me.simpleHook.R
-import me.simpleHook.database.AppConfigEntity
+import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.CustomBottomPopupBinding
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.toast
 
-@SuppressLint("ViewConstructor")
-class BottomDialog(
-    context: Context,
-    private val appConfigEntity: AppConfigEntity,
-    private val onClick: () -> Unit
-) : BottomPopupView(context) {
 
-    override fun getImplLayoutId(): Int {
-        return R.layout.custom_bottom_popup
-    }
+class BottomSheetDialog(
+    context: Context,
+    private val appConfig: AppConfig,
+    private val onClick: () -> Unit
+) : BottomSheetDialog(context) {
 
     @SuppressLint("SetTextI18n")
-    override fun onCreate() {
-        super.onCreate()
-        val binding = CustomBottomPopupBinding.bind(popupImplView)
+    fun setContentView() {
+
+        val binding = CustomBottomPopupBinding.inflate(layoutInflater, null, false)
         binding.apply {
-            appConfigEntity.apply {
+            appConfig.apply {
                 appNameText.text = appName
                 packageNameText.text = packageName
                 configDescription.text = description
+                configDescription.movementMethod = ScrollingMovementMethod.getInstance()
                 applicableVersion.text = "支持：$versionName"
                 appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
                 currentVersion.text = "当前：${AppUtils.getAppVersionName(context, packageName)}"
@@ -50,11 +47,11 @@ class BottomDialog(
                         context.getString(R.string.error_tip).toast(context)
                     }
                 }
+                appSummary.setOnClickListener {
+                    AppUtils.startApp(packageName, binding.root.context)
+                }
             }
         }
-    }
-
-    override fun getMaxHeight(): Int {
-        return XPopupUtils.getWindowWidth(context) * 0.85.toInt()
+        super.setContentView(binding.root)
     }
 }
