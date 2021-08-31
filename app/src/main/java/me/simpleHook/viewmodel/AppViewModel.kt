@@ -38,7 +38,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 appList.add(
                     AppItem(
                         AppUtils.getAppName(getApplication(), this),
-                        AppUtils.getAppIcon(getApplication(), this),
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
                         getDateTime(lastUpdateTime)

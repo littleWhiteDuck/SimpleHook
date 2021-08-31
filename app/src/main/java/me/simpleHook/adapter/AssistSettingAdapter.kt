@@ -10,14 +10,13 @@ import me.simpleHook.R
 import me.simpleHook.bean.AssistGroup
 import me.simpleHook.bean.AssistItem
 
-private const val TITLE = 0
-private const val ITEM = 1
-
 class AssistSettingAdapter(
     private val groups: List<AssistGroup>,
     private val onClick: (Boolean, String) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val title = 0
+    private val item = 1
 
     inner class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvTitle = itemView as TextView
@@ -29,7 +28,7 @@ class AssistSettingAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TITLE) {
+        return if (viewType == title) {
             val itemView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_assist_setting_title, parent, false)
             TitleViewHolder(itemView)
@@ -105,12 +104,12 @@ class AssistSettingAdapter(
         for (i in groups.indices) {
             itemCount++
             if (itemCount == position) {
-                return TITLE
+                return title
             }
             for (j in groups[i].items.indices) {
                 itemCount++
                 if (itemCount == position) {
-                    return ITEM
+                    return item
                 }
             }
         }

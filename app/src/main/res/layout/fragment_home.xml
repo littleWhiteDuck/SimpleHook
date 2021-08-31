@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.HomeFragment">
+    tools:context=".ui.fragment.HomeFragment">
 
     <ProgressBar
         android:id="@+id/progressBar2"
@@ -33,12 +33,11 @@
         android:id="@+id/fab"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="16dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
         app:layout_behavior="me.simpleHook.behavior.FabBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:menu_colorNormal="@color/colorPrimaryVariant"
         app:menu_colorPressed="@color/colorPrimary"
         app:menu_labels_ellipsize="end"

@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
+import me.simpleHook.constant.Constant
 import java.io.File
 
 const val ALL_FILES_ACCESS_PERMISSION = 4
@@ -17,6 +18,12 @@ object FileUtils {
     fun writeData(url: String, name: String, content: String) {
         val fileName = "${name}.json"
         writeJsonToFile(content, url, fileName)
+    }
+
+    fun createConfigFile(packageName: String, config: String, isAppConfig: Boolean = true){
+        val filePath = Constant.CONFIG_DIRECTORY + packageName + "/"
+        val fileName = if (isAppConfig) "config.json" else "assistConfig.json"
+        writeJsonToFile(config, filePath, fileName)
     }
 
     private fun writeJsonToFile(content: String, filePath: String, fileName: String) {
@@ -29,7 +36,7 @@ object FileUtils {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
-            file.writeText(strContent)
+            file.writer().use { it.write(strContent) }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -102,5 +109,11 @@ object FileUtils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun deleteFile(packageName: String, isAppConfig: Boolean = true){
+        val filePath = Constant.CONFIG_DIRECTORY + packageName + if (isAppConfig) "/config.json" else "/assistConfig.json"
+        val file = File(filePath)
+        if (file.exists()) file.delete()
     }
 }

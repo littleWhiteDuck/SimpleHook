@@ -1,6 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">SimpleHook</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_config_description">添加配置</string>
     <string name="method_config">方法配置</string>
@@ -46,7 +45,7 @@
     <string name="share">分享</string>
     <string name="export_configs_tip">已复制到剪切板</string>
     <string name="import_success_tip">导入成功</string>
-    <string name="import_fail_tip">导入失败</string>
+    <string name="import_fail_tip">导入失败(可能格式错误)</string>
     <string name="incorrect_format_tip">格式错误</string>
     <string name="error_tip">出现错误</string>
     <string name="show_system_apps">显示系统应用</string>
@@ -62,18 +61,8 @@
     <string name="close_window_for_print">close window for print</string>
     <string name="home">首页</string>
     <string name="assistant">辅助</string>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="settings">设置</string>
+    <string name="cancel">取消</string>
+    <string name="select_all">全选</string>
+    <string name="confirm">确认</string>
 </resources>

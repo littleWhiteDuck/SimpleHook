@@ -2,4 +2,5 @@
 <resources>
     <color name="item_background">@android:color/black</color>
     <color name="popup_window_background">#0c0c0c</color>
+    <color name="paint_color">#FFFFFFFF</color>
 </resources>

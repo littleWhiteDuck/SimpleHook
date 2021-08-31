@@ -19,9 +19,9 @@ private val onLongClick: (AssistConfig) -> Unit) :
 
     inner class ViewHolder(binding: ItemAssistLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val appName = binding.appName
-        val appIcon = binding.appIcon
-        val versionName = binding.versionName
+        val tvAppName = binding.appName
+        val ivAppIcon = binding.appIcon
+        val tvVersionName = binding.versionName
     }
 
     object AssistDiff : DiffUtil.ItemCallback<AssistConfig>() {
@@ -39,7 +39,7 @@ private val onLongClick: (AssistConfig) -> Unit) :
         val binding =
             ItemAssistLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val holder = ViewHolder(binding)
-        holder.appName.marquee()
+        holder.tvAppName.marquee()
         holder.itemView.apply {
             setOnClickListener {
                 val assistConfig = it.getTag(R.id.item_assist_config) as AssistConfig
@@ -58,10 +58,9 @@ private val onLongClick: (AssistConfig) -> Unit) :
         val assistConfig = getItem(position)
         holder.itemView.setTag(R.id.item_assist_config, assistConfig)
         holder.apply {
-            appName.text = assistConfig.appName
-            appIcon.setImageDrawable(AppUtils.getIcon(itemView.context, assistConfig.packageName))
-            versionName.text =
-                AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
+            tvAppName.text = assistConfig.appName
+            ivAppIcon.setImageDrawable(AppUtils.getIcon(itemView.context, assistConfig.packageName))
+            tvVersionName.text = AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
         }
     }
 }

@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="增加读取配置方式">
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="openStorage"
+            app:summary="本应用和目标应用需要拥有储存权限"
+            app:title="向储存文件中写入配置" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="openXml"
+            app:summary="使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则无效"
+            app:title="向xml中写入配置" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="其他">
+        <Preference
+            app:key="about"
+            app:title="关于" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

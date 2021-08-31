@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.custom.PopupWindowList
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.databinding.MainItemLayoutBinding
+import me.simpleHook.databinding.ItemAppConfigLayoutBinding
+import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.marquee
 
@@ -20,19 +20,21 @@ class HomeAdapter(
 ) :
     ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
-    inner class ViewHolder(binding: MainItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        val itemName = binding.itemName
-        val itemDesc = binding.itemDesc
+    inner class ViewHolder(binding: ItemAppConfigLayoutBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        val tvAppName = binding.itemName
+        val tvConfigDesc = binding.itemDesc
 
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         val ableSwitch = binding.ableSwitch
-        val itemAppIcon = binding.itemAppIcon
+        val ivAppIcon = binding.itemAppIcon
+        val root = binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            MainItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemAppConfigLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = ViewHolder(binding)
         binding.constraintLayout.apply {
             PopupWindowList.Builder(parent.context).watchView(this)
@@ -60,12 +62,12 @@ class HomeAdapter(
         holder.itemView.setTag(R.id.item_home_position, appConfigEntity)
         holder.apply {
             appConfigEntity.apply {
-                itemName.text = appName
-                itemName.marquee()
-                itemDesc.text = if (description.trim().isEmpty()) packageName else description
-                itemDesc.marquee()
+                tvAppName.text = appName
+                tvAppName.marquee()
+                tvConfigDesc.text = if (description.trim().isEmpty()) packageName else description
+                tvConfigDesc.marquee()
                 ableSwitch.isChecked = canUse
-                itemAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context, packageName))
+                ivAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context, packageName))
             }
         }
     }

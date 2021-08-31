@@ -24,7 +24,7 @@ object ToolUtils {
     fun toClip(context: Context, configs:String){
         (context.getSystemService("clipboard") as ClipboardManager).setPrimaryClip(
             ClipData.newPlainText(
-                "app_config",
+                "label",
                 configs
             )
         )

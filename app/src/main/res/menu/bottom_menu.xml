@@ -7,6 +7,10 @@
         android:title="@string/home" />
     <item
         android:id="@+id/assistFragment"
-        android:icon="@drawable/ic_others_24"
+        android:icon="@drawable/ic_assist_24"
         android:title="@string/assistant" />
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_settings_24"
+        android:title="@string/settings" />
 </menu>

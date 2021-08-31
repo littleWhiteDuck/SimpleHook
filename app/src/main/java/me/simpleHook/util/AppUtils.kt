@@ -2,7 +2,6 @@ package me.simpleHook.util
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -29,6 +28,7 @@ object AppUtils {
             (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
         }
     }
+
     @SuppressLint("QueryPermissionsNeeded")
     fun getInstalledUserApp(context: Context): List<PackageInfo> {
         val packageManager = context.packageManager
@@ -58,23 +58,24 @@ object AppUtils {
         var versionName = "未安装"
         try {
             versionName = context.packageManager.getPackageInfo(packageName, 0).versionName
-        }catch (e:Exception){
+        } catch (e: Exception) {
 
         }
         return versionName
     }
-    fun startApp(packageName: String,context: Context){
+
+    fun startApp(packageName: String, context: Context) {
         try {
-            if (checkPackInfo(packageName,context)){
+            if (checkPackInfo(packageName, context)) {
                 context.apply { startActivity(packageManager.getLaunchIntentForPackage(packageName)) }
             }
-        }catch (e: java.lang.Exception){
+        } catch (e: java.lang.Exception) {
             "可能应用被停用了,或者其他错误".toast(context)
         }
 
     }
 
-    private fun checkPackInfo(packageName: String,context: Context): Boolean {
+    private fun checkPackInfo(packageName: String, context: Context): Boolean {
         var packageInfo: PackageInfo? = null
         try {
             packageInfo = context.packageManager.getPackageInfo(packageName, 0)
