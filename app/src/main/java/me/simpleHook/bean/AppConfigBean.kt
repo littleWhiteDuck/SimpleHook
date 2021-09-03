@@ -1,5 +1,7 @@
 package me.simpleHook.bean
 
+import androidx.annotation.Keep
+
 /**
  * 应用配置类
  * @param appName 应用名
@@ -7,20 +9,16 @@ package me.simpleHook.bean
  * @param mode 普通模式、加固模式
  * @param description 描述
  * @param versionName 版本名
- * @param config 具体的配置
+ * @param config
  * @param canUse 是否可用
  */
+@Keep
 data class AppConfigBean(
     val appName: String,
     val packageName: String,
     val mode: Int,
     val description: String,
     val versionName: String,
-    val config: String,
+    val config: ArrayList<ConfigBean>,
     val canUse:Boolean = true
-) {
-    override fun toString(): String {
-        return "{\"appName\":\"$appName\",\"packageName\":\"$packageName\",\"versionName\":\"$versionName\"," +
-                "\"mode\":$mode,\"description\":\"$description\",$config,\"canUse\":$canUse}"
-    }
-}
+)

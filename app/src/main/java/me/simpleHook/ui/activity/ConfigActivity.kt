@@ -12,11 +12,12 @@ import android.webkit.WebView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppConfigBean
@@ -28,12 +29,12 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.util.*
-import org.json.JSONArray
-import org.json.JSONObject
 import java.lang.reflect.Field
+import java.util.regex.Pattern.matches
 
 class ConfigActivity : AppCompatActivity() {
-    private val configList = ArrayList<ConfigBean>()
+    private val smaliPattern = """^L.*;"""
+    private var configList = ArrayList<ConfigBean>()
     private var mode = Constant.HOOK_RETURN
     private var appMode = Constant.HOOK_ORIGIN
     private var modify = false
@@ -63,6 +64,7 @@ class ConfigActivity : AppCompatActivity() {
 
     private fun initView() {
         binding.apply {
+            packageNameInputLayout.isEnabled = false
             addMethodConfig.setOnClickListener { showDialog() }
             val list = arrayListOf("普通模式", "加固模式")
             modeSelectSpinner.adapter =
@@ -88,30 +90,15 @@ class ConfigActivity : AppCompatActivity() {
         appConfig?.let {
             modify = true
             configId = it.id
-            val jsonObject = JSONObject(it.config)
+            val appConfigBean = Gson().fromJson(it.config, AppConfigBean::class.java)
             binding.apply {
                 appNameEdit.setText(it.appName)
                 appVersionNameEdit.setText(it.versionName)
                 packageNameEdit.setText(it.packageName)
                 appVersionNameEdit.setText(it.versionName)
                 descStringEdit.setText(it.description)
-                modeSelectSpinner.setSelection(jsonObject.getInt("mode"))
-                val jsonArray = JSONArray(jsonObject.getString("config"))
-                for (i in 0 until jsonArray.length()) {
-                    jsonArray.getJSONObject(i).apply {
-                        configList.add(
-                            ConfigBean(
-                                getInt("mode"),
-                                getString("className"),
-                                getString("methodName"),
-                                getString("params"),
-                                JsonUtil.getElementString(this, "fieldName"),
-                                JsonUtil.getElementString(this, "fieldType"),
-                                getString("resultValues")
-                            )
-                        )
-                    }
-                }
+                modeSelectSpinner.setSelection(appConfigBean.mode)
+                configList = appConfigBean.config
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
             }
@@ -163,7 +150,7 @@ class ConfigActivity : AppCompatActivity() {
                 }
             }
         }
-        AlertDialog.Builder(this).apply {
+        MaterialAlertDialogBuilder(this).apply {
             setView(dialogBinding.root)
             val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量")
             dialogBinding.modeSelectSpinner.adapter =
@@ -275,26 +262,14 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
-    private fun showHelpDialog() {
-        val webView = WebView(this)
-        webView.loadUrl("file:///android_asset/introduce.html")
-        AlertDialog.Builder(this).apply {
-            setTitle("帮助")
-            setView(webView)
-            setPositiveButton("取消", null)
-                .create().show()
-
-        }
-    }
-
     private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
         var canCancel = true
-        val className = dialogBinding.classNameEdit.text.toString().trim()
+        val className = smaliToJava(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
-        val params = dialogBinding.paramsEdit.text.toString().trim()
+        val params = smaliToJava(dialogBinding.paramsEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.filedNameEdit.text.toString()
-        val fieldType = dialogBinding.fieldTypeEdit.text.toString()
+        val fieldType = smaliToJava(dialogBinding.fieldTypeEdit.text.toString())
         when (mode) {
             Constant.HOOK_BREAK -> {
                 if (className.isNotEmpty() && methodName.isNotEmpty()) {
@@ -350,6 +325,24 @@ class ConfigActivity : AppCompatActivity() {
         return canCancel
     }
 
+    private fun smaliToJava(strSmali: String) = if (matches(smaliPattern, strSmali)) {
+        strSmali.replace("L", "").replace("/", ".").replace(";", "")
+    } else {
+        strSmali
+    }
+
+    private fun showHelpDialog() {
+        val webView = WebView(this)
+        webView.loadUrl("file:///android_asset/introduce.html")
+        MaterialAlertDialogBuilder(this).apply {
+            setTitle("帮助")
+            setView(webView)
+            setPositiveButton("取消", null)
+                .create().show()
+
+        }
+    }
+
     private fun addConfig(configBean: ConfigBean) {
         if (modifyConfig) {
             configList[modifyConfigPosition] = configBean
@@ -394,7 +387,7 @@ class ConfigActivity : AppCompatActivity() {
             "配置为空".snack(binding.addMethodConfig)
             return
         }
-        val appConfig = toCheckCanSave().toString()
+        val appConfig = Gson().toJson(getAppConfig())
         binding.apply {
             val appName = binding.appNameEdit.text.toString()
             val packageName = binding.packageNameEdit.text.toString()
@@ -438,23 +431,18 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
-    private fun toCheckCanSave(): AppConfigBean {
+    private fun getAppConfig(): AppConfigBean {
         val appName = binding.appNameEdit.text.toString()
         val packageName = binding.packageNameEdit.text.toString()
         val description = binding.descStringEdit.text.toString()
         val versionName = binding.appVersionNameEdit.text.toString()
-        val config = StringBuilder().also {
-            for (i in 0 until configList.size) {
-                it.append("${configList[i]},")
-            }
-        }
         return AppConfigBean(
             appName,
             packageName,
             appMode,
             description,
             versionName,
-            "\"config\": [${config.substring(0, config.length - 1)}]"
+            configList
         )
     }
 

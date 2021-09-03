@@ -27,6 +27,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 class AppListActivity : AppCompatActivity() {
+    private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
     private lateinit var binding: ActivityAppListBinding
     private lateinit var userAppList: List<AppItem>
     private lateinit var systemAppList: List<AppItem>
@@ -127,8 +128,10 @@ class AppListActivity : AppCompatActivity() {
             userAdapter.submitList(userList)
         } else {
             val filter1 = userAppList.filter {
-                it.packageName.contains(currentQueryText, true) ||
-                        it.name.contains(currentQueryText, true)
+                !blackList.contains(it.packageName) && (it.packageName.contains(
+                    currentQueryText,
+                    true
+                ) || it.name.contains(currentQueryText, true))
             }
             userAdapter.submitList(filter1)
         }

@@ -24,4 +24,10 @@
     <style name="ToolbarTheme" parent="Theme.SimpleHook">
         <item name="colorControlNormal">@color/white</item>
     </style>
+    <style name="FloatButtonTheme" parent="Theme.SimpleHook">
+        <item name="tint">@color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">16dp</item>
+    </style>
 </resources>

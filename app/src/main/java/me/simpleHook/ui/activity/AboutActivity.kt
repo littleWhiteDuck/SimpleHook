@@ -38,54 +38,72 @@ class AboutActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        itemList.add(Title("开发者"))
-        itemList.add(Author("littleWhiteDuck", "非专业水平、全靠百度CV、不喜勿喷", R.drawable.author))
-        itemList.add(Title("测试人员"))
-        itemList.add(Author("正己", "测试bug", null))
-        itemList.add(Author("简", "测试bug", null))
-        itemList.add(Title("开源相关"))
-        itemList.add(
-            OpenSource(
-                "kotlin - JetBrains",
-                "https://github.com/JetBrains/Kotlin",
-                "Apache software license 2.0"
+        itemList.apply {
+            add(Title("开发者"))
+            add(
+                Author(
+                    "littleWhiteDuck",
+                    "CV Engineering major of Home University",
+                    R.drawable.author
+                )
             )
-        )
-        itemList.add(
-            OpenSource(
-                "AndroidX - Google",
-                "https://source.google.com",
-                "Apache software license 2.0"
+            add(Title("测试人员"))
+            add(Author("正己", "测试bug", null))
+            add(Author("简", "测试bug", null))
+            add(Title("开源相关"))
+            add(
+                OpenSource(
+                    "kotlin - JetBrains",
+                    "https://github.com/JetBrains/Kotlin",
+                    "Apache software license"
+                )
             )
-        )
-        itemList.add(
-            OpenSource(
-                "Android Jetpack - Google",
-                "https://source.google.com",
-                "Apache software license 2.0"
+            add(
+                OpenSource(
+                    "AndroidX - Google",
+                    "https://source.google.com",
+                    "Apache software license 2.0"
+                )
             )
-        )
-        itemList.add(
-            OpenSource(
-                "material-components-android - Google",
-                "https://github.com/material-components/material-components-android",
-                "Apache software license 2.0"
+            add(
+                OpenSource(
+                    "Android Jetpack - Google",
+                    "https://source.google.com",
+                    "Apache software license 2.0"
+                )
             )
-        )
-        itemList.add(
-            OpenSource(
-                "FloatingActionButton - Clans",
-                "https://github.com/Clans/FloatingActionButton",
-                "Apache software license 2.0"
+            add(
+                OpenSource(
+                    "material-components-android - Google",
+                    "https://github.com/material-components/material-components-android",
+                    "Apache software license 2.0"
+                )
             )
-        )
-        itemList.add(
-            OpenSource(
-                "EasyFloat - princekin-f",
-                "https://github.com/princekin-f/EasyFloat",
-                "Apache software license 2.0"
+            add(
+                OpenSource(
+                    "FloatingActionButton - Clans",
+                    "https://github.com/Clans/FloatingActionButton",
+                    "Apache software license 2.0"
+                )
             )
-        )
+            add(
+                OpenSource(
+                    "EasyFloat - princekin-f",
+                    "https://github.com/princekin-f/EasyFloat",
+                    "Apache software license 2.0"
+                )
+            )
+            add(
+                OpenSource(
+                    "gson - Google",
+                    "https://github.com/google/gson",
+                    "Apache software license 2.0"
+                )
+            )
+            add(Title("其他"))
+            add(OpenSource("XposedTinker - w296488320(珍惜)",
+            "https://github.com/w296488320/XposedTinker", "https://bbs.pediy.com/thread-255700.com"))
+        }
     }
 
     private fun initView() {
@@ -126,7 +144,7 @@ class AboutActivity : AppCompatActivity() {
 
     }
 
-    class AuthorHolder(itemView: View) : BasicViewHolder<Author>(itemView){
+    class AuthorHolder(itemView: View) : BasicViewHolder<Author>(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.name)
         private val tvIntro = itemView.findViewById<TextView>(R.id.introduce)
         private val ivIcon = itemView.findViewById<ImageView>(R.id.imageView)

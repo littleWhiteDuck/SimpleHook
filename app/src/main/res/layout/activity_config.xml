@@ -32,14 +32,9 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_method_config"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/colorPrimaryVariant"
-        android:clickable="true"
         android:contentDescription="@string/add_method_config"
-        android:focusable="true"
         android:src="@drawable/ic_add_24"
+        style="@style/FloatButtonTheme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -92,7 +87,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout"
+                android:id="@+id/packageName_input_layout"
                 style="@style/add_text_input_layout_style"
                 app:helperText="@string/package_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +106,7 @@
                 app:helperText="@string/app_name_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+                app:layout_constraintTop_toBottomOf="@+id/packageName_input_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/app_name_edit"

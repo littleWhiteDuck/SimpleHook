@@ -8,12 +8,12 @@
     android:layout_marginStart="10dp"
     android:layout_marginTop="5dp"
     android:layout_marginEnd="10dp"
-    app:cardCornerRadius="5dp"
-    app:cardElevation="3dp">
+    app:cardCornerRadius="3dp"
+    app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp">
+        android:layout_height="65dp">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline5"

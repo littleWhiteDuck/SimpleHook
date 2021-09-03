@@ -47,7 +47,7 @@
             android:id="@+id/add_config"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add"
+            android:src="@drawable/ic_add_24"
             app:fab_colorNormal="@color/colorPrimaryVariant"
             app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="添加配置"

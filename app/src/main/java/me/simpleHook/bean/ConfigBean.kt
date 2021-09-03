@@ -1,5 +1,7 @@
 package me.simpleHook.bean
 
+import androidx.annotation.Keep
+
 /**
  * 配置数据类
  * @param mode hook模式：0: 返回值、1：参数值、2：中断执行、3:静态变量值
@@ -10,6 +12,7 @@ package me.simpleHook.bean
  * @param fieldType 变量类型
  * @param resultValues 返回值/参数值
  */
+@Keep
 data class ConfigBean(
     val mode:Int,
     val className:String,
@@ -18,9 +21,4 @@ data class ConfigBean(
     val fieldName:String = "",
     val fieldType: String = "",
     val resultValues:String = ""
-){
-    override fun toString(): String {
-        return "{\"mode\":$mode,\"className\":\"$className\",\"methodName\":\"$methodName\",\"params\":\"$params\"," +
-                "\"fieldName\":\"$fieldName\",\"fieldType\":\"$fieldType\",\"resultValues\":\"$resultValues\"}"
-    }
-}
+)

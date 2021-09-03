@@ -26,13 +26,13 @@ object Type {
         else -> value
     }
     fun getClassType(className:String) = when(className){
-        "byte" -> Byte::class.java
-        "int" -> Int::class.java
-        "short" -> Short::class.java
-        "long" -> Long::class.java
-        "float" -> Float::class.java
-        "double" -> Double::class.java
-        "boolean" -> Boolean::class.java
+        "byte","B","b" -> Byte::class.java
+        "int", "I", "i" -> Int::class.java
+        "short", "S", "s" -> Short::class.java
+        "long", "J", "j" -> Long::class.java
+        "float", "F", "f" -> Float::class.java
+        "double", "D", "d" -> Double::class.java
+        "boolean", "Z", "z" -> Boolean::class.java
         "string" -> String::class.java
         "context" -> Context::class.java
         else -> null

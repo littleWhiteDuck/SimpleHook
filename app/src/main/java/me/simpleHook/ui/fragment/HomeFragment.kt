@@ -313,7 +313,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
             onClick = { editConfig(appConfig) })
         bottomSheetDialog.setContentView()
         val windowPreferencesManager = WindowPreferencesManager(requireContext())
-        windowPreferencesManager.applyEdgeToEdgePreference(bottomSheetDialog.window)
+        windowPreferencesManager.applyEdgeToEdgePreference(bottomSheetDialog.window!!)
         bottomSheetDialog.show()
     }
 

@@ -1,54 +1,69 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.gson.Gson
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
+import littleWhiteDuck.WindowPreferencesManager
 import me.simpleHook.R
-import me.simpleHook.adapter.AssistSettingAdapter
-import me.simpleHook.bean.AssistGroup
+import me.simpleHook.adapter.BasicViewHolder
+import me.simpleHook.adapter.BasicViewHolderFactory
+import me.simpleHook.adapter.MultiTypeAdapter
+import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.AssistItem
+import me.simpleHook.bean.AssistTitle
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAssistBinding
 import me.simpleHook.ui.fragment.FloatFragment
 import me.simpleHook.util.*
-import org.json.JSONObject
 
 private const val DIALOG_SWITCH = "dialogSwitch"
 private const val TOAST_SWITCH = "toastSwitch"
 private const val POPUP_SWITCH = "popupWindowSwitch"
 private const val DIALOG_CANCEL = "dialogCancel"
 private const val ALL_SWITCH = "allSwitch"
+private const val TINKER_FIX = "tinkerFix"
+private const val INTENT_DATA = "intentData"
+private const val VPN_CHECK = "vpnCheck"
+private const val CLICK_LISTENER = "click"
 
 class AssistActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAssistBinding
     private lateinit var assistConfig: AssistConfig
-    private val list = ArrayList<AssistGroup>()
     private val hashMap = HashMap<String, Boolean>()
     private val sp by lazy { SPUtils(this) }
     private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
     private val appViewModel by viewModels<AppViewModel>()
-
+    private val itemList = ArrayList<Any>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAssistBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle = intent.getBundleExtra("bundle")
-        assistConfig = bundle?.getParcelable("assistConfig") ?: AssistConfig(0, "", false, "", "")
+        assistConfig = bundle?.getParcelable("assistConfig") ?: AssistConfig(
+            0,
+            "",
+            false,
+            "",
+            ""
+        )
         initData()
         initView()
     }
@@ -56,43 +71,70 @@ class AssistActivity : AppCompatActivity() {
 
     private fun initData() {
         val config = assistConfig.config
-        if (config.isNotEmpty()) {
-            JSONObject(config).apply {
-                hashMap.apply {
-                    put(ALL_SWITCH, getBoolean(ALL_SWITCH))
-                    put(DIALOG_SWITCH, getBoolean(DIALOG_SWITCH))
-                    put(TOAST_SWITCH, getBoolean(TOAST_SWITCH))
-                    put(POPUP_SWITCH, getBoolean(POPUP_SWITCH))
-                    put(DIALOG_CANCEL, getBoolean(DIALOG_CANCEL))
-                }
+        val configBean = if (config.isNotEmpty()) Gson().fromJson(
+            config,
+            AssistConfigBean::class.java
+        ) else AssistConfigBean()
+        configBean.apply {
+            hashMap.apply {
+                put(ALL_SWITCH, all)
+                put(DIALOG_SWITCH, dialog)
+                put(DIALOG_CANCEL, diaCancel)
+                put(TOAST_SWITCH, toast)
+                put(POPUP_SWITCH, popup)
+                put(TINKER_FIX, tinker)
+                put(INTENT_DATA, intent)
+                put(VPN_CHECK, vpn)
+                put(CLICK_LISTENER, click)
             }
         }
-        val baseItemList = ArrayList<AssistItem>()
-        baseItemList.apply {
-            add(AssistItem("启动应用", false, "startApp", assistConfig.appName))
-            add(AssistItem("总开关", hashMap[ALL_SWITCH] == true, ALL_SWITCH))
+        itemList.apply {
+            configBean.apply {
+                add(AssistTitle("基本"))
+                add(AssistItem("启动应用", false, "startApp", assistConfig.packageName, assistConfig.appName))
+                add(AssistItem("总开关", all, ALL_SWITCH, ""))
+                add(AssistTitle("界面"))
+                add(AssistItem("弹窗", dialog, DIALOG_SWITCH, "打印弹窗调用"))
+                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL, "用于一般弹窗的强制可取消"))
+                add(AssistItem("Toast", toast, TOAST_SWITCH, "打印toast调用"))
+                add(AssistItem("PopupWindow", popup, POPUP_SWITCH, "打印调用（也可作为弹窗）"))
+                add(AssistItem("点击事件",click, CLICK_LISTENER, "打印点击调用"))
+                add(AssistTitle("其他"))
+                add(AssistItem("intent", intent, INTENT_DATA, "打印常见启动activity时传递的intent"))
+                add(AssistItem("tinkerFix", tinker, TINKER_FIX, "dex放在Downloads/simpleHook\n/hotFix/${assistConfig.packageName}/tinker.dex"))
+                add(AssistTitle("网络"))
+                add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
+            }
         }
-        val baseGroup = AssistGroup("基本", baseItemList)
-        val uiItemList = ArrayList<AssistItem>()
-        uiItemList.apply {
-            add(AssistItem("Dialog调用", hashMap[DIALOG_SWITCH] == true, DIALOG_SWITCH))
-            add(AssistItem("Toast调用", hashMap[TOAST_SWITCH] == true, TOAST_SWITCH))
-            add(AssistItem("PopupWindow调用", hashMap[POPUP_SWITCH] == true, POPUP_SWITCH))
-            add(AssistItem("Dialog强制取消", hashMap[DIALOG_CANCEL] == true, DIALOG_CANCEL))
-        }
-        val uiGroup = AssistGroup("UI", uiItemList)
-        val itemList = ArrayList<AssistItem>()
-        val group = AssistGroup("待增加", itemList)
-        list.apply {
-            add(baseGroup)
-            add(uiGroup)
-            add(group)
-        }
-
     }
 
     private fun initView() {
-        val mAdapter = AssistSettingAdapter(list) { isChecked, tag -> onClick(isChecked, tag) }
+        val mAdapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
+            override fun getLayoutResId(position: Int, data: Any) = when (data) {
+                is AssistTitle -> R.layout.item_assist_setting_title
+                is AssistItem -> R.layout.item_assist_setting_item
+                else -> throw IllegalArgumentException("unknown data: $data")
+            }
+
+            override fun onCreateViewHolder(
+                inflater: LayoutInflater,
+                parent: ViewGroup,
+                layoutResId: Int
+            ): BasicViewHolder<*> {
+                val itemView = inflater.inflate(layoutResId, parent, false)
+                return when (layoutResId) {
+                    R.layout.item_assist_setting_title -> TitleHolder(itemView)
+                    R.layout.item_assist_setting_item -> ItemHolder(itemView) { checked, tag ->
+                        onClick(
+                            checked,
+                            tag
+                        )
+                    }
+                    else -> throw IllegalArgumentException("unknown layoutResId: $layoutResId")
+                }
+            }
+
+        })
         binding.recyclerView.apply {
             adapter = mAdapter
             layoutManager = LinearLayoutManager(this@AssistActivity)
@@ -103,6 +145,59 @@ class AssistActivity : AppCompatActivity() {
                 )
             )
         }
+    }
+
+    class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
+        private val tvTitle = itemView as TextView
+        override fun onBindData(position: Int, data: AssistTitle) {
+            tvTitle.text = data.title
+        }
+    }
+
+    class ItemHolder(itemView: View, val onClick: (Boolean, String) -> Unit) :
+        BasicViewHolder<AssistItem>(itemView) {
+        private val tvTitle: TextView = itemView.findViewById(R.id.title)
+        private val tvDesc: TextView = itemView.findViewById(R.id.tv_description)
+        private val tvControl: TextView = itemView.findViewById(R.id.control)
+        override fun onBindData(position: Int, data: AssistItem) {
+            if (data.desc == "") tvDesc.visibility = View.GONE
+            tvTitle.text = data.title
+            tvDesc.text = data.desc
+            when {
+                data.tag == "startApp" -> tvControl.text = data.other
+                data.isChecked -> {
+                    tvControl.text = "已开启"
+                    tvControl.setTextColor(Color.parseColor("#4F9BFA"))
+                }
+                else -> {
+                    tvControl.text = "未开启"
+                    tvControl.setTextColor(Color.parseColor("#aaaaaa"))
+                }
+            }
+            itemView.setOnClickListener {
+                data.isChecked = !data.isChecked
+                tvControl.apply {
+                    data.apply {
+                        when {
+                            tag == "startApp" -> {
+                                onClick(false, tag)
+                            }
+                            isChecked -> {
+                                text = "已开启"
+                                setTextColor(Color.parseColor("#4F9BFA"))
+                                onClick(true, tag)
+                            }
+                            else -> {
+                                text = "未开启"
+                                setTextColor(Color.parseColor("#aaaaaa"))
+                                onClick(false, tag)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private fun onClick(checked: Boolean, tag: String) {
@@ -127,10 +222,18 @@ class AssistActivity : AppCompatActivity() {
     }
 
     private fun saveConfig() {
-        val config =
-            "{\"allSwitch\":${hashMap[ALL_SWITCH] == true},\"dialogSwitch\":${hashMap[DIALOG_SWITCH] == true}," +
-                    "\"toastSwitch\":${hashMap[TOAST_SWITCH] == true},\"popupWindowSwitch\":${hashMap[POPUP_SWITCH] == true}," +
-                    "\"dialogCancel\":${hashMap[DIALOG_CANCEL] == true}}"
+        val configBean = AssistConfigBean(
+            hashMap[ALL_SWITCH] == true,
+            hashMap[DIALOG_SWITCH] == true,
+            hashMap[POPUP_SWITCH] == true,
+            hashMap[DIALOG_CANCEL] == true,
+            hashMap[TOAST_SWITCH] == true,
+            hashMap[INTENT_DATA] == true,
+            hashMap[TINKER_FIX] == true,
+            hashMap[VPN_CHECK] == true,
+            hashMap[CLICK_LISTENER] == true
+        )
+        val config = Gson().toJson(configBean)
         assistConfig.config = config
         appViewModel.updateAssistConfigs(assistConfig)
         if (sp.openStorage) {

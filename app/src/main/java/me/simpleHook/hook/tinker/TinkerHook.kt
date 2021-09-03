@@ -3,10 +3,11 @@ package me.simpleHook.hook.tinker
 import android.content.Context
 import dalvik.system.DexClassLoader
 import me.simpleHook.constant.Constant
+import me.simpleHook.util.log
 
 object TinkerHook {
-    fun main(context: Context, packageName: String) {
-        hookMain(context, packageName)
+    fun main(context: Context?, packageName: String) {
+        context?.let { hookMain(it, packageName) }
     }
 
     private fun hookMain(context: Context, packageName: String) {
@@ -36,16 +37,16 @@ object TinkerHook {
             )
             //判断 是否合并 成功
             if (myDexClassloader.size + otherClassloader.size != combined.size) {
-                CLogUtils.e("合并 elements数组 失败  null")
+                "合并 elements数组 失败  null".log()
             }
             //将 生成的 classloader进行 set回原来的 element数组
             if (setDexElements(combined, myDexClassloader.size + otherClassloader.size, context)) {
-                CLogUtils.e("替换成功")
+                "替换成功".log()
             } else {
-                CLogUtils.e("替换失败 ")
+                "替换失败".log()
             }
         } else {
-            CLogUtils.e("没有 拿到 classloader")
+            "没有 拿到 classloader".log()
         }
     }
 
@@ -68,10 +69,10 @@ object TinkerHook {
             return dexElementsField[dexPathList] as Array<Any>
             //ArrayUtils.addAll(first, second);
         } catch (e: NoSuchFieldException) {
-            CLogUtils.e("AddElements  NoSuchFieldException   " + e.message)
+           "AddElements  NoSuchFieldException".log()
             e.printStackTrace()
         } catch (e: IllegalAccessException) {
-            CLogUtils.e("AddElements  IllegalAccessException   " + e.message)
+            "AddElements  IllegalAccessException".log()
             e.printStackTrace()
         }
         return null
@@ -95,20 +96,18 @@ object TinkerHook {
             val dexElements = dexElementsField[dexPathList] as Array<Any>
             return if (dexElements.size == count && dexElements.contentHashCode() == dexElementsResult.contentHashCode()
             ) {
-                CLogUtils.e("替换 以后的 长度 是 " + dexElements.size)
+                "替换 以后的 长度 是 ${dexElements.size}".log()
                 true
             } else {
-                CLogUtils.e("合成   长度  " + dexElements.size + "传入 数组 长度   " + count)
-                CLogUtils.e(
-                    "   dexElements hashCode " + dexElements.contentHashCode() + "  " + dexElementsResult.contentHashCode()
-                )
+                "合成长度${dexElements.size}, 传入的数组长度$count".log()
+                "dexElements hashCode ${dexElements.contentHashCode()}, ${dexElementsResult.contentHashCode()}"
                 false
             }
         } catch (e: NoSuchFieldException) {
-            CLogUtils.e("SetDexElements  NoSuchFieldException   " + e.message)
+            "SetDexElements  NoSuchFieldException   ".log()
             e.printStackTrace()
         } catch (e: IllegalAccessException) {
-            CLogUtils.e("SetDexElements  IllegalAccessException   " + e.message)
+            "SetDexElements  IllegalAccessException   ".log()
             e.printStackTrace()
         }
         return false
