@@ -25,6 +25,7 @@ import me.simpleHook.adapter.MultiTypeAdapter
 import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
+import me.simpleHook.constant.Constant.HOT_FIX_DIRECTORY
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAssistBinding
@@ -36,7 +37,7 @@ private const val TOAST_SWITCH = "toastSwitch"
 private const val POPUP_SWITCH = "popupWindowSwitch"
 private const val DIALOG_CANCEL = "dialogCancel"
 private const val ALL_SWITCH = "allSwitch"
-private const val TINKER_FIX = "tinkerFix"
+private const val TINKER_FIX = "hotFix"
 private const val INTENT_DATA = "intentData"
 private const val VPN_CHECK = "vpnCheck"
 private const val CLICK_LISTENER = "click"
@@ -101,7 +102,7 @@ class AssistActivity : AppCompatActivity() {
                 add(AssistItem("点击事件",click, CLICK_LISTENER, "打印点击调用"))
                 add(AssistTitle("其他"))
                 add(AssistItem("intent", intent, INTENT_DATA, "打印常见启动activity时传递的intent"))
-                add(AssistItem("tinkerFix", tinker, TINKER_FIX, "dex放在Downloads/simpleHook\n/hotFix/${assistConfig.packageName}/tinker.dex"))
+                add(AssistItem("热修复", tinker, TINKER_FIX, "dex放在Download/simpleHook\n/hotFix/${assistConfig.packageName}/hotfix.dex"))
                 add(AssistTitle("网络"))
                 add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
             }
@@ -206,6 +207,10 @@ class AssistActivity : AppCompatActivity() {
             saveConfig()
             startAppAndFloat()
             return
+        }
+        if (tag == TINKER_FIX && checked){
+            FileUtils.verifyStoragePermissions(this)
+            FileUtils.makeRootDirectory("$HOT_FIX_DIRECTORY/${assistConfig.packageName}/")
         }
         hashMap[tag] = checked
     }

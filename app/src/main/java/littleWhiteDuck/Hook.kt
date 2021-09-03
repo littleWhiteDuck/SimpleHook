@@ -12,6 +12,8 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.content.contentValuesOf
 import com.google.gson.Gson
+import dalvik.system.BaseDexClassLoader
+import dalvik.system.DexClassLoader
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
@@ -20,54 +22,69 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.bean.*
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.tinker.TinkerHook
 import me.simpleHook.util.log
+import me.simpleHook.util.tip
+import java.lang.Exception
 import java.io.File
 import java.io.FileNotFoundException
 
-object Hook {
+private const val ACTIVITY = "android.app.Activity"
+private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
+private const val START_ACTIVITY = "startActivity"
+private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
+private const val selfCheckConfig =
+    "{\"appName\":\"simpleHook\",\"packageName\":\"me.simpleHook\",\"mode\":0,\"config\":[{\"className\":\"me.simpleHook.ui.activity.MainActivity\",\"methodName\":\"isModuleLive\",\"resultValues\":\"true\",\"mode\":0,\"params\":\"\",\"fieldName\":\"\",\"fieldType\":\"\"}]}"
+
+class Hook {
     private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
     private val printUri = Uri.parse("content://littleWhiteDuck/print_logs")
     private val assistUri = Uri.parse("content://littleWhiteDuck/assist_configs")
-    private const val selfCheckConfig =
-        "{\"appName\":\"simpleHook\",\"packageName\":\"me.simpleHook\",\"mode\":0,\"config\":[{\"className\":\"me.simpleHook.ui.activity.MainActivity\",\"methodName\":\"isModuleLive\",\"resultValues\":\"true\",\"mode\":0,\"params\":\"\",\"fieldName\":\"\",\"fieldType\":\"\"}]}"
     private val prefHookConfig by lazy { getHookConfigPref() }
     private val prefAssistConfig by lazy { getHookConfigPref("assistConfig") }
+    private var mContext: Context? = null
+    private lateinit var mClassLoader: ClassLoader
 
-    fun readyHook(param: XC_LoadPackage.LoadPackageParam?) {
-        val packageName = param!!.packageName
-        val classLoader = param.classLoader
-        if (packageName == "me.simpleHook") {
-            startHook(selfCheckConfig, classLoader)
-        } else {
-            //优先通过context辅助hook：dialog、toast等
-            contextAssistHook(packageName)
-            //优先读取文件配置准备hook
-            fileHook(packageName, classLoader)
-        }
+    fun toHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
+        val packageName = loadPackageParam!!.packageName
+        val classLoader = loadPackageParam.classLoader
+        XposedHelpers.findAndHookMethod(
+            Application::class.java,
+            "attach", Context::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    mContext = param.args[0] as Context
+                    mClassLoader = mContext?.classLoader ?: classLoader
+                    if (packageName == "me.simpleHook") {
+                        startHook(selfCheckConfig)
+                    } else {
+                        //优先通过context辅助hook：dialog、toast等
+                        contextAssistHook(packageName)
+                        //优先读取文件配置准备hook
+                        fileHook(packageName)
+                    }
+                }
+            })
     }
 
     private fun fileHook(
-        packageName: String,
-        classLoader: ClassLoader
+        packageName: String
     ) {
         try {
             val strConfig =
                 File("${Constant.CONFIG_DIRECTORY + packageName + "/config"}.json").reader()
                     .use { it.readText() }
             "获取配置成功".log()
-            readyHook(strConfig, classLoader)
+            toHook(strConfig)
         } catch (e: FileNotFoundException) {
             "无运行中软件配置，或软件没有储存权限".log()
             "准备使用xml获取配置".log()
-            xmlHook(packageName, classLoader)
+            xmlHook(packageName)
         }
 
     }
 
     private fun xmlHook(
-        currentPackageName: String,
-        classLoader: ClassLoader,
+        currentPackageName: String
     ) {
         val error = "no have config or error"
         prefHookConfig?.let {
@@ -78,72 +95,40 @@ object Hook {
                 toContextHook(currentPackageName)
             } else {
                 // xml读取配置成功
-                readyHook(strConfig, classLoader)
+                toHook(strConfig)
             }
         } ?: error.log()
 
     }
 
-    private fun readyHook(strConfig: String, classLoader: ClassLoader) {
+    private fun toHook(strConfig: String) {
         val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
         if (appConfigBean.canUse) {
-            if (appConfigBean.mode == Constant.HOOK_ORIGIN) {
-                "开始hook（普通）".log()
-                startHook(strConfig, classLoader)
-            } else {
-                "开始hook（加固）".log()
-                specialHook(strConfig)
-            }
+            "开始自定义Hook".log()
+            startHook(strConfig)
         }
     }
 
     private fun toContextHook(currentPackageName: String) {
-        XposedHelpers.findAndHookMethod(Application::class.java, "attach", Context::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    super.afterHookedMethod(param)
-                    val context: Context = param!!.args[0] as Context
-                    context.classLoader.also {
-                        toHook(currentPackageName, context, it)
-                    }
-                }
-            }
-        )
+        toHook(currentPackageName, mContext)
     }
 
-    private fun toHook(packageName: String, context: Context, classLoader: ClassLoader) {
-        context.contentResolver.query(uri, null, "packageName = ?", arrayOf(packageName), null)
+    private fun toHook(packageName: String, context: Context?) {
+        context?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
             ?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("canUse")) == 1) {
                         val configString = getString(getColumnIndex("app_config"))
                         "配置获取成功(context)".log()
-                        startHook(configString, classLoader)
+                        startHook(configString)
                     }
                 }
                 close()
             } ?: "cursor is null,获取配置失败".log()
     }
 
-    private fun specialHook(strConfig: String) {
-        XposedHelpers.findAndHookMethod(
-            Application::class.java,
-            "attach",
-            Context::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    super.afterHookedMethod(param)
-                    val context = param!!.args[0] as Context
-                    context.classLoader.also {
-                        startHook(strConfig, it)
-                    }
-                }
-            }
-        )
-    }
 
-
-    private fun startHook(strConfig: String, classLoader: ClassLoader) {
+    private fun startHook(strConfig: String) {
         val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
         try {
             appConfigBean.config.forEach {
@@ -151,19 +136,19 @@ object Hook {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD -> hookStaticField(
                             className,
-                            classLoader,
+                            mClassLoader,
                             fieldName,
                             resultValues,
                             fieldType
                         )
                         Constant.HOOK_FIELD -> hookField(
                             className,
-                            classLoader,
+                            mClassLoader,
                             fieldName,
                             resultValues,
                             fieldType
                         )
-                        else -> hook(className, classLoader, methodName, resultValues, params, mode)
+                        else -> hook(className, mClassLoader, methodName, resultValues, params, mode)
                     }
                 }
             }
@@ -299,34 +284,26 @@ object Hook {
 
 
     private fun contextAssistHook(packageName: String) {
-        XposedHelpers.findAndHookMethod(Application::class.java, "attach", Context::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    super.afterHookedMethod(param)
-                    val context: Context = param!!.args[0] as Context
-                    var config = ""
-                    context.contentResolver.query(
-                        assistUri,
-                        null,
-                        "packageName = ?",
-                        arrayOf(packageName),
-                        null
-                    )?.apply {
-                        while (moveToNext()) {
-                            config = getString(getColumnIndex("config"))
-                        }
-                        close()
-                    } ?: fileAssistHook(packageName, context.classLoader)
-                    if (config == "") return
-                    context.classLoader.also {
-                        readyAssistHook(config, context, it, packageName)
-                    }
-                }
+        var config = ""
+        mContext?.contentResolver?.query(
+            assistUri,
+            null,
+            "packageName = ?",
+            arrayOf(packageName),
+            null
+        )?.apply {
+            while (moveToNext()) {
+                config = getString(getColumnIndex("config"))
             }
-        )
+            close()
+        } ?: fileAssistHook(packageName)
+        if (config == "") return
+        mContext?.also {
+            readyAssistHook(config, packageName)
+        }
     }
 
-    private fun xmlAssistHook(packageName: String, classLoader: ClassLoader) {
+    private fun xmlAssistHook(packageName: String) {
         val error = "no have assistConfig or error"
         prefAssistConfig?.let {
             val strConfig = it.getString(packageName, error)
@@ -334,129 +311,147 @@ object Hook {
                 error.log()
             } else {
                 // xml读取配置成功
-                readyAssistHook(strConfig, null, classLoader, packageName)
+                readyAssistHook(strConfig, packageName)
             }
         } ?: error.log()
 
     }
 
-    private fun fileAssistHook(packageName: String, classLoader: ClassLoader) {
+    private fun fileAssistHook(packageName: String) {
         try {
             val strConfig =
                 File("${Constant.CONFIG_DIRECTORY + packageName}/assistConfig.json").reader()
                     .use { it.readText() }
             "获取辅助配置成功".log()
-            readyAssistHook(strConfig, null, classLoader, packageName)
+            readyAssistHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
             "无运行中软件辅助配置，或软件没有储存权限".log()
             "准备从xml中获取辅助配置".log()
-            xmlAssistHook(packageName, classLoader)
+            xmlAssistHook(packageName)
         }
 
     }
 
     private fun readyAssistHook(
         strConfig: String,
-        context: Context?,
-        classLoader: ClassLoader,
         packageName: String
     ) {
         val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
         configBean.apply {
             if (!all) return
-            toHookDialog(context, dialog, diaCancel)
-            if (toast) hookToast(context)
-            if (popup) hookPopupWindow(context)
-            if (tinker) TinkerHook.main(context, packageName)
-            if (intent) hookIntent(classLoader, context)
-            if (vpn) hookVpnCheck(classLoader)
-            if (click) hookOnClick(context)
+            hookDialog(dialog, diaCancel)
+            if (toast) hookToast()
+            if (popup) hookPopupWindow()
+            if (tinker) hotFix(mContext!!, packageName)
+            if (intent) hookIntent()
+            if (vpn) hookVpnCheck()
+            if (click) hookOnClick()
         }
 
     }
 
-    private fun hookVpnCheck(classLoader: ClassLoader) {
-        XposedHelpers.findAndHookMethod(
-            "java.net.NetworkInterface",
-            classLoader,
-            "getName",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    super.beforeHookedMethod(param)
-                    param.result = "are you ok"
-                }
-            })
+    private fun hookVpnCheck() {
+        try {
+            XposedHelpers.findAndHookMethod(
+                "java.net.NetworkInterface",
+                mContext!!.classLoader,
+                "getName",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        super.beforeHookedMethod(param)
+                        param.result = "are you ok"
+                    }
+                })
+        }catch (e: Exception){
+            "hook vpnCheck error".tip()
+        }
     }
 
-    private fun hookPopupWindow(context: Context?) {
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
-            "showAtLocation",
-            object : XC_MethodHook() {
+    private fun hookToast() {
+        try {
+            XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
                     val type = param?.thisObject?.javaClass?.name ?: "未知"
                     val stackTrace = Throwable().stackTrace
-                    toStackTrace(type, stackTrace, context)
+                    toStackTrace(type, stackTrace)
                 }
             })
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
-            "showAsDropDown",
-            object : XC_MethodHook() {
+        }catch (e: Exception){
+            "hook toast error".tip()
+        }
+
+    }
+
+    private fun hookPopupWindow() {
+        try {
+            XposedBridge.hookAllMethods(
+                PopupWindow::class.java,
+                "showAtLocation",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam?) {
+                        super.beforeHookedMethod(param)
+                        val type = param?.thisObject?.javaClass?.name ?: "未知"
+                        val stackTrace = Throwable().stackTrace
+                        toStackTrace(type, stackTrace)
+                    }
+                })
+            XposedBridge.hookAllMethods(
+                PopupWindow::class.java,
+                "showAsDropDown",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam?) {
+                        super.beforeHookedMethod(param)
+                        val type = param?.thisObject?.javaClass?.name ?: "未知"
+                        val stackTrace = Throwable().stackTrace
+                        toStackTrace(type, stackTrace)
+                    }
+                })
+        }catch (e: Exception){
+            "hook popupWindow error".tip()
+        }
+    }
+
+    private fun hookDialog(isSwitch: Boolean, cancel: Boolean) {
+        try {
+            XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam?) {
+                    super.beforeHookedMethod(param)
+                    if (cancel) {
+                        val dialog = param?.thisObject as Dialog
+                        dialog.setCancelable(true)
+                    }
+                    if (isSwitch) {
+                        val type = param?.thisObject?.javaClass?.name ?: "未知"
+                        val stackTrace = Throwable().stackTrace
+                        toStackTrace(type, stackTrace)
+                    }
+                }
+            })
+        }catch (e: Exception){
+            "hook dialog error".tip()
+        }
+    }
+
+    private fun hookOnClick() {
+        try {
+            XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
                     val type = param?.thisObject?.javaClass?.name ?: "未知"
                     val stackTrace = Throwable().stackTrace
-                    toStackTrace(type, stackTrace, context)
+                    toStackTrace(type, stackTrace)
                 }
             })
-    }
-
-    private fun hookToast(context: Context?) {
-        XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
-                val type = param?.thisObject?.javaClass?.name ?: "未知"
-                val stackTrace = Throwable().stackTrace
-                toStackTrace(type, stackTrace, context)
-            }
-        })
-    }
-
-    private fun toHookDialog(context: Context?, isSwitch: Boolean, cancel: Boolean) {
-        XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
-                if (cancel) {
-                    val dialog = param?.thisObject as Dialog
-                    dialog.setCancelable(true)
-                }
-                if (isSwitch) {
-                    val type = param?.thisObject?.javaClass?.name ?: "未知"
-                    val stackTrace = Throwable().stackTrace
-                    toStackTrace(type, stackTrace, context)
-                }
-            }
-        })
-    }
-
-    private fun hookOnClick(context: Context?) {
-        XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
-                val type = param?.thisObject?.javaClass?.name ?: "未知"
-                val stackTrace = Throwable().stackTrace
-                toStackTrace(type, stackTrace, context)
-            }
-        })
+        }catch (e : Exception){
+            "hook performClick error".tip()
+        }
     }
 
 
     private fun toStackTrace(
         type: String,
-        stackTrace: Array<StackTraceElement>,
-        context: Context?
+        stackTrace: Array<StackTraceElement>
     ) {
         val items = ArrayList<String>()
         for (i in stackTrace) {
@@ -470,74 +465,75 @@ object Hook {
             items.add("类：${i.className} -->方法：${i.methodName}(line：${i.lineNumber})")
         }
         val log = Gson().toJson(LogBean(type, items))
-        toLogMsg(context, log)
+        toLogMsg(log)
     }
 
     /*
     常用启动activity时的intent信息
      */
 
-    private const val ACTIVITY = "android.app.Activity"
-    private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
-    private const val START_ACTIVITY = "startActivity"
-    private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
-    private fun hookIntent(classLoader: ClassLoader, context: Context?) {
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY, classLoader,
-            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val intent = param.args[0] as Intent
-                    saveLog(intent, context)
-                }
-            })
+    private fun hookIntent() {
+        try {
+            val classLoader = mContext!!.classLoader
+            XposedHelpers.findAndHookMethod(
+                ACTIVITY, classLoader,
+                START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val intent = param.args[0] as Intent
+                        saveLog(intent)
+                    }
+                })
 
-        XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER, classLoader,
-            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val intent = param.args[0] as Intent
-                    saveLog(intent, context)
-                }
-            })
+            XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER, classLoader,
+                START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val intent = param.args[0] as Intent
+                        saveLog(intent)
+                    }
+                })
 
-        XposedHelpers.findAndHookMethod(
-            CONTEXT_WRAPPER,
-            classLoader, START_ACTIVITY,
-            Intent::class.java,
-            Bundle::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val intent = param.args[0] as Intent
-                    saveLog(intent, context)
-                }
-            })
+            XposedHelpers.findAndHookMethod(
+                CONTEXT_WRAPPER,
+                classLoader, START_ACTIVITY,
+                Intent::class.java,
+                Bundle::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val intent = param.args[0] as Intent
+                        saveLog(intent)
+                    }
+                })
 
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            classLoader, START_ACTIVITY_FOR_RESULT,
-            Intent::class.java,
-            Int::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val intent = param.args[0] as Intent
-                    saveLog(intent, context)
-                }
-            })
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            classLoader, START_ACTIVITY_FOR_RESULT,
-            Intent::class.java,
-            Int::class.java,
-            Bundle::class.java,
-            object : XC_MethodHook() {
+            XposedHelpers.findAndHookMethod(
+                ACTIVITY,
+                classLoader, START_ACTIVITY_FOR_RESULT,
+                Intent::class.java,
+                Int::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val intent = param.args[0] as Intent
+                        saveLog(intent)
+                    }
+                })
+            XposedHelpers.findAndHookMethod(
+                ACTIVITY,
+                classLoader, START_ACTIVITY_FOR_RESULT,
+                Intent::class.java,
+                Int::class.java,
+                Bundle::class.java,
+                object : XC_MethodHook() {
 
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val intent = param.args[0] as Intent
-                    saveLog(intent, context)
-                }
-            })
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val intent = param.args[0] as Intent
+                        saveLog(intent)
+                    }
+                })
+        }catch (e: Exception){
+            "hook intent error".tip()
+        }
     }
 
-    private fun saveLog(intent: Intent, context: Context?) {
+    private fun saveLog(intent: Intent) {
         val className = intent.component?.className ?: ""
         val packageName = intent.component?.packageName ?: ""
         val action = intent.action ?: ""
@@ -558,22 +554,72 @@ object Hook {
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
         val logBean = LogBean("intent", arrayListOf(configBean))
-        toLogMsg(context, Gson().toJson(logBean))
+        toLogMsg(Gson().toJson(logBean))
     }
 
-    private fun toLogMsg(context: Context?, log: String) {
+    private fun toLogMsg(log: String) {
         try {
             val contentValues = contentValuesOf("packageName" to "unless", "log" to log)
-            context?.let {
+            mContext?.let {
                 it.contentResolver?.insert(printUri, contentValues)
             }
         } catch (e: Exception) {
-            "current error when save log".log()
+            "current error when save log".tip()
         }
     }
 
     private fun getHookConfigPref(path: String = "hookConfig"): SharedPreferences? {
         val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
         return if (pref.file.canRead()) pref else null
+    }
+
+    private fun hotFix(context: Context, packageName: String) {
+        try {
+            val originalLoader = context.classLoader
+            val classLoader = DexClassLoader(
+                "/storage/emulated/0/Download/simpleHook/hotFix/$packageName/hotfix.dex",
+                context.cacheDir.path,
+                null,
+                null
+            )
+            val loaderClass: Class<*> = BaseDexClassLoader::class.java
+            val pathListField = loaderClass.getDeclaredField("pathList")
+            pathListField.isAccessible = true
+            val pathListObject = pathListField[classLoader]
+            val pathListClass: Class<*> = pathListObject.javaClass
+            val dexElementsField = pathListClass.getDeclaredField("dexElements")
+            dexElementsField.isAccessible = true
+            val dexElementsObject = dexElementsField[pathListObject]
+            val originalPathListObject = pathListField[originalLoader]
+            val originalDexElementsObject = dexElementsField[originalPathListObject]
+
+            //数组操作，把最新的补丁dex文件插入到最前面
+            val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
+            val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
+            val concatDexElementsObject = java.lang.reflect.Array.newInstance(
+                dexElementsObject.javaClass.componentType,
+                oldLength + newLength
+            )
+            for (i in 0 until newLength) {
+                java.lang.reflect.Array.set(
+                    concatDexElementsObject,
+                    i,
+                    java.lang.reflect.Array.get(dexElementsObject, i)
+                )
+            }
+            for (i in 0 until oldLength) {
+                java.lang.reflect.Array.set(
+                    concatDexElementsObject,
+                    newLength + i,
+                    java.lang.reflect.Array.get(originalDexElementsObject, i)
+                )
+            }
+            dexElementsField[originalPathListObject] = concatDexElementsObject
+
+            //全量替换伪代码 -> originalLoader.pathList.dexElements = classLoader.pathList.dexElement
+            //增量替换伪代码 -> originalLoader.pathList.dexElements += classLoader.pathList.dexElement
+        } catch (e: Exception) {
+            "hot fix error".tip()
+        }
     }
 }

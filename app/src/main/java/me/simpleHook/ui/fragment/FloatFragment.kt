@@ -5,7 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -79,7 +81,7 @@ class FloatFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "ClickableViewAccessibility")
     private fun initView() {
         binding.apply {
             recyclerView.apply {
@@ -117,6 +119,9 @@ class FloatFragment : Fragment() {
                 val strLog = str.toString().substring(0, str.toString().length - 2)
                 FileUtils.writeData(url, time, "[\n${strLog}\n]")
                 "导出路径为：${Constant.PRINT_LOG__DIRECTORY + time}.json".toast(requireContext(), 1)
+            }
+            dragEnable.setOnCheckedChangeListener { _, isChecked ->
+                EasyFloat.dragEnable(isChecked, "floatPrint")
             }
 
         }

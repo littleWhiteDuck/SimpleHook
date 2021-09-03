@@ -99,7 +99,7 @@ object FileUtils {
         return true
     }
 
-    private fun makeRootDirectory(filePath: String) {
+    fun makeRootDirectory(filePath: String) {
         val file: File?
         try {
             file = File(filePath)

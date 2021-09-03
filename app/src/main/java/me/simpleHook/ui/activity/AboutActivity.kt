@@ -100,9 +100,6 @@ class AboutActivity : AppCompatActivity() {
                     "Apache software license 2.0"
                 )
             )
-            add(Title("其他"))
-            add(OpenSource("XposedTinker - w296488320(珍惜)",
-            "https://github.com/w296488320/XposedTinker", "https://bbs.pediy.com/thread-255700.com"))
         }
     }
 

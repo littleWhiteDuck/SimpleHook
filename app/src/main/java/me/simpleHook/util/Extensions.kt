@@ -38,6 +38,10 @@ fun String.log(){
     }
 }
 
+fun String.tip(){
+    XposedBridge.log("*****===${this}===*****")
+}
+
 // 跑马灯
 fun TextView.marquee(){
     this.apply {

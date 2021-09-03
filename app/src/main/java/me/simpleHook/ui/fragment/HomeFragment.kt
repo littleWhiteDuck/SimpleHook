@@ -10,7 +10,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -238,9 +237,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
     }
 
     private fun importConfigs(configs: String) {
-        when {
-            JsonUtil.isJsonArray(configs) -> {
-                try {
+        try {
+            when {
+                JsonUtil.isJsonArray(configs) -> {
                     val configsJsonArray = JSONArray(configs)
                     val dataList = ArrayList<ConfigItem>()
                     for (i in 0 until configsJsonArray.length()) {
@@ -262,29 +261,28 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
                         requireActivity().supportFragmentManager,
                         "import"
                     )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    val tip = getString(R.string.import_fail_tip)
-                    tip.toast(requireContext())
-                }
-            }
-            JsonUtil.isJsonObject(configs) -> {
-                JSONObject(configs).apply {
-                    viewModel.insertConfigs(
-                        AppConfig(
-                            getString("packageName"),
-                            getString("appName"),
-                            getString("versionName"),
-                            getString("description"),
-                            toString()
-                        )
-                    )
-                }
 
+                }
+                JsonUtil.isJsonObject(configs) -> {
+                    JSONObject(configs).apply {
+                        viewModel.insertConfigs(
+                            AppConfig(
+                                getString("packageName"),
+                                getString("appName"),
+                                getString("versionName"),
+                                getString("description"),
+                                toString()
+                            )
+                        )
+                    }
+
+                }
+                else -> {
+                    getString(R.string.incorrect_format_tip).toast(requireContext())
+                }
             }
-            else -> {
-                getString(R.string.incorrect_format_tip).toast(requireContext())
-            }
+        } catch (e: java.lang.Exception) {
+            "错误".toast(requireContext())
         }
     }
 

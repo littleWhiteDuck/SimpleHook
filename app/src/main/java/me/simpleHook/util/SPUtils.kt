@@ -11,6 +11,7 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
 
     var openStorage by SharedPreferenceDelegates.boolean()
     var openXml by SharedPreferenceDelegates.boolean()
+    var updateShow by SharedPreferenceDelegates.string("66")
     fun remove(key: String){
         preferences.edit().remove(key).apply()
     }

@@ -85,10 +85,19 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/close_window_for_print"
-        app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close_24" />
+
+    <CheckBox
+        android:id="@+id/dragEnable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/drag"
+        android:textColor="@color/colorPrimaryVariant"
+        app:layout_constraintEnd_toStartOf="@+id/close_window"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

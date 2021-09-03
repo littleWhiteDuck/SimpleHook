@@ -60,10 +60,12 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/mode_select"
                 android:textSize="18sp"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
+                android:visibility="gone"
                 android:id="@+id/mode_select_spinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

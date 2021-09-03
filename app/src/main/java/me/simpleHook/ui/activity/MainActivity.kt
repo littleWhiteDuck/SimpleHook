@@ -1,16 +1,21 @@
 package me.simpleHook.ui.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import littleWhiteDuck.WindowPreferencesManager
+import me.simpleHook.BuildConfig
+import me.simpleHook.BuildConfig.*
 import me.simpleHook.R
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.fragment.AssistFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
+import java.io.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +32,33 @@ class MainActivity : AppCompatActivity() {
         initView()
         if (!isModuleLive()) "模块未激活".toast(this)
         if (sp.openStorage) FileUtils.verifyStoragePermissions(this)
+        initUpdateTip()
+    }
+
+    private fun initUpdateTip() {
+        if (sp.updateShow == VERSION_CODE.toString()) return
+        val bufferedReader = BufferedReader(InputStreamReader(assets.open("update")))
+        val message = try {
+            var msg = ""
+            bufferedReader.readLines().forEach {
+                msg += it + "\n"
+            }
+            msg.substring(0, msg.length - 1)
+        }catch (e: IOException){
+            "失败！"
+        }finally {
+            bufferedReader.close()
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle("更新内容")
+            .setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("不再提示"){dialog, _ ->
+                sp.updateShow = VERSION_CODE.toString()
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     private fun initView() {

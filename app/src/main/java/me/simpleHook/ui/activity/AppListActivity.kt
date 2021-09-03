@@ -157,6 +157,7 @@ class AppListActivity : AppCompatActivity() {
         val appList = ArrayList<AppItem>()
         for (i in packageInfoList.indices) {
             packageInfoList[i].apply {
+                if (blackList.contains(packageName)) return@apply
                 appList.add(
                     AppItem(
                         AppUtils.getAppName(this@AppListActivity, this),

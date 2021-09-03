@@ -65,4 +65,5 @@
     <string name="cancel">取消</string>
     <string name="select_all">全选</string>
     <string name="confirm">确认</string>
+    <string name="drag">拖拽</string>
 </resources>
