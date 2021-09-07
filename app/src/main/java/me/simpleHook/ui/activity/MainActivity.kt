@@ -1,13 +1,13 @@
 package me.simpleHook.ui.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.github.clans.fab.BuildConfig.VERSION_CODE
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import littleWhiteDuck.WindowPreferencesManager
-import me.simpleHook.BuildConfig
 import me.simpleHook.BuildConfig.*
 import me.simpleHook.R
 import me.simpleHook.databinding.ActivityMainBinding
@@ -24,11 +24,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        val windowPreferencesManager = WindowPreferencesManager(this)
-        windowPreferencesManager.applyEdgeToEdgePreference(window)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         if (!isModuleLive()) "模块未激活".toast(this)
         if (sp.openStorage) FileUtils.verifyStoragePermissions(this)
@@ -44,16 +44,16 @@ class MainActivity : AppCompatActivity() {
                 msg += it + "\n"
             }
             msg.substring(0, msg.length - 1)
-        }catch (e: IOException){
+        } catch (e: IOException) {
             "失败！"
-        }finally {
+        } finally {
             bufferedReader.close()
         }
         MaterialAlertDialogBuilder(this)
             .setTitle("更新内容")
             .setMessage(message)
             .setCancelable(false)
-            .setPositiveButton("不再提示"){dialog, _ ->
+            .setPositiveButton("不再提示") { dialog, _ ->
                 sp.updateShow = VERSION_CODE.toString()
                 dialog.dismiss()
             }
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             }
-            binding.bottomNavigationView.setOnNavigationItemSelectedListener {
+            binding.bottomNavigationView.setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.homeFragment -> setCurrentItem(0)
                     R.id.assistFragment -> setCurrentItem(1)

@@ -1,6 +1,7 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import littleWhiteDuck.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
@@ -48,8 +50,8 @@ class AboutActivity : AppCompatActivity() {
                 )
             )
             add(Title("测试人员"))
-            add(Author("正己", "测试bug", null))
-            add(Author("简", "测试bug", null))
+            add(Author("正己", "测试bug", R.drawable.zhengji))
+            add(Author("简", "测试bug", R.drawable.jian))
             add(Title("开源相关"))
             add(
                 OpenSource(
@@ -137,6 +139,26 @@ class AboutActivity : AppCompatActivity() {
                     LinearLayoutManager.VERTICAL
                 )
             )
+            rev.addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect,
+                    view: View,
+                    parent: RecyclerView,
+                    state: RecyclerView.State
+                ) {
+                    // Get the position of the view in the recycler view
+                    val position = parent.getChildAdapterPosition(view)
+                    if (position == RecyclerView.NO_POSITION) {
+                        return
+                    }
+
+                    if (position == parent.adapter!!.itemCount - 1) {
+                        // Add padding to the last item. You should probably use a @dimen resource.
+                        outRect.bottom = 200
+                    }
+                }
+            })
+
         }
 
     }

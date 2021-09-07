@@ -9,5 +9,6 @@ data class AssistConfigBean(
     val intent: Boolean = false,
     val tinker: Boolean = false,
     val vpn: Boolean = false,
-    val click: Boolean = false
+    val click: Boolean = false,
+    val popCancel: Boolean = false
 )

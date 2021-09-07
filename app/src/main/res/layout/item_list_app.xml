@@ -33,46 +33,38 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline9"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@drawable/ic_launcher_foreground"
+            tools:ignore="ImageContrastCheck" />
 
         <TextView
             android:id="@+id/tv_app_name"
+            style="?attr/textAppearanceListItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_version_name"
+            app:layout_constraintBottom_toTopOf="@+id/tv_package_name"
             app:layout_constraintStart_toStartOf="@+id/guideline9"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="simpleHook" />
 
         <TextView
-            android:id="@+id/tv_version_name"
+            android:id="@+id/tv_other_info"
+            style="?attr/textAppearanceCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/tv_package_name"
-            app:layout_constraintStart_toStartOf="@+id/tv_app_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_app_name"
-            tools:text="1.0.2" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_package_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_package_name"
+            tools:text="1.0.2, 21-01-02, Target Api 31" />
 
         <TextView
             android:id="@+id/tv_package_name"
+            style="?attr/textAppearanceCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tv_version_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_version_name"
+            app:layout_constraintBottom_toTopOf="@+id/tv_other_info"
+            app:layout_constraintStart_toStartOf="@+id/tv_app_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_app_name"
             tools:text="me.simpleHook" />
 
-        <TextView
-            android:id="@+id/tv_install_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_version_name"
-            app:layout_constraintStart_toEndOf="@+id/tv_version_name"
-            app:layout_constraintTop_toTopOf="@+id/tv_version_name"
-            tools:text="2020-03-02" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

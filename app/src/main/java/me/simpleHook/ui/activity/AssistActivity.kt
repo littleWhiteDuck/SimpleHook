@@ -34,7 +34,8 @@ import me.simpleHook.util.*
 
 private const val DIALOG_SWITCH = "dialogSwitch"
 private const val TOAST_SWITCH = "toastSwitch"
-private const val POPUP_SWITCH = "popupWindowSwitch"
+private const val POPUP_SWITCH = "popupSwitch"
+private const val POPUP_CANCEL_SWITCH = "popupCancelSwitch"
 private const val DIALOG_CANCEL = "dialogCancel"
 private const val ALL_SWITCH = "allSwitch"
 private const val TINKER_FIX = "hotFix"
@@ -87,6 +88,7 @@ class AssistActivity : AppCompatActivity() {
                 put(INTENT_DATA, intent)
                 put(VPN_CHECK, vpn)
                 put(CLICK_LISTENER, click)
+                put(POPUP_CANCEL_SWITCH, popCancel)
             }
         }
         itemList.apply {
@@ -99,6 +101,7 @@ class AssistActivity : AppCompatActivity() {
                 add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL, "用于一般弹窗的强制可取消"))
                 add(AssistItem("Toast", toast, TOAST_SWITCH, "打印toast调用"))
                 add(AssistItem("PopupWindow", popup, POPUP_SWITCH, "打印调用（也可作为弹窗）"))
+                add(AssistItem("PopupWindow可取消", popCancel, POPUP_CANCEL_SWITCH, "点击弹窗外部/返回取消"))
                 add(AssistItem("点击事件",click, CLICK_LISTENER, "打印点击调用"))
                 add(AssistTitle("其他"))
                 add(AssistItem("intent", intent, INTENT_DATA, "打印常见启动activity时传递的intent"))
@@ -236,7 +239,8 @@ class AssistActivity : AppCompatActivity() {
             hashMap[INTENT_DATA] == true,
             hashMap[TINKER_FIX] == true,
             hashMap[VPN_CHECK] == true,
-            hashMap[CLICK_LISTENER] == true
+            hashMap[CLICK_LISTENER] == true,
+            hashMap[POPUP_CANCEL_SWITCH] == true
         )
         val config = Gson().toJson(configBean)
         assistConfig.config = config

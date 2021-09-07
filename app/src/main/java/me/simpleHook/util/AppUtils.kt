@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.os.Build
 import me.simpleHook.R
 
 
@@ -42,6 +43,14 @@ object AppUtils {
         return packageInfo.applicationInfo.loadIcon(context.packageManager)
     }
 
+    fun getTargetSdkVersion(context: Context, packageName: String): String{
+        return try {
+            "Target Api ${context.packageManager.getPackageInfo(packageName, 0).applicationInfo.targetSdkVersion}"
+        } catch (e: Exception) {
+            "Target Api -1"
+        }
+    }
+
     fun getAppName(context: Context, packageName: String): String {
         return context.packageManager.getPackageInfo(packageName, 0).applicationInfo.loadLabel(
             context.packageManager
@@ -55,13 +64,23 @@ object AppUtils {
 
 
     fun getAppVersionName(context: Context, packageName: String): String {
-        var versionName = "未安装"
-        try {
-            versionName = context.packageManager.getPackageInfo(packageName, 0).versionName
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0).versionName
         } catch (e: Exception) {
-
+            "未安装"
         }
-        return versionName
+    }
+
+    fun getAppVersionCode(context: Context, packageName: String): String {
+        return try {
+            val info = context.packageManager.getPackageInfo(packageName, 0)
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+                info.longVersionCode
+            } else info.versionCode
+            versionCode.toString()
+        } catch (e: Exception) {
+            ""
+        }
     }
 
     fun startApp(packageName: String, context: Context) {

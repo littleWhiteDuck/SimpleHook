@@ -8,6 +8,10 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.bean.AppItem
 import me.simpleHook.util.AppUtils
 import java.util.*
@@ -21,16 +25,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         get() = _systemApps
 
     fun fetchData() {
-        _userApps.value = getAppList(AppUtils.getInstalledUserApp(getApplication()))
-        _systemApps.value = getAppList(AppUtils.getInstalledSystemApp(getApplication()))
+        viewModelScope.launch {
+            loadData()
+        }
     }
 
-    /* val userApps = MutableLiveData<List<AppItem>>()
-     val systemApps = MutableLiveData<List<AppItem>>()
-     fun fetchData() {
-         userApps.value = getAppList(AppUtils.getInstalledUserApp(getApplication()))
-         systemApps.value = getAppList(AppUtils.getInstalledSystemApp(getApplication()))
-     }*/
+    private suspend fun loadData() = withContext(Dispatchers.Default){
+        _userApps.postValue(getAppList(AppUtils.getInstalledUserApp(getApplication())))
+        _systemApps.postValue(getAppList(AppUtils.getInstalledSystemApp(getApplication())))
+    }
+
     private fun getAppList(packageInfoList: List<PackageInfo>): List<AppItem> {
         val appList = ArrayList<AppItem>()
         for (i in packageInfoList.indices) {
@@ -40,7 +44,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         AppUtils.getAppName(getApplication(), this),
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
-                        getDateTime(lastUpdateTime)
+                        getDateTime(lastUpdateTime),
+                        AppUtils.getTargetSdkVersion(getApplication(), packageName)
                     )
                 )
             }

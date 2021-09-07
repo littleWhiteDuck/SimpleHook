@@ -1,12 +1,15 @@
 package littleWhiteDuck
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Proxy
 import android.net.Uri
 import android.os.Bundle
+import android.os.Process
 import android.view.View
 import android.widget.PopupWindow
 import android.widget.Toast
@@ -20,11 +23,11 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
+
 import me.simpleHook.bean.*
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
-import java.lang.Exception
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -113,6 +116,7 @@ class Hook {
         toHook(currentPackageName, mContext)
     }
 
+    @SuppressLint("Range")
     private fun toHook(packageName: String, context: Context?) {
         context?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
             ?.apply {
@@ -148,7 +152,14 @@ class Hook {
                             resultValues,
                             fieldType
                         )
-                        else -> hook(className, mClassLoader, methodName, resultValues, params, mode)
+                        else -> hook(
+                            className,
+                            mClassLoader,
+                            methodName,
+                            resultValues,
+                            params,
+                            mode
+                        )
                     }
                 }
             }
@@ -283,6 +294,7 @@ class Hook {
     }
 
 
+    @SuppressLint("Range")
     private fun contextAssistHook(packageName: String) {
         var config = ""
         mContext?.contentResolver?.query(
@@ -341,13 +353,61 @@ class Hook {
             if (!all) return
             hookDialog(dialog, diaCancel)
             if (toast) hookToast()
-            if (popup) hookPopupWindow()
+            hookPopupWindow(popup, popCancel)
             if (tinker) hotFix(mContext!!, packageName)
             if (intent) hookIntent()
             if (vpn) hookVpnCheck()
             if (click) hookOnClick()
         }
+        hookXposedCheck()
+    }
 
+    private fun hookXposedCheck() {
+        XposedBridge.hookAllConstructors(File::class.java, object :XC_MethodHook(){
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val pathName = param.args[0] as String
+                val pid = Process.myPid()
+                XposedBridge.log("================-pid:$pid; $pathName;========")
+                if (pathName.contains("maps")){
+                    XposedBridge.log("====================执行========")
+                    param.args[0] = if (pid > 0){
+                        "/proc/$pid/anti_maps"
+                    }else{
+                        "/proc/self/anti_maps"
+                    }
+                    XposedBridge.log("====================-${param.args[0]}========")
+                }
+            }
+        })
+    }
+
+    private fun hookWifi() {
+        XposedHelpers.findAndHookMethod(System::class.java, "getProperty", String::class.java,
+            object : XC_MethodHook(){
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String
+                    if (key == "http.proxyHost"){
+                        param.result = ""
+                    }else if (key == "http.proxyPort"){
+                        param.result = "-1"
+                    }
+                    XposedBridge.log("system1, $key")
+                }
+            })
+        XposedHelpers.findAndHookMethod(Proxy::class.java, "getHost", Context::class.java,
+            object : XC_MethodHook(){
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    param.result = ""
+                    XposedBridge.log("system2, getHost")
+                }
+            })
+        XposedHelpers.findAndHookMethod(Proxy::class.java, "getPort", Context::class.java,
+            object : XC_MethodHook(){
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    param.result = -1
+                    XposedBridge.log("system, getPort")
+                }
+            })
     }
 
     private fun hookVpnCheck() {
@@ -362,7 +422,7 @@ class Hook {
                         param.result = "are you ok"
                     }
                 })
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "hook vpnCheck error".tip()
         }
     }
@@ -377,13 +437,13 @@ class Hook {
                     toStackTrace(type, stackTrace)
                 }
             })
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "hook toast error".tip()
         }
 
     }
 
-    private fun hookPopupWindow() {
+    private fun hookPopupWindow(popupStack: Boolean, cancel: Boolean) {
         try {
             XposedBridge.hookAllMethods(
                 PopupWindow::class.java,
@@ -391,9 +451,7 @@ class Hook {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         super.beforeHookedMethod(param)
-                        val type = param?.thisObject?.javaClass?.name ?: "未知"
-                        val stackTrace = Throwable().stackTrace
-                        toStackTrace(type, stackTrace)
+                        hookPopupWindowDetail(param, popupStack, cancel)
                     }
                 })
             XposedBridge.hookAllMethods(
@@ -402,13 +460,28 @@ class Hook {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         super.beforeHookedMethod(param)
-                        val type = param?.thisObject?.javaClass?.name ?: "未知"
-                        val stackTrace = Throwable().stackTrace
-                        toStackTrace(type, stackTrace)
+                        hookPopupWindowDetail(param, popupStack, cancel)
                     }
                 })
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "hook popupWindow error".tip()
+        }
+    }
+
+    private fun hookPopupWindowDetail(
+        param: XC_MethodHook.MethodHookParam?,
+        popupStack: Boolean,
+        cancel: Boolean
+    ) {
+        val popupWindow = param?.thisObject as PopupWindow
+        if (cancel) {
+            popupWindow.isFocusable = true
+            popupWindow.isOutsideTouchable = true
+        }
+        if (popupStack) {
+            val type = popupWindow.javaClass.name ?: "未知"
+            val stackTrace = Throwable().stackTrace
+            toStackTrace(type, stackTrace)
         }
     }
 
@@ -428,7 +501,7 @@ class Hook {
                     }
                 }
             })
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "hook dialog error".tip()
         }
     }
@@ -443,7 +516,7 @@ class Hook {
                     toStackTrace(type, stackTrace)
                 }
             })
-        }catch (e : Exception){
+        } catch (e: Exception) {
             "hook performClick error".tip()
         }
     }
@@ -528,7 +601,7 @@ class Hook {
                         saveLog(intent)
                     }
                 })
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "hook intent error".tip()
         }
     }

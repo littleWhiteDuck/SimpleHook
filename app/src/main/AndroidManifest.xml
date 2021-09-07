@@ -23,25 +23,30 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SimpleHook"
+        android:theme="@style/Theme.AppSplashScreen"
         tools:targetApi="n">
-        <activity android:name=".ui.activity.BaseActivity"></activity>
+
         <activity
+            android:theme="@style/Theme.SimpleHook"
             android:name=".ui.activity.AboutActivity"
             android:label="关于" />
         <activity
+            android:theme="@style/Theme.SimpleHook"
             android:name=".ui.activity.AssistActivity"
             android:label="辅助" />
         <activity
+            android:theme="@style/Theme.SimpleHook"
             android:name=".ui.activity.AppListActivity"
             android:label="选取应用" />
         <activity
+            android:theme="@style/Theme.SimpleHook"
             android:name=".ui.activity.ConfigActivity"
             android:label="配置" />
         <activity
             android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity">
+            tools:ignore="LockedOrientationActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,5 +1,6 @@
 package me.simpleHook.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -19,8 +20,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         val ivIcon = binding.ivIcon
         val tvAppName = binding.tvAppName
         val tvPackageName = binding.tvPackageName
-        val tvInstallTime = binding.tvInstallTime
-        val tvVersionName = binding.tvVersionName
+        val tvOtherInfo = binding.tvOtherInfo
     }
 
     fun setOnClickListener(listener: OnItemClickListener) {
@@ -37,6 +37,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         return holder
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val appItem = getItem(position)
         holder.itemView.setTag(R.id.item_select_position, appItem)
@@ -47,8 +48,8 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
                 tvAppName.marquee()
                 tvPackageName.text = packageName
                 tvPackageName.marquee()
-                tvInstallTime.text = installedTime
-                tvVersionName.text = versionName
+                tvOtherInfo.text = "$versionName, $installedTime, $targetApi"
+                tvOtherInfo.marquee()
             }
         }
     }

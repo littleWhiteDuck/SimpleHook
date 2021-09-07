@@ -20,6 +20,8 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_config"
         style="@style/FloatButtonTheme"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="80dp"
         android:contentDescription="@string/add_method_config"
         android:src="@drawable/ic_add_24"
         app:layout_constraintBottom_toBottomOf="parent"

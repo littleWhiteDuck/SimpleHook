@@ -49,6 +49,7 @@ class PopupWindowList private constructor(private val builder: Builder, private 
         }
         setXY()
         popupWindow = PopupWindow(contentView, popupWindowWidth, popupWindowHeight)
+
         popupWindow.apply {
             isOutsideTouchable = builder.outsideTouchable
             isFocusable = foscuable

@@ -9,7 +9,7 @@
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="openXml"
-            app:summary="使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则无效"
+            app:summary="使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改"
             app:title="向xml中写入配置" />
 
     </PreferenceCategory>
@@ -18,6 +18,10 @@
         <Preference
             app:key="about"
             app:title="关于" />
+        <Preference
+            app:key="help"
+            app:title="帮助"
+            app:summary="不正经的"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

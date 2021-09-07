@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import littleWhiteDuck.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppConfigBean
@@ -55,8 +56,10 @@ class ConfigActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         val bundle = intent.getBundleExtra("bundle")
         appConfig = bundle?.getParcelable("appConfig")
         initView()

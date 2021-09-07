@@ -1,6 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.AppSplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="postSplashScreenTheme">@style/Theme.SimpleHook</item>
+            </style>
     <!-- Base application theme. -->
-    <style name="Theme.SimpleHook" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SimpleHook" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#65A3F0</item>
         <item name="colorPrimaryVariant">#4F9BFA</item>
@@ -28,6 +33,6 @@
         <item name="tint">@color/white</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">16dp</item>
     </style>
+
 </resources>
