@@ -19,6 +19,7 @@ import java.util.*
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
+    private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
     val userApps: LiveData<List<AppItem>>
         get() = _userApps
     val systemApps: LiveData<List<AppItem>>
@@ -38,6 +39,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private fun getAppList(packageInfoList: List<PackageInfo>): List<AppItem> {
         val appList = ArrayList<AppItem>()
         for (i in packageInfoList.indices) {
+            if (blackList.contains(packageInfoList[i].packageName)) continue
             packageInfoList[i].apply {
                 appList.add(
                     AppItem(

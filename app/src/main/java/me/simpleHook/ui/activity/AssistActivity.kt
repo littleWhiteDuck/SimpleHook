@@ -2,14 +2,16 @@ package me.simpleHook.ui.activity
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.gson.Gson
@@ -30,6 +32,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAssistBinding
 import me.simpleHook.ui.fragment.FloatFragment
+import me.simpleHook.ui.view.AssistItemView
 import me.simpleHook.util.*
 
 private const val DIALOG_SWITCH = "dialogSwitch"
@@ -42,6 +45,7 @@ private const val TINKER_FIX = "hotFix"
 private const val INTENT_DATA = "intentData"
 private const val VPN_CHECK = "vpnCheck"
 private const val CLICK_LISTENER = "click"
+private const val XPOSED_CHECK = "xposedCheck"
 
 class AssistActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAssistBinding
@@ -89,12 +93,21 @@ class AssistActivity : AppCompatActivity() {
                 put(VPN_CHECK, vpn)
                 put(CLICK_LISTENER, click)
                 put(POPUP_CANCEL_SWITCH, popCancel)
+                put(XPOSED_CHECK, xposed)
             }
         }
         itemList.apply {
             configBean.apply {
                 add(AssistTitle("基本"))
-                add(AssistItem("启动应用", false, "startApp", assistConfig.packageName, assistConfig.appName))
+                add(
+                    AssistItem(
+                        "启动应用",
+                        false,
+                        "startApp",
+                        assistConfig.packageName,
+                        assistConfig.appName
+                    )
+                )
                 add(AssistItem("总开关", all, ALL_SWITCH, ""))
                 add(AssistTitle("界面"))
                 add(AssistItem("弹窗", dialog, DIALOG_SWITCH, "打印弹窗调用"))
@@ -102,41 +115,63 @@ class AssistActivity : AppCompatActivity() {
                 add(AssistItem("Toast", toast, TOAST_SWITCH, "打印toast调用"))
                 add(AssistItem("PopupWindow", popup, POPUP_SWITCH, "打印调用（也可作为弹窗）"))
                 add(AssistItem("PopupWindow可取消", popCancel, POPUP_CANCEL_SWITCH, "点击弹窗外部/返回取消"))
-                add(AssistItem("点击事件",click, CLICK_LISTENER, "打印点击调用"))
+                add(AssistItem("点击事件", click, CLICK_LISTENER, "打印点击调用"))
                 add(AssistTitle("其他"))
                 add(AssistItem("intent", intent, INTENT_DATA, "打印常见启动activity时传递的intent"))
-                add(AssistItem("热修复", tinker, TINKER_FIX, "dex放在Download/simpleHook\n/hotFix/${assistConfig.packageName}/hotfix.dex"))
+                add(
+                    AssistItem(
+                        "热修复",
+                        tinker,
+                        TINKER_FIX,
+                        "dex放在Download/simpleHook\n/hotFix/${assistConfig.packageName}/"
+                    )
+                )
                 add(AssistTitle("网络"))
                 add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
+                add(AssistTitle("环境"))
+                add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))
             }
         }
     }
 
     private fun initView() {
         val mAdapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
-            override fun getLayoutResId(position: Int, data: Any) = when (data) {
-                is AssistTitle -> R.layout.item_assist_setting_title
-                is AssistItem -> R.layout.item_assist_setting_item
+            override fun getItemViewType(position: Int, data: Any) = when (data) {
+                is AssistTitle -> 1
+                is AssistItem -> 2
                 else -> throw IllegalArgumentException("unknown data: $data")
             }
 
+            override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
+                1 -> AppCompatTextView(parent.context).apply {
+                    layoutParams = ViewGroup.MarginLayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).also {
+                        it.setMargins(16.dp, 0, 0, 0)
+                    }
+                }
+                2 -> AssistItemView(parent.context)
+                else -> throw IllegalArgumentException("unknown viewType: $viewType")
+            }
+
             override fun onCreateViewHolder(
-                inflater: LayoutInflater,
                 parent: ViewGroup,
-                layoutResId: Int
+                itemView: View
             ): BasicViewHolder<*> {
-                val itemView = inflater.inflate(layoutResId, parent, false)
-                return when (layoutResId) {
-                    R.layout.item_assist_setting_title -> TitleHolder(itemView)
-                    R.layout.item_assist_setting_item -> ItemHolder(itemView) { checked, tag ->
+                return when (itemView) {
+                    is AppCompatTextView -> TitleHolder(itemView)
+                    is AssistItemView -> ItemHolder(itemView)
+                    { checked, tag ->
                         onClick(
                             checked,
                             tag
                         )
                     }
-                    else -> throw IllegalArgumentException("unknown layoutResId: $layoutResId")
+                    else -> throw IllegalArgumentException("unknown view: $itemView")
                 }
             }
+
 
         })
         binding.recyclerView.apply {
@@ -148,11 +183,28 @@ class AssistActivity : AppCompatActivity() {
                     LinearLayoutManager.VERTICAL
                 )
             )
+            addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect,
+                    view: View,
+                    parent: RecyclerView,
+                    state: RecyclerView.State
+                ) {
+                    val position = parent.getChildAdapterPosition(view)
+                    if (position == RecyclerView.NO_POSITION) {
+                        return
+                    }
+
+                    if (position == parent.adapter!!.itemCount - 1) {
+                        outRect.bottom = 100
+                    }
+                }
+            })
         }
     }
 
     class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
-        private val tvTitle = itemView as TextView
+        private val tvTitle = itemView as AppCompatTextView
         override fun onBindData(position: Int, data: AssistTitle) {
             tvTitle.text = data.title
         }
@@ -160,9 +212,10 @@ class AssistActivity : AppCompatActivity() {
 
     class ItemHolder(itemView: View, val onClick: (Boolean, String) -> Unit) :
         BasicViewHolder<AssistItem>(itemView) {
-        private val tvTitle: TextView = itemView.findViewById(R.id.title)
-        private val tvDesc: TextView = itemView.findViewById(R.id.tv_description)
-        private val tvControl: TextView = itemView.findViewById(R.id.control)
+        private val assistItemView = itemView as AssistItemView
+        private val tvTitle: TextView = assistItemView.title
+        private val tvDesc: TextView = assistItemView.desc
+        private val tvControl: TextView = assistItemView.control
         override fun onBindData(position: Int, data: AssistItem) {
             if (data.desc == "") tvDesc.visibility = View.GONE
             tvTitle.text = data.title
@@ -211,7 +264,7 @@ class AssistActivity : AppCompatActivity() {
             startAppAndFloat()
             return
         }
-        if (tag == TINKER_FIX && checked){
+        if (tag == TINKER_FIX && checked) {
             FileUtils.verifyStoragePermissions(this)
             FileUtils.makeRootDirectory("$HOT_FIX_DIRECTORY/${assistConfig.packageName}/")
         }
@@ -240,7 +293,8 @@ class AssistActivity : AppCompatActivity() {
             hashMap[TINKER_FIX] == true,
             hashMap[VPN_CHECK] == true,
             hashMap[CLICK_LISTENER] == true,
-            hashMap[POPUP_CANCEL_SWITCH] == true
+            hashMap[POPUP_CANCEL_SWITCH] == true,
+            hashMap[XPOSED_CHECK] == true
         )
         val config = Gson().toJson(configBean)
         assistConfig.config = config
@@ -265,44 +319,17 @@ class AssistActivity : AppCompatActivity() {
 
                     override fun createFragment(position: Int) = FloatFragment()
                 }
-                it.findViewById<ImageView>(R.id.minify_window).setOnClickListener {
-                    if (EasyFloat.getFloatView("floatControl") != null) {
-                        EasyFloat.show("floatControl")
-                    } else {
-                        initControlFloat()
-                    }
-                    EasyFloat.hide("floatPrint")
-                }
             }
             .setTag("floatPrint")
             .setShowPattern(ShowPattern.ALL_TIME)
             .setSidePattern(SidePattern.RESULT_HORIZONTAL)
             .setDragEnable(false)
-            .setLocation(0, 50)
+            .setLocation(0, 0)
             .setMatchParent(widthMatch = true, heightMatch = false)
             .setAnimator(DefaultAnimator())
             .show()
     }
 
-    private fun initControlFloat() {
-        val imageView = ImageView(this).apply {
-            setImageResource(R.drawable.float_control_icon)
-        }
-        EasyFloat.with(this)
-            .setLayout(imageView) {
-                it.setOnClickListener {
-                    EasyFloat.show("floatPrint")
-                    EasyFloat.hide("floatControl")
-                }
-            }
-            .setTag("floatControl")
-            .setShowPattern(ShowPattern.ALL_TIME)
-            .setSidePattern(SidePattern.RESULT_HORIZONTAL)
-            .setDragEnable(true)
-            .setLocation(100, 200)
-            .setAnimator(DefaultAnimator())
-            .show()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_add, menu)

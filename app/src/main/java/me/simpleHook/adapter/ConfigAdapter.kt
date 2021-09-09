@@ -1,33 +1,38 @@
 package me.simpleHook.adapter
 
-import android.view.LayoutInflater
+
+import android.annotation.SuppressLint
 import android.view.ViewGroup
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
-import me.simpleHook.databinding.ItemConfigLayoutBinding
+import me.simpleHook.ui.view.ConfigView
 import me.simpleHook.util.marquee
 
-class ConfigAdapter(private val onClick: (position :Int) -> Unit, private val onLongClick: (position:Int) -> Unit) :
+class ConfigAdapter(
+    private val onClick: (position: Int) -> Unit,
+    private val onLongClick: (position: Int) -> Unit
+) :
     ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
-    private lateinit var binding: ItemConfigLayoutBinding
 
-    inner class ViewHolder(binding: ItemConfigLayoutBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        val tvClassName = binding.classSimpleName
-        val tvMethodName = binding.methodName
-        val tvNumber = binding.num
+
+    inner class ViewHolder(itemView: ConfigView) :
+        RecyclerView.ViewHolder(itemView) {
+        val tvClassName = itemView.className
+        val tvOtherName = itemView.otherName
+        val tvNumber = itemView.num
     }
 
+    @SuppressLint("ResourceType")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        binding =
-            ItemConfigLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val viewHolder = ViewHolder(binding)
+        val configView = ConfigView(parent.context)
+        val viewHolder = ViewHolder(configView)
         viewHolder.apply {
             tvClassName.marquee()
-            tvMethodName.marquee()
+            tvOtherName.marquee()
             itemView.apply {
                 setOnClickListener {
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
@@ -48,7 +53,8 @@ class ConfigAdapter(private val onClick: (position :Int) -> Unit, private val on
         val methodConfig = getItem(position)
         holder.apply {
             tvClassName.text = methodConfig.className
-            tvMethodName.text = if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
+            tvOtherName.text =
+                if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
             tvNumber.text = (position + 1).toString()
         }
     }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".ui.fragment.FloatFragment">
 
 
@@ -11,10 +11,9 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
+        app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <TextView
         android:id="@+id/title"
@@ -22,72 +21,71 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/print_log"
-        android:textColor="@color/colorPrimary"
         android:textAppearance="?android:textAppearanceListItem"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/dragEnable"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <TextView
+    <Button
         android:id="@+id/pause_print_log"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:background="#4f9bfa"
         android:text="@string/pause"
-        android:textAppearance="?android:textAppearanceListItem"
         app:layout_constraintEnd_toStartOf="@+id/clear_all_data"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
+        app:layout_constraintTop_toBottomOf="@+id/view2" />
 
-    <TextView
+    <Button
         android:id="@+id/clear_all_data"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#4ffaae"
         android:text="@string/clear"
-        android:textAppearance="?android:textAppearanceListItem"
         app:layout_constraintEnd_toStartOf="@+id/import_to_file"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/pause_print_log"
         app:layout_constraintTop_toTopOf="@+id/pause_print_log" />
 
 
-    <TextView
+    <Button
         android:id="@+id/import_to_file"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#faae4f"
         android:text="@string/importLog"
-        android:textAppearance="?android:textAppearanceListItem"
         app:layout_constraintEnd_toStartOf="@+id/minify_window"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/clear_all_data"
         app:layout_constraintTop_toTopOf="@+id/clear_all_data" />
 
-    <TextView
+    <Button
         android:id="@+id/minify_window"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#fa4f9b"
         android:text="@string/minify"
-        android:textAppearance="?android:textAppearanceListItem"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/import_to_file"
         app:layout_constraintTop_toTopOf="@+id/import_to_file" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/close_window"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
+        android:padding="5dp"
+        android:background="?selectableItemBackground"
         android:contentDescription="@string/close_window_for_print"
+        android:src="@drawable/ic_close_24"
+        app:layout_constraintBottom_toBottomOf="@+id/dragEnable"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_close_24" />
+        app:layout_constraintTop_toTopOf="@+id/dragEnable" />
 
     <CheckBox
         android:id="@+id/dragEnable"
@@ -99,5 +97,21 @@
         app:layout_constraintEnd_toStartOf="@+id/close_window"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
 
+    <View
+        android:id="@+id/view3"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dragEnable" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,8 +18,7 @@ import me.simpleHook.bean.AppItem
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAppListBinding
-import me.simpleHook.ui.fragment.AppSystemFragment
-import me.simpleHook.ui.fragment.AppUserFragment
+import me.simpleHook.ui.fragment.AppListFragment
 
 class AppListActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
@@ -69,8 +68,8 @@ class AppListActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             override fun getItemCount() = 2
 
             override fun createFragment(position: Int) = when (position) {
-                0 -> AppUserFragment()
-                else -> AppSystemFragment()
+                0 -> AppListFragment()
+                else -> AppListFragment("system")
             }
         }
         binding.apply {

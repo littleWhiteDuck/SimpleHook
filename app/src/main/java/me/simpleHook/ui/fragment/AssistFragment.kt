@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
@@ -33,8 +35,11 @@ class AssistFragment : Fragment() {
         appViewModel.deleteAssistConfigs(assistConfig)
         FileUtils.deleteFile(assistConfig.packageName, false)
         sp.remove(assistConfig.packageName)
-        Snackbar.make(binding.addConfig, "已删除此配置", Snackbar.LENGTH_LONG)
-            .setAction("撤销") {
+        val bottomNavigationView =
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        Snackbar.make(binding.addConfig, "已删除此配置", Snackbar.LENGTH_LONG).apply {
+           anchorView = bottomNavigationView
+        }.setAction("撤销") {
                 appViewModel.insertAssistConfigs(assistConfig)
                 if (sp.openStorage) {
                     FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)

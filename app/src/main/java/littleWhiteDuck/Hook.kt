@@ -6,10 +6,8 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Proxy
 import android.net.Uri
 import android.os.Bundle
-import android.os.Process
 import android.view.View
 import android.widget.PopupWindow
 import android.widget.Toast
@@ -23,7 +21,6 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
-
 import me.simpleHook.bean.*
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.log
@@ -358,29 +355,25 @@ class Hook {
             if (intent) hookIntent()
             if (vpn) hookVpnCheck()
             if (click) hookOnClick()
+            if (xposed) hookXposedCheck()
         }
-        hookXposedCheck()
     }
 
     private fun hookXposedCheck() {
-        XposedBridge.hookAllConstructors(File::class.java, object :XC_MethodHook(){
-            override fun afterHookedMethod(param: MethodHookParam) {
+
+        XposedBridge.hookAllConstructors(File::class.java, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
                 val pathName = param.args[0] as String
-                val pid = Process.myPid()
-                XposedBridge.log("================-pid:$pid; $pathName;========")
-                if (pathName.contains("maps")){
-                    XposedBridge.log("====================执行========")
-                    param.args[0] = if (pid > 0){
-                        "/proc/$pid/anti_maps"
-                    }else{
-                        "/proc/self/anti_maps"
-                    }
-                    XposedBridge.log("====================-${param.args[0]}========")
+                if (pathName.contains("/maps")) {
+                    param.result = null
                 }
             }
         })
+
+
     }
 
+/*
     private fun hookWifi() {
         XposedHelpers.findAndHookMethod(System::class.java, "getProperty", String::class.java,
             object : XC_MethodHook(){
@@ -409,6 +402,7 @@ class Hook {
                 }
             })
     }
+*/
 
     private fun hookVpnCheck() {
         try {
@@ -647,47 +641,59 @@ class Hook {
     }
 
     private fun hotFix(context: Context, packageName: String) {
+        val dexFilePaths: MutableList<String> = mutableListOf()
+        val fileTree: FileTreeWalk =
+            File("/storage/emulated/0/Download/simpleHook/hotFix/$packageName/").walk()
+        fileTree.maxDepth(1)//遍历目录层级为1，即无需检查子目录
+            .filter { it.isFile } //只挑选出文件,不处理文件夹
+            .filter { it.extension == "dex" } //选择扩展名为“png”的处理
+            .forEach {//循环处理符合条件的文件
+                dexFilePaths.add(it.absolutePath)
+            }
         try {
-            val originalLoader = context.classLoader
-            val classLoader = DexClassLoader(
-                "/storage/emulated/0/Download/simpleHook/hotFix/$packageName/hotfix.dex",
-                context.cacheDir.path,
-                null,
-                null
-            )
-            val loaderClass: Class<*> = BaseDexClassLoader::class.java
-            val pathListField = loaderClass.getDeclaredField("pathList")
-            pathListField.isAccessible = true
-            val pathListObject = pathListField[classLoader]
-            val pathListClass: Class<*> = pathListObject.javaClass
-            val dexElementsField = pathListClass.getDeclaredField("dexElements")
-            dexElementsField.isAccessible = true
-            val dexElementsObject = dexElementsField[pathListObject]
-            val originalPathListObject = pathListField[originalLoader]
-            val originalDexElementsObject = dexElementsField[originalPathListObject]
+            for (index in 0 until dexFilePaths.size) {
+                val originalLoader = context.classLoader
+                val classLoader = DexClassLoader(
+                    dexFilePaths[index],
+                    context.cacheDir.path,
+                    null,
+                    null
+                )
+                dexFilePaths[index].tip()
+                val loaderClass: Class<*> = BaseDexClassLoader::class.java
+                val pathListField = loaderClass.getDeclaredField("pathList")
+                pathListField.isAccessible = true
+                val pathListObject = pathListField[classLoader]
+                val pathListClass: Class<*> = pathListObject.javaClass
+                val dexElementsField = pathListClass.getDeclaredField("dexElements")
+                dexElementsField.isAccessible = true
+                val dexElementsObject = dexElementsField[pathListObject]
+                val originalPathListObject = pathListField[originalLoader]
+                val originalDexElementsObject = dexElementsField[originalPathListObject]
 
-            //数组操作，把最新的补丁dex文件插入到最前面
-            val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
-            val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
-            val concatDexElementsObject = java.lang.reflect.Array.newInstance(
-                dexElementsObject.javaClass.componentType,
-                oldLength + newLength
-            )
-            for (i in 0 until newLength) {
-                java.lang.reflect.Array.set(
-                    concatDexElementsObject,
-                    i,
-                    java.lang.reflect.Array.get(dexElementsObject, i)
+                //数组操作，把最新的补丁dex文件插入到最前面
+                val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
+                val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
+                val concatDexElementsObject = java.lang.reflect.Array.newInstance(
+                    dexElementsObject.javaClass.componentType,
+                    oldLength + newLength
                 )
+                for (i in 0 until newLength) {
+                    java.lang.reflect.Array.set(
+                        concatDexElementsObject,
+                        i,
+                        java.lang.reflect.Array.get(dexElementsObject, i)
+                    )
+                }
+                for (i in 0 until oldLength) {
+                    java.lang.reflect.Array.set(
+                        concatDexElementsObject,
+                        newLength + i,
+                        java.lang.reflect.Array.get(originalDexElementsObject, i)
+                    )
+                }
+                dexElementsField[originalPathListObject] = concatDexElementsObject
             }
-            for (i in 0 until oldLength) {
-                java.lang.reflect.Array.set(
-                    concatDexElementsObject,
-                    newLength + i,
-                    java.lang.reflect.Array.get(originalDexElementsObject, i)
-                )
-            }
-            dexElementsField[originalPathListObject] = concatDexElementsObject
 
             //全量替换伪代码 -> originalLoader.pathList.dexElements = classLoader.pathList.dexElement
             //增量替换伪代码 -> originalLoader.pathList.dexElements += classLoader.pathList.dexElement

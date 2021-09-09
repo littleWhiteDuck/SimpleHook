@@ -1,9 +1,12 @@
 package me.simpleHook.ui.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -32,6 +35,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.ConfigDialogFragment
+import me.simpleHook.ui.custom.MyFastScroller
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.util.*
 import org.json.JSONArray
@@ -80,6 +84,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
         return binding.root
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private fun initViewModel() {
         if (this::filterConfigsLive.isInitialized && filterConfigsLive.hasObservers()) {
             filterConfigsLive.removeObservers(requireActivity())
@@ -117,7 +122,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
                 }
             })
         }
-
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
             override fun onMove(
@@ -134,16 +138,26 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
+/*        val verticalThumbDrawable = resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
+        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+        val horizontalThumbDrawable = resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
+        val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+        MyFastScroller(binding.mainRecycler,verticalThumbDrawable, verticalTrackDrawable, horizontalThumbDrawable, horizontalTrackDrawable,
+            resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
+            resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
+            resources.getDimensionPixelOffset(R.dimen.fastscroll_margin))*/
     }
 
     fun deleteConfig(appConfig: AppConfig) {
         viewModel.deleteConfigs(appConfig)
         configPref?.edit()?.remove(appConfig.packageName)?.apply()
         FileUtils.deleteFile(appConfig.packageName)
-        Snackbar.make(
-            requireActivity().findViewById(R.id.add_config),
+        val bottomNavigationView = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        Snackbar.make(binding.fab,
             getString(R.string.delete_config_tip), Snackbar.LENGTH_LONG
-        ).setAction(getString(R.string.revocation)) {
+        ).apply {
+            anchorView = bottomNavigationView
+        }.setAction(getString(R.string.revocation)) {
             viewModel.insertConfigs(appConfig)
             if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, appConfig.config)
             if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, appConfig.config)

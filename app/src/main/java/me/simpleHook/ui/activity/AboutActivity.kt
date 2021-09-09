@@ -4,13 +4,11 @@ import android.content.Intent
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +21,9 @@ import me.simpleHook.bean.Author
 import me.simpleHook.bean.OpenSource
 import me.simpleHook.bean.Title
 import me.simpleHook.databinding.ActivityAboutBinding
+import me.simpleHook.ui.view.about.AuthorView
+import me.simpleHook.ui.view.about.OpenSourceView
+import me.simpleHook.util.dp
 
 class AboutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBinding
@@ -108,26 +109,40 @@ class AboutActivity : AppCompatActivity() {
     private fun initView() {
         binding.apply {
             rev.adapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
-                override fun getLayoutResId(position: Int, data: Any): Int {
+                override fun getItemViewType(position: Int, data: Any): Int {
                     return when (data) {
-                        is Title -> R.layout.item_about_title
-                        is OpenSource -> R.layout.item_about_open_source
-                        is Author -> R.layout.item_about_author
+                        is Title -> 1
+                        is OpenSource -> 2
+                        is Author -> 3
                         else -> throw IllegalArgumentException("unknown data: $data")
                     }
                 }
 
+                override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
+                    1 -> AppCompatTextView(parent.context).apply {
+                        layoutParams = ViewGroup.MarginLayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).also {
+                            it.setMargins(12.dp, 0, 0, 0)
+                        }
+                        setPadding(0, 5.dp, 0, 5.dp)
+                    }
+                    2 -> OpenSourceView(parent.context)
+                    3 -> AuthorView(parent.context)
+                    else -> throw IllegalArgumentException("unknown viewType: $viewType")
+                }
+
                 override fun onCreateViewHolder(
-                    inflater: LayoutInflater,
                     parent: ViewGroup,
-                    layoutResId: Int
+                    itemView: View
                 ): BasicViewHolder<*> {
-                    val itemView = inflater.inflate(layoutResId, parent, false)
-                    return when (layoutResId) {
-                        R.layout.item_about_title -> TitleHolder(itemView)
-                        R.layout.item_about_open_source -> OpenSourceHolder(itemView)
-                        R.layout.item_about_author -> AuthorHolder(itemView)
-                        else -> throw IllegalArgumentException("unknown layout: $layoutResId")
+
+                    return when (itemView) {
+                        is AppCompatTextView -> TitleHolder(itemView)
+                        is OpenSourceView -> OpenSourceHolder(itemView)
+                        is AuthorView -> AuthorHolder(itemView)
+                        else -> throw IllegalArgumentException("unknown itemView: $itemView")
                     }
                 }
 
@@ -146,14 +161,13 @@ class AboutActivity : AppCompatActivity() {
                     parent: RecyclerView,
                     state: RecyclerView.State
                 ) {
-                    // Get the position of the view in the recycler view
                     val position = parent.getChildAdapterPosition(view)
                     if (position == RecyclerView.NO_POSITION) {
                         return
                     }
 
                     if (position == parent.adapter!!.itemCount - 1) {
-                        // Add padding to the last item. You should probably use a @dimen resource.
+
                         outRect.bottom = 200
                     }
                 }
@@ -164,9 +178,10 @@ class AboutActivity : AppCompatActivity() {
     }
 
     class AuthorHolder(itemView: View) : BasicViewHolder<Author>(itemView) {
-        private val tvName = itemView.findViewById<TextView>(R.id.name)
-        private val tvIntro = itemView.findViewById<TextView>(R.id.introduce)
-        private val ivIcon = itemView.findViewById<ImageView>(R.id.imageView)
+        private val authorView = itemView as AuthorView
+        private val tvName = authorView.name
+        private val tvIntro = authorView.introduce
+        private val ivIcon = authorView.icon
         override fun onBindData(position: Int, data: Author) {
             tvName.text = data.name
             tvIntro.text = data.introduce
@@ -176,8 +191,9 @@ class AboutActivity : AppCompatActivity() {
     }
 
     class OpenSourceHolder(itemView: View) : BasicViewHolder<OpenSource>(itemView) {
-        private val tvName = itemView.findViewById<TextView>(R.id.name)
-        private val tvOpen = itemView.findViewById<TextView>(R.id.openSource)
+        private val openSourceView = itemView as OpenSourceView
+        private val tvName = openSourceView.name
+        private val tvOpen = openSourceView.openSource
         private val intent = Intent(Intent.ACTION_VIEW)
         override fun onBindData(position: Int, data: OpenSource) {
             tvName.text = data.name
@@ -192,7 +208,7 @@ class AboutActivity : AppCompatActivity() {
     }
 
     class TitleHolder(itemView: View) : BasicViewHolder<Title>(itemView) {
-        private val tvTitle = itemView as TextView
+        private val tvTitle = itemView as AppCompatTextView
         override fun onBindData(position: Int, data: Title) {
             tvTitle.text = data.title
         }

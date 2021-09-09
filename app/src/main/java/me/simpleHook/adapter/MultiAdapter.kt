@@ -11,11 +11,10 @@ class MultiTypeAdapter(private val list: List<Any>,
                        private val viewHolderFactory: BasicViewHolderFactory): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun getItemCount(): Int = list.size
 
-    override fun getItemViewType(position: Int): Int = viewHolderFactory.getLayoutResId(position, list[position])
+    override fun getItemViewType(position: Int): Int = viewHolderFactory.getItemViewType(position, list[position])
 
-    override fun onCreateViewHolder(parent: ViewGroup, layoutResId: Int): BasicViewHolder<*> {
-        val inflater = LayoutInflater.from(parent.context)
-        return viewHolderFactory.onCreateViewHolder(inflater, parent, layoutResId)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BasicViewHolder<*> {
+        return viewHolderFactory.onCreateViewHolder(parent, viewHolderFactory.getItemView(parent, viewType))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -23,12 +22,14 @@ class MultiTypeAdapter(private val list: List<Any>,
             (holder as BasicViewHolder<Any>).onBindData(position, list[position])
         }
     }
+
+
 }
 
 abstract class BasicViewHolderFactory {
-    @LayoutRes
-    abstract fun getLayoutResId(position: Int, data: Any): Int
-    abstract fun onCreateViewHolder(inflater: LayoutInflater, parent: ViewGroup, @LayoutRes layoutResId: Int): BasicViewHolder<*>
+    abstract fun getItemViewType(position: Int, data: Any): Int
+    abstract fun getItemView(parent: ViewGroup, viewType: Int): View
+    abstract fun onCreateViewHolder(parent: ViewGroup, itemView: View): BasicViewHolder<*>
 }
 
 abstract class BasicViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView) {

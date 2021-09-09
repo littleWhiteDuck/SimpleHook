@@ -33,4 +33,4 @@
     public void *(de.robv.android.xposed.callbacks.XC_LoadPackage$LoadPackageParam);
 }
 
--printmapping mapping.txt
+#-printmapping mapping.txt

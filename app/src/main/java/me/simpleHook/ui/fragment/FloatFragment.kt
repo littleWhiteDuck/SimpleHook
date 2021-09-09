@@ -5,20 +5,23 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lzf.easyfloat.EasyFloat
+import com.lzf.easyfloat.anim.DefaultAnimator
+import com.lzf.easyfloat.enums.ShowPattern
+import com.lzf.easyfloat.enums.SidePattern
 import me.simpleHook.adapter.PrintLogAdapter
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentFloatBinding
+import me.simpleHook.ui.view.CustomView
 import me.simpleHook.util.FileUtils
 import me.simpleHook.util.toast
 import java.text.SimpleDateFormat
@@ -42,8 +45,9 @@ class FloatFragment : Fragment() {
     private var stopPrint = false
     private var currentId = 0
 
+    @SuppressLint("Range", "NotifyDataSetChanged")
     private fun updateData() {
-        if(!isAdded) return
+        if (!isAdded) return
         requireContext().contentResolver.query(
             uri,
             null,
@@ -61,7 +65,7 @@ class FloatFragment : Fragment() {
             close()
         }
         val runnable = Runnable {
-            if (!stopPrint){
+            if (!stopPrint) {
                 mAdapter.setDataList(list)
                 mAdapter.notifyDataSetChanged()
                 binding.recyclerView.smoothScrollToPosition(list.size)
@@ -81,12 +85,18 @@ class FloatFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SimpleDateFormat", "ClickableViewAccessibility")
+    @SuppressLint("SimpleDateFormat", "ClickableViewAccessibility", "NotifyDataSetChanged")
     private fun initView() {
         binding.apply {
             recyclerView.apply {
                 adapter = mAdapter
                 layoutManager = LinearLayoutManager(requireContext())
+                addItemDecoration(
+                    DividerItemDecoration(
+                        requireContext(),
+                        DividerItemDecoration.VERTICAL
+                    )
+                )
             }
             closeWindow.setOnClickListener {
                 if (EasyFloat.getFloatView("floatControl") != null) {
@@ -123,9 +133,34 @@ class FloatFragment : Fragment() {
             dragEnable.setOnCheckedChangeListener { _, isChecked ->
                 EasyFloat.dragEnable(isChecked, "floatPrint")
             }
+            minifyWindow.setOnClickListener {
+                if (EasyFloat.getFloatView("floatControl") != null) {
+                    EasyFloat.show("floatControl")
+                } else {
+                    initControlFloat()
+                }
+                EasyFloat.hide("floatPrint")
+            }
 
         }
         handler.postDelayed(refresh, 500)
+    }
+
+    private fun initControlFloat() {
+        EasyFloat.with(requireActivity())
+            .setLayout(CustomView(requireContext())) {
+                it.setOnClickListener {
+                    EasyFloat.show("floatPrint")
+                    EasyFloat.hide("floatControl")
+                }
+            }
+            .setTag("floatControl")
+            .setShowPattern(ShowPattern.ALL_TIME)
+            .setSidePattern(SidePattern.RESULT_HORIZONTAL)
+            .setDragEnable(true)
+            .setLocation(100, 200)
+            .setAnimator(DefaultAnimator())
+            .show()
     }
 
 

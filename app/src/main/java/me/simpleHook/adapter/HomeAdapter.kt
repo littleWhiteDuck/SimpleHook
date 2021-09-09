@@ -1,16 +1,16 @@
 package me.simpleHook.adapter
 
 import android.annotation.SuppressLint
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.databinding.ItemAppConfigLayoutBinding
 import me.simpleHook.ui.custom.PopupWindowList
+import me.simpleHook.ui.view.AppConfigView
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class HomeAdapter(
@@ -20,23 +20,20 @@ class HomeAdapter(
 ) :
     ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
-    inner class ViewHolder(binding: ItemAppConfigLayoutBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        val tvAppName = binding.itemName
-        val tvConfigDesc = binding.itemDesc
-
-        @SuppressLint("UseSwitchCompatOrMaterialCode")
-        val ableSwitch = binding.ableSwitch
-        val ivAppIcon = binding.itemAppIcon
-        val root = binding.root
+    inner class ViewHolder(appConfigView: AppConfigView) :
+        RecyclerView.ViewHolder(appConfigView) {
+        private val containerView = appConfigView.container
+        val tvAppName = containerView.appName
+        val tvConfigDesc = containerView.desc
+        val ableSwitch = containerView.switch
+        val ivAppIcon = containerView.icon
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding =
-            ItemAppConfigLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val viewHolder = ViewHolder(binding)
-        binding.constraintLayout.apply {
+        val appConfigView = AppConfigView(parent.context)
+        val viewHolder = ViewHolder(appConfigView)
+        appConfigView.apply {
             PopupWindowList.Builder(parent.context).watchView(this)
             setOnClickListener {
                 val appConfig =
@@ -50,7 +47,7 @@ class HomeAdapter(
                 true
             }
         }
-        binding.ableSwitch.setOnCheckedChangeListener { _, isChecked ->
+        viewHolder.ableSwitch.setOnCheckedChangeListener { _, isChecked ->
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
             onChange(appConfig, isChecked)
         }

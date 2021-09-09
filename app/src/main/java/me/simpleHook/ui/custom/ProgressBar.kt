@@ -8,9 +8,9 @@ import android.widget.ProgressBar
 import me.simpleHook.R
 import me.simpleHook.util.dp
 
-private val TEXT_SIZE = 15.dp
-private val HORIZONTAL_OFFSET = 50.dp
-private val VERTICAL_OFFSET = 30.dp
+private val TEXT_SIZE = 15.dp.toFloat()
+private val HORIZONTAL_OFFSET = 50.dp.toFloat()
+private val VERTICAL_OFFSET = 30.dp.toFloat()
 class ProgressBar(context: Context, attrs: AttributeSet?) : ProgressBar(context, attrs) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
