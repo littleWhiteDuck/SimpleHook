@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import me.simpleHook.util.dp
 
-class CustomView(context: Context) : View(context) {
+class ControlView(context: Context) : View(context) {
     init {
         layoutParams = ViewGroup.LayoutParams(50.dp, 50.dp)
     }

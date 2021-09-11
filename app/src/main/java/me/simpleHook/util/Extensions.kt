@@ -64,6 +64,12 @@ val Float.px
 val Int.px
     get() = this.toFloat().px
 
+fun px2dp(pxValue: Int): Int {
+    val scale = Resources.getSystem().displayMetrics.density
+    return (pxValue / scale + 0.5f).toInt()
+}
+
+
 val Float.sp
     get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_SP, this,

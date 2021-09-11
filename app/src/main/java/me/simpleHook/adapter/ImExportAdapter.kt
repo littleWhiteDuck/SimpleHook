@@ -1,27 +1,25 @@
 package me.simpleHook.adapter
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter.ViewHolder
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.databinding.ItemImExportConfigBinding
+import me.simpleHook.ui.view.main.ShareItemView
 
 class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
     RecyclerView.Adapter<ViewHolder>() {
     private var dataList: List<ConfigItem> = ArrayList()
 
-    inner class ViewHolder(binding: ItemImExportConfigBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        val tvInformation = binding.information
-        val checkBox = binding.checkBox
+    inner class ViewHolder(shareItemView: ShareItemView) :
+        RecyclerView.ViewHolder(shareItemView) {
+        val tvInformation = shareItemView.information
+        val checkBox = shareItemView.checkBox
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding =
-            ItemImExportConfigBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val holder = ViewHolder(binding)
+        val shareItemView = ShareItemView(parent.context)
+        val holder = ViewHolder(shareItemView)
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
             val position = holder.itemView.getTag(R.id.item_in_export_config_position) as Int
             dataList[position].isChecked = isChecked

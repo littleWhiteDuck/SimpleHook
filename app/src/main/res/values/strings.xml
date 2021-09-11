@@ -66,4 +66,5 @@
     <string name="select_all">全选</string>
     <string name="confirm">确认</string>
     <string name="drag">拖拽</string>
+    <string name="assist_home_start_float_window">开启悬浮穿</string>
 </resources>

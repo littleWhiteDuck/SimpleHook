@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.google.gson.Gson
 import com.lzf.easyfloat.EasyFloat
@@ -32,7 +33,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAssistBinding
 import me.simpleHook.ui.fragment.FloatFragment
-import me.simpleHook.ui.view.AssistItemView
+import me.simpleHook.ui.view.assist.AssistItemView
 import me.simpleHook.util.*
 
 private const val DIALOG_SWITCH = "dialogSwitch"
@@ -72,6 +73,12 @@ class AssistActivity : AppCompatActivity() {
         )
         initData()
         initView()
+        deleteAllLogs()
+    }
+
+    private fun deleteAllLogs() {
+        appViewModel.deleteAllLogs()
+        binding.progressBar.isIndeterminate = false
     }
 
 
@@ -128,8 +135,8 @@ class AssistActivity : AppCompatActivity() {
                 )
                 add(AssistTitle("网络"))
                 add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
-                add(AssistTitle("环境"))
-                add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))
+               /* add(AssistTitle("环境"))
+                add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
             }
         }
     }
@@ -183,23 +190,6 @@ class AssistActivity : AppCompatActivity() {
                     LinearLayoutManager.VERTICAL
                 )
             )
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 1) {
-                        outRect.bottom = 100
-                    }
-                }
-            })
         }
     }
 
@@ -259,7 +249,6 @@ class AssistActivity : AppCompatActivity() {
 
     private fun onClick(checked: Boolean, tag: String) {
         if (tag == "startApp") {
-            appViewModel.deleteAllLogs()
             saveConfig()
             startAppAndFloat()
             return
@@ -332,8 +321,7 @@ class AssistActivity : AppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_add, menu)
-        menu.removeItem(R.id.select_app)
+        menuInflater.inflate(R.menu.menu_assist, menu)
         return true
     }
 
@@ -341,6 +329,7 @@ class AssistActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
+            R.id.assistFragment_startFloat -> initPrintFloat()
         }
         return true
     }

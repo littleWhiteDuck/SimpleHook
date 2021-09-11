@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/assistFragment_startFloat"
+        android:icon="@drawable/ic_start_float_24"
+        android:title="@string/assist_home_start_float_window"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/save_config"
+        android:icon="@drawable/ic_save_24"
+        android:title="@string/save_config"
+        app:showAsAction="ifRoom" />
+</menu>

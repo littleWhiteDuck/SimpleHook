@@ -2,9 +2,7 @@ package me.simpleHook.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,9 +15,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.AssistActivity
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.SPUtils
-import me.simpleHook.util.XUtils
+import me.simpleHook.util.*
 
 class AssistFragment : Fragment() {
     private val appViewModel by activityViewModels<AppViewModel>()
@@ -88,6 +84,12 @@ class AssistFragment : Fragment() {
                 adapter = mAdapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
             }
+        }
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).post {
+            val bottomNavigationView = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+            val layoutParams = binding.addConfig.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.setMargins(0, 0, 20.dp, px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(PhoneUtils.getViewY(bottomNavigationView)) + bottomNavigationView.height)
+            binding.addConfig.layoutParams = layoutParams
         }
     }
 

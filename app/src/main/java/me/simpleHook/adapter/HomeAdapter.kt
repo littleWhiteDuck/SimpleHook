@@ -8,9 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.custom.PopupWindowList
-import me.simpleHook.ui.view.AppConfigView
+import me.simpleHook.ui.view.main.AppConfigView
 import me.simpleHook.util.AppUtils
-import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class HomeAdapter(

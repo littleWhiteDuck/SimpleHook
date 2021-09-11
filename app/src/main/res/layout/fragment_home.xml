@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.HomeFragment">
 
-    <ProgressBar
+    <androidx.core.widget.ContentLoadingProgressBar
         android:id="@+id/progressBar2"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
@@ -38,7 +38,8 @@
         app:menu_colorNormal="@color/colorPrimaryVariant"
         app:menu_colorPressed="@color/colorPrimary"
         app:menu_labels_ellipsize="end"
-        app:menu_labels_singleLine="true">
+        app:menu_labels_singleLine="true"
+        app:layout_insetEdge="bottom">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/add_config"

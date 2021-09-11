@@ -16,7 +16,7 @@ abstract class CustomViewGroup(context: Context) : ViewGroup(context) {
     protected val View.measuredHeightWithMargins get() = measuredHeight + marginTop + marginBottom
 
     protected val View.measuredWidthWithMarginsPaddings
-        get() = measuredWidth + marginStart + marginEnd + paddingStart + paddingEnd
+        get() = measuredWidth + marginStart + marginEnd + paddingLeft + paddingRight
     protected val View.measuredHeightWithMarginsPaddings
         get() = measuredHeight + marginTop + marginBottom + paddingTop + paddingBottom
 

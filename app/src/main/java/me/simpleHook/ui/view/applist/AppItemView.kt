@@ -1,6 +1,7 @@
-package me.simpleHook.ui.view
+package me.simpleHook.ui.view.applist
 
 import android.content.Context
+import android.view.ViewGroup
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -20,6 +21,11 @@ class AppItemView(context: Context) : MaterialCardView(context) {
     }
 
     init {
+        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).also {
+            it.setMargins(5.dp, 5.dp, 5.dp, 0)
+        }
+        cardElevation = 1.dp.toFloat()
+        radius = 5.dp.toFloat()
         addView(containerView)
     }
 
@@ -32,10 +38,7 @@ class AppItemView(context: Context) : MaterialCardView(context) {
         }
         val appName =
             AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_subtitle1)).apply {
-                layoutParams =
-                    MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                        setMargins(0, 5.dp, 10.dp, 0)
-                    }
+                layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
                 addView(this)
             }
         val packageName = AppCompatTextView(
@@ -46,7 +49,7 @@ class AppItemView(context: Context) : MaterialCardView(context) {
         ).apply {
             layoutParams =
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                    setMargins(0, 5.dp, 10.dp, 0)
+                    setMargins(0, 5.dp, 0, 0)
                 }
             addView(this)
         }
@@ -59,7 +62,7 @@ class AppItemView(context: Context) : MaterialCardView(context) {
         ).apply {
             layoutParams =
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                    setMargins(0, 5.dp, 10.dp, 5.dp)
+                    setMargins(0, 5.dp, 0, 0)
                 }
             addView(this)
         }
@@ -67,8 +70,7 @@ class AppItemView(context: Context) : MaterialCardView(context) {
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             icon.autoMeasure()
-            val textViewWidth =
-                measuredWidth - icon.paddingLeft - icon.measuredWidth - icon.paddingRight
+            val textViewWidth = measuredWidth - icon.measuredWidthWithMarginsPaddings - paddingStart - paddingEnd
             appName.measure(
                 textViewWidth.toExactlyMeasureSpec(),
                 appName.defaultHeightMeasureSpec(this)
@@ -83,19 +85,19 @@ class AppItemView(context: Context) : MaterialCardView(context) {
             )
             val height = max(
                 icon.marginTop + icon.measuredHeight + icon.marginBottom,
-                appName.marginTop + appName.measuredHeight + packageName.marginTop + packageName.measuredHeight +
-                        otherInfo.marginTop + otherInfo.measuredHeight + otherInfo.marginBottom
+                appName.measuredHeight + packageName.measuredHeightWithMargins +
+                        otherInfo.measuredHeightWithMargins
             )
-            setMeasuredDimension(measuredWidth, height)
+            setMeasuredDimension(measuredWidth, height + paddingTop + paddingEnd)
         }
 
         override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
 
-            icon.autoLayout(icon.marginLeft, icon.toVerticalCenter(this))
+            icon.autoLayout(icon.marginLeft + paddingStart, icon.toVerticalCenter(this))
 
             appName.autoLayout(
-                icon.marginLeft + icon.measuredWidth + icon.marginRight,
-                appName.marginTop
+                icon.marginLeft + icon.measuredWidth + icon.marginRight + paddingStart,
+                appName.marginTop + paddingTop
             )
 
             packageName.autoLayout(appName.left, appName.bottom + packageName.marginTop)

@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -21,9 +22,8 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentFloatBinding
-import me.simpleHook.ui.view.CustomView
+import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.FileUtils
-import me.simpleHook.util.toast
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -99,6 +99,7 @@ class FloatFragment : Fragment() {
                 )
             }
             closeWindow.setOnClickListener {
+                viewModel.deleteAllLogs()
                 if (EasyFloat.getFloatView("floatControl") != null) {
                     EasyFloat.dismiss("floatControl")
                 }
@@ -115,7 +116,7 @@ class FloatFragment : Fragment() {
             }
             importToFile.setOnClickListener {
                 if (list.isEmpty()) {
-                    "什么东西".toast(requireContext())
+                    Toast.makeText(requireContext(), "导出了个寂寞", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val date = Date()
@@ -128,7 +129,11 @@ class FloatFragment : Fragment() {
                 }
                 val strLog = str.toString().substring(0, str.toString().length - 2)
                 FileUtils.writeData(url, time, "[\n${strLog}\n]")
-                "导出路径为：${Constant.PRINT_LOG__DIRECTORY + time}.json".toast(requireContext(), 1)
+                Toast.makeText(
+                    requireContext(),
+                    "导出路径为：${Constant.PRINT_LOG__DIRECTORY + time}.json",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             dragEnable.setOnCheckedChangeListener { _, isChecked ->
                 EasyFloat.dragEnable(isChecked, "floatPrint")
@@ -148,7 +153,7 @@ class FloatFragment : Fragment() {
 
     private fun initControlFloat() {
         EasyFloat.with(requireActivity())
-            .setLayout(CustomView(requireContext())) {
+            .setLayout(ControlView(requireContext())) {
                 it.setOnClickListener {
                     EasyFloat.show("floatPrint")
                     EasyFloat.hide("floatControl")

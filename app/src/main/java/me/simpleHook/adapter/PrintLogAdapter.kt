@@ -1,33 +1,32 @@
 package me.simpleHook.adapter
 
 import android.os.Build
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.databinding.ItemPrintLogBinding
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.snack
+import me.simpleHook.util.dp
 import me.simpleHook.util.toast
 
 class PrintLogAdapter : RecyclerView.Adapter<PrintLogAdapter.ViewHolder>() {
     private var dataList: List<PrintLog> = ArrayList()
 
-    inner class ViewHolder(binding: ItemPrintLogBinding) : RecyclerView.ViewHolder(binding.root) {
-        val tvLog = binding.logView
+    inner class ViewHolder(itemView: AppCompatTextView) : RecyclerView.ViewHolder(itemView) {
+        val tvLog = itemView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding =
-            ItemPrintLogBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val viewHolder = ViewHolder(binding)
+        val itemView = AppCompatTextView(parent.context).apply {
+            setPadding(15.dp, 5.dp, 15.dp, 5.dp)
+        }
+        val viewHolder = ViewHolder(itemView)
         viewHolder.itemView.setOnClickListener {
             val printLog = viewHolder.itemView.getTag(R.id.item_print_position) as PrintLog
             val message = JsonUtil.formatJson(printLog.log.replace("\\u003e", ">"))

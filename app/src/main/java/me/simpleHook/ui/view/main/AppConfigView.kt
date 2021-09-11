@@ -1,4 +1,4 @@
-package me.simpleHook.ui.view
+package me.simpleHook.ui.view.main
 
 import android.content.Context
 import android.view.ViewGroup
@@ -24,7 +24,7 @@ class AppConfigView(context: Context) : MaterialCardView(context) {
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
-        cardElevation = 2.dp.toFloat()
+        cardElevation = 1.dp.toFloat()
         radius = 5.dp.toFloat()
         addView(container)
     }
@@ -41,7 +41,7 @@ class AppConfigView(context: Context) : MaterialCardView(context) {
             .apply {
                 layoutParams =
                     MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
-                        it.setMargins(10.dp, 8.dp, 0, 0.dp)
+                        it.setMargins(10.dp, 8.dp, 0, 0)
                     }
                 addView(this)
             }
@@ -67,26 +67,19 @@ class AppConfigView(context: Context) : MaterialCardView(context) {
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             icon.autoMeasure()
-            switch.measure(
-                switch.defaultWidthMeasureSpec(this),
-                switch.defaultHeightMeasureSpec(this)
-            )
+            switch.measure(switch.defaultWidthMeasureSpec(this), switch.defaultHeightMeasureSpec(this))
             val textViewWidth =
-                measuredWidth - icon.measuredWidthWithMargins - switch.measuredWidthWithMargins - switch.paddingLeft - switch.paddingRight
+                measuredWidth - icon.measuredWidthWithMargins - switch.measuredWidthWithMarginsPaddings
             appName.measure(
                 textViewWidth.toExactlyMeasureSpec(),
                 appName.defaultHeightMeasureSpec(this)
             )
             desc.measure(textViewWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
-            val height = max(
-                icon.measuredHeightWithMargins,
-                appName.measuredHeightWithMargins + desc.measuredHeightWithMargins
-            )
+            val height = max(icon.measuredHeightWithMargins, appName.measuredHeightWithMargins + desc.measuredHeightWithMargins)
             setMeasuredDimension(measuredWidth, height)
         }
 
         override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-            val divider = (measuredHeight - icon.marginTop * 3 - appName.measuredHeight - desc.measuredHeight) / 3
             icon.autoLayout(icon.marginLeft, icon.toVerticalCenter(this))
             appName.autoLayout(icon.measuredHeightWithMargins + appName.marginLeft, appName.marginTop)
             desc.autoLayout(appName.left, appName.bottom + desc.marginTop)

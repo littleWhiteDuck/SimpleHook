@@ -5,15 +5,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,10 +20,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import littleWhiteDuck.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
@@ -35,7 +29,6 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.ConfigDialogFragment
-import me.simpleHook.ui.custom.MyFastScroller
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.util.*
 import org.json.JSONArray
@@ -47,14 +40,15 @@ import java.net.URL
 import java.util.regex.Pattern
 import kotlin.concurrent.thread
 
-class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope by MainScope(),
+class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     HideScrollListener {
     private val viewModel: AppViewModel by activityViewModels()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var filterConfigsLive: LiveData<List<AppConfig>>
+    private var filterConfigs: List<AppConfig> = ArrayList()
     private var config = "错误"
     private lateinit var mContext: Context
+    private var currentPattern = ""
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
@@ -86,42 +80,41 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initViewModel() {
-        if (this::filterConfigsLive.isInitialized && filterConfigsLive.hasObservers()) {
-            filterConfigsLive.removeObservers(requireActivity())
+        viewModel.getAllConfigs().observe(requireActivity()) {
+            filterConfigs = it
+            if (currentPattern.isEmpty()) {
+                mAdapter.submitList(it)
+                if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility = View.GONE
+            }else{
+                toFilterData(currentPattern)
+            }
         }
-        launch {
-            filterConfigsLive = viewModel.getAllConfigs()
-            filterConfigsLive.observe(requireActivity()) {
-                mAdapter.submitList(it).also {
-                    binding.progressBar2.visibility = View.GONE
-                }
-            }
-            val linearLayoutManager = LinearLayoutManager(requireContext())
-            binding.mainRecycler.apply {
-                this.adapter = mAdapter
-                layoutManager = linearLayoutManager
-                addOnScrollListener(FabScrollListener(this@HomeFragment))
-            }
-            binding.mainRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    // Get the position of the view in the recycler view
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
 
-                    if (position == parent.adapter!!.itemCount - 1) {
-                        // Add padding to the last item. You should probably use a @dimen resource.
-                        outRect.bottom = 200
-                    }
-                }
-            })
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.mainRecycler.apply {
+            this.adapter = mAdapter
+            layoutManager = linearLayoutManager
+            addOnScrollListener(FabScrollListener(this@HomeFragment))
         }
+        binding.mainRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                // Get the position of the view in the recycler view
+                val position = parent.getChildAdapterPosition(view)
+                if (position == RecyclerView.NO_POSITION) {
+                    return
+                }
+
+                if (position == parent.adapter!!.itemCount - 1) {
+                    // Add padding to the last item. You should probably use a @dimen resource.
+                    outRect.bottom = 200
+                }
+            }
+        })
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
             override fun onMove(
@@ -133,7 +126,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val configDelete = filterConfigsLive.value!![viewHolder.adapterPosition]
+                val configDelete = filterConfigs[viewHolder.adapterPosition]
                 deleteConfig(configDelete)
             }
 
@@ -152,8 +145,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
         viewModel.deleteConfigs(appConfig)
         configPref?.edit()?.remove(appConfig.packageName)?.apply()
         FileUtils.deleteFile(appConfig.packageName)
-        val bottomNavigationView = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        Snackbar.make(binding.fab,
+        val bottomNavigationView =
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        Snackbar.make(
+            binding.fab,
             getString(R.string.delete_config_tip), Snackbar.LENGTH_LONG
         ).apply {
             anchorView = bottomNavigationView
@@ -258,9 +253,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
     }
 
     private fun shareConfigs() {
-        if (filterConfigsLive.value?.isNotEmpty() == true) {
+        if (filterConfigs.isNotEmpty()) {
             val dataList = ArrayList<ConfigItem>()
-            for (config in filterConfigsLive.value!!) {
+            for (config in filterConfigs) {
                 dataList.add(ConfigItem(config))
             }
             ConfigDialogFragment(dataList, false).show(
@@ -358,13 +353,17 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
     override fun onQueryTextSubmit(query: String?) = false
 
     override fun onQueryTextChange(newText: String): Boolean {
-        val pattern = "%${newText.trim()}%"
-        filterConfigsLive.removeObservers(requireActivity())
-        filterConfigsLive = viewModel.getFilterConfigs(pattern)
-        filterConfigsLive.observe(viewLifecycleOwner) {
-            mAdapter.submitList(it)
-        }
+        val pattern = newText.trim()
+        currentPattern = pattern
+        toFilterData(pattern)
         return true
+    }
+
+    private fun toFilterData(pattern: String) {
+        val filter = filterConfigs.filter {
+            it.appName.contains(pattern) || it.packageName.contains(pattern)
+        }
+        mAdapter.submitList(filter)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -375,11 +374,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, CoroutineScope 
             queryHint = "搜索…"
             setOnQueryTextListener(this@HomeFragment)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cancel()
     }
 
     class FabScrollListener(private val listener: HideScrollListener) :

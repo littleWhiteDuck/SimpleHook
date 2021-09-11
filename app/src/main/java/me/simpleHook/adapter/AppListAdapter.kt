@@ -7,9 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
-import me.simpleHook.ui.view.AppItemView
+import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.AppUtils
-import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -28,13 +27,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val appItemView = AppItemView(parent.context).apply {
-            layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).also {
-                it.setMargins(5.dp, 5.dp, 5.dp, 0)
-            }
-            cardElevation = 3.dp.toFloat()
-            radius = 5.dp.toFloat()
-        }
+        val appItemView = AppItemView(parent.context)
         val holder = ViewHolder(appItemView)
         holder.itemView.setOnClickListener {
             val appItem: AppItem = holder.itemView.getTag(R.id.item_select_position) as AppItem

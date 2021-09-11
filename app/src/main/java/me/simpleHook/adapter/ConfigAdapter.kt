@@ -3,13 +3,12 @@ package me.simpleHook.adapter
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
-import me.simpleHook.ui.view.ConfigView
+import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.util.marquee
 
 class ConfigAdapter(
@@ -19,7 +18,7 @@ class ConfigAdapter(
     ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
 
 
-    inner class ViewHolder(itemView: ConfigView) :
+    inner class ViewHolder(itemView: ConfigItemView) :
         RecyclerView.ViewHolder(itemView) {
         val tvClassName = itemView.className
         val tvOtherName = itemView.otherName
@@ -28,7 +27,7 @@ class ConfigAdapter(
 
     @SuppressLint("ResourceType")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val configView = ConfigView(parent.context)
+        val configView = ConfigItemView(parent.context)
         val viewHolder = ViewHolder(configView)
         viewHolder.apply {
             tvClassName.marquee()

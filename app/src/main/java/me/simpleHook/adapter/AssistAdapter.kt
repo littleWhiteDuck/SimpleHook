@@ -1,7 +1,6 @@
 package me.simpleHook.adapter
 
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -9,19 +8,22 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.databinding.ItemAssistLayoutBinding
+import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.marquee
 
-class AssistAdapter(private val onClick: (AssistConfig) -> Unit,
-private val onLongClick: (AssistConfig) -> Unit) :
+class AssistAdapter(
+    private val onClick: (AssistConfig) -> Unit,
+    private val onLongClick: (AssistConfig) -> Unit
+) :
     ListAdapter<AssistConfig, ViewHolder>(AssistDiff) {
 
-    inner class ViewHolder(binding: ItemAssistLayoutBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        val tvAppName = binding.appName
-        val ivAppIcon = binding.appIcon
-        val tvVersionName = binding.versionName
+    inner class ViewHolder(assistItemView: AssistItemView) :
+        RecyclerView.ViewHolder(assistItemView) {
+        private val containerView = assistItemView.containerView
+        val tvAppName = containerView.appName
+        val ivAppIcon = containerView.icon
+        val tvVersionName = containerView.versionName
     }
 
     object AssistDiff : DiffUtil.ItemCallback<AssistConfig>() {
@@ -36,9 +38,8 @@ private val onLongClick: (AssistConfig) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding =
-            ItemAssistLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val holder = ViewHolder(binding)
+        val assistItemView = AssistItemView(parent.context)
+        val holder = ViewHolder(assistItemView)
         holder.tvAppName.marquee()
         holder.itemView.apply {
             setOnClickListener {
@@ -60,7 +61,8 @@ private val onLongClick: (AssistConfig) -> Unit) :
         holder.apply {
             tvAppName.text = assistConfig.appName
             ivAppIcon.setImageDrawable(AppUtils.getIcon(itemView.context, assistConfig.packageName))
-            tvVersionName.text = AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
+            tvVersionName.text =
+                AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
         }
     }
 }

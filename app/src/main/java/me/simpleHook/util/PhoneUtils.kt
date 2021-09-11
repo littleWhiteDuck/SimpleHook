@@ -2,6 +2,7 @@ package me.simpleHook.util
 
 import android.content.Context
 import android.graphics.Point
+import android.view.View
 import android.view.WindowManager
 
 object PhoneUtils {
@@ -15,4 +16,10 @@ object PhoneUtils {
         wm.defaultDisplay.getSize(point)
         return point.y
     }
+    fun getViewY(view: View): Int{
+        val location = IntArray(2)
+        view.getLocationOnScreen(location)
+        return location[1]
+    }
+
 }

@@ -22,38 +22,49 @@ class AuthorView(context: Context) : CustomViewGroup(context) {
         background = typedArray.getDrawable(0)
         isFocusable = true
         isClickable = true
-        setPadding(8.dp, 8.dp, 8.dp, 8.dp)
+        setPadding(16.dp, 8.dp, 8.dp, 8.dp)
     }
+
     val icon = AppCompatImageView(context).apply {
-        layoutParams = MarginLayoutParams(50.dp, 50.dp).also {
-            it.setMargins(8.dp, 0, 0, 0)
-        }
+        layoutParams = LayoutParams(50.dp, 50.dp)
         addView(this)
     }
     val name = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_subtitle1)).apply {
-        layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
-            it.setMargins(8.dp, 0, 0, 0)
-        }
+        layoutParams =
+            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
+                it.setMargins(8.dp, 0, 0, 0)
+            }
         addView(this)
     }
 
-    val introduce = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_caption)).apply {
-        layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
-            it.setMargins(8.dp, 8.dp, 0, 0)
+    val introduce =
+        AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_caption)).apply {
+            layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
+                it.setMargins(0, 8.dp, 0, 0)
+            }
+            addView(this)
         }
-        addView(this)
-    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         icon.autoMeasure()
-        val textViewWidth = measuredWidth - paddingLeft - paddingRight - icon.measuredWidthWithMargins
+        val textViewWidth =
+            measuredWidth - paddingLeft - paddingRight - icon.measuredWidth - name.marginStart
         name.measure(textViewWidth.toExactlyMeasureSpec(), name.defaultHeightMeasureSpec(this))
-        introduce.measure(textViewWidth.toExactlyMeasureSpec(), introduce.defaultHeightMeasureSpec(this))
-        setMeasuredDimension(measuredWidth, paddingTop + name.measuredHeight + introduce.measuredHeightWithMargins + paddingBottom)
+        introduce.measure(
+            textViewWidth.toExactlyMeasureSpec(),
+            introduce.defaultHeightMeasureSpec(this)
+        )
+        val height =
+            maxOf(icon.measuredHeight, name.measuredHeightWithMargins + introduce.measuredHeightWithMargins)
+        setMeasuredDimension(
+            measuredWidth,
+            paddingTop + height + paddingBottom
+        )
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-        icon.autoLayout(paddingLeft + icon.marginLeft, paddingTop)
+        icon.autoLayout(paddingLeft, paddingTop)
         name.autoLayout(icon.right + name.marginStart, paddingTop)
         introduce.autoLayout(name.left, name.bottom + introduce.marginTop)
     }

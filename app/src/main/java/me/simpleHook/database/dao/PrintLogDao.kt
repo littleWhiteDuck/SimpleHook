@@ -9,7 +9,7 @@ import me.simpleHook.database.entity.PrintLog
 interface PrintLogDao {
 
     @Query("DELETE FROM PrintLog")
-    fun deleteAllLogs()
+    suspend fun deleteAllLogs()
 
     @Query("SELECT * FROM PrintLog ORDER BY ID DESC")
     fun queryAllLogs(): LiveData<List<PrintLog>>
