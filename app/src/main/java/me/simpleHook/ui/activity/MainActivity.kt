@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.github.clans.fab.BuildConfig.VERSION_CODE
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import littleWhiteDuck.WindowPreferencesManager
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.BuildConfig.*
 import me.simpleHook.R
 import me.simpleHook.databinding.ActivityMainBinding
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         initView()
         if (!isModuleLive()) "模块未激活".toast(this)
         if (sp.openStorage) FileUtils.verifyStoragePermissions(this)
-        initUpdateTip()
+        /*initUpdateTip()*/
     }
 
     private fun initUpdateTip() {

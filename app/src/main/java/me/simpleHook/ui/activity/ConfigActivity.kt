@@ -1,10 +1,12 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import littleWhiteDuck.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppConfigBean
@@ -29,9 +30,24 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
+import me.simpleHook.hook.Type
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.util.*
 import java.lang.reflect.Field
+import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
+
+private const val PATTERN_METHOD =
+    """^invoke-(virtual|direct|static)(/range)? \{.*\}, (.*)->(.*)\((.*)\)(.*)$"""
+private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
+private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
+private const val pattern = """B|S|I|J|F|D|Z[^a-z/]"""
+private const val pattern_Z = """(Z)([^a-z/])"""
+private const val pattern_I = """(I)([^a-z/])"""
+private const val pattern_S = """(S)([^a-z/])"""
+private const val pattern_B = """(B)([^a-z/])"""
+private const val pattern_J = """(J)([^a-z/])"""
+private const val pattern_C = """(C)([^a-z/])"""
 
 class ConfigActivity : AppCompatActivity() {
     private val smaliPattern = """^L.*;"""
@@ -59,12 +75,12 @@ class ConfigActivity : AppCompatActivity() {
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         val bundle = intent.getBundleExtra("bundle")
         appConfig = bundle?.getParcelable("appConfig")
         initView()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         binding.apply {
             packageNameInputLayout.isEnabled = false
@@ -118,10 +134,11 @@ class ConfigActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun onLongClick(position: Int) {
         val methodConfig = configList[position]
         addRemoveItem(methodConfig)
-        Snackbar.make(binding.addMethodConfig, "已经重复新增了一个，快去更改", Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.packageNameInputLayout, "已经重复新增了一个，快去更改", Snackbar.LENGTH_LONG)
             .setAction("撤销") {
                 configList.removeAt(configList.size - 1)
                 mAdapter.submitList(configList)
@@ -267,12 +284,12 @@ class ConfigActivity : AppCompatActivity() {
 
     private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
         var canCancel = true
-        val className = smaliToJava(dialogBinding.classNameEdit.text.toString().trim())
+        val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
-        val params = smaliToJava(dialogBinding.paramsEdit.text.toString().trim())
+        val params = this.smali2Java(dialogBinding.paramsEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.filedNameEdit.text.toString()
-        val fieldType = smaliToJava(dialogBinding.fieldTypeEdit.text.toString())
+        val fieldType = this.smali2Java(dialogBinding.fieldTypeEdit.text.toString())
         when (mode) {
             Constant.HOOK_BREAK -> {
                 if (className.isNotEmpty() && methodName.isNotEmpty()) {
@@ -328,7 +345,7 @@ class ConfigActivity : AppCompatActivity() {
         return canCancel
     }
 
-    private fun smaliToJava(strSmali: String) = if (matches(smaliPattern, strSmali)) {
+    private fun smali2Java(strSmali: String) = if (matches(smaliPattern, strSmali)) {
         strSmali.replace("L", "").replace("/", ".").replace(";", "")
     } else {
         strSmali
@@ -346,6 +363,7 @@ class ConfigActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun addConfig(configBean: ConfigBean) {
         if (modifyConfig) {
             configList[modifyConfigPosition] = configBean
@@ -360,6 +378,7 @@ class ConfigActivity : AppCompatActivity() {
         addRemoveItem(configBean, false)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun addRemoveItem(configBean: ConfigBean, isAdd: Boolean = true) {
         configList.apply {
             if (isAdd) add(configBean) else remove(configBean)
@@ -368,9 +387,10 @@ class ConfigActivity : AppCompatActivity() {
         mAdapter.notifyDataSetChanged()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_add, menu)
-        return super.onCreateOptionsMenu(menu)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_config, menu)
+        if (!sp.smali2Config) menu.removeItem(R.id.config_smali_to_config)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -380,6 +400,9 @@ class ConfigActivity : AppCompatActivity() {
             R.id.select_app -> {
                 val intent = Intent(this, AppListActivity::class.java)
                 startActivityForResult(intent, 1)
+            }
+            R.id.config_smali_to_config -> {
+                ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
             }
         }
         return true
@@ -463,5 +486,133 @@ class ConfigActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun patternStr(string: String) {
+        Log.d("=====", "patternStr: $string")
+        var configBean: ConfigBean? = null
+        val config: ConfigBean? = when {
+            matches(PATTERN_METHOD, string) -> {
+                val matcher = Pattern.compile(PATTERN_METHOD).matcher(string)
+                if (matcher.find()) {
+                    val className = smali2Java(matcher.group(3)!!)
+                    val methodName = matcher.group(4)!!
+                    val params = matcher.group(5)!!
+                    val returnType = matcher.group(6)!!
+                    if (getMode(returnType) == Constant.HOOK_RETURN) {
+                        configBean = ConfigBean(
+                            Constant.HOOK_RETURN,
+                            className,
+                            methodName,
+                            tranParams(params),
+                            "",
+                            "",
+                            getReturnValue(returnType)
+                        )
+
+                    } else {
+                        configBean =
+                            ConfigBean(
+                                Constant.HOOK_PARAM,
+                                smali2Java(className),
+                                methodName,
+                                tranParams(params),
+                                "",
+                                "",
+                                ""
+                            )
+
+                    }
+
+                }
+                configBean
+            }
+            matches(PATTER_STATIC_FIELD, string) -> {
+                val matcher = Pattern.compile(PATTER_STATIC_FIELD).matcher(string)
+                if (matcher.find()) {
+                    val className = smali2Java(matcher.group(1)!!)
+                    val fieldName = matcher.group(2)!!
+                    val fieldType = matcher.group(3)!!
+                    configBean = ConfigBean(
+                        Constant.HOOK_STATIC_FIELD,
+                        smali2Java(className),
+                        "",
+                        "",
+                        fieldName,
+                        smali2Java(fieldType),
+                        Type.getDataTypeValue(getReturnValue(fieldType)).toString()
+                    )
+
+                }
+                configBean
+            }
+            matches(PATTER_INSTANCE_FIELD, string) -> {
+                Log.d("================", "patternStr: ")
+                val matcher = Pattern.compile(PATTER_INSTANCE_FIELD).matcher(string)
+                if (matcher.find()) {
+                    val className = smali2Java(matcher.group(1)!!)
+                    val fieldName = matcher.group(2)!!
+                    val fieldType = matcher.group(3)!!
+                    configBean = ConfigBean(
+                        Constant.HOOK_FIELD,
+                        smali2Java(className),
+                        "",
+                        "",
+                        fieldName,
+                        smali2Java(fieldType),
+                        Type.getDataTypeValue(getReturnValue(fieldType)).toString()
+                    )
+                }
+                configBean
+            }
+            else -> configBean
+        }
+        config?.also {
+            configList.add(it)
+            mAdapter.submitList(configList)
+            mAdapter.notifyDataSetChanged()
+            Snackbar.make(binding.addMethodConfig, "已添加配置", Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun tranParams(params: String): String {
+        if (params.isEmpty()) return ""
+        var paramStr = params
+        if (paramStr.contains(Regex(pattern))) {
+            paramStr = paramStr.replace(Regex(pattern_C), "$1,$2")
+            paramStr = paramStr.replace(Regex(pattern_B), "$1,$2")
+            paramStr = paramStr.replace(Regex(pattern_S), "$1,$2")
+            paramStr = paramStr.replace(Regex(pattern_I), "$1,$2")
+            paramStr = paramStr.replace(Regex(pattern_J), "$1,$2")
+            paramStr = paramStr.replace(Regex(pattern_Z), "$1,$2")
+        }
+        paramStr = paramStr.replace("L", "").replace("/", ".").replace(";", ",")
+        if (paramStr[paramStr.length - 1] == ',') {
+            paramStr = paramStr.substring(0, paramStr.length - 1)
+        }
+        return paramStr
+    }
+
+
+    private fun getReturnValue(returnType: String): String {
+        return when (returnType) {
+            "Z" -> "true"
+            "F" -> "1f"
+            "L" -> "4787107805000l"
+            "D" -> "2d"
+            "string" -> "isVip"
+            "S" -> "1short"
+            "C" -> "1c"
+            "I" -> "1"
+            else -> "null"
+        }
+    }
+
+    private fun getMode(returnType: String): Int = when (returnType) {
+        "V" -> Constant.HOOK_PARAM
+        else -> Constant.HOOK_RETURN
+    }
+
 
 }

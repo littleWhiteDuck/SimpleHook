@@ -1,4 +1,4 @@
-package littleWhiteDuck
+package me.simpleHook.hook
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -44,7 +44,7 @@ class Hook {
     private var mContext: Context? = null
     private lateinit var mClassLoader: ClassLoader
 
-    fun toHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
+    fun initHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
         val packageName = loadPackageParam!!.packageName
         val classLoader = loadPackageParam.classLoader
         XposedHelpers.findAndHookMethod(
@@ -73,11 +73,11 @@ class Hook {
             val strConfig =
                 File("${Constant.CONFIG_DIRECTORY + packageName + "/config"}.json").reader()
                     .use { it.readText() }
-            "获取配置成功".log()
-            toHook(strConfig)
+            "从文件获取配置成功".tip()
+            determineCan(strConfig)
         } catch (e: FileNotFoundException) {
-            "无运行中软件配置，或软件没有储存权限".log()
-            "准备使用xml获取配置".log()
+            "无运行中软件配置，或软件没有储存权限".tip()
+            "准备使用xml获取配置".tip()
             xmlHook(packageName)
         }
 
@@ -92,16 +92,16 @@ class Hook {
             if (strConfig == null || strConfig == error) {
                 error.log()
                 "准备使用Context获取配置".log()
-                toContextHook(currentPackageName)
+                contextHook(currentPackageName)
             } else {
                 // xml读取配置成功
-                toHook(strConfig)
+                determineCan(strConfig)
             }
-        } ?: error.log()
+        } ?: contextHook(currentPackageName)
 
     }
 
-    private fun toHook(strConfig: String) {
+    private fun determineCan(strConfig: String) {
         val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
         if (appConfigBean.canUse) {
             "开始自定义Hook".log()
@@ -109,13 +109,9 @@ class Hook {
         }
     }
 
-    private fun toContextHook(currentPackageName: String) {
-        toHook(currentPackageName, mContext)
-    }
-
     @SuppressLint("Range")
-    private fun toHook(packageName: String, context: Context?) {
-        context?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
+    private fun contextHook(packageName: String) {
+        mContext?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
             ?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("canUse")) == 1) {
@@ -128,10 +124,9 @@ class Hook {
             } ?: "cursor is null,获取配置失败".log()
     }
 
-
     private fun startHook(strConfig: String) {
-        val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
         try {
+            val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
             appConfigBean.config.forEach {
                 it.apply {
                     when (it.mode) {
@@ -149,7 +144,7 @@ class Hook {
                             resultValues,
                             fieldType
                         )
-                        else -> hook(
+                        else -> specificHook(
                             className,
                             mClassLoader,
                             methodName,
@@ -161,7 +156,7 @@ class Hook {
                 }
             }
         } catch (e: Exception) {
-            "get config error".log()
+            "resolver config error".log()
         }
     }
 
@@ -246,7 +241,7 @@ class Hook {
     }
 
 
-    private fun hook(
+    private fun specificHook(
         className: String, classLoader: ClassLoader, methodName: String, values: String,
         params: String, mode: Int
     ) {
@@ -551,7 +546,8 @@ class Hook {
                     }
                 })
 
-            XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER, classLoader,
+            XposedHelpers.findAndHookMethod(
+                CONTEXT_WRAPPER, classLoader,
                 START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val intent = param.args[0] as Intent

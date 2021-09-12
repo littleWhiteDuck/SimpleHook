@@ -6,7 +6,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.util.AppUtils

@@ -3,14 +3,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/config_smali_to_config"
+        android:title="@string/config_config_smali_to_config"
+        android:icon="@drawable/ic_smali_config_24"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
         android:id="@+id/select_app"
-        android:title="@string/select_app"
+        android:title="@string/config_menu_select_app"
         android:icon="@drawable/ic_select"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/save_config"
-        android:title="@string/save_config"
+        android:title="@string/config_menu_save_config"
         android:icon="@drawable/ic_save_24"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />

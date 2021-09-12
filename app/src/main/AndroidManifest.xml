@@ -55,7 +55,7 @@
         </activity>
 
         <provider
-            android:name="littleWhiteDuck.MyProvider"
+            android:name=".provider.MyProvider"
             android:authorities="littleWhiteDuck"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />

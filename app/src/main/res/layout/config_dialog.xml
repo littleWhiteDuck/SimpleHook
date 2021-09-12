@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@string/method_config"
+            android:text="@string/config_dialog_title"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/mode_select"
+            android:text="@string/config_dialog_mode_select"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -37,7 +37,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout2"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="@string/class_input_helper"
+            app:helperText="@string/config_dialog_class_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner"
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="@string/class_name_edit_tip"
+                android:hint="@string/config_dialog_class_edit_tip"
                 android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,7 +69,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/method_name_input"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="@string/method_input_helper"
+            app:helperText="@string/config_dialog_method_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:hint="@string/method_input_tip" />
+                android:hint="@string/config_dialog_method_input_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -96,7 +96,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:hint="@string/params_input_tip" />
+                android:hint="@string/config_dialog_params_input_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -112,7 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:hint="@string/result_value_input_iip" />
+                android:hint="@string/config_dialog_return_value_input_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
@@ -122,7 +122,7 @@
             android:layout_marginEnd="16dp"
             android:background="?selectableItemBackground"
             android:clickable="true"
-            android:contentDescription="@string/help"
+            android:contentDescription="@string/config_dialog_help"
             android:focusable="true"
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/textView"
@@ -135,7 +135,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/params_type_input"
-            app:helperText="@string/field_name_input_tip"
+            app:helperText="@string/config_dialog_field_name_input_tip"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -143,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:hint="@string/field_name_edit_hint" />
+                android:hint="@string/config_dialog_field_name_edit_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -152,14 +152,14 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/filed_name_input"
-            app:helperText="@string/field_type_input_tip"
+            app:helperText="@string/config_dialog_field_type_input_tip"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/field_type_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/field_type_edit_hint"
+                android:hint="@string/config_dialog_field_type_edit_hint"
                 android:background="@android:color/transparent"/>
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,7 +12,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import littleWhiteDuck.WindowPreferencesManager
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -42,17 +42,17 @@ class AboutActivity : AppCompatActivity() {
 
     private fun initData() {
         itemList.apply {
-            add(Title("开发者"))
+            add(Title(getString(R.string.about_title_author)))
             add(
                 Author(
-                    "littleWhiteDuck",
-                    "CV Engineering major of Home University",
+                    getString(R.string.about_name_developer),
+                    getString(R.string.about_introduce_developer),
                     R.drawable.author
                 )
             )
-            add(Title("测试人员"))
-            add(Author("正己", "测试bug", R.drawable.zhengji))
-            add(Author("简", "测试bug", R.drawable.jian))
+            add(Title(getString(R.string.about_title_tester)))
+            add(Author("正己", getString(R.string.about_introduce_test_bug), R.drawable.zhengji))
+            add(Author("简", getString(R.string.about_introduce_test_bug), R.drawable.jian))
             add(Title("开源相关"))
             add(
                 OpenSource(

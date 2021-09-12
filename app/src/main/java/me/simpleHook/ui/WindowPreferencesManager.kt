@@ -1,4 +1,5 @@
-package littleWhiteDuck
+package me.simpleHook.ui
+
 
 import android.R
 import android.annotation.TargetApi

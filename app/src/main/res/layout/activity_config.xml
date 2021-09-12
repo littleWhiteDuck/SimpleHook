@@ -34,7 +34,7 @@
         android:id="@+id/add_method_config"
         style="@style/FloatButtonTheme"
         android:layout_margin="20dp"
-        android:contentDescription="@string/add_method_config"
+        android:contentDescription="@string/config_add_config"
         android:src="@drawable/ic_add_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
-                android:text="@string/mode_select"
+                android:text="@string/config_dialog_mode_select"
                 android:textSize="18sp"
                 android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
@@ -79,20 +79,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:helperText="@string/application_input_helper"
+                app:helperText="@string/config_application_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView3">
 
                 <com.google.android.material.textfield.TextInputEditText
                     style="@style/add_edit_text_style"
-                    android:hint="@string/application_input_tip" />
+                    android:hint="@string/config_application_input_tip" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/packageName_input_layout"
                 style="@style/add_text_input_layout_style"
-                app:helperText="@string/package_input_helper"
+                app:helperText="@string/config_package_name_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/application_edit">
@@ -100,13 +100,13 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/packageName_edit"
                     style="@style/add_edit_text_style"
-                    android:hint="@string/package_input_tip" />
+                    android:hint="@string/config_package_name_input_tip" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout5"
                 style="@style/add_text_input_layout_style"
-                app:helperText="@string/app_name_input_helper"
+                app:helperText="@string/config_app_name_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/packageName_input_layout">
@@ -114,20 +114,20 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/app_name_edit"
                     style="@style/add_edit_text_style"
-                    android:hint="@string/app_name_input_tip" />
+                    android:hint="@string/config_app_name_input_tip" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout6"
                 style="@style/add_text_input_layout_style"
-                app:helperText="@string/version_input_helper"
+                app:helperText="@string/config_version_input_helper"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textInputLayout5">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/app_version_name_edit"
                     style="@style/add_edit_text_style"
-                    android:hint="@string/version_input_tip" />
+                    android:hint="@string/config_version_input_tip" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -141,7 +141,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/desc_string_edit"
                     style="@style/add_edit_text_style"
-                    android:hint="@string/description_input_tip" />
+                    android:hint="@string/config_description_input_tip" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.recyclerview.widget.RecyclerView

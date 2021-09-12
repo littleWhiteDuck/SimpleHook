@@ -13,15 +13,23 @@
             app:title="向xml中写入配置" />
 
     </PreferenceCategory>
+    <PreferenceCategory app:title="实验功能">
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:key="smali2Config"
+            app:summary="在配置页面增加获取剪贴板内容(调用代码)转化为配置的功能"
+            app:title="smali转化为Config" />
 
-    <PreferenceCategory app:title="其他">
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/main_title_other">
         <Preference
             app:key="about"
-            app:title="关于" />
+            app:title="@string/main_title_about" />
         <Preference
             app:key="help"
-            app:title="帮助"
-            app:summary="不正经的"/>
+            app:summary="@string/main_summary_help"
+            app:title="@string/main_title_help" />
     </PreferenceCategory>
 
 </PreferenceScreen>
