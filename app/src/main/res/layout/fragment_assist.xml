@@ -22,7 +22,7 @@
         style="@style/FloatButtonTheme"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="80dp"
-        android:contentDescription="@string/add_method_config"
+        android:contentDescription="@string/config_add_config"
         android:src="@drawable/ic_add_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

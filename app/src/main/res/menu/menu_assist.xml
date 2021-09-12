@@ -5,11 +5,11 @@
     <item
         android:id="@+id/assistFragment_startFloat"
         android:icon="@drawable/ic_start_float_24"
-        android:title="@string/assist_home_start_float_window"
+        android:title="@string/assist_start_float_window"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/save_config"
         android:icon="@drawable/ic_save_24"
-        android:title="@string/save_config"
+        android:title="@string/config_menu_save_config"
         app:showAsAction="ifRoom" />
 </menu>

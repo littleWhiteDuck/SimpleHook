@@ -1,14 +1,22 @@
 package me.simpleHook.ui.view.main
 
 import android.content.Context
+import android.util.TypedValue
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
+import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.util.dp
 import kotlin.math.max
 
 class ShareItemView(context: Context) : CustomViewGroup(context) {
     init {
+        val typedValue = TypedValue()
+        getContext().theme
+            .resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
+        val attribute = intArrayOf(R.attr.selectableItemBackground)
+        val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
+        background = typedArray.getDrawable(0)
         setPadding(10.dp, 2.dp, 2.dp ,5.dp)
     }
     val information = AppCompatTextView(context).apply {

@@ -7,6 +7,7 @@
         <entry key="..\:/littleWhiteDuck/.gradle/caches/transforms-3/4a697a7e311e0d454db15ce0250c9c6d/transformed/appcompat-1.2.0/res/drawable/abc_item_background_holo_light.xml" value="0.15092592592592594" />
         <entry key="..\:/littleWhiteDuck/Android/Sdk/platforms/android-31/data/res/drawable/list_selector_background.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/float_control_icon.xml" value="0.19427083333333334" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_paste.xml" value="0.15364583333333334" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/line.xml" value="0.19427083333333334" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/line_drawable.xml" value="0.19427083333333334" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/scroll_layer.xml" value="0.16574074074074074" />
@@ -41,6 +42,7 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/item_print_log.xml" value="0.10092592592592593" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_add.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_assist.xml" value="0.1" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_config.xml" value="0.4466666666666667" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/xml/root_preferences.xml" value="0.10185185185185185" />
       </map>
     </option>

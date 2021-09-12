@@ -27,7 +27,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/confirm"
+        android:text="@string/main_share_config_confirm"
         android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/cancel"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -38,14 +38,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
-        android:text="@string/cancel"
+        android:text="@string/main_share_config_cancel"
         android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/selectAll"
         app:layout_constraintEnd_toStartOf="@+id/confirm" />
 
     <Button
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:text="@string/select_all"
+        android:text="@string/main_share_config_select_all"
         android:id="@+id/selectAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

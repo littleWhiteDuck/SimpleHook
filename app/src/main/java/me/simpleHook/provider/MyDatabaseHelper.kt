@@ -1,4 +1,4 @@
-package littleWhiteDuck
+package me.simpleHook.provider
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

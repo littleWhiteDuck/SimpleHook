@@ -11,7 +11,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import littleWhiteDuck.WindowPreferencesManager
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem

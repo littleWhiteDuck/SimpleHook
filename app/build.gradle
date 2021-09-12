@@ -20,6 +20,7 @@ android {
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin-parcelize'
     defaultConfig {
+        resConfigs "zh_CN"
         applicationId "me.simpleHook"
         minSdkVersion 22
         targetSdkVersion 31

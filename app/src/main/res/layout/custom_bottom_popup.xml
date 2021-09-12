@@ -26,14 +26,14 @@
         <Button
             android:id="@+id/downloadButton"
             style="@style/bottom_dialog_button_style"
-            android:text="@string/download"
+            android:text="@string/main_bottom_download"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
 
         <Button
             android:id="@+id/editConfigButton"
             style="@style/bottom_dialog_button_style"
-            android:text="@string/edit"
+            android:text="@string/main_bottom_edit_config"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
 
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="@string/config_description"
+                android:text="@string/main_bottom_config_description"
                 android:scrollbars="vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -89,7 +89,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="5dp"
-            android:contentDescription="@string/app_icon"
+            android:contentDescription="@string/main_bottom_app_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline9"
             app:layout_constraintStart_toStartOf="parent"
@@ -111,7 +111,7 @@
             android:id="@+id/packageNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/package_name"
+            android:text="@string/main_bottom_package_name"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/appNameText"
             app:layout_constraintTop_toBottomOf="@+id/appNameText" />
@@ -121,7 +121,7 @@
             android:id="@+id/applicableVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/applicable_version"
+            android:text="@string/main_bottom_applicable_version"
             app:layout_constraintBottom_toTopOf="@+id/currentVersion"
             app:layout_constraintStart_toStartOf="@+id/guideline10"
             app:layout_constraintTop_toTopOf="parent" />
@@ -131,7 +131,7 @@
             android:id="@+id/currentVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/current_installed_version"
+            android:text="@string/main_bottom_current_installed_version"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/applicableVersion"
             app:layout_constraintTop_toBottomOf="@+id/applicableVersion" />

@@ -20,10 +20,11 @@ class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val shareItemView = ShareItemView(parent.context)
         val holder = ViewHolder(shareItemView)
-        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+        holder.itemView.setOnClickListener {
             val position = holder.itemView.getTag(R.id.item_in_export_config_position) as Int
-            dataList[position].isChecked = isChecked
-            onCheckedChange(isChecked, position)
+            holder.checkBox.isChecked = !dataList[position].isChecked
+            dataList[position].isChecked = !dataList[position].isChecked
+            onCheckedChange(dataList[position].isChecked, position)
         }
         return holder
     }

@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
@@ -20,7 +19,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import littleWhiteDuck.WindowPreferencesManager
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
@@ -80,10 +79,15 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initViewModel() {
+        var tempSize = 0
         viewModel.getAllConfigs().observe(requireActivity()) {
             filterConfigs = it
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(it)
+                if (tempSize < it.size){
+                    tempSize = it.size
+                    binding.mainRecycler.smoothScrollToPosition(0)
+                }
                 if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility = View.GONE
             }else{
                 toFilterData(currentPattern)
@@ -149,10 +153,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         Snackbar.make(
             binding.fab,
-            getString(R.string.delete_config_tip), Snackbar.LENGTH_LONG
+            getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
         ).apply {
             anchorView = bottomNavigationView
-        }.setAction(getString(R.string.revocation)) {
+        }.setAction(getString(R.string.main_home_delete_revocation)) {
             viewModel.insertConfigs(appConfig)
             if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, appConfig.config)
             if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, appConfig.config)
@@ -184,7 +188,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
 
     private fun copyConfigs(config: String) {
         ToolUtils.toClip(requireContext(), JsonUtil.formatJson(config))
-        getString(R.string.export_configs_tip).toast(requireContext())
+        getString(R.string.main_home_export_configs_tip).toast(requireContext())
     }
 
     private fun initView() {
@@ -307,7 +311,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
 
                 }
                 else -> {
-                    getString(R.string.incorrect_format_tip).toast(requireContext())
+                    getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
                 }
             }
         } catch (e: java.lang.Exception) {

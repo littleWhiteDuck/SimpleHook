@@ -9,7 +9,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigItem
@@ -72,7 +71,7 @@ class ConfigDialogFragment(private val configsList: ArrayList<ConfigItem>, priva
                     }
                     val strConfig = getStrConfig(tempList)
                     ToolUtils.toClip(requireContext(), strConfig)
-                    getString(R.string.export_configs_tip).toast(requireContext())
+                    getString(R.string.main_home_export_configs_tip).toast(requireContext())
                 }
                 val toast = if (isImport) "导入成功" else "导出成功"
                 toast.toast(requireContext())
