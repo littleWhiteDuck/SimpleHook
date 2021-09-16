@@ -1,6 +1,8 @@
 package me.simpleHook.adapter
 
 import android.os.Build
+import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.widget.AppCompatTextView
@@ -23,8 +25,15 @@ class PrintLogAdapter : RecyclerView.Adapter<PrintLogAdapter.ViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = AppCompatTextView(parent.context).apply {
+        val itemView = AppCompatTextView(ContextThemeWrapper(parent.context, R.style.text_view_item)).apply {
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             setPadding(15.dp, 5.dp, 15.dp, 5.dp)
+            val typedValue = TypedValue()
+            parent.context.theme
+                .resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
+            val attribute = intArrayOf(R.attr.selectableItemBackground)
+            val typedArray = parent.context.theme.obtainStyledAttributes(typedValue.resourceId, attribute)
+            background = typedArray.getDrawable(0)
         }
         val viewHolder = ViewHolder(itemView)
         viewHolder.itemView.setOnClickListener {

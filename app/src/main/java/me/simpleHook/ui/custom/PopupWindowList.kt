@@ -7,20 +7,28 @@ import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import me.simpleHook.R
 import me.simpleHook.util.PhoneUtils
 
 
-class PopupWindowList private constructor(private val builder: Builder, private val mContext: Context) {
+class PopupWindowList private constructor(
+    private val builder: Builder,
+    private val mContext: Context
+) {
     private var popupWindowWidth: Int = 0
     private var popupWindowHeight: Int = 0
     var foscuable = false
     private lateinit var popupWindow: PopupWindow
+
     init {
         foscuable = builder.outsideTouchable
     }
+
     private var locationX = 0
     private var locationY = 0
     private var mOnItemClickListener: AdapterView.OnItemClickListener? = null
@@ -31,7 +39,8 @@ class PopupWindowList private constructor(private val builder: Builder, private 
 
         val contentView = ListView(mContext)
         contentView.apply {
-            adapter = ArrayAdapter(mContext, android.R.layout.simple_list_item_1, builder.itemList!!)
+            adapter =
+                ArrayAdapter(mContext, android.R.layout.simple_list_item_1, builder.itemList!!)
             background = ContextCompat.getDrawable(mContext, R.drawable.popup_shape)
             isVerticalScrollBarEnabled = false
             onItemClickListener = mOnItemClickListener
@@ -106,19 +115,20 @@ class PopupWindowList private constructor(private val builder: Builder, private 
     }
 
     class Builder(private val mContext: Context) {
-        companion object{
+        companion object {
             val point = Point()
         }
-        var itemList: List<String>? = null
+
+        var itemList: Array<String>? = null
 
         var outsideTouchable = false
 
-        fun setOutsideTouchable(touchable: Boolean): Builder{
+        fun setOutsideTouchable(touchable: Boolean): Builder {
             outsideTouchable = touchable
             return this
         }
 
-        fun setItemList(list: List<String>): Builder {
+        fun setItemList(list: Array<String>): Builder {
             itemList = list
             return this
         }
@@ -133,8 +143,9 @@ class PopupWindowList private constructor(private val builder: Builder, private 
             }
             return this
         }
+
         fun build(): PopupWindowList {
-            return PopupWindowList(this,mContext)
+            return PopupWindowList(this, mContext)
         }
     }
 

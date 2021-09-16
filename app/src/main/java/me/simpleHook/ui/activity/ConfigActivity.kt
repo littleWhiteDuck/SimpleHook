@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -32,6 +31,7 @@ import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.hook.Type
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
 import java.util.regex.Pattern
@@ -41,13 +41,7 @@ private const val PATTERN_METHOD =
     """^invoke-(virtual|direct|static)(/range)? \{.*\}, (.*)->(.*)\((.*)\)(.*)$"""
 private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
 private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
-private const val pattern = """B|S|I|J|F|D|Z[^a-z/]"""
-private const val pattern_Z = """(Z)([^a-z/])"""
-private const val pattern_I = """(I)([^a-z/])"""
-private const val pattern_S = """(S)([^a-z/])"""
-private const val pattern_B = """(B)([^a-z/])"""
-private const val pattern_J = """(J)([^a-z/])"""
-private const val pattern_C = """(C)([^a-z/])"""
+private const val pattern = """(B|S|I|J|F|D|Z)(B|S|I|J|F|D|Z|L)"""
 
 class ConfigActivity : AppCompatActivity() {
     private val smaliPattern = """^L.*;"""
@@ -138,8 +132,14 @@ class ConfigActivity : AppCompatActivity() {
     private fun onLongClick(position: Int) {
         val methodConfig = configList[position]
         addRemoveItem(methodConfig)
-        Snackbar.make(binding.packageNameInputLayout, "已经重复新增了一个，快去更改", Snackbar.LENGTH_LONG)
-            .setAction("撤销") {
+        Snackbar.make(
+            binding.addMethodConfig,
+            getString(R.string.config_add_repeat_config_tip),
+            Snackbar.LENGTH_LONG
+        ).apply {
+            anchorView = binding.addMethodConfig
+        }
+            .setAction(getString(R.string.config_undo_repeat_config)) {
                 configList.removeAt(configList.size - 1)
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
@@ -201,14 +201,17 @@ class ConfigActivity : AppCompatActivity() {
                 }
             setCancelable(false)
             modifyConfig = configBean.className.isNotEmpty().also {
-                val positiveButtonText = if (it) "修改" else "增加"
+                val positiveButtonText =
+                    if (it) getString(R.string.config_dialog_alter_this) else getString(
+                        R.string.config_dialog_add_a_new
+                    )
                 setPositiveButton(positiveButtonText) { d, _ ->
                     dialogDismiss(
                         d, toCheck(dialogBinding)
                     )
                 }
                 if (it) {
-                    setNeutralButton("删除") { d, _ ->
+                    setNeutralButton(getString(R.string.config_dialog_delete_this)) { d, _ ->
                         deleteConfig(configBean)
                         dialogDismiss(
                             d, true
@@ -216,7 +219,7 @@ class ConfigActivity : AppCompatActivity() {
                     }
                 }
             }
-            setNegativeButton("取消") { d, _ ->
+            setNegativeButton(getString(R.string.config_dialog_cancel)) { d, _ ->
                 dialogDismiss(d, true)
             }
                 .create().show()
@@ -286,17 +289,17 @@ class ConfigActivity : AppCompatActivity() {
         var canCancel = true
         val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
-        val params = this.smali2Java(dialogBinding.paramsEdit.text.toString().trim())
+        val params = tranParams(dialogBinding.paramsEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.filedNameEdit.text.toString()
-        val fieldType = this.smali2Java(dialogBinding.fieldTypeEdit.text.toString())
+        val fieldType = tranParams(dialogBinding.fieldTypeEdit.text.toString())
         when (mode) {
             Constant.HOOK_BREAK -> {
                 if (className.isNotEmpty() && methodName.isNotEmpty()) {
                     val methodConfig = ConfigBean(mode, className, methodName, params)
                     addConfig(methodConfig)
                 } else {
-                    "有必填项为空".toast(this)
+                    getString(R.string.config_dialog_config_empty).toast(this)
                     canCancel = false
                 }
             }
@@ -311,7 +314,7 @@ class ConfigActivity : AppCompatActivity() {
                     )
                     addConfig(methodConfig)
                 } else {
-                    "有必填项为空".toast(this)
+                    getString(R.string.config_dialog_config_empty).toast(this)
                     canCancel = false
                 }
             }
@@ -327,7 +330,7 @@ class ConfigActivity : AppCompatActivity() {
                     )
                     addConfig(methodConfig)
                 } else {
-                    "有必填项为空".toast(this)
+                    getString(R.string.config_dialog_config_empty).toast(this)
                     canCancel = false
                 }
             }
@@ -337,7 +340,7 @@ class ConfigActivity : AppCompatActivity() {
                         ConfigBean(mode, className, methodName, params, resultValues = results)
                     addConfig(methodConfig)
                 } else {
-                    "有必填项为空".toast(this)
+                    getString(R.string.config_dialog_config_empty).toast(this)
                     canCancel = false
                 }
             }
@@ -352,15 +355,7 @@ class ConfigActivity : AppCompatActivity() {
     }
 
     private fun showHelpDialog() {
-        val webView = WebView(this)
-        webView.loadUrl("file:///android_asset/introduce.html")
-        MaterialAlertDialogBuilder(this).apply {
-            setTitle("帮助")
-            setView(webView)
-            setPositiveButton("取消", null)
-                .create().show()
-
-        }
+        HelpDialogFragment("file:///android_asset/帮助.html").show(supportFragmentManager, "help")
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -410,7 +405,7 @@ class ConfigActivity : AppCompatActivity() {
 
     private fun saveConfig() {
         if (configList.size == 0) {
-            "配置为空".snack(binding.addMethodConfig)
+            getString(R.string.config_save_empty_config_tip).snack(binding.addMethodConfig)
             return
         }
         val appConfig = Gson().toJson(getAppConfig())
@@ -441,7 +436,7 @@ class ConfigActivity : AppCompatActivity() {
                     )
                 if (sp.openXml) {
                     configPref?.edit()?.putString(packageName, appConfig)?.commit()
-                        ?: "模块未激活，将将无法使用New XSharedPreferences获取配置".toast(this@ConfigActivity, 1)
+                        ?: getString(R.string.config_module_can_not_use_xsp).toast(this@ConfigActivity, 1)
                 }
             }
         }
@@ -490,7 +485,6 @@ class ConfigActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun patternStr(string: String) {
-        Log.d("=====", "patternStr: $string")
         var configBean: ConfigBean? = null
         val config: ConfigBean? = when {
             matches(PATTERN_METHOD, string) -> {
@@ -500,7 +494,7 @@ class ConfigActivity : AppCompatActivity() {
                     val methodName = matcher.group(4)!!
                     val params = matcher.group(5)!!
                     val returnType = matcher.group(6)!!
-                    if (getMode(returnType) == Constant.HOOK_RETURN) {
+                    if (getMode(returnType, params) == Constant.HOOK_RETURN) {
                         configBean = ConfigBean(
                             Constant.HOOK_RETURN,
                             className,
@@ -514,7 +508,7 @@ class ConfigActivity : AppCompatActivity() {
                     } else {
                         configBean =
                             ConfigBean(
-                                Constant.HOOK_PARAM,
+                                getMode(returnType, params),
                                 smali2Java(className),
                                 methodName,
                                 tranParams(params),
@@ -541,14 +535,13 @@ class ConfigActivity : AppCompatActivity() {
                         "",
                         fieldName,
                         smali2Java(fieldType),
-                        Type.getDataTypeValue(getReturnValue(fieldType)).toString()
+                        getReturnValue(fieldType)
                     )
 
                 }
                 configBean
             }
             matches(PATTER_INSTANCE_FIELD, string) -> {
-                Log.d("================", "patternStr: ")
                 val matcher = Pattern.compile(PATTER_INSTANCE_FIELD).matcher(string)
                 if (matcher.find()) {
                     val className = smali2Java(matcher.group(1)!!)
@@ -561,7 +554,7 @@ class ConfigActivity : AppCompatActivity() {
                         "",
                         fieldName,
                         smali2Java(fieldType),
-                        Type.getDataTypeValue(getReturnValue(fieldType)).toString()
+                        getReturnValue(fieldType)
                     )
                 }
                 configBean
@@ -572,20 +565,17 @@ class ConfigActivity : AppCompatActivity() {
             configList.add(it)
             mAdapter.submitList(configList)
             mAdapter.notifyDataSetChanged()
-            Snackbar.make(binding.addMethodConfig, "已添加配置", Snackbar.LENGTH_LONG).show()
-        }
+            Snackbar.make(binding.addMethodConfig, getString(R.string.config_add_config_tip), Snackbar.LENGTH_LONG).apply {
+                anchorView = binding.addMethodConfig
+            }.show()
+        }?: "错误的代码".toast(this)
     }
 
     private fun tranParams(params: String): String {
         if (params.isEmpty()) return ""
         var paramStr = params
-        if (paramStr.contains(Regex(pattern))) {
-            paramStr = paramStr.replace(Regex(pattern_C), "$1,$2")
-            paramStr = paramStr.replace(Regex(pattern_B), "$1,$2")
-            paramStr = paramStr.replace(Regex(pattern_S), "$1,$2")
-            paramStr = paramStr.replace(Regex(pattern_I), "$1,$2")
-            paramStr = paramStr.replace(Regex(pattern_J), "$1,$2")
-            paramStr = paramStr.replace(Regex(pattern_Z), "$1,$2")
+        while (paramStr.contains(Regex(pattern))) {
+            paramStr = paramStr.replace(Regex(pattern), "$1,$2")
         }
         paramStr = paramStr.replace("L", "").replace("/", ".").replace(";", ",")
         if (paramStr[paramStr.length - 1] == ',') {
@@ -601,7 +591,7 @@ class ConfigActivity : AppCompatActivity() {
             "F" -> "1f"
             "L" -> "4787107805000l"
             "D" -> "2d"
-            "string" -> "isVip"
+            "Ljava/lang/String;" -> "isVip"
             "S" -> "1short"
             "C" -> "1c"
             "I" -> "1"
@@ -609,9 +599,14 @@ class ConfigActivity : AppCompatActivity() {
         }
     }
 
-    private fun getMode(returnType: String): Int = when (returnType) {
-        "V" -> Constant.HOOK_PARAM
-        else -> Constant.HOOK_RETURN
+    private fun getMode(returnType: String, params: String): Int {
+        return if (returnType == "V" && params.isNotEmpty()){
+            Constant.HOOK_PARAM
+        }else if (returnType == "V"){
+            Constant.HOOK_BREAK
+        }else{
+            Constant.HOOK_RETURN
+        }
     }
 
 

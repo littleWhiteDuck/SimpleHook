@@ -1,35 +1,35 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="增加读取配置方式">
+    <PreferenceCategory app:title="@string/main_settings_title_expand">
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="openStorage"
-            app:summary="本应用和目标应用需要拥有储存权限"
-            app:title="向储存文件中写入配置" />
+            app:summary="@string/main_settings_summary_storage"
+            app:title="@string/main_settings_title_storage" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="openXml"
-            app:summary="使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改"
-            app:title="向xml中写入配置" />
+            app:summary="@string/main_settings_summary_xml"
+            app:title="@string/main_settings_title_xml" />
 
     </PreferenceCategory>
-    <PreferenceCategory app:title="实验功能">
+    <PreferenceCategory app:title="@string/main_settings_title_experiment">
         <CheckBoxPreference
             app:defaultValue="false"
             app:key="smali2Config"
-            app:summary="在配置页面增加获取剪贴板内容(调用代码)转化为配置的功能"
-            app:title="smali转化为Config" />
+            app:summary="@string/main_settings_summary_to_config"
+            app:title="@string/main_settings_title_to_config" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/main_title_other">
+    <PreferenceCategory app:title="@string/main_settings_title_other">
         <Preference
             app:key="about"
-            app:title="@string/main_title_about" />
+            app:title="@string/main_settings_title_about" />
         <Preference
             app:key="help"
-            app:summary="@string/main_summary_help"
-            app:title="@string/main_title_help" />
+            app:summary="@string/main_settings_summary_help"
+            app:title="@string/main_settings_title_help" />
     </PreferenceCategory>
 
 </PreferenceScreen>

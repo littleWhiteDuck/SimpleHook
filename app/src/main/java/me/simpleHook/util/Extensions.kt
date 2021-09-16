@@ -111,23 +111,5 @@ fun ViewPager2.setCurrentItem(
 }
 
 fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
-    val cardView = CardView(context)
-    val textView = TextView(context).apply {
-        text = this@toast
-        textSize = 18f
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(20, 5, 20, 5)
-        setTextColor(Color.WHITE)
-    }
-    cardView.apply {
-        addView(textView)
-        radius = 25f
-        setCardBackgroundColor(Color.parseColor("#4F9BFA"))
-    }
-    Toast(context).apply {
-        view = cardView
-        setGravity(Gravity.CENTER, 0, 0)
-        setDuration(duration)
-        show()
-    }
+    Toast.makeText(context, this, duration).show()
 }

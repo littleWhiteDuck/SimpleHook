@@ -9,10 +9,8 @@
     <color name="teal_700">@color/colorPrimaryVariant</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="item_background">@color/white</color>
     <color name="colorPrimary">#4F9BFA</color>
     <color name="colorPrimaryVariant">#4F9BFA</color>
     <color name="popup_window_background">#eeeeee</color>
     <color name="paint_color">#FF000000</color>
-    <color name="config_selected_color">#534F9BFA</color>
 </resources>

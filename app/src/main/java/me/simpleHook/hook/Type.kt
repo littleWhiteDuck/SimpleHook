@@ -13,6 +13,7 @@ object Type {
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
     private const val BYTE_PATTERN = """^-?[1-9]\d*[b|B]$"""
     private const val SHORT_PATTERN = """^-?[1-9]\d*(?i)short$"""
+    private const val CHAR_PATTERN = """^.*[c|C]$"""
 
     fun getDataTypeValue(value: String) = when{
         matches(BOOLEAN_PATTERN,value) -> value.toBoolean()
@@ -23,6 +24,7 @@ object Type {
         matches(STRING_EMPTY_PATTERN,value) -> ""
         matches(BYTE_PATTERN,value) -> value.replace(Regex("""[b|B]"""),"").toByte()
         matches(SHORT_PATTERN,value) -> value.replace(Regex("""[(?i)short]"""),"").toShort()
+        matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""),"")[0]
         else -> value
     }
     fun getClassType(className:String) = when(className){
@@ -33,6 +35,7 @@ object Type {
         "float", "F", "f" -> Float::class.java
         "double", "D", "d" -> Double::class.java
         "boolean", "Z", "z" -> Boolean::class.java
+        "char", "c", "C" -> Char::class.java
         "string" -> String::class.java
         "context" -> Context::class.java
         else -> null

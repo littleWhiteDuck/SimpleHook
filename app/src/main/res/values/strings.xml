@@ -1,7 +1,4 @@
 <resources>
-    <string name="search">搜索</string>
-    <string name="search_hint">输入应用名或包名</string>
-    <string name="error_tip">出现错误</string>
     <!--assist-->
     <string name="assist_start_float_window">开启悬浮穿</string>
     <string name="assist_float_print_log">打印输出</string>
@@ -11,6 +8,7 @@
     <string name="assist_float_pause_print">暂停</string>
     <string name="assist_close_float_window">close window for print</string>
     <string name="assist_float_drag">拖拽</string>
+    <string name="assist_float_export_config_empty_tip">导出了个寂寞</string>
     <!--config-->
     <string name="config_config_smali_to_config">smali转为配置</string>
     <string name="config_application_input_helper">例如：com.example.MyApplication</string>
@@ -20,11 +18,11 @@
     <string name="config_dialog_class_input_helper">例如：com.example.example</string>
     <string name="config_dialog_method_input_tip">输入方法名</string>
     <string name="config_dialog_method_input_helper">例如：isVip</string>
-    <string name="config_dialog_params_input_tip">输入参数</string>
+    <string name="config_dialog_params_input_tip">输入参数类型</string>
     <string name="config_dialog_return_value_input_tip">输入修改值</string>
     <string name="config_dialog_field_name_edit_hint">输入静态变量名</string>
     <string name="config_dialog_field_name_input_tip">例如：isPro</string>
-    <string name="config_dialog_field_type_input_tip">例如：boolean、int</string>
+    <string name="config_dialog_field_type_input_tip">例如：boolean、int(可不填)</string>
     <string name="config_dialog_field_type_edit_hint">请输入变量类型</string>
     <string name="config_dialog_title">方法配置</string>
     <string name="config_dialog_mode_select">选择模式：</string>
@@ -38,21 +36,39 @@
     <string name="config_description_input_tip">输入描述</string>
     <string name="config_menu_save_config">保存配置</string>
     <string name="config_menu_select_app">选择app</string>
+    <string name="config_undo_repeat_config">撤销</string>
+    <string name="config_add_repeat_config_tip">已经重复新增了一个，快去更改</string>
+    <string name="config_dialog_delete_this">删除</string>
+    <string name="config_dialog_cancel">取消</string>
+    <string name="config_dialog_alter_this">修改</string>
+    <string name="config_dialog_add_a_new">增加</string>
+    <string name="config_help_dialog_title">帮助</string>
+    <string name="config_help_dialog_cancel">取消</string>
+    <string name="config_dialog_config_empty">有必填项为空</string>
+    <string name="config_save_empty_config_tip">配置为空</string>
+    <string name="config_module_can_not_use_xsp">模块未激活，将将无法使用New XSharedPreferences获取配置</string>
+    <string name="config_add_config_tip">已添加配置</string>
     <!--main-->
     <string name="app_name">SimpleHook</string>
     <string name="main_home_name">首页</string>
-    <string name="main_home_delete_revocation">撤销</string>
+    <string name="main_home_undo_delete_config">撤销</string>
     <string name="main_home_export_configs_tip">已复制到剪切板</string>
-    <string name="main_home_import_success_tip">导入成功</string>
-    <string name="main_home_import_fail_tip">导入失败(可能格式错误)</string>
     <string name="main_home_import_incorrect_format_tip">格式错误</string>
     <string name="main_home_delete_config_tip">已删除此配置</string>
-    <string name="main_assist_name">辅助</string>
+    <string name="main_home_toolbar_search_hint">搜索…</string>
     <string name="main_settings_name">设置</string>
-    <string name="main_title_other">其他</string>
-    <string name="main_title_about">关于</string>
-    <string name="main_title_help">帮助</string>
-    <string name="main_summary_help">不正经的</string>
+    <string name="main_settings_title_other">其他</string>
+    <string name="main_settings_title_about">关于</string>
+    <string name="main_settings_title_help">帮助</string>
+    <string name="main_settings_summary_help">常见问题</string>
+    <string name="main_settings_title_expand">增加读取配置方式</string>
+    <string name="main_settings_title_storage">向储存文件中写入配置</string>
+    <string name="main_settings_summary_storage">本应用和目标应用需要拥有储存权限</string>
+    <string name="main_settings_summary_xml">使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改</string>
+    <string name="main_settings_title_xml">向xml中写入配置</string>
+    <string name="main_settings_title_experiment">实验功能</string>
+    <string name="main_settings_summary_to_config">在配置页面增加获取剪贴板内容(调用代码)转化为配置的功能</string>
+    <string name="main_settings_title_to_config">smali转化为Config</string>
     <string name="main_share_config_cancel">取消</string>
     <string name="main_share_config_select_all">全选</string>
     <string name="main_share_config_confirm">确认</string>
@@ -63,11 +79,33 @@
     <string name="main_bottom_current_installed_version">当前安装版本</string>
     <string name="main_bottom_config_description">配置介绍</string>
     <string name="main_bottom_edit_config">编辑</string>
+    <string name="main_assist_delete_config_tip">已删除此配置</string>
+    <string name="main_assist_undo_delete_config">撤销</string>
+    <string name="main_assist_name">辅助</string>
+
+    <string-array name="main_home_item_select_item">
+        <item>编辑</item>
+        <item>删除</item>
+        <item>分享</item>
+    </string-array>
     <!--about-->
     <string name="about_title_author">开发者</string>
     <string name="about_name_developer">littleWhiteDuck</string>
     <string name="about_introduce_developer">CV Engineering major of Home University</string>
     <string name="about_title_tester">测试人员</string>
     <string name="about_introduce_test_bug">测试bug</string>
+    <string name="about_tester_zj">正己</string>
+    <string name="about_tester_j">简</string>
+    <string name="about_title_open_sources">开源相关</string>
+    <string name="about_source_license_2">Apache software license 2.0</string>
     <!--others-->
+    <string name="search">搜索</string>
+    <string name="search_hint">输入应用名或包名</string>
+    <string name="error_tip">出现错误</string>
+
+    <string-array name="xposed_scope">
+        <item>me.hookTest</item>
+        <item>me.duck.hooktest</item>
+    </string-array>
+
 </resources>

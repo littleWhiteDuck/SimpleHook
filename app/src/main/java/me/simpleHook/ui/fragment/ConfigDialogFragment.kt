@@ -1,4 +1,4 @@
-package me.simpleHook.ui.custom
+package me.simpleHook.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

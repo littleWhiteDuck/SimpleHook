@@ -23,6 +23,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.bean.*
 import me.simpleHook.constant.Constant
+import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -165,31 +166,32 @@ class Hook {
         fieldName: String, values: String, valueType: String
     ) {
         val clazz: Class<*> = XposedHelpers.findClass(className, classLoader)
-        when (valueType) {
-            "byte", "b", "B" -> XposedHelpers.setStaticByteField(clazz, fieldName, values.toByte())
-            "short", "s", "S" -> XposedHelpers.setStaticShortField(
+        when (val value = getDataTypeValue(values)) {
+            is Byte -> XposedHelpers.setStaticByteField(clazz, fieldName, values.toByte())
+            is Short -> XposedHelpers.setStaticShortField(
                 clazz,
                 fieldName,
-                values.toShort()
+                value
             )
-            "int", "i", "I" -> XposedHelpers.setStaticIntField(clazz, fieldName, values.toInt())
-            "long", "j", "J" -> XposedHelpers.setStaticLongField(clazz, fieldName, values.toLong())
-            "float", "f", "F" -> XposedHelpers.setStaticFloatField(
+            is Int -> XposedHelpers.setStaticIntField(clazz, fieldName, values.toInt())
+            is Long -> XposedHelpers.setStaticLongField(clazz, fieldName, values.toLong())
+            is Float -> XposedHelpers.setStaticFloatField(
                 clazz,
                 fieldName,
-                values.toFloat()
+                value
             )
-            "double", "d", "D" -> XposedHelpers.setStaticDoubleField(
+            is Double -> XposedHelpers.setStaticDoubleField(
                 clazz,
                 fieldName,
-                values.toDouble()
+                value
             )
-            "boolean", "z", "Z" -> XposedHelpers.setStaticBooleanField(
+            is Boolean -> XposedHelpers.setStaticBooleanField(
                 clazz,
                 fieldName,
-                values.toBoolean()
+                value
             )
-            "null" -> XposedHelpers.setStaticObjectField(clazz, fieldName, null)
+            is String -> XposedHelpers.setStaticObjectField(clazz, fieldName, value)
+            else -> XposedHelpers.setStaticObjectField(clazz, fieldName, null)
         }
 
     }
@@ -202,39 +204,40 @@ class Hook {
         XposedBridge.hookAllConstructors(clazz, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val thisObj = param.thisObject
-                when (valueType) {
-                    "byte", "b", "B" -> XposedHelpers.setByteField(
+                when (val value = getDataTypeValue(values)) {
+                    is Byte -> XposedHelpers.setByteField(
                         thisObj,
                         fieldName,
-                        values.toByte()
+                        value
                     )
-                    "short", "s", "S" -> XposedHelpers.setShortField(
+                    is Short -> XposedHelpers.setShortField(
                         thisObj,
                         fieldName,
-                        values.toShort()
+                        value
                     )
-                    "int", "i", "I" -> XposedHelpers.setIntField(thisObj, fieldName, values.toInt())
-                    "long", "j", "J" -> XposedHelpers.setLongField(
+                    is Int -> XposedHelpers.setIntField(thisObj, fieldName, value)
+                    is Long -> XposedHelpers.setLongField(
                         thisObj,
                         fieldName,
-                        values.toLong()
+                        value
                     )
-                    "float", "f", "F" -> XposedHelpers.setFloatField(
+                    is Float -> XposedHelpers.setFloatField(
                         thisObj,
                         fieldName,
-                        values.toFloat()
+                        value
                     )
-                    "double", "d", "D" -> XposedHelpers.setDoubleField(
+                    is Double -> XposedHelpers.setDoubleField(
                         thisObj,
                         fieldName,
-                        values.toDouble()
+                        value
                     )
-                    "boolean", "z", "Z" -> XposedHelpers.setBooleanField(
+                    is Boolean -> XposedHelpers.setBooleanField(
                         thisObj,
                         fieldName,
-                        values.toBoolean()
+                        value
                     )
-                    "null" -> XposedHelpers.setObjectField(thisObj, fieldName, null)
+                    is String -> XposedHelpers.setObjectField(thisObj, fieldName, value)
+                    else -> XposedHelpers.setObjectField(thisObj, fieldName, null)
                 }
             }
         })

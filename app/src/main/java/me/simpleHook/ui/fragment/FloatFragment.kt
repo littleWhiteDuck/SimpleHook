@@ -17,6 +17,7 @@ import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
+import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
@@ -24,6 +25,7 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentFloatBinding
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.JsonUtil
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -116,7 +118,7 @@ class FloatFragment : Fragment() {
             }
             importToFile.setOnClickListener {
                 if (list.isEmpty()) {
-                    Toast.makeText(requireContext(), "导出了个寂寞", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.assist_float_export_config_empty_tip), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val date = Date()
@@ -127,8 +129,8 @@ class FloatFragment : Fragment() {
                 for (i in writeList.indices) {
                     str.append("  ${writeList[i].log},\n")
                 }
-                val strLog = str.toString().substring(0, str.toString().length - 2)
-                FileUtils.writeData(url, time, "[\n${strLog}\n]")
+                val strLog = str.toString().substring(0, str.toString().length - 2).replace("\\u003e", ">")
+                FileUtils.writeData(url, time, JsonUtil.formatJson("[\n${strLog}\n]"))
                 Toast.makeText(
                     requireContext(),
                     "导出路径为：${Constant.PRINT_LOG__DIRECTORY + time}.json",

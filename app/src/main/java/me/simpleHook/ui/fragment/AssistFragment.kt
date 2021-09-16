@@ -33,9 +33,9 @@ class AssistFragment : Fragment() {
         sp.remove(assistConfig.packageName)
         val bottomNavigationView =
             requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        Snackbar.make(binding.addConfig, "已删除此配置", Snackbar.LENGTH_LONG).apply {
+        Snackbar.make(binding.addConfig, getString(R.string.main_assist_delete_config_tip), Snackbar.LENGTH_LONG).apply {
            anchorView = bottomNavigationView
-        }.setAction("撤销") {
+        }.setAction(getString(R.string.main_assist_undo_delete_config)) {
                 appViewModel.insertAssistConfigs(assistConfig)
                 if (sp.openStorage) {
                     FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)

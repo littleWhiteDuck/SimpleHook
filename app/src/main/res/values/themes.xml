@@ -18,17 +18,6 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
-    <style name="ButtonTheme" parent="Theme.SimpleHook">
-        <item name="colorPrimary">#434a54</item>
-    </style>
-    <style name="EditTextTheme" parent="Theme.SimpleHook">
-        <item name="colorPrimary">@color/teal_200</item>
-        <item name="android:editTextColor">@android:color/white</item>
-        <item name="android:textColorHint">@color/teal_200</item>
-    </style>
-    <style name="ToolbarTheme" parent="Theme.SimpleHook">
-        <item name="colorControlNormal">@color/white</item>
-    </style>
     <style name="FloatButtonTheme" parent="Theme.SimpleHook">
         <item name="tint">@color/white</item>
         <item name="android:layout_width">wrap_content</item>

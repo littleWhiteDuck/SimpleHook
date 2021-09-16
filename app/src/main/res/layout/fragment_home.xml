@@ -35,11 +35,11 @@
         android:layout_marginBottom="80dp"
         app:layout_behavior="me.simpleHook.behavior.FabBehavior"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_insetEdge="bottom"
         app:menu_colorNormal="@color/colorPrimaryVariant"
         app:menu_colorPressed="@color/colorPrimary"
         app:menu_labels_ellipsize="end"
-        app:menu_labels_singleLine="true"
-        app:layout_insetEdge="bottom">
+        app:menu_labels_singleLine="true">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/add_config"
@@ -69,6 +69,16 @@
             app:fab_colorNormal="@color/colorPrimaryVariant"
             app:fab_colorPressed="@color/colorPrimary"
             app:fab_label="从网络导入配置"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/import_configs_from_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_file"
+            app:fab_colorNormal="@color/colorPrimaryVariant"
+            app:fab_colorPressed="@color/colorPrimary"
+            app:fab_label="从文件读取配置"
             app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton

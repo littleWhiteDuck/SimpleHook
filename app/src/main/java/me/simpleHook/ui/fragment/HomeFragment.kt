@@ -5,9 +5,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,15 +21,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
-import me.simpleHook.ui.custom.ConfigDialogFragment
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.util.*
 import org.json.JSONArray
@@ -36,8 +37,11 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
 import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
+
 
 class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     HideScrollListener {
@@ -84,12 +88,13 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             filterConfigs = it
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(it)
-                if (tempSize < it.size){
+                if (tempSize < it.size) {
                     tempSize = it.size
                     binding.mainRecycler.smoothScrollToPosition(0)
                 }
-                if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility = View.GONE
-            }else{
+                if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility =
+                    View.GONE
+            } else {
                 toFilterData(currentPattern)
             }
         }
@@ -149,14 +154,12 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         viewModel.deleteConfigs(appConfig)
         configPref?.edit()?.remove(appConfig.packageName)?.apply()
         FileUtils.deleteFile(appConfig.packageName)
-        val bottomNavigationView =
-            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         Snackbar.make(
             binding.fab,
             getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
         ).apply {
-            anchorView = bottomNavigationView
-        }.setAction(getString(R.string.main_home_delete_revocation)) {
+            anchorView = binding.fab
+        }.setAction(getString(R.string.main_home_undo_delete_config)) {
             viewModel.insertConfigs(appConfig)
             if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, appConfig.config)
             if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, appConfig.config)
@@ -165,7 +168,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun itemOnLongClick(appConfig: AppConfig) {
-        val arrayList = arrayListOf("编辑", "删除", "复制")
+        val arrayList = requireContext().resources.getStringArray(R.array.main_home_item_select_item)
         val popupWindowList = PopupWindowList.Builder(requireContext())
             .setItemList(arrayList)
             .setOutsideTouchable(true)
@@ -192,15 +195,64 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun initView() {
-        binding.addConfig.setOnClickListener { toAddFragment(null) }
-        binding.importConfigsFromPaste.setOnClickListener {
-            ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
+        binding.apply {
+            addConfig.setOnClickListener { toAddFragment(null) }
+            importConfigsFromPaste.setOnClickListener {
+                ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
+            }
+            shareConfigs.setOnClickListener { shareConfigs() }
+            importConfigsFromInternet.setOnClickListener {
+                showInternetImportConfigDialog()
+            }
+            importConfigsFromFile.setOnClickListener {readConfigsFromFile()}
         }
-        binding.shareConfigs.setOnClickListener { shareConfigs() }
-        binding.importConfigsFromInternet.setOnClickListener {
-            showInternetImportConfigDialog()
+
+        bottomNavigationView.post {
+            val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.setMargins(0, 0, 20.dp, px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(PhoneUtils.getViewY(bottomNavigationView)) + bottomNavigationView.height)
+            binding.fab.layoutParams = layoutParams
         }
     }
+
+    private fun readConfigsFromFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "application/json"
+        startActivityForResult(intent, 2)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = data?.data
+            val readText = uri?.let { readTextFromUri(it) } ?: ""
+            if (readText == "") {
+                Toast.makeText(requireContext(), "错误", Toast.LENGTH_SHORT).show()
+            } else {
+                importConfigs(readText)
+            }
+        }
+    }
+
+    private fun readTextFromUri(uri: Uri): String {
+        val stringBuilder = StringBuilder()
+        try {
+            requireActivity().contentResolver.openInputStream(uri).use { inputStream ->
+                BufferedReader(InputStreamReader(Objects.requireNonNull(inputStream))).use { reader ->
+                    var line: String?
+                    while (reader.readLine().also { line = it } != null) {
+                        stringBuilder.append(line)
+                    }
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            "error".toast(requireContext())
+        }
+
+        return stringBuilder.toString()
+    }
+
 
     private fun showInternetImportConfigDialog() {
         val textInputLayout = TextInputLayout(requireContext())
@@ -294,7 +346,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                         requireActivity().supportFragmentManager,
                         "import"
                     )
-
                 }
                 JsonUtil.isJsonObject(configs) -> {
                     JSONObject(configs).apply {
@@ -308,14 +359,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                             )
                         )
                     }
-
-                }
-                else -> {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
                 }
             }
         } catch (e: java.lang.Exception) {
-            "错误".toast(requireContext())
+            getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
         }
     }
 
@@ -375,7 +422,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         inflater.inflate(R.menu.menu_home, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
         searchView.apply {
-            queryHint = "搜索…"
+            queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(this@HomeFragment)
         }
     }

@@ -51,56 +51,56 @@ class AboutActivity : AppCompatActivity() {
                 )
             )
             add(Title(getString(R.string.about_title_tester)))
-            add(Author("正己", getString(R.string.about_introduce_test_bug), R.drawable.zhengji))
-            add(Author("简", getString(R.string.about_introduce_test_bug), R.drawable.jian))
-            add(Title("开源相关"))
+            add(Author(getString(R.string.about_tester_zj), getString(R.string.about_introduce_test_bug), R.drawable.zhengji))
+            add(Author(getString(R.string.about_tester_j), getString(R.string.about_introduce_test_bug), R.drawable.jian))
+            add(Title(getString(R.string.about_title_open_sources)))
             add(
                 OpenSource(
                     "kotlin - JetBrains",
                     "https://github.com/JetBrains/Kotlin",
-                    "Apache software license"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "AndroidX - Google",
                     "https://source.google.com",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "Android Jetpack - Google",
                     "https://source.google.com",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "material-components-android - Google",
                     "https://github.com/material-components/material-components-android",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "FloatingActionButton - Clans",
                     "https://github.com/Clans/FloatingActionButton",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "EasyFloat - princekin-f",
                     "https://github.com/princekin-f/EasyFloat",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
                     "gson - Google",
                     "https://github.com/google/gson",
-                    "Apache software license 2.0"
+                    getString(R.string.about_source_license_2)
                 )
             )
         }
