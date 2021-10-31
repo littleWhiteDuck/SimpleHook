@@ -62,7 +62,7 @@ class HomeAdapter(
                 tvAppName.marquee()
                 tvConfigDesc.text = if (description.trim().isEmpty()) packageName else description
                 tvConfigDesc.marquee()
-                ableSwitch.isChecked = canUse
+                ableSwitch.isChecked = enable
                 ivAppIcon.setImageDrawable(AppUtils.getIcon(holder.itemView.context, packageName))
             }
         }
@@ -80,8 +80,7 @@ class HomeAdapter(
                     oldItem.packageName == newItem.packageName &&
                     oldItem.versionName == newItem.versionName &&
                     oldItem.description == newItem.description &&
-                    oldItem.config == newItem.config &&
-                    oldItem.canUse == newItem.canUse
+                    oldItem.configs == newItem.configs
         }
     }
 }

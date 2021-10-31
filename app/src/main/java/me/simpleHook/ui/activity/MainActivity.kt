@@ -4,12 +4,12 @@ import android.os.Bundle
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.github.clans.fab.BuildConfig.VERSION_CODE
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.BuildConfig
 import me.simpleHook.BuildConfig.*
 import me.simpleHook.R
 import me.simpleHook.databinding.ActivityMainBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.fragment.AssistFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.SettingsFragment
@@ -31,11 +31,11 @@ class MainActivity : AppCompatActivity() {
         initView()
         if (!isModuleLive()) "模块未激活".toast(this)
         if (sp.openStorage) FileUtils.verifyStoragePermissions(this)
-        /*initUpdateTip()*/
+        initUpdateTip()
     }
 
     private fun initUpdateTip() {
-        if (sp.updateShow == VERSION_CODE.toString()) return
+        if (sp.updateShow == BuildConfig.VERSION_NAME) return
         val bufferedReader = BufferedReader(InputStreamReader(assets.open("update")))
         val message = try {
             var msg = ""
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage(message)
             .setCancelable(false)
             .setPositiveButton("不再提示") { dialog, _ ->
-                sp.updateShow = VERSION_CODE.toString()
+                sp.updateShow = BuildConfig.VERSION_NAME.toString()
                 dialog.dismiss()
             }
             .setNegativeButton("取消", null)

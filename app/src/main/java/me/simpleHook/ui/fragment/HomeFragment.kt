@@ -5,11 +5,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.widget.Toast
+import android.widget.AdapterView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,6 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
@@ -31,8 +31,6 @@ import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.util.*
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -161,14 +159,17 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             anchorView = binding.fab
         }.setAction(getString(R.string.main_home_undo_delete_config)) {
             viewModel.insertConfigs(appConfig)
-            if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, appConfig.config)
-            if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, appConfig.config)
+            val configStr = Gson().toJson(appConfig)
+            if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, configStr)
+            if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, configStr)
                 ?.apply()
         }.show()
     }
 
     private fun itemOnLongClick(appConfig: AppConfig) {
-        val arrayList = requireContext().resources.getStringArray(R.array.main_home_item_select_item)
+        var arrayList =
+            requireContext().resources.getStringArray(R.array.main_home_item_select_item)
+        if (appConfig.configs.startsWith("config://"))arrayList = arrayOf(arrayList[0], arrayList[1])
         val popupWindowList = PopupWindowList.Builder(requireContext())
             .setItemList(arrayList)
             .setOutsideTouchable(true)
@@ -176,9 +177,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         popupWindowList.setOnItemClickListener { _, _, position, _ ->
             popupWindowList.dismiss()
             when (position) {
-                0 -> editConfig(appConfig)
+                0 -> copyConfigs(appConfig)
                 1 -> deleteConfig(appConfig)
-                2 -> copyConfigs(appConfig.config)
+                2 -> editConfig(appConfig)
             }
         }.show()
     }
@@ -189,9 +190,17 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         toAddFragment(bundle)
     }
 
-    private fun copyConfigs(config: String) {
-        ToolUtils.toClip(requireContext(), JsonUtil.formatJson(config))
-        getString(R.string.main_home_export_configs_tip).toast(requireContext())
+    private fun copyConfigs(config: AppConfig) {
+        val configs = if (sp.encryptConfigs) {
+            CipherUtils.encrypt(config.configs)
+        } else {
+            config.configs
+        }
+        configs?.apply {
+            config.configs = configs
+            ToolUtils.toClip(requireContext(), Gson().toJson(config))
+            getString(R.string.main_home_export_configs_tip).toast(requireContext())
+        }
     }
 
     private fun initView() {
@@ -204,53 +213,20 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             importConfigsFromInternet.setOnClickListener {
                 showInternetImportConfigDialog()
             }
-            importConfigsFromFile.setOnClickListener {readConfigsFromFile()}
         }
 
         bottomNavigationView.post {
             val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.setMargins(0, 0, 20.dp, px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(PhoneUtils.getViewY(bottomNavigationView)) + bottomNavigationView.height)
+            layoutParams.setMargins(
+                0,
+                0,
+                20.dp,
+                px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(
+                    PhoneUtils.getViewY(bottomNavigationView)
+                ) + bottomNavigationView.height
+            )
             binding.fab.layoutParams = layoutParams
         }
-    }
-
-    private fun readConfigsFromFile() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "application/json"
-        startActivityForResult(intent, 2)
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = data?.data
-            val readText = uri?.let { readTextFromUri(it) } ?: ""
-            if (readText == "") {
-                Toast.makeText(requireContext(), "错误", Toast.LENGTH_SHORT).show()
-            } else {
-                importConfigs(readText)
-            }
-        }
-    }
-
-    private fun readTextFromUri(uri: Uri): String {
-        val stringBuilder = StringBuilder()
-        try {
-            requireActivity().contentResolver.openInputStream(uri).use { inputStream ->
-                BufferedReader(InputStreamReader(Objects.requireNonNull(inputStream))).use { reader ->
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        stringBuilder.append(line)
-                    }
-                }
-            }
-        } catch (e: java.lang.Exception) {
-            "error".toast(requireContext())
-        }
-
-        return stringBuilder.toString()
     }
 
 
@@ -325,40 +301,23 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         try {
             when {
                 JsonUtil.isJsonArray(configs) -> {
-                    val configsJsonArray = JSONArray(configs)
-                    val dataList = ArrayList<ConfigItem>()
-                    for (i in 0 until configsJsonArray.length()) {
-                        configsJsonArray.getJSONObject(i).apply {
-                            dataList.add(
-                                ConfigItem(
-                                    AppConfig(
-                                        getString("packageName"),
-                                        getString("appName"),
-                                        getString("versionName"),
-                                        getString("description"),
-                                        toString()
-                                    )
-                                )
-                            )
-                        }
-                    }
-                    ConfigDialogFragment(dataList).show(
-                        requireActivity().supportFragmentManager,
-                        "import"
-                    )
-                }
-                JsonUtil.isJsonObject(configs) -> {
-                    JSONObject(configs).apply {
-                        viewModel.insertConfigs(
-                            AppConfig(
-                                getString("packageName"),
-                                getString("appName"),
-                                getString("versionName"),
-                                getString("description"),
-                                toString()
-                            )
+                    val dataList = JsonUtil.importConfigs(configs)
+                    if (dataList.isEmpty()) {
+                        getString(R.string.main_home_import_incorrect_format_tip).toast(
+                            requireContext()
+                        )
+                        return
+                    } else {
+                        ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
+                            requireActivity().supportFragmentManager,
+                            "import"
                         )
                     }
+                }
+                JsonUtil.isJsonObject(configs) -> {
+                    val appConfig = Gson().fromJson(configs, AppConfig::class.java)
+                    appConfig.id = 0
+                    viewModel.insertConfigs(appConfig)
                 }
             }
         } catch (e: java.lang.Exception) {
@@ -367,19 +326,15 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun switchOnChange(appConfig: AppConfig, isChecked: Boolean) {
-        val oldCan = appConfig.canUse
-        val newConfig = appConfig.config.replace("canUse\":$oldCan", "canUse\":$isChecked")
-        appConfig.apply {
-            config = newConfig
-            canUse = isChecked
-        }
+        appConfig.enable = isChecked
         viewModel.updateConfigs(appConfig)
+        val configStr = Gson().toJson(appConfig)
         if (sp.openStorage) {
             FileUtils.verifyStoragePermissions(mContext as Activity)
-            FileUtils.createConfigFile(appConfig.packageName, appConfig.config)
+            FileUtils.createConfigFile(appConfig.packageName, configStr)
         }
         if (sp.openXml) {
-            configPref?.edit()?.putString(appConfig.packageName, appConfig.config)?.apply()
+            configPref?.edit()?.putString(appConfig.packageName, configStr)?.apply()
         }
     }
 
@@ -463,7 +418,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         binding.fab.animate().translationY(binding.fab.height.px).interpolator =
             DecelerateInterpolator(1.5f)
     }
-
 
 }
 

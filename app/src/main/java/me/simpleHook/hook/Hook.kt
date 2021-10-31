@@ -13,6 +13,7 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.content.contentValuesOf
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
 import de.robv.android.xposed.XC_MethodHook
@@ -23,7 +24,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.bean.*
 import me.simpleHook.constant.Constant
+import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.Type.getDataTypeValue
+import me.simpleHook.util.CipherUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -103,8 +106,8 @@ class Hook {
     }
 
     private fun determineCan(strConfig: String) {
-        val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
-        if (appConfigBean.canUse) {
+        val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+        if (appConfig.enable) {
             "开始自定义Hook".log()
             startHook(strConfig)
         }
@@ -127,8 +130,13 @@ class Hook {
 
     private fun startHook(strConfig: String) {
         try {
-            val appConfigBean = Gson().fromJson(strConfig, AppConfigBean::class.java)
-            appConfigBean.config.forEach {
+            val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+            val listType = object :TypeToken<ArrayList<ConfigBean>>(){}.type
+            if (appConfig.configs.startsWith("config://")){
+                appConfig.configs = CipherUtils.decrypt(appConfig.configs.replace("config://", "")).toString()
+            }
+            val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
+            configs.forEach {
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD -> hookStaticField(
@@ -351,7 +359,6 @@ class Hook {
             hookPopupWindow(popup, popCancel)
             if (tinker) hotFix(mContext!!, packageName)
             if (intent) hookIntent()
-            if (vpn) hookVpnCheck()
             if (click) hookOnClick()
             if (xposed) hookXposedCheck()
         }
@@ -401,7 +408,7 @@ class Hook {
             })
     }
 */
-
+/*
     private fun hookVpnCheck() {
         try {
             XposedHelpers.findAndHookMethod(
@@ -417,7 +424,7 @@ class Hook {
         } catch (e: Exception) {
             "hook vpnCheck error".tip()
         }
-    }
+    }*/
 
     private fun hookToast() {
         try {

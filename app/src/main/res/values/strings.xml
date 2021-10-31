@@ -84,9 +84,9 @@
     <string name="main_assist_name">辅助</string>
 
     <string-array name="main_home_item_select_item">
-        <item>编辑</item>
-        <item>删除</item>
         <item>分享</item>
+        <item>删除</item>
+        <item>编辑</item>
     </string-array>
     <!--about-->
     <string name="about_title_author">开发者</string>

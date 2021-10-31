@@ -33,6 +33,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getAllConfigs() = appRepository.getAllConfigs()
+    fun getConfigs() = appRepository.getConfigs()
 
     fun getFilterConfigs(pattern: String) =
         viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }

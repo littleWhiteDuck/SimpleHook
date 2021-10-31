@@ -16,6 +16,8 @@ interface AppConfigDao {
     fun deleteAllConfigs()
     @Query("SELECT * FROM AppConfig ORDER BY ID DESC")
     fun queryAll():LiveData<List<AppConfig>>
+    @Query("SELECT * FROM AppConfig ORDER BY ID DESC")
+    fun getAll():List<AppConfig>
     @Query("SELECT * FROM AppConfig WHERE appName LIKE:pattern or packageName LIKE:pattern ORDER BY ID DESC")
     suspend fun filterConfigs(pattern:String):List<AppConfig>
 

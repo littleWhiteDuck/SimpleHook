@@ -9,22 +9,22 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.database.AppViewModel
+import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.PhoneUtils
-import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.toast
+import me.simpleHook.util.*
 
-class ConfigDialogFragment(private val configsList: ArrayList<ConfigItem>, private val isImport:Boolean = true) : DialogFragment() {
+class ConfigDialogFragment(private val configsList: List<ConfigItem>, private val isImport:Boolean = true) : DialogFragment() {
     private var _binding: FragmentConfigImExportBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<AppViewModel>()
     private val mAdapter  by lazy { ImExportAdapter{ checked: Boolean, position: Int ->  onCheckedChange(checked, position)} }
     private var isAnti = false
+    private val sp by lazy { SPUtils(requireContext()) }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,7 +45,7 @@ class ConfigDialogFragment(private val configsList: ArrayList<ConfigItem>, priva
         binding.apply {
             title.text = if (isImport) "导入配置" else "导出配置"
             confirm.setOnClickListener {
-                var checkIsZero =  0
+                var checkIsZero = 0
                 if (isImport){
                     for(item in configsList){
                         if (item.isChecked){
@@ -91,8 +91,8 @@ class ConfigDialogFragment(private val configsList: ArrayList<ConfigItem>, priva
     }
 
     private fun setAllSelect() {
-        for (i in 0 until configsList.size){
-            configsList[i].isChecked = true
+        for (element in configsList){
+            element.isChecked = true
         }
         mAdapter.setDataList(configsList)
         mAdapter.notifyDataSetChanged()
@@ -113,15 +113,17 @@ class ConfigDialogFragment(private val configsList: ArrayList<ConfigItem>, priva
     /**
      * 获取所有配置文本形式
      */
-    private fun getStrConfig(list: List<ConfigItem>?, formatConfig: Boolean = true) =
+    private fun getStrConfig(list: List<ConfigItem>?) =
         list?.let {
-            val configs = StringBuilder()
-            for (i in it.indices) {
-                configs.append("${it[i].appConfig.config},")
+            val appConfigs = ArrayList<AppConfig>()
+            list.forEach{configItem ->
+                val appConfig = configItem.appConfig
+                if (sp.encryptConfigs){
+                    appConfig.configs = CipherUtils.encrypt(appConfig.configs).toString()
+                }
+                appConfigs.add(appConfig)
             }
-            val strConfigs = "[${configs.substring(0, configs.length - 1)}]"
-            val strConfig = if (formatConfig) JsonUtil.formatJson(strConfigs) else strConfigs
-            strConfig
+           Gson().toJson(appConfigs)
         } ?: ""
 
     override fun onDestroyView() {

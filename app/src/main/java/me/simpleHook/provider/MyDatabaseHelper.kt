@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 
 class MyDatabaseHelper(context: Context, name: String, version: Int) :
     SQLiteOpenHelper(context, name, null, version) {
-    private val createConfig = "create table AppConfigEntity (" +
+    private val createConfig = "create table AppConfig (" +
             "packageName text," +
             "appName text," +
             "versionName text," +
@@ -23,22 +23,15 @@ class MyDatabaseHelper(context: Context, name: String, version: Int) :
             "config text," +
             "allSwitch integer," +
             "id integer primary key autoincrement)"
-    private val alterAppConfigTableName = "alter table AppConfigEntity rename to AppConfig"
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(createConfig)
         db.execSQL(createLog)
         db.execSQL(createLogConfig)
-
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion <= 1) {
-            db.execSQL(createLog)
-            db.execSQL(createLogConfig)
-            db.execSQL(alterAppConfigTableName)
 
-        }
 
     }
 }

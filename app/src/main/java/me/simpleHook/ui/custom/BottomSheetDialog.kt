@@ -32,6 +32,7 @@ class BottomSheetDialog(
                 applicableVersion.text = "支持：$versionName"
                 appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
                 currentVersion.text = "当前：${AppUtils.getAppVersionName(context, packageName)}"
+                if (configs.startsWith("config://"))editConfigButton.isEnabled = false
                 editConfigButton.setOnClickListener {
                     onClick()
                     dismiss()

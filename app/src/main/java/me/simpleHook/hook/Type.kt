@@ -5,14 +5,14 @@ import android.content.Context
 import java.util.regex.Pattern.matches
 
 object Type {
-    private const val INT_PATTERN = """^-?[1-9]\d*$"""
-    private const val LONG_PATTERN = """^-?[1-9]\d*[l|L]$"""
+    private const val INT_PATTERN = """^-?[0-9]\d*$"""
+    private const val LONG_PATTERN = """^-?[0-9]\d*[l|L]$"""
     private const val BOOLEAN_PATTERN = """(?i)true|false"""
     private const val STRING_PATTERN = """^-?0?[1-9]\d*[s|S]$"""
     private const val NULL_PATTERN = """(?i)null"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
-    private const val BYTE_PATTERN = """^-?[1-9]\d*[b|B]$"""
-    private const val SHORT_PATTERN = """^-?[1-9]\d*(?i)short$"""
+    private const val BYTE_PATTERN = """^-?[0-9]\d*[b|B]$"""
+    private const val SHORT_PATTERN = """^-?[0-9]\d*(?i)short$"""
     private const val CHAR_PATTERN = """^.*[c|C]$"""
 
     fun getDataTypeValue(value: String) = when{

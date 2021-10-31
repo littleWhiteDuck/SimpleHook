@@ -72,16 +72,6 @@
             app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/import_configs_from_file"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_file"
-            app:fab_colorNormal="@color/colorPrimaryVariant"
-            app:fab_colorPressed="@color/colorPrimary"
-            app:fab_label="从文件读取配置"
-            app:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/share_configs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

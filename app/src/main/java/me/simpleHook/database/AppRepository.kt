@@ -27,6 +27,7 @@ class AppRepository(context: Context) {
     }
 
     fun getAllConfigs() = appConfigDao.queryAll()
+    fun getConfigs() = appConfigDao.getAll()
 
     suspend fun getFilterConfigs(pattern: String) = appConfigDao.filterConfigs(pattern)
 

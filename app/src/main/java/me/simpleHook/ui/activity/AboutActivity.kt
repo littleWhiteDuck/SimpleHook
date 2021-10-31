@@ -103,6 +103,13 @@ class AboutActivity : AppCompatActivity() {
                     getString(R.string.about_source_license_2)
                 )
             )
+            add(
+                OpenSource(
+                    "XposedBridge - rovo89",
+                    "https://github.com/rovo89/XposedBridge",
+                    ""
+                )
+            )
         }
     }
 

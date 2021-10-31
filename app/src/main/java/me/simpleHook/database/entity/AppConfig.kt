@@ -1,11 +1,13 @@
 package me.simpleHook.database.entity
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+@Keep
 @Parcelize
 @Entity
 data class AppConfig(
@@ -17,10 +19,10 @@ data class AppConfig(
     var versionName:String,
     @ColumnInfo(name = "description")
     var description:String,
-    @ColumnInfo(name = "app_config")
-    var config:String,
-    @ColumnInfo(name = "canUse")
-    var canUse:Boolean = true,
+    @ColumnInfo(name = "config")
+    var configs:String,
+    @ColumnInfo(name = "enable")
+    var enable:Boolean = true,
     @PrimaryKey(autoGenerate = true)
     var id:Int = 0
 ) : Parcelable

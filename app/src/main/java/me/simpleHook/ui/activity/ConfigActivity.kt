@@ -9,7 +9,6 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
@@ -19,9 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
-import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.AppItem
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
@@ -29,7 +28,6 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
-import me.simpleHook.hook.Type
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
@@ -103,15 +101,14 @@ class ConfigActivity : AppCompatActivity() {
         appConfig?.let {
             modify = true
             configId = it.id
-            val appConfigBean = Gson().fromJson(it.config, AppConfigBean::class.java)
             binding.apply {
                 appNameEdit.setText(it.appName)
                 appVersionNameEdit.setText(it.versionName)
                 packageNameEdit.setText(it.packageName)
                 appVersionNameEdit.setText(it.versionName)
                 descStringEdit.setText(it.description)
-                modeSelectSpinner.setSelection(appConfigBean.mode)
-                configList = appConfigBean.config
+                val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
+                configList = Gson().fromJson(it.configs, listType)
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
             }
@@ -408,37 +405,25 @@ class ConfigActivity : AppCompatActivity() {
             getString(R.string.config_save_empty_config_tip).snack(binding.addMethodConfig)
             return
         }
-        val appConfig = Gson().toJson(getAppConfig())
-        binding.apply {
-            val appName = binding.appNameEdit.text.toString()
-            val packageName = binding.packageNameEdit.text.toString()
-            val description = binding.descStringEdit.text.toString()
-            val versionName = binding.appVersionNameEdit.text.toString()
-            AppConfig(
-                packageName,
-                appName,
-                versionName,
-                description,
-                appConfig,
-                id = configId
-            ).apply {
-                if (modify) {
-                    appViewModel.updateConfigs(this)
-                } else {
-                    appViewModel.insertConfigs(this)
-                }
-
-                if (sp.openStorage)
-                    FileUtils.writeData(
-                        "${Constant.CONFIG_DIRECTORY + packageName}/",
-                        "config",
-                        appConfig
-                    )
-                if (sp.openXml) {
-                    configPref?.edit()?.putString(packageName, appConfig)?.commit()
-                        ?: getString(R.string.config_module_can_not_use_xsp).toast(this@ConfigActivity, 1)
-                }
-            }
+        val appConfig = getAppConfig()
+        if (modify) {
+            appViewModel.updateConfigs(appConfig)
+        } else {
+            appViewModel.insertConfigs(appConfig)
+        }
+        val configStr = Gson().toJson(appConfig)
+        if (sp.openStorage)
+            FileUtils.writeData(
+                "${Constant.CONFIG_DIRECTORY + packageName}/",
+                "config",
+                configStr
+            )
+        if (sp.openXml) {
+            configPref?.edit()?.putString(packageName, configStr)?.commit()
+                ?: getString(R.string.config_module_can_not_use_xsp).toast(
+                    this@ConfigActivity,
+                    1
+                )
         }
         fakeWaitForSave()
     }
@@ -452,18 +437,19 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
-    private fun getAppConfig(): AppConfigBean {
+    private fun getAppConfig(): AppConfig {
         val appName = binding.appNameEdit.text.toString()
         val packageName = binding.packageNameEdit.text.toString()
         val description = binding.descStringEdit.text.toString()
         val versionName = binding.appVersionNameEdit.text.toString()
-        return AppConfigBean(
-            appName,
-            packageName,
-            appMode,
-            description,
-            versionName,
-            configList
+        val configs = Gson().toJson(configList)
+        return AppConfig(
+            appName = appName,
+            packageName = packageName,
+            description = description,
+            versionName = versionName,
+            configs = configs,
+            id = configId
         )
     }
 
@@ -565,10 +551,14 @@ class ConfigActivity : AppCompatActivity() {
             configList.add(it)
             mAdapter.submitList(configList)
             mAdapter.notifyDataSetChanged()
-            Snackbar.make(binding.addMethodConfig, getString(R.string.config_add_config_tip), Snackbar.LENGTH_LONG).apply {
+            Snackbar.make(
+                binding.addMethodConfig,
+                getString(R.string.config_add_config_tip),
+                Snackbar.LENGTH_LONG
+            ).apply {
                 anchorView = binding.addMethodConfig
             }.show()
-        }?: "错误的代码".toast(this)
+        } ?: "错误的代码".toast(this)
     }
 
     private fun tranParams(params: String): String {
@@ -600,11 +590,11 @@ class ConfigActivity : AppCompatActivity() {
     }
 
     private fun getMode(returnType: String, params: String): Int {
-        return if (returnType == "V" && params.isNotEmpty()){
+        return if (returnType == "V" && params.isNotEmpty()) {
             Constant.HOOK_PARAM
-        }else if (returnType == "V"){
+        } else if (returnType == "V") {
             Constant.HOOK_BREAK
-        }else{
+        } else {
             Constant.HOOK_RETURN
         }
     }
