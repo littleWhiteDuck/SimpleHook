@@ -37,7 +37,7 @@ private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
 private const val START_ACTIVITY = "startActivity"
 private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 private const val selfCheckConfig =
-    "{\"appName\":\"simpleHook\",\"packageName\":\"me.simpleHook\",\"mode\":0,\"config\":[{\"className\":\"me.simpleHook.ui.activity.MainActivity\",\"methodName\":\"isModuleLive\",\"resultValues\":\"true\",\"mode\":0,\"params\":\"\",\"fieldName\":\"\",\"fieldType\":\"\"}]}"
+    "{\"appName\":\"\",\"configs\":\"[{\\\"className\\\":\\\"me.simpleHook.ui.activity.MainActivity\\\",\\\"fieldName\\\":\\\"\\\",\\\"fieldType\\\":\\\"\\\",\\\"methodName\\\":\\\"isModuleLive\\\",\\\"mode\\\":0,\\\"params\\\":\\\"\\\",\\\"resultValues\\\":\\\"true\\\"}]\",\"description\":\"\",\"enable\":true,\"id\":0,\"packageName\":\"me.simpleHook\",\"versionName\":\"\"}"
 
 class Hook {
     private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
@@ -131,9 +131,10 @@ class Hook {
     private fun startHook(strConfig: String) {
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
-            val listType = object :TypeToken<ArrayList<ConfigBean>>(){}.type
-            if (appConfig.configs.startsWith("config://")){
-                appConfig.configs = CipherUtils.decrypt(appConfig.configs.replace("config://", "")).toString()
+            val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
+            if (appConfig.configs.startsWith("config://")) {
+                appConfig.configs =
+                    CipherUtils.decrypt(appConfig.configs.replace("config://", "")).toString()
             }
             val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
             configs.forEach {

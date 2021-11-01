@@ -118,7 +118,7 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
             val appConfigs = ArrayList<AppConfig>()
             list.forEach{configItem ->
                 val appConfig = configItem.appConfig
-                if (sp.encryptConfigs){
+                if (sp.encryptConfigs && !appConfig.configs.startsWith("config://")){
                     appConfig.configs = CipherUtils.encrypt(appConfig.configs).toString()
                 }
                 appConfigs.add(appConfig)

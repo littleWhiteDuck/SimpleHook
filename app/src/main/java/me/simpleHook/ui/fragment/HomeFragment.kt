@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.AdapterView
@@ -191,7 +192,8 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun copyConfigs(config: AppConfig) {
-        val configs = if (sp.encryptConfigs) {
+        val originConfig = config.configs
+        val configs = if (sp.encryptConfigs && !originConfig.startsWith("config://")) {
             CipherUtils.encrypt(config.configs)
         } else {
             config.configs
@@ -201,6 +203,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             ToolUtils.toClip(requireContext(), Gson().toJson(config))
             getString(R.string.main_home_export_configs_tip).toast(requireContext())
         }
+        config.configs = originConfig
     }
 
     private fun initView() {
