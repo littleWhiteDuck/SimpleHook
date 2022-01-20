@@ -1,9 +1,12 @@
 package me.simpleHook.database.entity
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity
 data class PrintLog(
     @PrimaryKey(autoGenerate = true)
@@ -11,5 +14,7 @@ data class PrintLog(
     @ColumnInfo(name = "log")
     var log: String,
     @ColumnInfo(name = "packageName")
-    var packageName:String
-)
+    var packageName:String,
+    @ColumnInfo(name = "read")
+    var read: Boolean = false
+): Parcelable

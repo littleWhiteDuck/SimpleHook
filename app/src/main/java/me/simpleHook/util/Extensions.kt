@@ -5,15 +5,12 @@ import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Color
 import android.text.TextUtils
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
@@ -27,23 +24,23 @@ fun String.toast(context: Context,duration: Int = Toast.LENGTH_SHORT){
 */
 
 //
-fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT){
+fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
     Snackbar.make(view, this, duration).show()
 }
 
 //xposed log
-fun String.log(){
-    if (BuildConfig.DEBUG){
+fun String.log() {
+    if (BuildConfig.DEBUG) {
         XposedBridge.log("===${this}===")
     }
 }
 
-fun String.tip(){
+fun String.tip() {
     XposedBridge.log("*****===${this}===*****")
 }
 
 // 跑马灯
-fun TextView.marquee(){
+fun TextView.marquee() {
     this.apply {
         isSelected = true
         ellipsize = TextUtils.TruncateAt.MARQUEE
@@ -53,13 +50,21 @@ fun TextView.marquee(){
 }
 
 val Float.dp
-    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, Resources.getSystem().displayMetrics)
+    get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this,
+        Resources.getSystem().displayMetrics
+    )
 
 val Int.dp
     get() = this.toFloat().dp.toInt()
 
 val Float.px
-    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, this, Resources.getSystem().displayMetrics)
+    get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_PX,
+        this,
+        Resources.getSystem().displayMetrics
+    )
 
 val Int.px
     get() = this.toFloat().px
@@ -75,7 +80,6 @@ val Float.sp
         TypedValue.COMPLEX_UNIT_SP, this,
         Resources.getSystem().displayMetrics
     )
-
 
 
 fun ViewPager2.setCurrentItem(
@@ -113,3 +117,18 @@ fun ViewPager2.setCurrentItem(
 fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(context, this, duration).show()
 }
+
+fun StringBuilder.lineFeesItem(list: List<String>, foreground: String, nLine:Int = 0, nLineString: String = ""): String {
+    this.append(foreground)
+    list.forEachIndexed { index, s ->
+        if (nLine == index){
+            this.append(nLineString)
+        }
+        this.append(s)
+        if (index != list.size - 1) {
+            this.append("\n")
+        }
+    }
+    return this.toString()
+}
+

@@ -29,6 +29,11 @@ import me.simpleHook.util.JsonUtil
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import android.R.attr.name
+import android.os.Build
+import androidx.annotation.RequiresApi
+import java.nio.charset.StandardCharsets
+
 
 class FloatFragment : Fragment() {
     private val viewModel by activityViewModels<AppViewModel>()
@@ -101,7 +106,6 @@ class FloatFragment : Fragment() {
                 )
             }
             closeWindow.setOnClickListener {
-                viewModel.deleteAllLogs()
                 if (EasyFloat.getFloatView("floatControl") != null) {
                     EasyFloat.dismiss("floatControl")
                 }

@@ -31,6 +31,12 @@ import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
 import java.io.FileNotFoundException
+import java.security.Key
+import java.security.MessageDigest
+import java.security.spec.AlgorithmParameterSpec
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 private const val ACTIVITY = "android.app.Activity"
 private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
@@ -59,7 +65,7 @@ class Hook {
                     mContext = param.args[0] as Context
                     mClassLoader = mContext?.classLoader ?: classLoader
                     if (packageName == "me.simpleHook") {
-                        startHook(selfCheckConfig)
+                        startHook(selfCheckConfig, packageName)
                     } else {
                         //优先通过context辅助hook：dialog、toast等
                         contextAssistHook(packageName)
@@ -78,7 +84,7 @@ class Hook {
                 File("${Constant.CONFIG_DIRECTORY + packageName + "/config"}.json").reader()
                     .use { it.readText() }
             "从文件获取配置成功".tip()
-            determineCan(strConfig)
+            determineCan(strConfig, packageName)
         } catch (e: FileNotFoundException) {
             "无运行中软件配置，或软件没有储存权限".tip()
             "准备使用xml获取配置".tip()
@@ -88,28 +94,28 @@ class Hook {
     }
 
     private fun xmlHook(
-        currentPackageName: String
+        packageName: String
     ) {
         val error = "no have config or error"
         prefHookConfig?.let {
-            val strConfig = it.getString(currentPackageName, error)
+            val strConfig = it.getString(packageName, error)
             if (strConfig == null || strConfig == error) {
                 error.log()
                 "准备使用Context获取配置".log()
-                contextHook(currentPackageName)
+                contextHook(packageName)
             } else {
                 // xml读取配置成功
-                determineCan(strConfig)
+                determineCan(strConfig, packageName)
             }
-        } ?: contextHook(currentPackageName)
+        } ?: contextHook(packageName)
 
     }
 
-    private fun determineCan(strConfig: String) {
+    private fun determineCan(strConfig: String, packageName: String) {
         val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
         if (appConfig.enable) {
             "开始自定义Hook".log()
-            startHook(strConfig)
+            startHook(strConfig, packageName)
         }
     }
 
@@ -121,14 +127,14 @@ class Hook {
                     if (getInt(getColumnIndex("canUse")) == 1) {
                         val configString = getString(getColumnIndex("app_config"))
                         "配置获取成功(context)".log()
-                        startHook(configString)
+                        startHook(configString, packageName)
                     }
                 }
                 close()
             } ?: "cursor is null,获取配置失败".log()
     }
 
-    private fun startHook(strConfig: String) {
+    private fun startHook(strConfig: String, packageName: String) {
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
@@ -160,7 +166,8 @@ class Hook {
                             methodName,
                             resultValues,
                             params,
-                            mode
+                            mode,
+                            packageName
                         )
                     }
                 }
@@ -255,7 +262,7 @@ class Hook {
 
     private fun specificHook(
         className: String, classLoader: ClassLoader, methodName: String, values: String,
-        params: String, mode: Int
+        params: String, mode: Int, packageName: String
     ) {
         val methodParams = params.split(",")
         val realSize = if (params == "") 0 else methodParams.size
@@ -272,7 +279,26 @@ class Hook {
             Constant.HOOK_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        param.result = Type.getDataTypeValue(values)
+
+                        val originValue = param.result
+                        val targetValue = getDataTypeValue(values)
+                        param.result = targetValue
+                        mContext?.let {
+                            val logBean = LogBean(
+                                "返回值",
+                                listOf(
+                                    "类名：${param.thisObject?.javaClass?.name ?: "未获取到"}",
+                                    "方法名：${param.method?.name ?: "未获取到"}",
+                                    "原返回值：${originValue}",
+                                    "目标值：${targetValue}"
+                                ), packageName
+                            )
+                            if (packageName != BuildConfig.APPLICATION_ID) toLogMsg(
+                                Gson().toJson(
+                                    logBean
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -280,16 +306,37 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         param.result = null
+                        mContext?.let {
+                            val logBean = LogBean(
+                                "中断执行",
+                                listOf(
+                                    "类名：${param.thisObject.javaClass.name ?: "未获取到"}",
+                                    "方法名：${param.method.name ?: "未获取到"}",
+                                    "执行：此方法已拦截"
+                                ), packageName
+                            )
+                            toLogMsg(Gson().toJson(logBean))
+                        }
                     }
                 }
             }
             Constant.HOOK_PARAM -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
+                        val arrayList = ArrayList<String>()
+                        arrayList.add("类名：${param.thisObject.javaClass.name ?: "未获取到"}")
+                        arrayList.add("方法名：${param.method.name ?: "未获取到"}")
                         for (i in methodParams.indices) {
-                            if (methodParams[i] == "") continue
-                            param.args[i] = Type.getDataTypeValue(values.split(",")[i])
+                            if (values.split(",")[i] == "") {
+                                arrayList.add("arg${i + 1}：${param.args[i]} -> 未修改")
+                                continue
+                            }
+                            val targetValue = getDataTypeValue(values.split(",")[i])
+                            param.args[i] = targetValue
+                            arrayList.add("arg${i + 1}：${param.args[i]} -> $targetValue")
                         }
+                        val logBean = LogBean("参数值", arrayList, packageName)
+                        toLogMsg(Gson().toJson(logBean))
                     }
                 }
             }
@@ -354,18 +401,26 @@ class Hook {
     ) {
         val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
         configBean.apply {
+
             if (!all) return
-            hookDialog(dialog, diaCancel)
-            if (toast) hookToast()
-            hookPopupWindow(popup, popCancel)
+            hookDialog(dialog, diaCancel, packageName)
+            if (toast) hookToast(packageName)
+            hookPopupWindow(popup, popCancel, packageName)
             if (tinker) hotFix(mContext!!, packageName)
             if (intent) hookIntent()
-            if (click) hookOnClick()
-            if (xposed) hookXposedCheck()
+            if (click) hookOnClick(packageName)
+//            if (xposed) hookXposedCheck()
+            if (vpn) hookVpnCheck()
+            if (algorithm) {
+                base64(packageName)
+                shaAndMD5(packageName)
+                aes(packageName)
+            }
+
         }
     }
 
-    private fun hookXposedCheck() {
+/*    private fun hookXposedCheck() {
 
         XposedBridge.hookAllConstructors(File::class.java, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -375,41 +430,38 @@ class Hook {
                 }
             }
         })
+    }*/
 
-
-    }
-
-/*
-    private fun hookWifi() {
-        XposedHelpers.findAndHookMethod(System::class.java, "getProperty", String::class.java,
-            object : XC_MethodHook(){
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String
-                    if (key == "http.proxyHost"){
-                        param.result = ""
-                    }else if (key == "http.proxyPort"){
-                        param.result = "-1"
+    /*
+        private fun hookWifi() {
+            XposedHelpers.findAndHookMethod(System::class.java, "getProperty", String::class.java,
+                object : XC_MethodHook(){
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val key = param.args[0] as String
+                        if (key == "http.proxyHost"){
+                            param.result = ""
+                        }else if (key == "http.proxyPort"){
+                            param.result = "-1"
+                        }
+                        XposedBridge.log("system1, $key")
                     }
-                    XposedBridge.log("system1, $key")
-                }
-            })
-        XposedHelpers.findAndHookMethod(Proxy::class.java, "getHost", Context::class.java,
-            object : XC_MethodHook(){
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = ""
-                    XposedBridge.log("system2, getHost")
-                }
-            })
-        XposedHelpers.findAndHookMethod(Proxy::class.java, "getPort", Context::class.java,
-            object : XC_MethodHook(){
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = -1
-                    XposedBridge.log("system, getPort")
-                }
-            })
-    }
-*/
-/*
+                })
+            XposedHelpers.findAndHookMethod(Proxy::class.java, "getHost", Context::class.java,
+                object : XC_MethodHook(){
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        param.result = ""
+                        XposedBridge.log("system2, getHost")
+                    }
+                })
+            XposedHelpers.findAndHookMethod(Proxy::class.java, "getPort", Context::class.java,
+                object : XC_MethodHook(){
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        param.result = -1
+                        XposedBridge.log("system, getPort")
+                    }
+                })
+        }
+    */
     private fun hookVpnCheck() {
         try {
             XposedHelpers.findAndHookMethod(
@@ -425,16 +477,21 @@ class Hook {
         } catch (e: Exception) {
             "hook vpnCheck error".tip()
         }
-    }*/
+    }
 
-    private fun hookToast() {
+    private fun hookToast(packageName: String) {
         try {
             XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
-                    val type = param?.thisObject?.javaClass?.name ?: "未知"
+                    val type = "Toast"
                     val stackTrace = Throwable().stackTrace
-                    toStackTrace(type, stackTrace)
+                    val log = Gson().toJson(
+                        LogBean(
+                            type, toStackTrace(stackTrace), packageName
+                        )
+                    )
+                    toLogMsg(log)
                 }
             })
         } catch (e: Exception) {
@@ -443,7 +500,7 @@ class Hook {
 
     }
 
-    private fun hookPopupWindow(popupStack: Boolean, cancel: Boolean) {
+    private fun hookPopupWindow(popupStack: Boolean, cancel: Boolean, packageName: String) {
         try {
             XposedBridge.hookAllMethods(
                 PopupWindow::class.java,
@@ -451,7 +508,7 @@ class Hook {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         super.beforeHookedMethod(param)
-                        hookPopupWindowDetail(param, popupStack, cancel)
+                        hookPopupWindowDetail(param, popupStack, cancel, packageName)
                     }
                 })
             XposedBridge.hookAllMethods(
@@ -460,7 +517,7 @@ class Hook {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         super.beforeHookedMethod(param)
-                        hookPopupWindowDetail(param, popupStack, cancel)
+                        hookPopupWindowDetail(param, popupStack, cancel, packageName)
                     }
                 })
         } catch (e: Exception) {
@@ -471,7 +528,8 @@ class Hook {
     private fun hookPopupWindowDetail(
         param: XC_MethodHook.MethodHookParam?,
         popupStack: Boolean,
-        cancel: Boolean
+        cancel: Boolean,
+        packageName: String
     ) {
         val popupWindow = param?.thisObject as PopupWindow
         if (cancel) {
@@ -479,13 +537,18 @@ class Hook {
             popupWindow.isOutsideTouchable = true
         }
         if (popupStack) {
-            val type = popupWindow.javaClass.name ?: "未知"
+            val type = "PopupWindow"
             val stackTrace = Throwable().stackTrace
-            toStackTrace(type, stackTrace)
+            val log = Gson().toJson(
+                LogBean(
+                    type, toStackTrace(stackTrace), packageName
+                )
+            )
+            toLogMsg(log)
         }
     }
 
-    private fun hookDialog(isSwitch: Boolean, cancel: Boolean) {
+    private fun hookDialog(isSwitch: Boolean, cancel: Boolean, packageName: String) {
         try {
             XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
@@ -495,9 +558,14 @@ class Hook {
                         dialog.setCancelable(true)
                     }
                     if (isSwitch) {
-                        val type = param?.thisObject?.javaClass?.name ?: "未知"
+                        val type = "弹窗"
                         val stackTrace = Throwable().stackTrace
-                        toStackTrace(type, stackTrace)
+                        val log = Gson().toJson(
+                            LogBean(
+                                type, toStackTrace(stackTrace), packageName
+                            )
+                        )
+                        toLogMsg(log)
                     }
                 }
             })
@@ -506,14 +574,19 @@ class Hook {
         }
     }
 
-    private fun hookOnClick() {
+    private fun hookOnClick(packageName: String) {
         try {
             XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
-                    val type = param?.thisObject?.javaClass?.name ?: "未知"
+                    val type = "点击事件"
                     val stackTrace = Throwable().stackTrace
-                    toStackTrace(type, stackTrace)
+                    val log = Gson().toJson(
+                        LogBean(
+                            type, toStackTrace(stackTrace), packageName
+                        )
+                    )
+                    toLogMsg(log)
                 }
             })
         } catch (e: Exception) {
@@ -523,9 +596,8 @@ class Hook {
 
 
     private fun toStackTrace(
-        type: String,
         stackTrace: Array<StackTraceElement>
-    ) {
+    ): ArrayList<String> {
         val items = ArrayList<String>()
         for (i in stackTrace) {
             val className = i.className
@@ -537,9 +609,160 @@ class Hook {
             ) continue
             items.add("类：${i.className} -->方法：${i.methodName}(line：${i.lineNumber})")
         }
-        val log = Gson().toJson(LogBean(type, items))
-        toLogMsg(log)
+        return items
     }
+
+    private fun base64(packageName: String) {
+        XposedHelpers.findAndHookMethod(
+            "java.util.Base64.Encoder",
+            mClassLoader,
+            "encode",
+            ByteArray::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    mContext?.let {
+                        val data = param.args[0] as ByteArray
+                        val stackTrace = Throwable().stackTrace
+                        val items = toStackTrace(stackTrace).toList()
+                        val result = String(param.result as ByteArray)
+                        val logBean = LogBean(
+                            "base64",
+                            listOf("类型：加密", "原始数据：${String(data)}", "加密结果：$result") + items,
+                            packageName
+                        )
+                        toLogMsg(Gson().toJson(logBean))
+                    }
+                }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            "java.util.Base64.Decoder",
+            mClassLoader,
+            "decode",
+            ByteArray::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    mContext?.let {
+                        val data = param.args[0] as ByteArray
+                        val stackTrace = Throwable().stackTrace
+                        val items = toStackTrace(stackTrace).toList()
+                        val result = String(param.result as ByteArray)
+                        val logBean = LogBean(
+                            "base64",
+                            listOf(
+                                "加密/解密：解密",
+                                "原始数据：${String(data)}",
+                                "解密结果：$result"
+                            ) + items,
+                            packageName
+                        )
+                        toLogMsg(Gson().toJson(logBean))
+                    }
+                }
+            })
+    }
+
+    private fun shaAndMD5(packageName: String) {
+        val hashMap = HashMap<String, String>()
+        XposedBridge.hookAllMethods(
+            MessageDigest::class.java,
+            "update",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    if (param.args.isNotEmpty()) {
+                        val data = param.args[0] as ByteArray
+                        hashMap["data"] = String(data)
+                    }
+                }
+            })
+
+        XposedBridge.hookAllMethods(MessageDigest::class.java,
+            "digest",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    mContext?.let {
+                        if (param.args.size == 3) return
+                        if (param.args.size == 1) {
+                            val data = param.args[0] as ByteArray
+                            hashMap["data"] = String(data)
+                        }
+                        val md = param.thisObject as MessageDigest
+                        val type = md.algorithm ?: "未知类型"
+                        val result = byte2Sting(param.result as ByteArray)
+                        val stackTrace = Throwable().stackTrace
+                        val items = toStackTrace(stackTrace).toList()
+                        val logBean = LogBean(
+                            type,
+                            listOf(
+                                "加密/解密：加密",
+                                "原始数据：${hashMap.getValue("data")}",
+                                "加密结果：$result"
+                            ) + items,
+                            packageName
+                        )
+                        toLogMsg(Gson().toJson(logBean))
+                    }
+                }
+            })
+    }
+
+    private fun aes(packageName: String) {
+        val map: HashMap<String, String> = HashMap()
+        XposedHelpers.findAndHookMethod(
+            Cipher::class.java,
+            "init",
+            Int::class.java,
+            Key::class.java,
+            AlgorithmParameterSpec::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val cipher = param.thisObject as Cipher
+                    val algorithmType = cipher.algorithm
+                    val opmode = param.args[0] as Int
+                    val cryptType = if (opmode == Cipher.ENCRYPT_MODE) "加密" else "解密"
+                    val secretKeySpec = param.args[1] as SecretKeySpec
+                    val key = String(secretKeySpec.encoded)
+                    val keyAlgorithm = secretKeySpec.algorithm;
+                    val ivParameterSpec = param.args[2] as IvParameterSpec
+                    val iv = String(ivParameterSpec.iv)
+                    map["algorithmType"] = algorithmType
+                    map["cryptType"] = cryptType
+                    map["key"] = key
+                    map["keyAlgorithm"] = keyAlgorithm
+                    map["iv"] = iv
+                }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            Cipher::class.java,
+            "doFinal",
+            ByteArray::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val rawData = String((param.args[0] as ByteArray))
+                    param.result?.let {
+                        val result = String(it as ByteArray)
+                        map["rawData"] = rawData
+                        map["result"] = result
+                        val list = listOf(
+                            "加密/解密：${map.getValue("cryptType")}",
+                            "密钥：${map.getValue("key")}",
+                            "密钥算法：${map.getValue("keyAlgorithm")}",
+                            "iv：${map.getValue("iv")}",
+                            "原始数据：${map.getValue("rawData")}",
+                            "${map.getValue("cryptType")}结果：${map.getValue("result")}"
+                        )
+                        val stackTrace = Throwable().stackTrace
+                        val items = toStackTrace(stackTrace).toList()
+                        val logBean = LogBean(map["algorithmType"]!!, list + items, packageName)
+                        toLogMsg(Gson().toJson(logBean))
+                    }
+
+
+                }
+            })
+    }
+
 
     /*
     常用启动activity时的intent信息
@@ -627,13 +850,14 @@ class Hook {
             extraList.add(ExtraBean(type, it, extras.get(it).toString()))
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
-        val logBean = LogBean("intent", arrayListOf(configBean))
+        val logBean = LogBean("intent", arrayListOf(configBean), packageName)
         toLogMsg(Gson().toJson(logBean))
     }
 
     private fun toLogMsg(log: String) {
         try {
-            val contentValues = contentValuesOf("packageName" to "unless", "log" to log)
+            val contentValues =
+                contentValuesOf("packageName" to "unless", "log" to log, "read" to 0)
             mContext?.let {
                 it.contentResolver?.insert(printUri, contentValues)
             }
@@ -707,5 +931,16 @@ class Hook {
         } catch (e: Exception) {
             "hot fix error".tip()
         }
+    }
+
+    private fun byte2Sting(bytes: ByteArray): String {
+        val sb = StringBuilder()
+        for (b in bytes) {
+            if (Integer.toHexString(0xFF and b.toInt()).length == 1) {
+                sb.append("0")
+            }
+            sb.append(Integer.toHexString(0xFF and b.toInt()))
+        }
+        return sb.toString()
     }
 }

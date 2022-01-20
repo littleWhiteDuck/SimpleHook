@@ -3,6 +3,7 @@ package me.simpleHook.database
 import android.content.Context
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.PrintLog
 
 class AppRepository(context: Context) {
     private val appConfigDao = AppDatabase.getDatabase(context).getAppConfigDao()
@@ -31,10 +32,21 @@ class AppRepository(context: Context) {
 
     suspend fun getFilterConfigs(pattern: String) = appConfigDao.filterConfigs(pattern)
 
+    // Record
     fun getAllLogs() = printLogDao.queryAllLogs()
+
+    suspend fun filterRecord(pattern: String) = printLogDao.filterRecord(pattern)
 
     suspend fun deleteAllLogs() {
         printLogDao.deleteAllLogs()
+    }
+
+    suspend fun deleteHaveReadRecord() {
+        printLogDao.deleteHaveReadRecord()
+    }
+
+    suspend fun updateRecord(printLog: PrintLog){
+        printLogDao.updateRecord(printLog)
     }
 
 

@@ -23,6 +23,7 @@ import me.simpleHook.bean.ConfigItem
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
+import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.ToolUtils
@@ -141,12 +142,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } finally {
             bufferedReader.close()
         }
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("帮助")
-            .setMessage(message)
-            .setPositiveButton("确定", null)
-            .setNegativeButton("取消", null)
-            .show()
+        warningDialog(requireContext(), title = "帮助", message = message)
     }
 
     private fun restoreConfigs() {

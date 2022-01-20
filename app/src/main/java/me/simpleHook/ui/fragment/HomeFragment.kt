@@ -6,11 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.widget.AdapterView
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -170,7 +169,8 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     private fun itemOnLongClick(appConfig: AppConfig) {
         var arrayList =
             requireContext().resources.getStringArray(R.array.main_home_item_select_item)
-        if (appConfig.configs.startsWith("config://"))arrayList = arrayOf(arrayList[0], arrayList[1])
+        if (appConfig.configs.startsWith("config://")) arrayList =
+            arrayOf(arrayList[0], arrayList[1])
         val popupWindowList = PopupWindowList.Builder(requireContext())
             .setItemList(arrayList)
             .setOutsideTouchable(true)
@@ -207,6 +207,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun initView() {
+
         binding.apply {
             addConfig.setOnClickListener { toAddFragment(null) }
             importConfigsFromPaste.setOnClickListener {
@@ -376,13 +377,13 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_home, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
         searchView.apply {
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(this@HomeFragment)
         }
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     class FabScrollListener(private val listener: HideScrollListener) :

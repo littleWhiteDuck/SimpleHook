@@ -1,6 +1,6 @@
 <resources>
     <!--assist-->
-    <string name="assist_start_float_window">开启悬浮穿</string>
+    <string name="assist_start_float_window">开启悬浮窗</string>
     <string name="assist_float_print_log">打印输出</string>
     <string name="assist_float_minify">最小化</string>
     <string name="assist_float_import_Log">导出</string>
@@ -81,7 +81,8 @@
     <string name="main_bottom_edit_config">编辑</string>
     <string name="main_assist_delete_config_tip">已删除此配置</string>
     <string name="main_assist_undo_delete_config">撤销</string>
-    <string name="main_assist_name">辅助</string>
+    <string name="main_extension_name">扩展</string>
+    <string name="main_record_name">记录</string>
 
     <string-array name="main_home_item_select_item">
         <item>分享</item>

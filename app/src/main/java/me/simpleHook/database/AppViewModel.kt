@@ -8,13 +8,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.PrintLog
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
     private val _filterAppConfig = MutableLiveData<List<AppConfig>>()
     val filterAppConfig: LiveData<List<AppConfig>>
         get() = _filterAppConfig
-
+    private var _filterRecord = MutableLiveData<List<PrintLog>>()
+    val filterRecord: LiveData<List<PrintLog>> get() = _filterRecord
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
         appRepository.insertConfigs(*appConfig)
@@ -38,13 +40,25 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun getFilterConfigs(pattern: String) =
         viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }
 
-    // logs
-
+    // Record
     fun getAllLogs() = appRepository.getAllLogs()
+
+    fun filterRecord(pattern: String) = viewModelScope.launch {
+        _filterRecord.value = appRepository.filterRecord("%$pattern%")
+    }
+
+    fun updateRecord(printLog: PrintLog) = viewModelScope.launch {
+        appRepository.updateRecord(printLog)
+    }
 
     fun deleteAllLogs() = viewModelScope.launch {
         appRepository.deleteAllLogs()
     }
+
+    fun deleteHaveReadRecord() = viewModelScope.launch {
+        appRepository.deleteHaveReadRecord()
+    }
+
 
     // Assist
     fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {

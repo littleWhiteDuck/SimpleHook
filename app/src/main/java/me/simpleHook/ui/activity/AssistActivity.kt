@@ -10,14 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.google.gson.Gson
 import com.lzf.easyfloat.EasyFloat
-import com.lzf.easyfloat.anim.DefaultAnimator
-import com.lzf.easyfloat.enums.ShowPattern
-import com.lzf.easyfloat.enums.SidePattern
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -29,7 +23,7 @@ import me.simpleHook.constant.Constant.HOT_FIX_DIRECTORY
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAssistBinding
-import me.simpleHook.ui.fragment.FloatFragment
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.assist.AssistItemView
 import me.simpleHook.util.*
 
@@ -44,11 +38,13 @@ private const val INTENT_DATA = "intentData"
 private const val VPN_CHECK = "vpnCheck"
 private const val CLICK_LISTENER = "click"
 private const val XPOSED_CHECK = "xposedCheck"
+private const val ALGORITHM = "algorithm"
 
-class AssistActivity : AppCompatActivity() {
+class AssistActivity : BaseActivity() {
     private lateinit var binding: ActivityAssistBinding
     private lateinit var assistConfig: AssistConfig
     private val hashMap = HashMap<String, Boolean>()
+    private var modify = false
     private val sp by lazy { SPUtils(this) }
     private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
     private val appViewModel by viewModels<AppViewModel>()
@@ -70,12 +66,6 @@ class AssistActivity : AppCompatActivity() {
         )
         initData()
         initView()
-        deleteAllLogs()
-    }
-
-    private fun deleteAllLogs() {
-        appViewModel.deleteAllLogs()
-        binding.progressBar.isIndeterminate = false
     }
 
 
@@ -98,6 +88,7 @@ class AssistActivity : AppCompatActivity() {
                 put(CLICK_LISTENER, click)
                 put(POPUP_CANCEL_SWITCH, popCancel)
                 put(XPOSED_CHECK, xposed)
+                put(ALGORITHM, algorithm)
             }
         }
         itemList.apply {
@@ -105,7 +96,7 @@ class AssistActivity : AppCompatActivity() {
                 add(AssistTitle("基本"))
                 add(
                     AssistItem(
-                        "启动应用",
+                        "应用",
                         false,
                         "startApp",
                         assistConfig.packageName,
@@ -113,6 +104,8 @@ class AssistActivity : AppCompatActivity() {
                     )
                 )
                 add(AssistItem("总开关", all, ALL_SWITCH, ""))
+                add(AssistTitle("算法"))
+                add(AssistItem("算法分析(Alpha)", algorithm, ALGORITHM, "打印base64/MD5/SHA/DES/AES等信息"))
                 add(AssistTitle("界面"))
                 add(AssistItem("弹窗", dialog, DIALOG_SWITCH, "打印弹窗调用"))
                 add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL, "用于一般弹窗的强制可取消"))
@@ -132,8 +125,8 @@ class AssistActivity : AppCompatActivity() {
                 )
                 add(AssistTitle("网络"))
                 add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
-               /* add(AssistTitle("环境"))
-                add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
+                /* add(AssistTitle("环境"))
+                 add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
             }
         }
     }
@@ -245,11 +238,11 @@ class AssistActivity : AppCompatActivity() {
     }
 
     private fun onClick(checked: Boolean, tag: String) {
-        if (tag == "startApp") {
-            saveConfig()
-            startAppAndFloat()
-            return
-        }
+         if (tag == "startApp") {
+             saveConfig()
+             startAppAndFloat()
+             return
+         }
         if (tag == TINKER_FIX && checked) {
             FileUtils.verifyStoragePermissions(this)
             FileUtils.makeRootDirectory("$HOT_FIX_DIRECTORY/${assistConfig.packageName}/")
@@ -258,7 +251,7 @@ class AssistActivity : AppCompatActivity() {
     }
 
     private fun startAppAndFloat() {
-        initPrintFloat()
+        /* initPrintFloat()*/
         val intent = Intent()
         intent.apply {
             action = Intent.ACTION_MAIN
@@ -280,7 +273,8 @@ class AssistActivity : AppCompatActivity() {
             hashMap[VPN_CHECK] == true,
             hashMap[CLICK_LISTENER] == true,
             hashMap[POPUP_CANCEL_SWITCH] == true,
-            hashMap[XPOSED_CHECK] == true
+            hashMap[XPOSED_CHECK] == true,
+            hashMap[ALGORITHM] == true
         )
         val config = Gson().toJson(configBean)
         assistConfig.config = config
@@ -296,26 +290,26 @@ class AssistActivity : AppCompatActivity() {
         "已保存".toast(this)
     }
 
-    private fun initPrintFloat() {
-        EasyFloat.with(this)
-            .setLayout(R.layout.float_window_layout) {
-                val viewPager = it.findViewById<ViewPager2>(R.id.float_viewpager2)
-                viewPager.adapter = object : FragmentStateAdapter(this) {
-                    override fun getItemCount() = 1
+    /*   private fun initPrintFloat() {
+           EasyFloat.with(this)
+               .setLayout(R.layout.float_window_layout) {
+                   val viewPager = it.findViewById<ViewPager2>(R.id.float_viewpager2)
+                   viewPager.adapter = object : FragmentStateAdapter(this) {
+                       override fun getItemCount() = 1
 
-                    override fun createFragment(position: Int) = FloatFragment()
-                }
-            }
-            .setTag("floatPrint")
-            .setShowPattern(ShowPattern.ALL_TIME)
-            .setSidePattern(SidePattern.RESULT_HORIZONTAL)
-            .setDragEnable(false)
-            .setLocation(0, 0)
-            .setMatchParent(widthMatch = true, heightMatch = false)
-            .setAnimator(DefaultAnimator())
-            .show()
-    }
-
+                       override fun createFragment(position: Int) = FloatFragment()
+                   }
+               }
+               .setTag("floatPrint")
+               .setShowPattern(ShowPattern.ALL_TIME)
+               .setSidePattern(SidePattern.RESULT_HORIZONTAL)
+               .setDragEnable(false)
+               .setLocation(0, 0)
+               .setMatchParent(widthMatch = true, heightMatch = false)
+               .setAnimator(DefaultAnimator())
+               .show()
+       }
+   */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_assist, menu)
@@ -326,16 +320,9 @@ class AssistActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
-            R.id.assistFragment_startFloat -> initPrintFloat()
+            /*  R.id.assistFragment_startFloat -> initPrintFloat()*/
         }
         return true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (EasyFloat.getFloatView("floatControl") != null) {
-            EasyFloat.dismiss("floatControl")
-        }
-        EasyFloat.dismiss("floatPrint")
-    }
 }

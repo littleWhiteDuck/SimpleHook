@@ -1,6 +1,5 @@
 package me.simpleHook.ui.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -12,16 +11,16 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAppListBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.fragment.AppListFragment
 
-class AppListActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
     private lateinit var binding: ActivityAppListBinding
     private var currentQueryText = ""

@@ -15,7 +15,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -29,6 +28,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
@@ -41,7 +41,7 @@ private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
 private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
 private const val pattern = """(B|S|I|J|F|D|Z)(B|S|I|J|F|D|Z|L)"""
 
-class ConfigActivity : AppCompatActivity() {
+class ConfigActivity : BaseActivity() {
     private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<ConfigBean>()
     private var mode = Constant.HOOK_RETURN
@@ -167,60 +167,58 @@ class ConfigActivity : AppCompatActivity() {
                 }
             }
         }
-        MaterialAlertDialogBuilder(this).apply {
-            setView(dialogBinding.root)
-            val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量")
-            dialogBinding.modeSelectSpinner.adapter =
-                ArrayAdapter(
-                    this@ConfigActivity,
-                    android.R.layout.simple_spinner_dropdown_item,
-                    list
-                )
-            dialogBinding.modeSelectSpinner.setSelection(configBean.mode)
-            dialogBinding.modeSelectSpinner.onItemSelectedListener =
-                object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        mode = position
-                        when (list[position]) {
-                            "中断执行" -> breakHook(dialogBinding)
-                            "Hook静态变量" -> staticFieldHook(dialogBinding)
-                            "Hook变量" -> fieldHook(dialogBinding)
-                            else -> othersHook(dialogBinding)
-                        }
+        val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量")
+        dialogBinding.modeSelectSpinner.adapter =
+            ArrayAdapter(
+                this@ConfigActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                list
+            )
+        dialogBinding.modeSelectSpinner.setSelection(configBean.mode)
+        dialogBinding.modeSelectSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    mode = position
+                    when (list[position]) {
+                        "中断执行" -> breakHook(dialogBinding)
+                        "Hook静态变量" -> staticFieldHook(dialogBinding)
+                        "Hook变量" -> fieldHook(dialogBinding)
+                        else -> othersHook(dialogBinding)
                     }
+                }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
-                }
-            setCancelable(false)
-            modifyConfig = configBean.className.isNotEmpty().also {
-                val positiveButtonText =
-                    if (it) getString(R.string.config_dialog_alter_this) else getString(
-                        R.string.config_dialog_add_a_new
-                    )
-                setPositiveButton(positiveButtonText) { d, _ ->
-                    dialogDismiss(
-                        d, toCheck(dialogBinding)
-                    )
-                }
-                if (it) {
-                    setNeutralButton(getString(R.string.config_dialog_delete_this)) { d, _ ->
-                        deleteConfig(configBean)
-                        dialogDismiss(
-                            d, true
-                        )
-                    }
-                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-            setNegativeButton(getString(R.string.config_dialog_cancel)) { d, _ ->
-                dialogDismiss(d, true)
-            }
-                .create().show()
-        }
+        modifyConfig = configBean.className.isNotEmpty()
+        val okText = if (modifyConfig) getString(R.string.config_dialog_alter_this) else getString(
+            R.string.config_dialog_add_a_new
+        )
+        val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
+        customDialog(
+            this,
+            okText = okText,
+            okClick = { dialog ->
+                dialogDismiss(
+                    dialog, toCheck(dialogBinding)
+                )
+            },
+            cancelText = getString(R.string.config_dialog_cancel),
+            cancelClick = { dialogInterface -> dialogDismiss(dialogInterface, true) },
+            neutralText = neutralText,
+            neutralClick = { dialogInterface ->
+                deleteConfig(configBean)
+                dialogDismiss(
+                    dialogInterface, true
+                )
+            },
+            cancelAble = false,
+            contentView = dialogBinding.root
+        )
     }
 
     private fun dialogDismiss(dialog: DialogInterface, canCancel: Boolean) {
@@ -405,6 +403,7 @@ class ConfigActivity : AppCompatActivity() {
             getString(R.string.config_save_empty_config_tip).snack(binding.addMethodConfig)
             return
         }
+        binding.progressBar.visibility = View.VISIBLE
         val appConfig = getAppConfig()
         if (modify) {
             appViewModel.updateConfigs(appConfig)
@@ -413,11 +412,8 @@ class ConfigActivity : AppCompatActivity() {
         }
         val configStr = Gson().toJson(appConfig)
         if (sp.openStorage)
-            FileUtils.writeData(
-                "${Constant.CONFIG_DIRECTORY + packageName}/",
-                "config",
-                configStr
-            )
+            FileUtils.verifyStoragePermissions(this)
+        FileUtils.createConfigFile(appConfig.packageName, configStr)
         if (sp.openXml) {
             configPref?.edit()?.putString(packageName, configStr)?.commit()
                 ?: getString(R.string.config_module_can_not_use_xsp).toast(
@@ -429,11 +425,10 @@ class ConfigActivity : AppCompatActivity() {
     }
 
     private fun fakeWaitForSave() {
-        binding.progressBar.visibility = View.VISIBLE
         Handler(Looper.getMainLooper()).postDelayed({
             binding.progressBar.visibility = View.GONE
             finish()
-        }, 1500)
+        }, 2000)
     }
 
 

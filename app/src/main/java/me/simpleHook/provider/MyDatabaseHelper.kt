@@ -23,15 +23,18 @@ class MyDatabaseHelper(context: Context, name: String, version: Int) :
             "config text," +
             "allSwitch integer," +
             "id integer primary key autoincrement)"
+    private val logAddColumn = "alter table PrintLog add column read INTEGER NOT NULL DEFAULT 0"
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(createConfig)
         db.execSQL(createLog)
         db.execSQL(createLogConfig)
+        db.execSQL(logAddColumn)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-
-
+        if (newVersion > 1){
+            db.execSQL(logAddColumn)
+        }
     }
 }

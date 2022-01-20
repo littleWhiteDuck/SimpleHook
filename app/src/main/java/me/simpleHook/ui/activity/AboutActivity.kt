@@ -25,7 +25,7 @@ import me.simpleHook.ui.view.about.AuthorView
 import me.simpleHook.ui.view.about.OpenSourceView
 import me.simpleHook.util.dp
 
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : BaseActivity() {
     private lateinit var binding: ActivityAboutBinding
     private val itemList = ArrayList<Any>()
     override fun onCreate(savedInstanceState: Bundle?) {
