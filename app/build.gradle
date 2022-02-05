@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'top.niunaijun.blackobfuscator'
 }
 
 def getVersionCode = { ->
@@ -50,26 +49,14 @@ android {
         viewBinding true
     }
     buildToolsVersion '31.0.0'
-    android.applicationVariants.all { variant ->
+ /*   android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "simlpeHook(${variant.versionCode})_${variant.versionName}.apk"
             if (buildType.name == 'release') {
                 variant.getPackageApplication().outputDirectory = new File(rootDir.absolutePath + "/app/release")
             }
         }
-    }
-}
-
-// 加入混淆配置
-BlackObfuscator {
-    // 是否启用
-    enabled false
-    // 混淆深度
-    depth 3
-    // 需要混淆的包或者类(匹配前面一段)
-    obfClass = ["me.simpleHook.ui.activity", "me.simpleHook.hook"]
-    // blackClass中的包或者类不会进行混淆(匹配前面一段)
-
+    }*/
 }
 
 dependencies {
@@ -81,7 +68,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // room
@@ -92,10 +79,10 @@ dependencies {
 
     // xposed
     compileOnly 'de.robv.android.xposed:api:82'
-   /* compileOnly 'de.robv.android.xposed:api:82:sources'*/
+    compileOnly 'de.robv.android.xposed:api:82:sources'
    /* compileOnly 'com.virjar:ratel-api:1.3.5'*/
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 
     /* implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
      implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'*/

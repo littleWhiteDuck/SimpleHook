@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
-import com.lzf.easyfloat.EasyFloat
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -22,26 +20,33 @@ import me.simpleHook.bean.AssistTitle
 import me.simpleHook.constant.Constant.HOT_FIX_DIRECTORY
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.databinding.ActivityAssistBinding
+import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.view.assist.AssistItemView
+import me.simpleHook.ui.activity.ExtensionTag.*
+import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
+import javax.crypto.Mac
 
-private const val DIALOG_SWITCH = "dialogSwitch"
-private const val TOAST_SWITCH = "toastSwitch"
-private const val POPUP_SWITCH = "popupSwitch"
-private const val POPUP_CANCEL_SWITCH = "popupCancelSwitch"
-private const val DIALOG_CANCEL = "dialogCancel"
-private const val ALL_SWITCH = "allSwitch"
-private const val TINKER_FIX = "hotFix"
-private const val INTENT_DATA = "intentData"
-private const val VPN_CHECK = "vpnCheck"
-private const val CLICK_LISTENER = "click"
-private const val XPOSED_CHECK = "xposedCheck"
-private const val ALGORITHM = "algorithm"
+enum class ExtensionTag(val tag: String, val title: String) {
+    ALL_SWITCH("all", "总开关"),
+    BASE_64("base64", "Base64"),
+    DIGEST("digest", "摘要算法"),
+    HMAC("hmac", "信息摘要算法"),
+    CRYPT("crypt", "加密算法"),
+    DIALOG_SWITCH("dialog", "弹窗"),
+    DIALOG_CANCEL("diaCancel", "弹窗取消"),
+    TOAST_SWITCH("toast", "Toast"),
+    POPUP_SWITCH("popup", "popupWindow"),
+    POPUP_CANCEL_SWITCH("popCancel", "PopupWindow取消"),
+    CLICK_LISTENER("click", "点击事件"),
+    INTENT_DATA("intent", "intent"),
+    VPN_CHECK("vpn", "vpn"),
+    HOT_FIX("hotFix", "热修复")
+}
+
 
 class AssistActivity : BaseActivity() {
-    private lateinit var binding: ActivityAssistBinding
+    private lateinit var binding: ActivityExtensionBinding
     private lateinit var assistConfig: AssistConfig
     private val hashMap = HashMap<String, Boolean>()
     private var modify = false
@@ -51,7 +56,8 @@ class AssistActivity : BaseActivity() {
     private val itemList = ArrayList<Any>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAssistBinding.inflate(layoutInflater)
+        binding = ActivityExtensionBinding.inflate(layoutInflater)
+        Mac::class.java
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -77,18 +83,20 @@ class AssistActivity : BaseActivity() {
         ) else AssistConfigBean()
         configBean.apply {
             hashMap.apply {
-                put(ALL_SWITCH, all)
-                put(DIALOG_SWITCH, dialog)
-                put(DIALOG_CANCEL, diaCancel)
-                put(TOAST_SWITCH, toast)
-                put(POPUP_SWITCH, popup)
-                put(TINKER_FIX, tinker)
-                put(INTENT_DATA, intent)
-                put(VPN_CHECK, vpn)
-                put(CLICK_LISTENER, click)
-                put(POPUP_CANCEL_SWITCH, popCancel)
-                put(XPOSED_CHECK, xposed)
-                put(ALGORITHM, algorithm)
+                put(ALL_SWITCH.name, all)
+                put(DIALOG_SWITCH.name, dialog)
+                put(DIALOG_CANCEL.name, diaCancel)
+                put(TOAST_SWITCH.name, toast)
+                put(POPUP_SWITCH.name, popup)
+                put(HOT_FIX.name, hotFix)
+                put(INTENT_DATA.name, intent)
+                put(VPN_CHECK.name, vpn)
+                put(CLICK_LISTENER.name, click)
+                put(POPUP_CANCEL_SWITCH.name, popCancel)
+                put(BASE_64.name, base64)
+                put(DIGEST.name, digest)
+                put(HMAC.name, hmac)
+                put(CRYPT.name, crypt)
             }
         }
         itemList.apply {
@@ -103,28 +111,38 @@ class AssistActivity : BaseActivity() {
                         assistConfig.appName
                     )
                 )
-                add(AssistItem("总开关", all, ALL_SWITCH, ""))
-                add(AssistTitle("算法"))
-                add(AssistItem("算法分析(Alpha)", algorithm, ALGORITHM, "打印base64/MD5/SHA/DES/AES等信息"))
+                add(AssistItem("总开关", all, ALL_SWITCH.name, ""))
+                add(AssistTitle("算法分析(Alpha)"))
+                add(AssistItem(BASE_64.title, base64, BASE_64.name, "Base64加解密"))
+                add(AssistItem(DIGEST.title, digest, DIGEST.name, "MD5、SHA等"))
+                add(AssistItem(HMAC.title, hmac, HMAC.name, "Hmac"))
+                add(AssistItem(CRYPT.title, crypt, CRYPT.name, "AES、DES、RSA等"))
                 add(AssistTitle("界面"))
-                add(AssistItem("弹窗", dialog, DIALOG_SWITCH, "打印弹窗调用"))
-                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL, "用于一般弹窗的强制可取消"))
-                add(AssistItem("Toast", toast, TOAST_SWITCH, "打印toast调用"))
-                add(AssistItem("PopupWindow", popup, POPUP_SWITCH, "打印调用（也可作为弹窗）"))
-                add(AssistItem("PopupWindow可取消", popCancel, POPUP_CANCEL_SWITCH, "点击弹窗外部/返回取消"))
-                add(AssistItem("点击事件", click, CLICK_LISTENER, "打印点击调用"))
+                add(AssistItem("弹窗", dialog, DIALOG_SWITCH.name, "打印弹窗调用"))
+                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL.name, "用于一般弹窗的强制可取消"))
+                add(AssistItem("Toast", toast, TOAST_SWITCH.name, "打印toast调用"))
+                add(AssistItem("PopupWindow", popup, POPUP_SWITCH.name, "打印调用（也可作为弹窗）"))
+                add(
+                    AssistItem(
+                        "PopupWindow可取消",
+                        popCancel,
+                        POPUP_CANCEL_SWITCH.name,
+                        "点击弹窗外部/返回取消"
+                    )
+                )
+                add(AssistItem("点击事件", click, CLICK_LISTENER.name, "打印点击调用"))
                 add(AssistTitle("其他"))
-                add(AssistItem("intent", intent, INTENT_DATA, "打印常见启动activity时传递的intent"))
+                add(AssistItem("intent", intent, INTENT_DATA.name, "打印常见启动activity时传递的intent"))
                 add(
                     AssistItem(
                         "热修复",
-                        tinker,
-                        TINKER_FIX,
+                        hotFix,
+                        HOT_FIX.name,
                         "dex放在Download/simpleHook\n/hotFix/${assistConfig.packageName}/"
                     )
                 )
                 add(AssistTitle("网络"))
-                add(AssistItem("vpn", vpn, VPN_CHECK, "去除一般的VPN检测"))
+                add(AssistItem("vpn", vpn, VPN_CHECK.name, "去除一般的VPN检测"))
                 /* add(AssistTitle("环境"))
                  add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
             }
@@ -148,7 +166,7 @@ class AssistActivity : BaseActivity() {
                         it.setMargins(16.dp, 0, 0, 0)
                     }
                 }
-                2 -> AssistItemView(parent.context)
+                2 -> ExtensionItemView(parent.context)
                 else -> throw IllegalArgumentException("unknown viewType: $viewType")
             }
 
@@ -158,7 +176,7 @@ class AssistActivity : BaseActivity() {
             ): BasicViewHolder<*> {
                 return when (itemView) {
                     is AppCompatTextView -> TitleHolder(itemView)
-                    is AssistItemView -> ItemHolder(itemView)
+                    is ExtensionItemView -> ItemHolder(itemView)
                     { checked, tag ->
                         onClick(
                             checked,
@@ -192,7 +210,7 @@ class AssistActivity : BaseActivity() {
 
     class ItemHolder(itemView: View, val onClick: (Boolean, String) -> Unit) :
         BasicViewHolder<AssistItem>(itemView) {
-        private val assistItemView = itemView as AssistItemView
+        private val assistItemView = itemView as ExtensionItemView
         private val tvTitle: TextView = assistItemView.title
         private val tvDesc: TextView = assistItemView.desc
         private val tvControl: TextView = assistItemView.control
@@ -238,12 +256,12 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun onClick(checked: Boolean, tag: String) {
-         if (tag == "startApp") {
-             saveConfig()
-             startAppAndFloat()
-             return
-         }
-        if (tag == TINKER_FIX && checked) {
+        if (tag == "startApp") {
+            saveConfig()
+            startAppAndFloat()
+            return
+        }
+        if (tag == HOT_FIX.name && checked) {
             FileUtils.verifyStoragePermissions(this)
             FileUtils.makeRootDirectory("$HOT_FIX_DIRECTORY/${assistConfig.packageName}/")
         }
@@ -263,18 +281,20 @@ class AssistActivity : BaseActivity() {
 
     private fun saveConfig() {
         val configBean = AssistConfigBean(
-            hashMap[ALL_SWITCH] == true,
-            hashMap[DIALOG_SWITCH] == true,
-            hashMap[POPUP_SWITCH] == true,
-            hashMap[DIALOG_CANCEL] == true,
-            hashMap[TOAST_SWITCH] == true,
-            hashMap[INTENT_DATA] == true,
-            hashMap[TINKER_FIX] == true,
-            hashMap[VPN_CHECK] == true,
-            hashMap[CLICK_LISTENER] == true,
-            hashMap[POPUP_CANCEL_SWITCH] == true,
-            hashMap[XPOSED_CHECK] == true,
-            hashMap[ALGORITHM] == true
+            hashMap[ALL_SWITCH.name] == true,
+            hashMap[DIALOG_SWITCH.name] == true,
+            hashMap[POPUP_SWITCH.name] == true,
+            hashMap[DIALOG_CANCEL.name] == true,
+            hashMap[TOAST_SWITCH.name] == true,
+            hashMap[INTENT_DATA.name] == true,
+            hashMap[HOT_FIX.name] == true,
+            hashMap[VPN_CHECK.name] == true,
+            hashMap[CLICK_LISTENER.name] == true,
+            hashMap[POPUP_CANCEL_SWITCH.name] == true,
+            hashMap[DIGEST.name] == true,
+            hashMap[HMAC.name] == true,
+            hashMap[CRYPT.name] == true,
+            hashMap[BASE_64.name] == true
         )
         val config = Gson().toJson(configBean)
         assistConfig.config = config

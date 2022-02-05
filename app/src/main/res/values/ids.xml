@@ -8,4 +8,5 @@
     <item name="item_assist_config" type="id"/>
     <item name="item_in_export_config_position" type="id"/>
     <item name="item_record_position" type="id"/>
+    <item name="item_record_summary" type="id" />
 </resources>

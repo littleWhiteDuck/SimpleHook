@@ -50,7 +50,7 @@ class MyProvider:ContentProvider() {
     }
 
     override fun onCreate() = context?.let {
-        dbHelper = MyDatabaseHelper(it, "app_configs.db", 2)
+        dbHelper = MyDatabaseHelper(it, "app_configs.db", 3)
         true
     } ?: false
 

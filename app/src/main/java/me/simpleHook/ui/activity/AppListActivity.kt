@@ -7,10 +7,13 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
@@ -29,6 +32,7 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private var isFromAssist = false
     private val viewModel by viewModels<AppViewModel>()
     private val mViewModel by viewModels<me.simpleHook.viewmodel.AppViewModel>()
+    private var assistConfig: AssistConfig? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +42,9 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isFromAssist = intent.getBooleanExtra("isFromAssist", false)
+        lifecycleScope.launch(Dispatchers.IO) {
+            assistConfig = viewModel.queryDefaultExConfig()[0]
+        }
         initView()
         initViewModel()
     }
@@ -100,9 +107,18 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
 
     private fun clickResponse(appItem: AppItem) {
         if (isFromAssist) {
-            val assistConfig =
-                AssistConfig(appName = appItem.name, packageName = appItem.packageName)
-            viewModel.insertAssistConfigs(assistConfig)
+            assistConfig?.let {
+                it.packageName = appItem.packageName
+                it.appName = appItem.name
+                it.id = 0
+                viewModel.insertAssistConfigs(it)
+            } ?: viewModel.insertAssistConfigs(
+                AssistConfig(
+                    appName = appItem.name,
+                    packageName = appItem.packageName
+                )
+            )
+
         } else {
             val intent = Intent()
             val bundle = Bundle()

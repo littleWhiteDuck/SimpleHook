@@ -4,32 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
-        android:id="@+id/delete"
-        android:title="删除"
-        android:icon="@drawable/ic_delete_24"
-        >
+        android:id="@+id/toShow"
+        android:title="显示方式">
         <menu>
-            <item
-                android:id="@+id/delete_all"
-                android:icon="@drawable/ic_delete_24"
-                android:title="删除全部" />
-            <item
-                android:id="@+id/delete_read"
-                android:icon="@drawable/ic_delete_24"
-                android:title="删除已读" />
+            <group android:checkableBehavior="single">
+                <item
+                    android:checked="true"
+                    android:id="@+id/toTypeShow"
+                    android:title="按照类型划分" />
+                <item
+                    android:checked="false"
+                    android:id="@+id/toAppShow"
+                    android:title="按照应用划分" />
+            </group>
         </menu>
 
     </item>
     <item
+        android:id="@+id/delete_all"
+        android:icon="@drawable/ic_delete_24"
+        android:title="删除全部" />
+    <item
+        android:id="@+id/delete_read"
+        android:icon="@drawable/ic_delete_24"
+        android:title="删除已读" />
+    <item
         android:id="@+id/scroll_top"
         android:title="滑到顶部"
-        android:icon="@drawable/ic_arrow_upward_24"
-        />
+        android:icon="@drawable/ic_arrow_upward_24" />
     <item
         android:id="@+id/scroll_bottom"
         android:title="滑到底部"
-        android:icon="@drawable/ic_arrow_downward_24"
-        />
+        android:icon="@drawable/ic_arrow_downward_24" />
     <item
         android:id="@+id/search"
         android:icon="@drawable/ic_search_24"

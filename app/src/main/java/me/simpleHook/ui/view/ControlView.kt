@@ -12,15 +12,11 @@ class ControlView(context: Context) : View(context) {
     init {
         layoutParams = ViewGroup.LayoutParams(50.dp, 50.dp)
     }
-
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.BLACK
-    }
-    private val paint2 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
-    }
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     override fun onDraw(canvas: Canvas) {
+        paint.color = Color.BLACK
         canvas.drawRoundRect(0f, 0f, 50f.dp, 50f.dp, 10f.dp, 10f.dp, paint)
-        canvas.drawCircle(25f.dp, 25f.dp, 15f.dp, paint2)
+        paint.color = Color.WHITE
+        canvas.drawCircle(25f.dp, 25f.dp, 15f.dp, paint)
     }
 }

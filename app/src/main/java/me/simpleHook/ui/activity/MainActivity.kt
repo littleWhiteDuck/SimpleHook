@@ -1,9 +1,7 @@
 package me.simpleHook.ui.activity
 
 import android.os.Bundle
-import android.view.Menu
 import androidx.annotation.Keep
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import me.simpleHook.BuildConfig
@@ -12,13 +10,12 @@ import me.simpleHook.R
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.fragment.AssistFragment
+import me.simpleHook.ui.fragment.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
 import java.io.*
-import java.lang.reflect.Method
 
 class MainActivity : BaseActivity() {
 
@@ -75,13 +72,13 @@ class MainActivity : BaseActivity() {
 
                     override fun createFragment(position: Int) = when (position) {
                         0 -> HomeFragment()
-                        1 -> AssistFragment()
+                        1 -> ExtensionFragment()
                         2 -> RecordFragment()
                         else -> SettingsFragment()
                     }
                 }
                 isUserInputEnabled = false
-                offscreenPageLimit = 4
+                offscreenPageLimit = 3
             }
             fun setCurrentItem(index: Int) {
                 if (!viewPager.isFakeDragging) {

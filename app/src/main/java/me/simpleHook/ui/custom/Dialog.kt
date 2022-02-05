@@ -5,12 +5,18 @@ import android.content.DialogInterface
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-fun warningDialog(context: Context, title: String, message: String, okClick: () -> Unit = {}) {
+fun warningDialog(
+    context: Context,
+    title: String,
+    message: String,
+    okClick: () -> Unit = {},
+    okText: String = "确认"
+) {
     customDialog(
         context,
         title = title,
         message = message,
-        okText = "确认",
+        okText = okText,
         okClick = { okClick() },
         cancelText = "取消"
     )

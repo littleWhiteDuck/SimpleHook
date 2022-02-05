@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.RecordFragment">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/swipeRefreshLayout"
+        app:layout_constraintEnd_toEndOf="@+id/swipeRefreshLayout"
+        app:layout_constraintStart_toStartOf="@+id/swipeRefreshLayout"
+        app:layout_constraintTop_toTopOf="@+id/swipeRefreshLayout" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"

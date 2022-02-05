@@ -3,9 +3,7 @@ package me.simpleHook.ui.view.about
 import android.content.Context
 import android.util.TypedValue
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.view.marginLeft
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
 import me.simpleHook.R
@@ -25,10 +23,11 @@ class AuthorView(context: Context) : CustomViewGroup(context) {
         setPadding(16.dp, 8.dp, 8.dp, 8.dp)
     }
 
-    val icon = AppCompatImageView(context).apply {
+    val avatar = AvatarView(context).apply {
         layoutParams = LayoutParams(50.dp, 50.dp)
         addView(this)
     }
+
     val name = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_subtitle1)).apply {
         layoutParams =
             MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
@@ -39,24 +38,28 @@ class AuthorView(context: Context) : CustomViewGroup(context) {
 
     val introduce =
         AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_caption)).apply {
-            layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
-                it.setMargins(0, 8.dp, 0, 0)
-            }
+            layoutParams =
+                MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
+                    it.setMargins(0, 8.dp, 0, 0)
+                }
             addView(this)
         }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        icon.autoMeasure()
+        this.avatar.autoMeasure()
         val textViewWidth =
-            measuredWidth - paddingLeft - paddingRight - icon.measuredWidth - name.marginStart
+            measuredWidth - paddingLeft - paddingRight - this.avatar.measuredWidth - name.marginStart
         name.measure(textViewWidth.toExactlyMeasureSpec(), name.defaultHeightMeasureSpec(this))
         introduce.measure(
             textViewWidth.toExactlyMeasureSpec(),
             introduce.defaultHeightMeasureSpec(this)
         )
         val height =
-            maxOf(icon.measuredHeight, name.measuredHeightWithMargins + introduce.measuredHeightWithMargins)
+            maxOf(
+                this.avatar.measuredHeight,
+                name.measuredHeightWithMargins + introduce.measuredHeightWithMargins
+            )
         setMeasuredDimension(
             measuredWidth,
             paddingTop + height + paddingBottom
@@ -64,8 +67,8 @@ class AuthorView(context: Context) : CustomViewGroup(context) {
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-        icon.autoLayout(paddingLeft, paddingTop)
-        name.autoLayout(icon.right + name.marginStart, paddingTop)
+        this.avatar.autoLayout(paddingLeft, paddingTop)
+        name.autoLayout(this.avatar.right + name.marginStart, paddingTop)
         introduce.autoLayout(name.left, name.bottom + introduce.marginTop)
     }
 }

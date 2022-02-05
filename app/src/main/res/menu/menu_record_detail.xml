@@ -10,7 +10,19 @@
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
     <item
-        android:icon="@drawable/ic_help"
+        android:id="@+id/copy"
+        android:title="复制">
+        <menu>
+            <item
+                android:id="@+id/copy_text"
+                android:title="普通文本" />
+            <item
+                android:id="@+id/copy_json"
+                android:title="Json文本" />
+        </menu>
+
+    </item>
+    <item
         android:id="@+id/help"
-        android:title="帮助"/>
+        android:title="帮助" />
 </menu>

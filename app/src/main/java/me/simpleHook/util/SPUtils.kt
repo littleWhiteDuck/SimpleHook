@@ -7,15 +7,19 @@ import kotlin.reflect.KProperty
 
 open class SPUtils(context: Context, name: String = "me.simpleHook_preferences") {
 
-    private val preferences: SharedPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences =
+        context.getSharedPreferences(name, Context.MODE_PRIVATE)
     var openStorage by SharedPreferenceDelegates.boolean()
     var openXml by SharedPreferenceDelegates.boolean()
     var updateShow by SharedPreferenceDelegates.string("1.0.1")
     var smali2Config by SharedPreferenceDelegates.boolean()
     var encryptConfigs by SharedPreferenceDelegates.boolean()
-    fun remove(key: String){
+    var showByType by SharedPreferenceDelegates.boolean(true)
+    var showMoreDataTip by SharedPreferenceDelegates.boolean(false)
+    fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }
+
     private object SharedPreferenceDelegates {
 
         fun int(defaultValue: Int = 0) = object : ReadWriteProperty<SPUtils, Int> {

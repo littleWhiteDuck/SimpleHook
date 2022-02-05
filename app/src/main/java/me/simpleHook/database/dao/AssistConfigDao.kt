@@ -23,4 +23,10 @@ interface AssistConfigDao {
 
     @Query("SELECT * FROM AssistConfig WHERE packageName LIKE :pattern or appName LIKE :pattern ORDER BY ID DESC")
     fun getFilterConfigs(pattern: String): LiveData<List<AssistConfig>>
+
+    @Query("SELECT * FROM AssistConfig WHERE packageName = :packageName and appName = :appName")
+    suspend fun queryDefaultExConfig(
+        packageName: String = "默认配置",
+        appName: String = "默认配置"
+    ): List<AssistConfig>
 }

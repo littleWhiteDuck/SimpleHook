@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -188,11 +187,14 @@ class AboutActivity : BaseActivity() {
         private val authorView = itemView as AuthorView
         private val tvName = authorView.name
         private val tvIntro = authorView.introduce
-        private val ivIcon = authorView.icon
+        private val ivIcon = authorView.avatar
         override fun onBindData(position: Int, data: Author) {
             tvName.text = data.name
             tvIntro.text = data.introduce
-            data.id?.let { ivIcon.setImageResource(it) }
+            data.id?.let {
+                ivIcon.iconId = it
+                ivIcon.avatarWidth = 50f.dp
+            }
         }
 
     }

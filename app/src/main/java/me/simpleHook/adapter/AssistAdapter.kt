@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.ui.custom.CircleTextDrawable
 import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class AssistAdapter(
@@ -60,9 +62,19 @@ class AssistAdapter(
         holder.itemView.setTag(R.id.item_assist_config, assistConfig)
         holder.apply {
             tvAppName.text = assistConfig.appName
-            ivAppIcon.setImageDrawable(AppUtils.getIcon(itemView.context, assistConfig.packageName))
-            tvVersionName.text =
-                AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
+            if (assistConfig.appName == "默认配置" && assistConfig.packageName == "默认配置") {
+                ivAppIcon.setImageDrawable(CircleTextDrawable(50f.dp, "默认"))
+                tvVersionName.text = "用于添加其他应用时默认开启哪些选项"
+            } else {
+                ivAppIcon.setImageDrawable(
+                    AppUtils.getIcon(
+                        itemView.context,
+                        assistConfig.packageName
+                    )
+                )
+                tvVersionName.text =
+                    AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
+            }
         }
     }
 }

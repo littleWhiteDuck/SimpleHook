@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
+import java.util.jar.Pack200
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
@@ -17,6 +18,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         get() = _filterAppConfig
     private var _filterRecord = MutableLiveData<List<PrintLog>>()
     val filterRecord: LiveData<List<PrintLog>> get() = _filterRecord
+
+    private var _filterRecord2 = MutableLiveData<List<PrintLog>>()
+    val filterRecord2: LiveData<List<PrintLog>> get() = _filterRecord2
+
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
         appRepository.insertConfigs(*appConfig)
@@ -47,6 +52,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _filterRecord.value = appRepository.filterRecord("%$pattern%")
     }
 
+    fun filterRecordByPack(packageName: String, pattern: String) = viewModelScope.launch {
+        _filterRecord2.value = appRepository.filterRecordByPack(packageName, "%$pattern%")
+    }
+
+    fun filterRecordByType(type: String, pattern: String) = viewModelScope.launch {
+        _filterRecord2.value = appRepository.filterRecordByType("%$type%", "%$pattern%")
+    }
+
     fun updateRecord(printLog: PrintLog) = viewModelScope.launch {
         appRepository.updateRecord(printLog)
     }
@@ -55,8 +68,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteAllLogs()
     }
 
-    fun deleteHaveReadRecord() = viewModelScope.launch {
-        appRepository.deleteHaveReadRecord()
+    fun deleteRecordByType(type: String) = viewModelScope.launch {
+        appRepository.deleteRecordByType("%$type%")
+    }
+
+    fun deleteRecordByPack(packageName: String) = viewModelScope.launch {
+        appRepository.deleteRecordByPack(packageName)
+    }
+
+    fun deleteRecordByRead(read: Int = 1) = viewModelScope.launch {
+        appRepository.deleteRecordByRead(read)
+    }
+
+    fun deleteReadRecordByPack(read: Int = 1, packageName: String) = viewModelScope.launch {
+        appRepository.deleteReadRecordByPack(read, packageName)
+    }
+
+    fun deleteReadRecordByType(read: Int = 1, type: String) = viewModelScope.launch {
+        appRepository.deleteReadRecordByType(read, "%$type%")
     }
 
 
@@ -72,6 +101,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.deleteAssistConfigs(*assistConfig)
     }
+
+    suspend fun queryDefaultExConfig() = appRepository.queryDefaultExConfig()
 
     fun deleteAllAssistConfigs() {
         appRepository.deleteAllAssistConfigs()

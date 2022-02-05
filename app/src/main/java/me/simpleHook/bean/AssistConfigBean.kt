@@ -10,10 +10,12 @@ data class AssistConfigBean(
     val diaCancel: Boolean = false,
     val toast: Boolean = false,
     val intent: Boolean = false,
-    val tinker: Boolean = false,
+    val hotFix: Boolean = false,
     val vpn: Boolean = false,
     val click: Boolean = false,
     val popCancel: Boolean = false,
-    val xposed: Boolean = false,
-    val algorithm: Boolean = false
+    val digest: Boolean = false,
+    val hmac: Boolean = false,
+    val crypt: Boolean = false,
+    val base64: Boolean = false
 )

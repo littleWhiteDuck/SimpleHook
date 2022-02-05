@@ -108,5 +108,8 @@
         <item>me.hookTest</item>
         <item>me.duck.hooktest</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="extension_settings">设置</string>
 
 </resources>

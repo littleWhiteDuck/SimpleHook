@@ -1,13 +1,14 @@
 package me.simpleHook.ui.fragment
 
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
+import android.view.animation.DecelerateInterpolator
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -16,6 +17,8 @@ import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
 import me.simpleHook.database.AppViewModel
@@ -25,7 +28,7 @@ import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.AssistActivity
 import me.simpleHook.util.*
 
-class AssistFragment : Fragment() {
+class ExtensionFragment : Fragment() {
     private val appViewModel by activityViewModels<AppViewModel>()
     private val sp by lazy { SPUtils(requireContext()) }
     private val assistPref by lazy { XUtils(requireContext(), "assistConfig").configPref }
@@ -36,6 +39,10 @@ class AssistFragment : Fragment() {
     }
 
     private fun itemOnLongClick(assistConfig: AssistConfig) {
+        if (assistConfig.appName == "默认配置" && assistConfig.packageName == "默认配置") {
+            "默认配置不可删除".toast(requireContext())
+            return
+        }
         appViewModel.deleteAssistConfigs(assistConfig)
         FileUtils.deleteFile(assistConfig.packageName, false)
         sp.remove(assistConfig.packageName)
@@ -47,7 +54,19 @@ class AssistFragment : Fragment() {
             Snackbar.LENGTH_LONG
         ).apply {
             anchorView = bottomNavigationView
-        }.setAction(getString(R.string.main_assist_undo_delete_config)) {
+        }.addCallback(object : Snackbar.Callback() {
+            override fun onShown(sb: Snackbar?) {
+                super.onShown(sb)
+                binding.addConfig.animate().translationY((-50f).dp).interpolator =
+                    DecelerateInterpolator(1.5f)
+            }
+
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                super.onDismissed(transientBottomBar, event)
+                binding.addConfig.animate().translationY(0f).interpolator =
+                    DecelerateInterpolator(1.5f)
+            }
+        }).setAction(getString(R.string.main_assist_undo_delete_config)) {
             appViewModel.insertAssistConfigs(assistConfig)
             if (sp.openStorage) {
                 FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)
@@ -115,14 +134,25 @@ class AssistFragment : Fragment() {
     ): View {
         binding = FragmentAssistBinding.inflate(inflater, container, false)
         initView()
-        initViewModel()
+        initData()
         return binding.root
     }
 
-    private fun initViewModel() {
+    private fun initData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (appViewModel.queryDefaultExConfig().isEmpty()) {
+                appViewModel.insertAssistConfigs(
+                    AssistConfig(
+                        appName = "默认配置",
+                        packageName = "默认配置"
+                    )
+                )
+            }
+        }
         appViewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
             mAdapter.submitList(it)
         }
+
     }
 
     private fun initView() {
@@ -137,29 +167,6 @@ class AssistFragment : Fragment() {
                 adapter = mAdapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
             }
-            assistRev.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    // Get the position of the view in the recycler view
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 1) {
-                        // Add padding to the last item. You should probably use a @dimen resource.
-                        outRect.bottom = 200
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 2) {
-                        outRect.bottom = 200
-                    }
-                }
-            })
         }
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).post {
             val bottomNavigationView =

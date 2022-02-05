@@ -52,10 +52,14 @@ object AppUtils {
     }
 
     fun getAppName(context: Context, packageName: String): String {
-        return context.packageManager.getPackageInfo(packageName, 0).applicationInfo.loadLabel(
-            context.packageManager
-        )
-            .toString()
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0).applicationInfo.loadLabel(
+                context.packageManager
+            )
+                .toString()
+        } catch (e: java.lang.Exception) {
+            "未获取到"
+        }
     }
 
     fun getAppName(context: Context, packageInfo: PackageInfo): String {

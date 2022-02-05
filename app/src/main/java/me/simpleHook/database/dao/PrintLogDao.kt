@@ -12,8 +12,20 @@ interface PrintLogDao {
     @Query("DELETE FROM PrintLog")
     suspend fun deleteAllLogs()
 
-    @Query("DELETE FROM PrintLog WHERE read = 1")
-    suspend fun deleteHaveReadRecord()
+    @Query("DELETE FROM PrintLog WHERE type like :type")
+    suspend fun deleteRecordByType(type: String)
+
+    @Query("DELETE FROM PrintLog WHERE packageName = :packageName")
+    suspend fun deleteRecordByPack(packageName: String)
+
+    @Query("DELETE FROM PrintLog WHERE read = :read")
+    suspend fun deleteReadRecord(read: Int)
+
+    @Query("DELETE FROM PrintLog WHERE read = :read and type like :type")
+    suspend fun deleteReadRecordByType(read: Int, type: String)
+
+    @Query("DELETE FROM PrintLog WHERE read = :read and packageName = :packageName")
+    suspend fun deleteReadRecordByPack(read: Int, packageName: String)
 
     @Query("SELECT * FROM PrintLog ORDER BY ID DESC")
     fun queryAllLogs(): LiveData<List<PrintLog>>
@@ -23,6 +35,12 @@ interface PrintLogDao {
 
     @Query("SELECT * FROM PrintLog WHERE packageName like :pattern or log like :pattern ORDER BY ID DESC")
     suspend fun filterRecord(pattern: String): List<PrintLog>
+
+    @Query("SELECT * FROM PrintLog WHERE packageName = :packageName and log like :pattern ORDER BY ID DESC")
+    suspend fun filterRecordByPack(packageName: String, pattern: String): List<PrintLog>
+
+    @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY ID DESC")
+    suspend fun filterRecordByType(type: String, pattern: String): List<PrintLog>
 
     @Update
     suspend fun updateRecord(printLog: PrintLog)

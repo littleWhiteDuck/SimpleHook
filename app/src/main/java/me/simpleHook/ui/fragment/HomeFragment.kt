@@ -9,14 +9,12 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -30,6 +28,7 @@ import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.PopupWindowList
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.util.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -58,10 +57,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
-
     private val sp by lazy { SPUtils(requireContext()) }
-
     private val configPref by lazy { XUtils(requireContext(), "hookConfig").configPref }
+    private var isFabShow = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,8 +154,20 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             binding.fab,
             getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
         ).apply {
-            anchorView = binding.fab
-        }.setAction(getString(R.string.main_home_undo_delete_config)) {
+            anchorView = bottomNavigationView
+        }.addCallback(object : Snackbar.Callback() {
+            override fun onShown(sb: Snackbar?) {
+                super.onShown(sb)
+                if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
+                    DecelerateInterpolator(1.5f)
+            }
+
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                super.onDismissed(transientBottomBar, event)
+                if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
+                    DecelerateInterpolator(1.5f)
+            }
+        }).setAction(getString(R.string.main_home_undo_delete_config)) {
             viewModel.insertConfigs(appConfig)
             val configStr = Gson().toJson(appConfig)
             if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, configStr)
@@ -239,16 +249,17 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         val textInput = TextInputEditText(requireContext())
         textInput.background = null
         textInputLayout.addView(textInput)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("请输入网址")
-            .setCancelable(true)
-            .setView(textInputLayout)
-            .setPositiveButton("确认") { dialog, _ ->
+        customDialog(
+            requireContext(),
+            title = "请输入网址",
+            contentView = textInputLayout,
+            okText = "确认",
+            okClick = { dialogInterface ->
                 importConfigsFromInternet(textInput.text.toString().trim())
-                dialog.dismiss()
-            }
-            .setNegativeButton("取消", null)
-            .show()
+                dialogInterface.dismiss()
+            },
+            cancelText = "取消"
+        )
     }
 
     private fun importConfigsFromInternet(urlString: String) {
@@ -414,11 +425,12 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     override fun onShow() {
-        bottomNavigationView
+        isFabShow = true
         binding.fab.animate().translationY(0f).interpolator = DecelerateInterpolator(3f)
     }
 
     override fun onHide() {
+        isFabShow = false
         binding.fab.animate().translationY(binding.fab.height.px).interpolator =
             DecelerateInterpolator(1.5f)
     }

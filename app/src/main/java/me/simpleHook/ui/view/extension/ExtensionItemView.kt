@@ -1,4 +1,4 @@
-package me.simpleHook.ui.view.assist
+package me.simpleHook.ui.view.extension
 
 
 import android.content.Context
@@ -13,7 +13,7 @@ import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.util.dp
 
 
-class AssistItemView(context: Context) : CustomViewGroup(context) {
+class ExtensionItemView(context: Context) : CustomViewGroup(context) {
     init {
         val typedValue = TypedValue()
         getContext().theme

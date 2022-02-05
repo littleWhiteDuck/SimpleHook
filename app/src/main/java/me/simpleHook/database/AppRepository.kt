@@ -37,15 +37,37 @@ class AppRepository(context: Context) {
 
     suspend fun filterRecord(pattern: String) = printLogDao.filterRecord(pattern)
 
+    suspend fun filterRecordByPack(packageName: String, pattern: String) =
+        printLogDao.filterRecordByPack(packageName, pattern)
+
+    suspend fun filterRecordByType(type: String, pattern: String) =
+        printLogDao.filterRecordByType(type, pattern)
+
     suspend fun deleteAllLogs() {
         printLogDao.deleteAllLogs()
     }
 
-    suspend fun deleteHaveReadRecord() {
-        printLogDao.deleteHaveReadRecord()
+    suspend fun deleteRecordByRead(read: Int) {
+        printLogDao.deleteReadRecord(read)
     }
 
-    suspend fun updateRecord(printLog: PrintLog){
+    suspend fun deleteRecordByType(type: String) {
+        printLogDao.deleteRecordByType(type)
+    }
+
+    suspend fun deleteRecordByPack(packageName: String) {
+        printLogDao.deleteRecordByPack(packageName)
+    }
+
+    suspend fun deleteReadRecordByPack(read: Int, packageName: String) {
+        printLogDao.deleteReadRecordByPack(read, packageName)
+    }
+
+    suspend fun deleteReadRecordByType(read: Int, type: String) {
+        printLogDao.deleteReadRecordByType(read, type)
+    }
+
+    suspend fun updateRecord(printLog: PrintLog) {
         printLogDao.updateRecord(printLog)
     }
 
@@ -71,4 +93,5 @@ class AppRepository(context: Context) {
 
     fun getFilterAssistConfigs(pattern: String) = assistConfigDao.getFilterConfigs(pattern)
 
+    suspend fun queryDefaultExConfig(): List<AssistConfig> = assistConfigDao.queryDefaultExConfig()
 }

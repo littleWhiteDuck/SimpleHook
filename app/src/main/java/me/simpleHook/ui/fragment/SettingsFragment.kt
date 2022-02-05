@@ -157,7 +157,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "application/json"
-        intent.putExtra(Intent.EXTRA_TITLE, "back.json")
+        intent.putExtra(Intent.EXTRA_TITLE, "backup.json")
         startActivityForResult(intent, 3)
 
     }
