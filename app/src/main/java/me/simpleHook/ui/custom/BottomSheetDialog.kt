@@ -28,7 +28,6 @@ class BottomSheetDialog(
                 appNameText.text = appName
                 packageNameText.text = packageName
                 configDescription.text = description
-                configDescription.movementMethod = ScrollingMovementMethod.getInstance()
                 applicableVersion.text = "支持：$versionName"
                 appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
                 currentVersion.text = "当前：${AppUtils.getAppVersionName(context, packageName)}"

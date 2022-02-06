@@ -1,13 +1,17 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.CheckBox
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
@@ -17,11 +21,18 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
+import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
+import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
+import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
+import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
+import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
+import me.simpleHook.util.SPUtils
 
 class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
@@ -33,6 +44,10 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private val viewModel by viewModels<AppViewModel>()
     private val mViewModel by viewModels<me.simpleHook.viewmodel.AppViewModel>()
     private var assistConfig: AssistConfig? = null
+    private val sp by lazy { SPUtils(this) }
+    private var currentSortSelected = 0
+    private var currentSortReverse = false
+    private var firstClickTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +61,12 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             assistConfig = viewModel.queryDefaultExConfig()[0]
         }
         initView()
-        initViewModel()
+        initData()
     }
 
-    private fun initViewModel() {
+    private fun initData() {
+        currentSortSelected = sp.appListSortSelected
+        currentSortReverse = sp.appListReverse
         mViewModel.userApps.observe(this) {
             if (currentQueryText.isNotEmpty()) {
                 filterUserList()
@@ -66,10 +83,17 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             }
             binding.swipeRefreshLayout.isRefreshing = false
         }
-        mViewModel.fetchData()
+        mViewModel.fetchData(currentSortSelected, currentSortReverse)
     }
 
     private fun initView() {
+        binding.toolbar.setOnClickListener {
+            if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
+                findViewById<RecyclerView>(R.id.recycler_view).scrollToPosition(0)
+            } else {
+                firstClickTime = System.currentTimeMillis()
+            }
+        }
         binding.swipeRefreshLayout.isRefreshing = true
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = 2
@@ -90,7 +114,7 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             }.attach()
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
-            mViewModel.fetchData()
+            mViewModel.fetchData(currentSortSelected, currentSortReverse)
         }
 
         userAdapter.setOnClickListener(object : AppListAdapter.OnItemClickListener {
@@ -170,7 +194,41 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
+            R.id.app_list_sort_settings -> showSettingsDialog()
         }
         return true
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showSettingsDialog() {
+        val contentView = layoutInflater.inflate(R.layout.app_list_sort_settings, null)
+        val radioGroup = contentView.findViewById<RadioGroup>(R.id.radio_settings)
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            currentSortSelected = when (checkedId) {
+                R.id.app_name -> APP_LIST_BY_NAME
+                R.id.package_name -> APP_LIST_BY_PACKAGE_NAME
+                R.id.installed_time -> APP_LIST_BY_INSTALLED_TIME
+                else -> APP_LIST_BY_TARGET_API
+            }
+        }
+        radioGroup.apply {
+            when (currentSortSelected) {
+                APP_LIST_BY_NAME -> findViewById<RadioButton>(R.id.app_name).isChecked = true
+                APP_LIST_BY_PACKAGE_NAME -> findViewById<RadioButton>(R.id.package_name).isChecked =
+                    true
+                APP_LIST_BY_INSTALLED_TIME -> findViewById<RadioButton>(R.id.installed_time).isChecked =
+                    true
+                else -> findViewById<RadioButton>(R.id.target_api).isChecked = true
+            }
+        }
+        val reverseSort = contentView.findViewById<CheckBox>(R.id.reverse_sort)
+        reverseSort.setOnCheckedChangeListener { _, isChecked -> currentSortReverse = isChecked }
+        reverseSort.isChecked = currentSortReverse
+        customDialog(this, title = "排序方式", okText = "确定", okClick = {
+            sp.appListSortSelected = currentSortSelected
+            sp.appListReverse = currentSortReverse
+            mViewModel.fetchData(currentSortSelected, currentSortReverse)
+            binding.swipeRefreshLayout.isRefreshing = true
+        }, cancelText = "取消", contentView = contentView)
     }
 }

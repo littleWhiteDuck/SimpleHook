@@ -9,4 +9,9 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/app_list_sort_settings"
+        android:icon="@drawable/ic_sort_24"
+        android:title="排序方式"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -1,6 +1,8 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,13 +11,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
+import me.simpleHook.ui.custom.MyFastScroller
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 
@@ -66,6 +68,22 @@ class RecordActivity : BaseActivity() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
+        val verticalThumbDrawable =
+            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
+        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+        val horizontalThumbDrawable =
+            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
+        val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+        val myFastScroller = MyFastScroller(
+            binding.recyclerView,
+            verticalThumbDrawable,
+            verticalTrackDrawable,
+            horizontalThumbDrawable,
+            horizontalTrackDrawable,
+            resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
+            resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
+            resources.getDimensionPixelOffset(R.dimen.fastscroll_margin)
+        )
     }
 
     private fun initData() {

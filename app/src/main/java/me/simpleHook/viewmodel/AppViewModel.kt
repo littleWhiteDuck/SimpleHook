@@ -13,8 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.bean.AppItem
+import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
+import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
+import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.util.AppUtils
-import java.util.*
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
@@ -25,15 +27,42 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val systemApps: LiveData<List<AppItem>>
         get() = _systemApps
 
-    fun fetchData() {
+    fun fetchData(sortSelected: Int, reverseChecked: Boolean) {
         viewModelScope.launch {
-            loadData()
+            loadData(sortSelected, reverseChecked)
         }
     }
 
-    private suspend fun loadData() = withContext(Dispatchers.Default){
-        _userApps.postValue(getAppList(AppUtils.getInstalledUserApp(getApplication())))
-        _systemApps.postValue(getAppList(AppUtils.getInstalledSystemApp(getApplication())))
+    private suspend fun loadData(sortSelected: Int, reverseChecked: Boolean) =
+        withContext(Dispatchers.Default) {
+            val userAppList = getSortAppList(
+                getAppList(AppUtils.getInstalledUserApp(getApplication())),
+                sortSelected,
+                reverseChecked
+            )
+            val systemAppList = getSortAppList(
+                getAppList(AppUtils.getInstalledSystemApp(getApplication())),
+                sortSelected,
+                reverseChecked
+            )
+            _userApps.postValue(userAppList)
+            _systemApps.postValue(systemAppList)
+        }
+
+    private fun getSortAppList(
+        appList: List<AppItem>,
+        sortSelected: Int,
+        reverseChecked: Boolean
+    ): List<AppItem> {
+        val tempList = appList.sortedBy { appItem ->
+            when (sortSelected) {
+                APP_LIST_BY_NAME -> appItem.name
+                APP_LIST_BY_PACKAGE_NAME -> appItem.packageName
+                APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime
+                else -> appItem.targetApi
+            }
+        }
+        return if (reverseChecked) tempList.reversed() else tempList
     }
 
     private fun getAppList(packageInfoList: List<PackageInfo>): List<AppItem> {
@@ -54,11 +83,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
         return appList
     }
+
     /**
      * 获取最后一次更新时间
      */
     @SuppressLint("SimpleDateFormat")
     private fun getDateTime(time: Long) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SimpleDateFormat("yy-MM-dd").format(time)
+        SimpleDateFormat("yyyy-MM-dd").format(time)
     } else ""
 }

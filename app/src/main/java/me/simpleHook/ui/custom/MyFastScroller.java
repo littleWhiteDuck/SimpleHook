@@ -20,9 +20,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 
 import androidx.annotation.IntDef;
@@ -31,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -151,10 +154,12 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
         }
     };
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     public MyFastScroller(RecyclerView recyclerView, StateListDrawable verticalThumbDrawable,
-                   Drawable verticalTrackDrawable, StateListDrawable horizontalThumbDrawable,
-                   Drawable horizontalTrackDrawable, int defaultWidth, int scrollbarMinimumRange,
-                   int margin) {
+                          Drawable verticalTrackDrawable, StateListDrawable horizontalThumbDrawable,
+                          Drawable horizontalTrackDrawable, int defaultWidth, int scrollbarMinimumRange,
+                          int margin) {
         mVerticalThumbDrawable = verticalThumbDrawable;
         mVerticalTrackDrawable = verticalTrackDrawable;
         mHorizontalThumbDrawable = horizontalThumbDrawable;
@@ -174,6 +179,10 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
         mShowHideAnimator.addUpdateListener(new AnimatorUpdater());
 
         attachToRecyclerView(recyclerView);
+    }
+
+    public void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
+        this.swipeRefreshLayout = swipeRefreshLayout;
     }
 
     public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
@@ -254,6 +263,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
                 mShowHideAnimator.start();
                 break;
         }
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(false);
     }
 
     @VisibleForTesting
@@ -269,6 +279,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
                 mShowHideAnimator.start();
                 break;
         }
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(true);
     }
 
     private void cancelHide() {
@@ -371,8 +382,13 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
         }
 
         if (mNeedVerticalScrollbar) {
-            mVerticalThumbHeight= 200;//固定高度
-            mVerticalThumbCenterY=mVerticalThumbHeight/2+(verticalVisibleLength-mVerticalThumbHeight)*offsetY/(verticalContentLength-verticalVisibleLength);
+            // 设置高度
+            mVerticalThumbHeight = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    50f,
+                    Resources.getSystem().getDisplayMetrics()
+            );
+            mVerticalThumbCenterY = mVerticalThumbHeight / 2 + (verticalVisibleLength - mVerticalThumbHeight) * offsetY / (verticalContentLength - verticalVisibleLength);
         }
 
         if (mNeedHorizontalScrollbar) {

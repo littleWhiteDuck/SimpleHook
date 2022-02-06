@@ -16,6 +16,8 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var encryptConfigs by SharedPreferenceDelegates.boolean()
     var showByType by SharedPreferenceDelegates.boolean(true)
     var showMoreDataTip by SharedPreferenceDelegates.boolean(false)
+    var appListSortSelected by SharedPreferenceDelegates.int(0)
+    var appListReverse by SharedPreferenceDelegates.boolean(false)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }
