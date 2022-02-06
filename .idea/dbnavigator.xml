@@ -78,7 +78,7 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="b8d7ce66-ab8e-4bf3-b205-b574673ef594" active="true">
+      <connection id="b8d7ce66-ab8e-4bf3-b205-b574673ef594" active="true" signed="true">
         <database>
           <name value="Connection" />
           <description value="" />
@@ -165,7 +165,7 @@
           <object-name-filters />
         </object-filters>
       </connection>
-      <connection id="a61672dd-4b1e-4a73-a546-1828cc12f6a9" active="true">
+      <connection id="a61672dd-4b1e-4a73-a546-1828cc12f6a9" active="true" signed="true">
         <database>
           <name value="Connection 1" />
           <description value="" />

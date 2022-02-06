@@ -49,14 +49,14 @@ android {
         viewBinding true
     }
     buildToolsVersion '31.0.0'
- /*   android.applicationVariants.all { variant ->
+    android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "simlpeHook(${variant.versionCode})_${variant.versionName}.apk"
-            if (buildType.name == 'release') {
+           /* if (buildType.name == 'release') {
                 variant.getPackageApplication().outputDirectory = new File(rootDir.absolutePath + "/app/release")
-            }
+            }*/
         }
-    }*/
+    }
 }
 
 dependencies {

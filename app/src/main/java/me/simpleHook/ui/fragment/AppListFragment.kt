@@ -54,13 +54,13 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
                 }
             })
         }
- /*       val verticalThumbDrawable =
+        val verticalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
         val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
         val horizontalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
         val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
-        MyFastScroller(
+        val myFastScroller = MyFastScroller(
             binding.recyclerView,
             verticalThumbDrawable,
             verticalTrackDrawable,
@@ -69,7 +69,8 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
             resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
             resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
             resources.getDimensionPixelOffset(R.dimen.fastscroll_margin)
-        )*/
+        )
+        myFastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
     }
 
 }

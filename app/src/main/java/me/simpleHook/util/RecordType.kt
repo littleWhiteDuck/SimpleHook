@@ -7,6 +7,7 @@ object RecordType {
         type.startsWith("des", true) -> "DES"
         type.startsWith("rsa", true) -> "RSA"
         type.startsWith("Hmac", true) -> "Hmac"
+        type.startsWith("md5", true) -> "MD5"
         type.contains("popupWindow", true) -> "Popup"
         "中断执行|返回值|参数值".contains(type) -> type[0].toString()
         else -> type
@@ -18,6 +19,7 @@ object RecordType {
         type.startsWith("sha", true) -> "SHA"
         type.startsWith("rsa", true) -> "RSA"
         type.startsWith("Hmac", true) -> "Hmac"
+        type.startsWith("md5", true) -> "MD5"
         else -> type
     }
 }
