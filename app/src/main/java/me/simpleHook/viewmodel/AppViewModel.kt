@@ -89,6 +89,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      */
     @SuppressLint("SimpleDateFormat")
     private fun getDateTime(time: Long) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SimpleDateFormat("yy-MM-dd").format(time)
+        SimpleDateFormat("yyyy-MM-dd").format(time)
     } else ""
 }
