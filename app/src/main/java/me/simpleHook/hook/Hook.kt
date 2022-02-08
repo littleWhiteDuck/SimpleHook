@@ -281,27 +281,8 @@ class Hook {
             Constant.HOOK_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-
-                        val originValue = param.result
                         val targetValue = getDataTypeValue(values)
                         param.result = targetValue
-                        mContext?.let {
-                            val logBean = LogBean(
-                                "返回值",
-                                listOf(
-                                    "类名：${param.thisObject?.javaClass?.name ?: "未获取到"}",
-                                    "方法名：${param.method?.name ?: "未获取到"}",
-                                    "原返回值：${originValue}",
-                                    "目标值：${targetValue}"
-                                ), packageName
-                            )
-                            if (packageName != BuildConfig.APPLICATION_ID) toLogMsg(
-                                Gson().toJson(
-                                    logBean
-                                ),
-                                packageName, "返回值"
-                            )
-                        }
                     }
                 }
             }
@@ -309,37 +290,47 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         param.result = null
-                        mContext?.let {
-                            val logBean = LogBean(
-                                "中断执行",
-                                listOf(
-                                    "类名：${param.thisObject.javaClass.name ?: "未获取到"}",
-                                    "方法名：${param.method.name ?: "未获取到"}",
-                                    "执行：此方法已拦截"
-                                ), packageName
-                            )
-                            toLogMsg(Gson().toJson(logBean), packageName, "中断执行")
-                        }
                     }
                 }
             }
             Constant.HOOK_PARAM -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        val arrayList = ArrayList<String>()
-                        arrayList.add("类名：${param.thisObject.javaClass.name ?: "未获取到"}")
-                        arrayList.add("方法名：${param.method.name ?: "未获取到"}")
                         for (i in methodParams.indices) {
-                            if (values.split(",")[i] == "") {
-                                arrayList.add("arg${i + 1}：${param.args[i]} -> 未修改")
-                                continue
-                            }
+                            if (values.split(",")[i] == "") continue
                             val targetValue = getDataTypeValue(values.split(",")[i])
                             param.args[i] = targetValue
-                            arrayList.add("arg${i + 1}：${param.args[i]} -> $targetValue")
                         }
-                        val logBean = LogBean("参数值", arrayList, packageName)
+                    }
+                }
+            }
+            Constant.HOOK_RECORD_PARAMS -> {
+                obj[realSize] = object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        if (param.args.isEmpty()) return
+                        val list = mutableListOf<String>()
+                        list.add("类名：$className")
+                        list.add("方法名：$methodName")
+                        val paramLen = param.args.size
+                        for (i in 0 until paramLen) {
+                            list.add("参数${i + 1}：${param.args[i]}")
+                        }
+                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        val logBean = LogBean("参数值", list + items, packageName)
                         toLogMsg(Gson().toJson(logBean), packageName, "参数值")
+                    }
+                }
+            }
+            Constant.HOOK_RECORD_RETURN -> {
+                obj[realSize] = object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val list = mutableListOf<String>()
+                        list.add("类名：$className")
+                        list.add("方法名：$methodName")
+                        list.add("返回值：${param.result}")
+                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        val logBean = LogBean("返回值", list + items, packageName)
+                        toLogMsg(Gson().toJson(logBean), packageName, "返回值")
                     }
                 }
             }

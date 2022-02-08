@@ -23,18 +23,20 @@
         <CheckBoxPreference
             app:defaultValue="false"
             app:key="encryptConfigs"
-            app:summary="分享/导出时加密配置，他人无法看到具体配置"
-            app:title="加密配置" />
+            app:summary="@string/main_settings_summary_encrypt"
+            app:title="@string/main_settings_title_encrypt" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="备份恢复">
-        <Preference app:title="备份"
-            app:key="backConfigs"
-            app:summary="备份配置到文件"/>
-        <Preference app:title="恢复"
+    <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
+        <Preference
+            app:key="backupConfigs"
+            app:summary="@string/main_settings_summary_backup"
+            app:title="@string/main_settings_title_backup" />
+        <Preference
             app:key="restoreConfigs"
-            app:summary="从文件恢复到应用"/>
+            app:summary="@string/main_settings_summary_restore"
+            app:title="@string/main_settings_title_restore" />
     </PreferenceCategory>
 
 
@@ -43,13 +45,20 @@
             app:key="about"
             app:title="@string/main_settings_title_about" />
         <Preference
+            app:key="updateRecord"
+            app:summary="@string/main_settings_summary_update_record"
+            app:title="@string/main_settings_title_update_record" />
+        <Preference
             app:key="help"
             app:summary="@string/main_settings_summary_help"
             app:title="@string/main_settings_title_help" />
         <Preference
             app:key="importOldConfig"
-            app:title="导入旧版配置"
-            app:summary="剪切板导入旧版配置"/>
+            app:summary="剪切板导入旧版配置"
+            app:title="导入旧版配置" />
+        <Preference
+            app:key="termsOfUse"
+            app:title="@string/main_settings_title_terms_of_use" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -20,7 +20,7 @@
     <string name="config_dialog_method_input_helper">例如：isVip</string>
     <string name="config_dialog_params_input_tip">输入参数类型</string>
     <string name="config_dialog_return_value_input_tip">输入修改值</string>
-    <string name="config_dialog_field_name_edit_hint">输入静态变量名</string>
+    <string name="config_dialog_field_name_edit_hint">输入变量名</string>
     <string name="config_dialog_field_name_input_tip">例如：isPro</string>
     <string name="config_dialog_field_type_input_tip">例如：boolean、int(可不填)</string>
     <string name="config_dialog_field_type_edit_hint">请输入变量类型</string>
@@ -56,6 +56,8 @@
     <string name="main_home_import_incorrect_format_tip">格式错误</string>
     <string name="main_home_delete_config_tip">已删除此配置</string>
     <string name="main_home_toolbar_search_hint">搜索…</string>
+    <string name="main_home_empty_tip">这里是空的，点击加号按钮添加配置</string>
+
     <string name="main_settings_name">设置</string>
     <string name="main_settings_title_other">其他</string>
     <string name="main_settings_title_about">关于</string>
@@ -69,9 +71,21 @@
     <string name="main_settings_title_experiment">实验功能</string>
     <string name="main_settings_summary_to_config">在配置页面增加获取剪贴板内容(调用代码)转化为配置的功能</string>
     <string name="main_settings_title_to_config">smali转化为Config</string>
+    <string name="main_settings_summary_encrypt">分享/导出时加密配置，他人无法看到具体配置</string>
+    <string name="main_settings_title_encrypt">加密配置</string>
+    <string name="main_settings_title_backup_restore">备份恢复</string>
+    <string name="main_settings_summary_backup">备份配置到文件</string>
+    <string name="main_settings_title_backup">备份</string>
+    <string name="main_settings_summary_restore">从文件恢复到应用</string>
+    <string name="main_settings_title_restore">恢复</string>
+    <string name="main_settings_summary_update_record">记下心动一刻</string>
+    <string name="main_settings_title_update_record">更新记录</string>
+    <string name="main_settings_title_terms_of_use">使用协议</string>
+
     <string name="main_share_config_cancel">取消</string>
     <string name="main_share_config_select_all">全选</string>
     <string name="main_share_config_confirm">确认</string>
+
     <string name="main_bottom_download">下载</string>
     <string name="main_bottom_app_icon">应用图标</string>
     <string name="main_bottom_package_name">包名</string>
@@ -79,10 +93,13 @@
     <string name="main_bottom_current_installed_version">当前安装版本</string>
     <string name="main_bottom_config_description">配置介绍</string>
     <string name="main_bottom_edit_config">编辑</string>
-    <string name="main_assist_delete_config_tip">已删除此配置</string>
-    <string name="main_assist_undo_delete_config">撤销</string>
+
+    <string name="main_extension_delete_config_tip">已删除此配置</string>
+    <string name="main_extension_undo_delete_config">撤销</string>
     <string name="main_extension_name">扩展</string>
+
     <string name="main_record_name">记录</string>
+    <string name="main_record_empty_tip">这里是空的，可在扩展页面添加配置、设置记录项或者Hook配置页选择【打印参数值】、【打印返回值】</string>
 
     <string-array name="main_home_item_select_item">
         <item>分享</item>
@@ -99,6 +116,7 @@
     <string name="about_tester_j">简</string>
     <string name="about_title_open_sources">开源相关</string>
     <string name="about_source_license_2">Apache software license 2.0</string>
+    <string name="about_menu_add_group">加入Q群</string>
     <!--others-->
     <string name="search">搜索</string>
     <string name="search_hint">输入应用名或包名</string>
@@ -108,8 +126,9 @@
         <item>me.hookTest</item>
         <item>me.duck.hooktest</item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="extension_settings">设置</string>
+
 
 </resources>

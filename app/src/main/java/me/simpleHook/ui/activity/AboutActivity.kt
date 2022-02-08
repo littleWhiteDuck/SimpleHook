@@ -1,17 +1,15 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -20,19 +18,23 @@ import me.simpleHook.bean.Author
 import me.simpleHook.bean.OpenSource
 import me.simpleHook.bean.Title
 import me.simpleHook.databinding.ActivityAboutBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.about.AuthorView
 import me.simpleHook.ui.view.about.OpenSourceView
 import me.simpleHook.util.dp
+import me.simpleHook.util.toast
 
 class AboutActivity : BaseActivity() {
     private lateinit var binding: ActivityAboutBinding
     private val itemList = ArrayList<Any>()
+    private var temp = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        temp = false
         val windowPreferencesManager = WindowPreferencesManager(this)
         windowPreferencesManager.applyEdgeToEdgePreference(window)
         initData()
@@ -50,8 +52,20 @@ class AboutActivity : BaseActivity() {
                 )
             )
             add(Title(getString(R.string.about_title_tester)))
-            add(Author(getString(R.string.about_tester_zj), getString(R.string.about_introduce_test_bug), R.drawable.zhengji))
-            add(Author(getString(R.string.about_tester_j), getString(R.string.about_introduce_test_bug), R.drawable.jian))
+            add(
+                Author(
+                    getString(R.string.about_tester_zj),
+                    getString(R.string.about_introduce_test_bug),
+                    R.drawable.zhengji
+                )
+            )
+            add(
+                Author(
+                    getString(R.string.about_tester_j),
+                    getString(R.string.about_introduce_test_bug),
+                    R.drawable.jian
+                )
+            )
             add(Title(getString(R.string.about_title_open_sources)))
             add(
                 OpenSource(
@@ -160,25 +174,6 @@ class AboutActivity : BaseActivity() {
                     LinearLayoutManager.VERTICAL
                 )
             )
-            rev.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 1) {
-
-                        outRect.bottom = 200
-                    }
-                }
-            })
-
         }
 
     }
@@ -223,10 +218,28 @@ class AboutActivity : BaseActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_about, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
+            R.id.add_group -> addQQGroup()
         }
         return true
+    }
+
+    private fun addQQGroup() {
+        val key = "ITwyYmRjcla4IN1N1_PIaHmxC6KvoUZj"
+        val intent = Intent()
+        intent.data =
+            Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D$key")
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            "QQ未安装".toast(this)
+        }
     }
 }

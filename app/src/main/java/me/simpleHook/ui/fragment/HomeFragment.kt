@@ -34,9 +34,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.*
 import java.util.regex.Pattern
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 
@@ -81,6 +79,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     private fun initViewModel() {
         var tempSize = 0
         viewModel.getAllConfigs().observe(requireActivity()) {
+            if (it.isEmpty()) {
+                binding.emptyTip.visibility = View.VISIBLE
+            } else {
+                binding.emptyTip.visibility = View.GONE
+            }
             filterConfigs = it
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(it)
@@ -136,14 +139,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
-/*        val verticalThumbDrawable = resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
-        val horizontalThumbDrawable = resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
-        MyFastScroller(binding.mainRecycler,verticalThumbDrawable, verticalTrackDrawable, horizontalThumbDrawable, horizontalTrackDrawable,
-            resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
-            resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
-            resources.getDimensionPixelOffset(R.dimen.fastscroll_margin))*/
     }
 
     fun deleteConfig(appConfig: AppConfig) {
@@ -395,6 +390,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             setOnQueryTextListener(this@HomeFragment)
         }
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     class FabScrollListener(private val listener: HideScrollListener) :

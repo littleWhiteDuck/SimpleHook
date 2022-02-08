@@ -63,6 +63,11 @@ class RecordFragment : Fragment() {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.progressBar.visibility = View.GONE
         appViewModel.filterRecord.observe(requireActivity()) {
+            if (it.isEmpty()) {
+                binding.emptyTip.visibility = View.VISIBLE
+            } else {
+                binding.emptyTip.visibility = View.GONE
+            }
             if (it.size >= 66666 && !sp.showMoreDataTip) {
                 warningDialog(
                     requireContext(),
@@ -207,5 +212,10 @@ class RecordFragment : Fragment() {
         val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
         val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior
         bottomViewNavigationBehavior.slideUp(bottomNavigationView)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

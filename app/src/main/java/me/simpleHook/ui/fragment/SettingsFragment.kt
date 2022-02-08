@@ -1,6 +1,5 @@
 package me.simpleHook.ui.fragment
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.net.Uri
@@ -8,15 +7,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.ConfigItem
@@ -24,25 +23,34 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.toast
+import me.simpleHook.util.*
 import java.io.*
-import java.lang.Exception
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val viewModel: AppViewModel by activityViewModels()
+    private val restoreConfigs =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+            resultUri?.let {
+                importConfigs(readTextFromUri(it))
+            }
+        }
+    private val backupConfigs =
+        registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
+            resultUri?.apply {
+                thread {
+                    alterDocument(this, JsonUtil.formatJson(Gson().toJson(viewModel.getConfigs())))
+                }
+            }
+        }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
             if (newValue as Boolean) {
-                me.simpleHook.util.FileUtils.verifyStoragePermissions(requireActivity())
+                FileUtils.verifyStoragePermissions(requireActivity())
             }
             true
         }
@@ -57,12 +65,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 startActivity(Intent(requireContext(), AboutActivity::class.java))
                 true
             }
-            summary = "${
-                AppUtils.getAppVersionName(
-                    requireContext(),
-                    "me.simpleHook"
-                )
-            }(${AppUtils.getAppVersionCode(requireContext(), "me.simpleHook")})"
+            summary = "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
         }
         findPreference<Preference>("help")?.apply {
             setOnPreferenceClickListener {
@@ -70,9 +73,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<Preference>("backConfigs")?.apply {
+        findPreference<Preference>("updateRecord")?.apply {
             setOnPreferenceClickListener {
-                backConfigs()
+                showUpdateRecord()
+                true
+            }
+        }
+        findPreference<Preference>("backupConfigs")?.apply {
+            setOnPreferenceClickListener {
+                backupConfigs()
                 true
             }
         }
@@ -88,11 +97,29 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        findPreference<Preference>("termsOfUse")?.apply {
+            setOnPreferenceClickListener {
+                showUseTerms()
+                true
+            }
+        }
+    }
+
+    private fun showUseTerms() {
+        val message = AssetsUtil.getText(requireContext(), "terms_of_use")
+        warningDialog(requireContext(), title = "用户协议【已同意】", message = message)
+    }
+
+    private fun showUpdateRecord() {
+        val message = AssetsUtil.getText(requireContext(), "update")
+        warningDialog(requireContext(), title = "更新记录", message = message)
     }
 
     private fun importOldConfig() {
         val strClip = ToolUtils.getClipboardContent(requireContext()) ?: ""
-        if (strClip.contains("configs")||strClip.contains("\"enable\":"))"请勿导入新版配置".toast(requireContext())
+        if (strClip.contains("configs") || strClip.contains("\"enable\":")) "请勿导入新版配置".toast(
+            requireContext()
+        )
         try {
             if (JsonUtil.isJsonObject(strClip)) {
                 val appConfigBean = Gson().fromJson(strClip, AppConfigBean::class.java)
@@ -110,56 +137,47 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
 
             } else if (JsonUtil.isJsonArray(strClip)) {
-                val type = object : TypeToken<List<AppConfigBean>>(){}.type
+                val type = object : TypeToken<List<AppConfigBean>>() {}.type
                 val configBeans = Gson().fromJson<List<AppConfigBean>>(strClip, type)
                 val configItems = ArrayList<ConfigItem>()
-                configBeans.forEach{
+                configBeans.forEach {
                     it.apply {
                         configItems.add(
-                            ConfigItem(AppConfig(packageName, appName, versionName, description, Gson().toJson(config).toString(), canUse))
+                            ConfigItem(
+                                AppConfig(
+                                    packageName,
+                                    appName,
+                                    versionName,
+                                    description,
+                                    Gson().toJson(config).toString(),
+                                    canUse
+                                )
+                            )
                         )
                     }
                 }
-                ConfigDialogFragment(configItems).show(requireActivity().supportFragmentManager, "importOld")
+                ConfigDialogFragment(configItems).show(
+                    requireActivity().supportFragmentManager,
+                    "importOld"
+                )
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             getString(R.string.error_tip).toast(requireContext())
         }
 
     }
 
     private fun showHelp() {
-        val bufferedReader =
-            BufferedReader(InputStreamReader(requireActivity().assets.open("help")))
-        val message = try {
-            var msg = ""
-            bufferedReader.readLines().forEach {
-                msg += it + "\n"
-            }
-            msg.substring(0, msg.length - 1)
-        } catch (e: IOException) {
-            "失败！"
-        } finally {
-            bufferedReader.close()
-        }
+        val message = AssetsUtil.getText(requireContext(), "help")
         warningDialog(requireContext(), title = "帮助", message = message)
     }
 
     private fun restoreConfigs() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "application/json"
-        startActivityForResult(intent, 2)
-
+        restoreConfigs.launch(arrayOf("application/json", "text/plain"))
     }
 
-    private fun backConfigs() {
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "application/json"
-        intent.putExtra(Intent.EXTRA_TITLE, "backup.json")
-        startActivityForResult(intent, 3)
-
+    private fun backupConfigs() {
+        backupConfigs.launch("backup.json")
     }
 
     override fun onCreateRecyclerView(
@@ -188,27 +206,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         })
         return recyclerView
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = data?.data
-            val readText = uri?.let { readTextFromUri(it) } ?: ""
-            if (readText == "") {
-                Toast.makeText(requireContext(), "错误", Toast.LENGTH_SHORT).show()
-            } else {
-                importConfigs(readText)
-            }
-        } else if (requestCode == 3 && resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = data?.data
-            uri?.apply {
-                thread {
-                    alterDocument(this, JsonUtil.formatJson(Gson().toJson(viewModel.getConfigs())))
-                }
-
-            }
-        }
     }
 
     private fun readTextFromUri(uri: Uri): String {

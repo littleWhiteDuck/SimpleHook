@@ -11,10 +11,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import me.simpleHook.R
@@ -39,12 +42,31 @@ private const val PATTERN_METHOD =
 private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
 private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
 private const val pattern = """(B|S|I|J|F|D|Z)(B|S|I|J|F|D|Z|L)"""
+private const val CLASS_NAME_STATE = 1
+private const val METHOD_NAME_STATE = 1 shl 1
+private const val PARAMS_STATE = 1 shl 2
+private const val RESULT_VALUE_STATE = 1 shl 3
+private const val FIELD_NAME_STATE = 1 shl 4
+private const val FIELD_TYPE_STATE = 1 shl 5
+private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
+private const val HOOK_PARAM_CHECK =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
+private const val HOOK_FIELD_CHECK = CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE
+private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
+private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+private const val SHOW_RETURN_PARAMS =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+private const val SHOW_FIELD =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_TYPE_STATE
+private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
 
 class ConfigActivity : BaseActivity() {
     private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<ConfigBean>()
-    private var mode = Constant.HOOK_RETURN
-    private var appMode = Constant.HOOK_ORIGIN
+    private var hookMode = Constant.HOOK_RETURN
     private var modify = false
     private var modifyConfig = false
     private var modifyConfigPosition = 0
@@ -58,6 +80,20 @@ class ConfigActivity : BaseActivity() {
         ConfigAdapter({ position -> onClick(position) },
             { position -> onLongClick(position) })
     }
+    private val packageInfo =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                val bundle = it.data?.getBundleExtra("bundle")
+                val appItem: AppItem? = bundle?.getParcelable("appItem")
+                appItem?.apply {
+                    binding.apply {
+                        appNameEdit.setText(name)
+                        appVersionNameEdit.setText(versionName)
+                        packageNameEdit.setText(packageName)
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,26 +112,6 @@ class ConfigActivity : BaseActivity() {
         binding.apply {
             packageNameInputLayout.isEnabled = false
             addMethodConfig.setOnClickListener { showDialog() }
-            val list = arrayListOf("普通模式", "加固模式")
-            modeSelectSpinner.adapter =
-                ArrayAdapter(
-                    this@ConfigActivity,
-                    android.R.layout.simple_spinner_dropdown_item,
-                    list
-                )
-            modeSelectSpinner.onItemSelectedListener =
-                object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        appMode = position
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
-                }
         }
         appConfig?.let {
             modify = true
@@ -154,19 +170,16 @@ class ConfigActivity : BaseActivity() {
             configBean.apply {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
-                paramsEdit.setText(params)
-                filedNameEdit.setText(fieldName)
+                paramsTypeEdit.setText(params)
+                fieldNameEdit.setText(fieldName)
                 fieldTypeEdit.setText(fieldType)
                 resultValueEdit.setText(resultValues)
                 help.setOnClickListener { showHelpDialog() }
-                when (mode) {
-                    Constant.HOOK_BREAK -> breakHook(dialogBinding)
-                    Constant.HOOK_STATIC_FIELD -> staticFieldHook(dialogBinding)
-                    Constant.HOOK_FIELD -> fieldHook(dialogBinding)
-                }
+                hookMode = mode
+                onModeChange(dialogBinding)
             }
         }
-        val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量")
+        val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量", "打印参数值", "打印返回值")
         dialogBinding.modeSelectSpinner.adapter =
             ArrayAdapter(
                 this@ConfigActivity,
@@ -182,13 +195,8 @@ class ConfigActivity : BaseActivity() {
                     position: Int,
                     id: Long
                 ) {
-                    mode = position
-                    when (list[position]) {
-                        "中断执行" -> breakHook(dialogBinding)
-                        "Hook静态变量" -> staticFieldHook(dialogBinding)
-                        "Hook变量" -> fieldHook(dialogBinding)
-                        else -> othersHook(dialogBinding)
-                    }
+                    hookMode = position
+                    onModeChange(dialogBinding)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -232,114 +240,74 @@ class ConfigActivity : BaseActivity() {
         }
     }
 
-    private fun fieldHook(dialogBinding: ConfigDialogBinding) {
+    private fun onModeChange(dialogBinding: ConfigDialogBinding) {
+        val checkStateMode = getShowStateMode(hookMode)
         dialogBinding.apply {
-            filedNameInput.hint = "输入变量名"
-            setViewShow(paramsTypeInput)
-            setViewShow(methodNameInput)
-            setViewShow(fieldTypeInput, true)
-            setViewShow(filedNameInput, true)
-            setViewShow(resultValueInput, true)
+            showView(
+                checkStateMode isContainState METHOD_NAME_STATE,
+                methodNameInput,
+                methodNameEdit
+            )
+            showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
+            showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
+            showView(checkStateMode isContainState FIELD_TYPE_STATE, fieldTypeInput, fieldTypeEdit)
+            showView(
+                checkStateMode isContainState RESULT_VALUE_STATE,
+                resultValueInput,
+                resultValueEdit
+            )
         }
     }
 
-    private fun othersHook(dialogBinding: ConfigDialogBinding) {
-        dialogBinding.apply {
-            paramsTypeInput.helperText = "例如：boolean,int,java.lang.String"
-            setViewShow(fieldTypeInput)
-            setViewShow(filedNameInput)
-            setViewShow(resultValueInput, true)
-            setViewShow(paramsTypeInput, true)
-            setViewShow(methodNameInput, true)
-        }
+    private fun showView(isShow: Boolean, input: TextInputLayout, edit: TextInputEditText) {
+        input.visibility = if (isShow) View.VISIBLE else View.GONE
+        if (!isShow) edit.setText("")
     }
 
-    private fun breakHook(dialogBinding: ConfigDialogBinding) {
-        dialogBinding.apply {
-            setViewShow(resultValueInput)
-            setViewShow(fieldTypeInput)
-            setViewShow(filedNameInput)
-            setViewShow(paramsTypeInput, true)
-            setViewShow(methodNameInput, true)
-        }
+    private infix fun Int.isContainState(state: Int): Boolean {
+        return (this and state) != 0
     }
-
-    private fun staticFieldHook(dialogBinding: ConfigDialogBinding) {
-        dialogBinding.apply {
-            setViewShow(paramsTypeInput)
-            setViewShow(methodNameInput)
-            setViewShow(fieldTypeInput, true)
-            setViewShow(filedNameInput, true)
-            setViewShow(resultValueInput, true)
-        }
-    }
-
-    private fun setViewShow(view: View, isShow: Boolean = false) {
-        view.visibility = if (isShow) View.VISIBLE else View.GONE
-    }
-
 
     private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
-        var canCancel = true
         val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
-        val params = tranParams(dialogBinding.paramsEdit.text.toString().trim())
+        val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
-        val fieldName = dialogBinding.filedNameEdit.text.toString()
+        val fieldName = dialogBinding.fieldNameEdit.text.toString()
         val fieldType = tranParams(dialogBinding.fieldTypeEdit.text.toString())
-        when (mode) {
-            Constant.HOOK_BREAK -> {
-                if (className.isNotEmpty() && methodName.isNotEmpty()) {
-                    val methodConfig = ConfigBean(mode, className, methodName, params)
-                    addConfig(methodConfig)
-                } else {
-                    getString(R.string.config_dialog_config_empty).toast(this)
-                    canCancel = false
-                }
-            }
-            Constant.HOOK_STATIC_FIELD -> {
-                if (className.isNotEmpty() && fieldName.isNotEmpty() && fieldType.isNotEmpty() && results.isNotEmpty()) {
-                    val methodConfig = ConfigBean(
-                        mode,
-                        className,
-                        fieldName = fieldName,
-                        fieldType = fieldType,
-                        resultValues = results
-                    )
-                    addConfig(methodConfig)
-                } else {
-                    getString(R.string.config_dialog_config_empty).toast(this)
-                    canCancel = false
-                }
-            }
-            Constant.HOOK_FIELD -> {
-                if (className.isNotEmpty() && fieldName.isNotEmpty() && fieldType.isNotEmpty() && results.isNotEmpty()) {
-                    val methodConfig = ConfigBean(
-                        mode,
-                        className,
-                        params = params,
-                        fieldName = fieldName,
-                        fieldType = fieldType,
-                        resultValues = results
-                    )
-                    addConfig(methodConfig)
-                } else {
-                    getString(R.string.config_dialog_config_empty).toast(this)
-                    canCancel = false
-                }
-            }
-            else -> {
-                if (className.isNotEmpty() && methodName.isNotEmpty() && results.isNotEmpty()) {
-                    val methodConfig =
-                        ConfigBean(mode, className, methodName, params, resultValues = results)
-                    addConfig(methodConfig)
-                } else {
-                    getString(R.string.config_dialog_config_empty).toast(this)
-                    canCancel = false
-                }
-            }
+        var stateCheck = getCheckStateMode(hookMode)
+        if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
+        if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
+        if (params.isNotEmpty()) stateCheck = stateCheck and PARAMS_STATE.inv()
+        if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
+        if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
+        if (fieldType.isNotEmpty()) stateCheck = stateCheck and FIELD_TYPE_STATE.inv()
+        val canCancel = stateCheck == 0
+        if (canCancel) {
+            val configBean =
+                ConfigBean(hookMode, className, methodName, params, fieldName, fieldType, results)
+            addConfig(configBean)
+        } else {
+            "所填内容与所选模式不匹配".toast(this)
         }
         return canCancel
+    }
+
+    private fun getCheckStateMode(mode: Int) = when (mode) {
+        Constant.HOOK_RETURN -> HOOK_RETURN_CHECK
+        Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
+        Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
+        Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> HOOK_FIELD_CHECK
+        Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
+        Constant.HOOK_RECORD_PARAMS -> RECORD_PARAMS_CHECK
+        else -> 0
+    }
+
+    private fun getShowStateMode(mode: Int) = when (mode) {
+        Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
+        Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> SHOW_FIELD
+        Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK -> SHOW_RECORD_RETURN_PARAMS_BREAK
+        else -> 0
     }
 
     private fun smali2Java(strSmali: String) = if (matches(smaliPattern, strSmali)) {
@@ -386,10 +354,7 @@ class ConfigActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
-            R.id.select_app -> {
-                val intent = Intent(this, AppListActivity::class.java)
-                startActivityForResult(intent, 1)
-            }
+            R.id.select_app -> packageInfo.launch(Intent(this, AppListActivity::class.java))
             R.id.config_smali_to_config -> {
                 ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
             }
@@ -399,7 +364,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun saveConfig() {
         if (configList.size == 0) {
-            getString(R.string.config_save_empty_config_tip).snack(binding.addMethodConfig)
+            getString(R.string.config_save_empty_config_tip).toast(this)
             return
         }
         binding.progressBar.visibility = View.VISIBLE
@@ -426,7 +391,7 @@ class ConfigActivity : BaseActivity() {
     private fun fakeWaitForSave() {
         Handler(Looper.getMainLooper()).postDelayed({
             binding.progressBar.visibility = View.GONE
-            finish()
+            onBackPressed()
         }, 2000)
     }
 
@@ -446,22 +411,6 @@ class ConfigActivity : BaseActivity() {
             id = configId
         )
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            val bundle = data?.getBundleExtra("bundle")
-            val appItem: AppItem? = bundle?.getParcelable("appItem")
-            appItem?.apply {
-                binding.apply {
-                    appNameEdit.setText(name)
-                    appVersionNameEdit.setText(versionName)
-                    packageNameEdit.setText(packageName)
-                }
-            }
-        }
-    }
-
 
     @SuppressLint("NotifyDataSetChanged")
     private fun patternStr(string: String) {
@@ -592,6 +541,4 @@ class ConfigActivity : BaseActivity() {
             Constant.HOOK_RETURN
         }
     }
-
-
 }

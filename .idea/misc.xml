@@ -26,6 +26,7 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_app_list.xml" value="0.12777777777777777" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_assist.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_config.xml" value="0.178125" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_extension.xml" value="0.14947916666666666" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_record.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/activity_record_detail.xml" value="0.1648148148148148" />
@@ -55,6 +56,8 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/item_list_app.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/item_print_log.xml" value="0.10092592592592593" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/switch_item.xml" value="0.17395833333333333" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/terms_use.xml" value="0.15208333333333332" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_about.xml" value="0.17395833333333333" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_add.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_app_list.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/menu/menu_assist.xml" value="0.1" />

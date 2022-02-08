@@ -1463,6 +1463,378 @@ footer.ty-footer {
 </style><title>帮助</title>
 </head>
 <body class='typora-export os-windows'><div class='typora-export-content'>
-<div id='write'  class=''><h4 id='帮助'><span>帮助</span></h4><h5 id='目前自定义hook有以下几个功能'><span>目前自定义Hook有以下几个功能</span></h5><p><span>下面是编写规则：（你可以下载</span><em><a href='https://littlewhiteduck.lanzoui.com/b0eqxvvbc'><span>HookTest.apk</span></a><span>(密码：simple)</span></em><span>，此App应用了所有情况，并内附有配置）</span></p><ul><li><p><span>支持Java语法和Smali语法填写配置信息</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// java</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable">me</span>.<span class="cm-variable">simplehook</span>.<span class="cm-variable">MainActivty</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// smali</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable">Lme</span><span class="cm-operator">/</span><span class="cm-variable">simplehook</span><span class="cm-operator">/</span><span class="cm-variable">MainActivity</span>; <span class="cm-comment">//一定要有 --&gt; ; &lt;--</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 104px;"></div><div class="CodeMirror-gutters" style="display: none; height: 104px;"></div></div></div></pre></li><li><p><span>支持基本类型和其它类型</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 类型 主要用于填写参数类型和变量类型</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 请注意！！！ 暂不支持数组，如：int[]</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 基本类型你可以这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-3">boolean</span> <span class="cm-variable-3">int</span> <span class="cm-variable-3">long</span> <span class="cm-variable-3">short</span> <span class="cm-variable-3">char</span> <span class="cm-variable-3">byte</span> <span class="cm-keyword">float</span> <span class="cm-variable-3">double</span> <span class="cm-comment">//也可以这样填 Z I J S C B F D</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 其他类型你可以这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable">jave</span>.<span class="cm-variable">lang</span>.<span class="cm-variable-3">String</span> <span class="cm-variable">android</span>.<span class="cm-variable">content</span>.<span class="cm-variable">Context</span> <span class="cm-variable">Ljava</span><span class="cm-operator">/</span><span class="cm-variable">lang</span><span class="cm-operator">/</span><span class="cm-variable-3">String</span>; <span class="cm-variable">Landroid</span><span class="cm-operator">/</span><span class="cm-variable">content</span><span class="cm-operator">/</span><span class="cm-variable">Context</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 156px;"></div><div class="CodeMirror-gutters" style="display: none; height: 156px;"></div></div></div></pre></li><li><p><span>hook返回值</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 返回值类型无需填写，自动推断，下面列出各种类型写法</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">/*</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">布尔值(boolean、Z)：true、false</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">整数(int、I)：1、2、3</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">长整型(long、J)：1l、120000L、123456l</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">短整型(short、S)：1short、2short 数字后带short</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">字符(char、C)：195c、一c 符合char类型的后面带c</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">字节(byte、B)：2b、3b 符合byte类型的后面带b</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">单浮点(float、F)：2f、3f</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">双浮点(double、D): 2d、3d</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">其他类型(只能返回null(字符串除外))：null</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">字符串(java.lang.String)：不符合上面的全部化为字符串类型</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-comment">其他情况：</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-comment">数字：数字后面加s </span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-comment">布尔：trues、falses</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-comment">null: nulls</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">*/</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">/*</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">多个参数参数类型的填法(用英语逗号分开)：</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">boolean,int,android.content.Context</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">*/</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 551px;"></div><div class="CodeMirror-gutters" style="display: none; height: 551px;"></div></div></div></pre></li><li><p><span>hook参数值</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre>x</pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 类型值同 hook返回值类型</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//特殊用法，如下面一段代码</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">public</span> <span class="cm-variable-3">boolean</span> <span class="cm-def">isModuleLive</span>(<span class="cm-variable">Context</span> <span class="cm-variable">context</span>, <span class="cm-variable-3">String</span> <span class="cm-variable">str</span>, <span class="cm-variable-3">int</span> <span class="cm-variable">level</span>){</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">retrun</span> <span class="cm-atom">true</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你只想要hook level的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">,,<span class="cm-number">99</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你只想要hook str的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">,<span class="cm-variable">啦啦啦</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你只想要hook str、level的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">,<span class="cm-variable">啦啦啦</span>,<span class="cm-number">99</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你想要全部hook，你可以在参数值那一栏向下面这样填</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-atom">null</span>,<span class="cm-variable">啦啦啦</span>,<span class="cm-number">99</span> <span class="cm-comment">// context为null也许导致闪退</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">/*</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">多个参数参数类型的填法(用英语逗号分开)：</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">android.content.Context,jave.lang.String,int</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">或者如下填写</span></span></pre><div class="" style="position: relative;"><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">Landroid/content/Context;,Ljave/lang/String;int</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">*/</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 520px;"></div><div class="CodeMirror-gutters" style="display: none; height: 520px;"></div></div></div></pre></li><li><p><span>中断执行</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 如hook返回值或者hook参数值一样填，不需要填写返回值、参数值</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 26px;"></div><div class="CodeMirror-gutters" style="display: none; height: 26px;"></div></div></div></pre></li><li><p><span>静态变量</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 具体的值只支持基本类型，和字符串</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 变量值的填写 同返回值</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 52px;"></div><div class="CodeMirror-gutters" style="display: none; height: 52px;"></div></div></div></pre></li><li><p><span>变量</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 同 静态变量</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 26px;"></div><div class="CodeMirror-gutters" style="display: none; height: 26px;"></div></div></div></pre></li></ul><p>&nbsp;</p></div></div>
+    <div id='write' class=''><h4 id='帮助'><span>帮助</span></h4><h5 id='目前自定义hook有以下几个功能'><span>目前自定义Hook有以下几个功能</span>
+    </h5>
+        <p><span>下面是编写规则：（你可以下载</span><em><a href='https://wwi.lanzouw.com/b0177tlxe'><span>HookTest.apk</span></a><span>(密码：simple)</span></em><span>，此App应用了所有情况，并内附有配置）</span>
+        </p>
+        <ul>
+            <li><p><span>支持Java语法和Smali语法填写配置信息</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap"
+                                      lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// java</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-variable">me</span>.<span
+                        class="cm-variable">simplehook</span>.<span
+                        class="cm-variable">MainActivty</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">// smali</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-variable">Lme</span><span class="cm-operator">/</span><span
+                        class="cm-variable">simplehook</span><span class="cm-operator">/</span><span
+                        class="cm-variable">MainActivity</span>; <span class="cm-comment">//一定要有 --&gt; ; &lt;--</span></span></pre></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 104px;"></div><div
+                        class="CodeMirror-gutters"
+                        style="display: none; height: 104px;"></div></div></div></pre>
+            </li>
+            <li><p><span>支持基本类型和其它类型</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap"
+                                      lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"
+                                                                           style=""><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 类型 主要用于填写参数类型和变量类型</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">// 请注意！！！ 暂不支持数组，如：int[]</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">// 基本类型你可以这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-variable-3">boolean</span> <span class="cm-variable-3">int</span> <span
+                        class="cm-variable-3">long</span> <span
+                        class="cm-variable-3">short</span> <span
+                        class="cm-variable-3">char</span> <span
+                        class="cm-variable-3">byte</span> <span
+                        class="cm-keyword">float</span> <span
+                        class="cm-variable-3">double</span> <span class="cm-comment">//也可以这样填 Z I J S C B F D</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">// 其他类型你可以这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-variable">jave</span>.<span class="cm-variable">lang</span>.<span
+                        class="cm-variable-3">String</span> <span class="cm-variable">android</span>.<span
+                        class="cm-variable">content</span>.<span class="cm-variable">Context</span> <span
+                        class="cm-variable">Ljava</span><span class="cm-operator">/</span><span
+                        class="cm-variable">lang</span><span class="cm-operator">/</span><span
+                        class="cm-variable-3">String</span>; <span
+                        class="cm-variable">Landroid</span><span class="cm-operator">/</span><span
+                        class="cm-variable">content</span><span class="cm-operator">/</span><span
+                        class="cm-variable">Context</span>;</span></pre></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 156px;"></div><div
+                        class="CodeMirror-gutters"
+                        style="display: none; height: 156px;"></div></div></div></pre>
+            </li>
+            <li><p><span>hook返回值</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java" style="break-inside: unset;"><div
+                        class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"
+                                                                           style=""><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 返回值类型无需填写，自动推断，下面列出各种类型写法</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">/*</span></span></pre><pre class=" CodeMirror-line "
+                                                                      role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">布尔值(boolean、Z)：true、false</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">整数(int、I)：1、2、3</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">长整型(long、J)：1l、120000L、123456l</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">短整型(short、S)：1short、2short 数字后带short</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">字符(char、C)：195c、一c 符合char类型的后面带c</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">字节(byte、B)：2b、3b 符合byte类型的后面带b</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">单浮点(float、F)：2f、3f</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">双浮点(double、D): 2d、3d</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">其他类型(只能返回null(字符串除外))：null</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">字符串(java.lang.String)：不符合上面的全部化为字符串类型</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-tab" role="presentation" cm-text="	">    </span><span
+                        class="cm-comment">其他情况：</span></span></pre><pre class=" CodeMirror-line "
+                                                                         role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-tab"
+                                                                                role="presentation"
+                                                                                cm-text="	">    </span><span
+                        class="cm-comment">数字：数字后面加s </span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-tab" role="presentation" cm-text="	">    </span><span
+                        class="cm-comment">布尔：trues、falses</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-tab" role="presentation" cm-text="	">    </span><span
+                        class="cm-comment">null: nulls</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">*/</span></span></pre><pre class=" CodeMirror-line "
+                                                                      role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">/*</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">多个参数参数类型的填法(用英语逗号分开)：</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">boolean,int,android.content.Context</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">*/</span></span></pre></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 551px;"></div><div
+                        class="CodeMirror-gutters"
+                        style="display: none; height: 551px;"></div></div></div></pre>
+            </li>
+            <li><p><span>hook参数值</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java" style="break-inside: unset;"><div
+                        class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre>x</pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"
+                                                                           style=""><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 类型值同 hook返回值类型</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">//特殊用法，如下面一段代码</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-keyword">public</span> <span class="cm-variable-3">boolean</span> <span
+                        class="cm-def">isModuleLive</span>(<span class="cm-variable">Context</span> <span
+                        class="cm-variable">context</span>, <span
+                        class="cm-variable-3">String</span> <span
+                        class="cm-variable">str</span>, <span class="cm-variable-3">int</span> <span
+                        class="cm-variable">level</span>){</span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"> &nbsp; &nbsp;</span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"> &nbsp; &nbsp;<span
+                        class="cm-variable">retrun</span> <span
+                        class="cm-atom">true</span></span></pre><pre class=" CodeMirror-line "
+                                                                     role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;">}</span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">//如果你只想要hook level的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;">,,<span
+                        class="cm-number">99</span></span></pre><pre class=" CodeMirror-line "
+                                                                     role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你只想要hook str的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;">,<span
+                        class="cm-variable">啦啦啦</span>,</span></pre><pre class=" CodeMirror-line "
+                                                                         role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你只想要hook str、level的值，你可以在参数值那一栏向下面这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;">,<span
+                        class="cm-variable">啦啦啦</span>,<span
+                        class="cm-number">99</span></span></pre><pre class=" CodeMirror-line "
+                                                                     role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//如果你想要全部hook，你可以在参数值那一栏向下面这样填</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-atom">null</span>,<span class="cm-variable">啦啦啦</span>,<span
+                        class="cm-number">99</span> <span
+                        class="cm-comment">// context为null也许导致闪退</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">/*</span></span></pre><pre class=" CodeMirror-line "
+                                                                      role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">多个参数参数类型的填法(用英语逗号分开)：</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">android.content.Context,jave.lang.String,int</span></span></pre><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">或者如下填写</span></span></pre><div class=""
+                                                                          style="position: relative;"><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">Landroid/content/Context;,Ljave/lang/String;int</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">*/</span></span></pre></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 520px;"></div><div
+                        class="CodeMirror-gutters"
+                        style="display: none; height: 520px;"></div></div></div></pre>
+            </li>
+            <li><p><span>中断执行</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap"
+                                      lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 如hook返回值或者hook参数值一样填，不需要填写返回值、参数值</span></span></pre></div></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 26px;"></div><div
+                        class="CodeMirror-gutters" style="display: none; height: 26px;"></div></div></div></pre>
+            </li>
+            <li><p><span>静态变量</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap"
+                                      lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 具体的值只支持基本类型，和字符串</span></span></pre></div><pre
+                        class=" CodeMirror-line " role="presentation"><span role="presentation"
+                                                                            style="padding-right: 0.1px;"><span
+                        class="cm-comment">// 变量值的填写 同返回值</span></span></pre></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 52px;"></div><div
+                        class="CodeMirror-gutters" style="display: none; height: 52px;"></div></div></div></pre>
+            </li>
+            <li><p><span>变量</span></p>
+                <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false"
+                     lang="java"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap"
+                                      lang="java"><div
+                        style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 11px; left: 4px;"><textarea
+                        autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
+                        style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div
+                        class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-gutter-filler" cm-not-content="true"></div><div
+                        class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer"
+                                                                     style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div
+                        style="position: relative; top: 0px;"><div class="CodeMirror-lines"
+                                                                   role="presentation"><div
+                        role="presentation" style="position: relative; outline: none;"><div
+                        class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div
+                        class="CodeMirror-measure"></div><div
+                        style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"
+                                                                           role="presentation"><div
+                        class="CodeMirror-activeline" style="position: relative;"><div
+                        class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div
+                        class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
+                        style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line "
+                                                                  role="presentation"><span
+                        role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 同 静态变量</span></span></pre></div></div></div></div></div></div><div
+                        style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 26px;"></div><div
+                        class="CodeMirror-gutters" style="display: none; height: 26px;"></div></div></div></pre>
+            </li>
+        </ul>
+        <p>&nbsp;</p></div>
+</div>
 </body>
 </html>

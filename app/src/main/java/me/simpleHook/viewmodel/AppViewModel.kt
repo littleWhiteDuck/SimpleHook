@@ -58,7 +58,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             when (sortSelected) {
                 APP_LIST_BY_NAME -> appItem.name
                 APP_LIST_BY_PACKAGE_NAME -> appItem.packageName
-                APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime
+                APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime.toString()
                 else -> appItem.targetApi
             }
         }
@@ -75,7 +75,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         AppUtils.getAppName(getApplication(), this),
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
-                        getDateTime(lastUpdateTime),
+                        AppUtils.getAppVersionCode(getApplication(), packageName),
+                        lastUpdateTime,
                         AppUtils.getTargetSdkVersion(getApplication(), packageName)
                     )
                 )
@@ -83,12 +84,4 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
         return appList
     }
-
-    /**
-     * 获取最后一次更新时间
-     */
-    @SuppressLint("SimpleDateFormat")
-    private fun getDateTime(time: Long) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SimpleDateFormat("yyyy-MM-dd").format(time)
-    } else ""
 }

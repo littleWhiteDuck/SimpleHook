@@ -9,6 +9,7 @@ import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.marquee
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -47,7 +48,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
                 tvAppName.marquee()
                 tvPackageName.text = packageName
                 tvPackageName.marquee()
-                tvOtherInfo.text = "$versionName, $installedTime, $targetApi"
+                tvOtherInfo.text = "$versionName($versionCode), $targetApi"
                 tvOtherInfo.marquee()
             }
         }

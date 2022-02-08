@@ -17,17 +17,7 @@
     <style name="Theme.AppSplashScreen" parent="Theme.SplashScreen.IconBackground">
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
         <item name="windowSplashScreenBackground">@color/black</item>
-        <item name="postSplashScreenTheme">@style/Theme.SimpleHook</item>
-    </style>
-    <!--SplashScreen兼容库，静态背景，android5.0 ~ android11-->
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen.IconBackground">
-        <!--给父主题设置窗口背景-->
-
-        <!--使用透明的drawable替换中心图标，如果不替换在部分旧系统会展示一个机器人-->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
-        <!--需要配置，不配置的话，启动页消失到主页显示的时候，有个过渡动画，会闪这个颜色的背景色-->
-        <item name="windowSplashScreenBackground">@color/black</item>
-        <item name="windowSplashScreenAnimationDuration">2000</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.SimpleHook</item>
     </style>
 </resources>

@@ -19,12 +19,13 @@ import me.simpleHook.ui.custom.MyFastScroller
 
 class AppListFragment(private val tagFragment: String = "user") : Fragment() {
 
-    private lateinit var binding: FragmentAppListBinding
+    private var _binding: FragmentAppListBinding? = null
+    private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAppListBinding.inflate(inflater, container, false)
+        _binding = FragmentAppListBinding.inflate(inflater, container, false)
         initView()
         return binding.root
     }
@@ -55,11 +56,12 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
             })
         }
         val verticalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable, null)
         val horizontalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        val horizontalTrackDrawable: Drawable =
+            resources.getDrawable(R.drawable.line_drawable, null)
         val myFastScroller = MyFastScroller(
             binding.recyclerView,
             verticalThumbDrawable,
@@ -73,4 +75,8 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
         myFastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

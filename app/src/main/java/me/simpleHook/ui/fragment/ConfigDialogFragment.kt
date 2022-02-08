@@ -1,5 +1,6 @@
 package me.simpleHook.ui.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,11 +19,21 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.util.*
 
-class ConfigDialogFragment(private val configsList: List<ConfigItem>, private val isImport:Boolean = true) : DialogFragment() {
+class ConfigDialogFragment(
+    private val configsList: List<ConfigItem>,
+    private val isImport: Boolean = true
+) : DialogFragment() {
     private var _binding: FragmentConfigImExportBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<AppViewModel>()
-    private val mAdapter  by lazy { ImExportAdapter{ checked: Boolean, position: Int ->  onCheckedChange(checked, position)} }
+    private val mAdapter by lazy {
+        ImExportAdapter { checked: Boolean, position: Int ->
+            onCheckedChange(
+                checked,
+                position
+            )
+        }
+    }
     private var isAnti = false
     private val sp by lazy { SPUtils(requireContext()) }
     override fun onCreateView(
@@ -35,7 +46,7 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
         return binding.root
     }
 
-    private fun initView(){
+    private fun initView() {
         mAdapter.setDataList(configsList)
         binding.recyclerView.apply {
             adapter = mAdapter
@@ -46,26 +57,26 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
             title.text = if (isImport) "导入配置" else "导出配置"
             confirm.setOnClickListener {
                 var checkIsZero = 0
-                if (isImport){
-                    for(item in configsList){
-                        if (item.isChecked){
+                if (isImport) {
+                    for (item in configsList) {
+                        if (item.isChecked) {
                             checkIsZero++
                             viewModel.insertConfigs(item.appConfig)
                         }
                     }
-                    if (checkIsZero ==0) {
+                    if (checkIsZero == 0) {
                         "为空".toast(requireContext())
                         return@setOnClickListener
                     }
-                }else{
+                } else {
                     val tempList = ArrayList<ConfigItem>()
-                    for(item in configsList){
-                        if (item.isChecked){
+                    for (item in configsList) {
+                        if (item.isChecked) {
                             checkIsZero++
                             tempList.add(item)
                         }
                     }
-                    if (checkIsZero ==0) {
+                    if (checkIsZero == 0) {
                         "为空".toast(requireContext())
                         return@setOnClickListener
                     }
@@ -78,9 +89,9 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
                 this@ConfigDialogFragment.dismiss()
             }
             selectAll.setOnClickListener {
-                if (isAnti){
+                if (isAnti) {
                     antiSelect()
-                }else{
+                } else {
                     isAnti = !isAnti
                     selectAll.text = if (isAnti) "反选" else "全选"
                     setAllSelect()
@@ -90,18 +101,20 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun setAllSelect() {
-        for (element in configsList){
+        for (element in configsList) {
             element.isChecked = true
         }
         mAdapter.setDataList(configsList)
         mAdapter.notifyDataSetChanged()
     }
 
-    private fun antiSelect(){
-       configsList.forEach { configItem ->
-           configItem.isChecked = !configItem.isChecked
-       }
+    @SuppressLint("NotifyDataSetChanged")
+    private fun antiSelect() {
+        configsList.forEach { configItem ->
+            configItem.isChecked = !configItem.isChecked
+        }
         mAdapter.setDataList(configsList)
         mAdapter.notifyDataSetChanged()
     }
@@ -116,14 +129,14 @@ class ConfigDialogFragment(private val configsList: List<ConfigItem>, private va
     private fun getStrConfig(list: List<ConfigItem>?) =
         list?.let {
             val appConfigs = ArrayList<AppConfig>()
-            list.forEach{configItem ->
+            list.forEach { configItem ->
                 val appConfig = configItem.appConfig
-                if (sp.encryptConfigs && !appConfig.configs.startsWith("config://")){
+                if (sp.encryptConfigs && !appConfig.configs.startsWith("config://")) {
                     appConfig.configs = CipherUtils.encrypt(appConfig.configs).toString()
                 }
                 appConfigs.add(appConfig)
             }
-           Gson().toJson(appConfigs)
+            Gson().toJson(appConfigs)
         } ?: ""
 
     override fun onDestroyView() {

@@ -92,7 +92,7 @@
             app:layout_constraintTop_toBottomOf="@+id/method_name_input">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/paramsEdit"
+                android:id="@+id/paramsTypeEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -130,7 +130,7 @@
             app:layout_constraintTop_toTopOf="@+id/textView"
             app:srcCompat="@drawable/ic_help" />
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/filed_name_input"
+            android:id="@+id/field_name_input"
             style="@style/config_dialog_input_layout_style"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -139,7 +139,7 @@
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/filedNameEdit"
+                android:id="@+id/fieldNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -151,7 +151,7 @@
             style="@style/config_dialog_input_layout_style"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/filed_name_input"
+            app:layout_constraintTop_toBottomOf="@+id/field_name_input"
             app:helperText="@string/config_dialog_field_type_input_tip"
             android:visibility="gone">
 

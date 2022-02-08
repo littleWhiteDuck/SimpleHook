@@ -34,7 +34,10 @@ class OpenSourceView(context: Context) : CustomViewGroup(context) {
         val textViewWidth = measuredWidth - paddingLeft - paddingRight
         name.measure(textViewWidth.toExactlyMeasureSpec(), name.defaultHeightMeasureSpec(this))
         openSource.measure(textViewWidth.toExactlyMeasureSpec(), name.defaultHeightMeasureSpec(this))
-        setMeasuredDimension(measuredWidth, paddingTop + name.measuredHeight + openSource.measuredHeight + paddingBottom)
+        setMeasuredDimension(
+            measuredWidth,
+            paddingTop + name.measuredHeight + openSource.measuredHeight + openSource.marginTop + paddingBottom
+        )
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {

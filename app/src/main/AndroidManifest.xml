@@ -53,7 +53,7 @@
             android:name=".ui.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.App.Starting"
+            android:theme="@style/Theme.AppSplashScreen"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

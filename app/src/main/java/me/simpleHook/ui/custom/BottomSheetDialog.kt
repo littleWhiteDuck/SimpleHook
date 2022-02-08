@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.text.method.ScrollingMovementMethod
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import me.simpleHook.R
 import me.simpleHook.database.entity.AppConfig
@@ -31,7 +30,7 @@ class BottomSheetDialog(
                 applicableVersion.text = "支持：$versionName"
                 appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
                 currentVersion.text = "当前：${AppUtils.getAppVersionName(context, packageName)}"
-                if (configs.startsWith("config://"))editConfigButton.isEnabled = false
+                if (configs.startsWith("config://")) editConfigButton.isEnabled = false
                 editConfigButton.setOnClickListener {
                     onClick()
                     dismiss()

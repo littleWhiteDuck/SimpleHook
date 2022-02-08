@@ -3,10 +3,15 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
@@ -49,7 +54,6 @@ class AssistActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
     private lateinit var assistConfig: AssistConfig
     private val hashMap = HashMap<String, Boolean>()
-    private var modify = false
     private val sp by lazy { SPUtils(this) }
     private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
     private val appViewModel by viewModels<AppViewModel>()
@@ -62,6 +66,15 @@ class AssistActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            binding.recyclerView.apply {
+                setPadding(paddingLeft, paddingTop, paddingRight, insets.bottom)
+            }
+            ViewCompat.onApplyWindowInsets(window.decorView, windowInsets)
+            windowInsets
+        }
+
         val bundle = intent.getBundleExtra("bundle")
         assistConfig = bundle?.getParcelable("assistConfig") ?: AssistConfig(
             0,

@@ -1,6 +1,8 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
@@ -12,6 +14,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
@@ -60,21 +63,42 @@ class RecordActivity : BaseActivity() {
         initData()
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private fun initView() {
         binding.recyclerView.apply {
             adapter = recordAdapter
             layoutManager = LinearLayoutManager(this@RecordActivity)
+            addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect,
+                    view: View,
+                    parent: RecyclerView,
+                    state: RecyclerView.State
+                ) {
+                    // Get the position of the view in the recycler view
+                    val position = parent.getChildAdapterPosition(view)
+                    if (position == RecyclerView.NO_POSITION) {
+                        return
+                    }
+
+                    if (position == parent.adapter!!.itemCount - 1) {
+                        // Add padding to the last item. You should probably use a @dimen resource.
+                        outRect.bottom = 200
+                    }
+                }
+            })
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
         val verticalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
+            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable, null)
         val horizontalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable) as StateListDrawable
-        val horizontalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable)
-        val myFastScroller = MyFastScroller(
+            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        val horizontalTrackDrawable: Drawable =
+            resources.getDrawable(R.drawable.line_drawable, null)
+        MyFastScroller(
             binding.recyclerView,
             verticalThumbDrawable,
             verticalTrackDrawable,

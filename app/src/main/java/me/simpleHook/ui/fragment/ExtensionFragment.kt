@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +31,8 @@ class ExtensionFragment : Fragment() {
     private val appViewModel by activityViewModels<AppViewModel>()
     private val sp by lazy { SPUtils(requireContext()) }
     private val assistPref by lazy { XUtils(requireContext(), "assistConfig").configPref }
-    private lateinit var binding: FragmentAssistBinding
+    private var _binding: FragmentAssistBinding? = null
+    private val binding get() = _binding!!
     private val mAdapter: AssistAdapter by lazy {
         AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
@@ -50,7 +50,7 @@ class ExtensionFragment : Fragment() {
             requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         Snackbar.make(
             binding.addConfig,
-            getString(R.string.main_assist_delete_config_tip),
+            getString(R.string.main_extension_delete_config_tip),
             Snackbar.LENGTH_LONG
         ).apply {
             anchorView = bottomNavigationView
@@ -66,7 +66,7 @@ class ExtensionFragment : Fragment() {
                 binding.addConfig.animate().translationY(0f).interpolator =
                     DecelerateInterpolator(1.5f)
             }
-        }).setAction(getString(R.string.main_assist_undo_delete_config)) {
+        }).setAction(getString(R.string.main_extension_undo_delete_config)) {
             appViewModel.insertAssistConfigs(assistConfig)
             if (sp.openStorage) {
                 FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)
@@ -132,7 +132,7 @@ class ExtensionFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAssistBinding.inflate(inflater, container, false)
+        _binding = FragmentAssistBinding.inflate(inflater, container, false)
         initView()
         initData()
         return binding.root
@@ -182,6 +182,11 @@ class ExtensionFragment : Fragment() {
             )
             binding.addConfig.layoutParams = layoutParams
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

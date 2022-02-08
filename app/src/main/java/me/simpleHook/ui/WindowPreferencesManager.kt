@@ -36,7 +36,7 @@ class WindowPreferencesManager(private val context: Context) {
         val currentNavBar =
             if (showDarkNavbarIcons && VERSION.SDK_INT >= VERSION_CODES.O) View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR else 0
         window.navigationBarColor = navbarColor
-        /* window.setStatusBarColor(statusBarColor);*/
+//        window. statusBarColor = statusBarColor;
         val systemUiVisibility =
             ((if (edgeToEdgeEnabled) EDGE_TO_EDGE_FLAGS else View.SYSTEM_UI_FLAG_VISIBLE)
                     or currentStatusBar
