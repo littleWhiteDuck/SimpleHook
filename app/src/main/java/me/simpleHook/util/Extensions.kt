@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
-import me.simpleHook.BuildConfig
 
 /*
 //toast
@@ -30,13 +29,15 @@ fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
 
 //xposed log
 fun String.log() {
-    if (BuildConfig.DEBUG) {
-        XposedBridge.log("===${this}===")
-    }
+    XposedBridge.log("====${this}====")
 }
 
 fun String.tip() {
     XposedBridge.log("*****===${this}===*****")
+}
+
+fun String.print() {
+    XposedBridge.log("\n\n\n\n${JsonUtil.formatJson(this).replace("\u003e", ">")}\n\n\n\n")
 }
 
 // 跑马灯
@@ -118,10 +119,15 @@ fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(context, this, duration).show()
 }
 
-fun StringBuilder.lineFeesItem(list: List<String>, foreground: String, nLine:Int = 0, nLineString: String = ""): String {
+fun StringBuilder.lineFeesItem(
+    list: List<String>,
+    foreground: String,
+    nLine: Int = 0,
+    nLineString: String = ""
+): String {
     this.append(foreground)
     list.forEachIndexed { index, s ->
-        if (nLine == index){
+        if (nLine == index) {
             this.append(nLineString)
         }
         this.append(s)
@@ -132,3 +138,6 @@ fun StringBuilder.lineFeesItem(list: List<String>, foreground: String, nLine:Int
     return this.toString()
 }
 
+infix fun Int.isContainState(state: Int): Boolean {
+    return (this and state) != 0
+}

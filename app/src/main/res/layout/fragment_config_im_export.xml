@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_share_config_confirm"
-        android:textColor="@color/colorPrimary"
+        android:textColor="#1976D2"
         app:layout_constraintBottom_toBottomOf="@+id/cancel"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -39,16 +39,17 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:text="@string/main_share_config_cancel"
-        android:textColor="@color/colorPrimary"
+        android:textColor="#1976D2"
         app:layout_constraintBottom_toBottomOf="@+id/selectAll"
         app:layout_constraintEnd_toStartOf="@+id/confirm" />
 
     <Button
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:text="@string/main_share_config_select_all"
         android:id="@+id/selectAll"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/main_share_config_select_all"
+        android:textColor="#1976D2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

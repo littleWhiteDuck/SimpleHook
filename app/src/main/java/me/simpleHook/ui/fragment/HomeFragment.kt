@@ -1,7 +1,6 @@
 package me.simpleHook.ui.fragment
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -11,6 +10,7 @@ import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,9 +19,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
@@ -56,7 +59,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private val sp by lazy { SPUtils(requireContext()) }
-    private val configPref by lazy { XUtils(requireContext(), "hookConfig").configPref }
     private var isFabShow = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,8 +145,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
 
     fun deleteConfig(appConfig: AppConfig) {
         viewModel.deleteConfigs(appConfig)
-        configPref?.edit()?.remove(appConfig.packageName)?.apply()
-        FileUtils.deleteFile(appConfig.packageName)
+        FileUtils.fakeDeleteConfig(
+            requireContext(),
+            appConfig.packageName,
+            Constant.APP_CONFIG_NAME
+        )
         Snackbar.make(
             binding.fab,
             getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
@@ -165,9 +170,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         }).setAction(getString(R.string.main_home_undo_delete_config)) {
             viewModel.insertConfigs(appConfig)
             val configStr = Gson().toJson(appConfig)
-            if (sp.openStorage) FileUtils.createConfigFile(appConfig.packageName, configStr)
-            if (sp.openXml) configPref?.edit()?.putString(appConfig.packageName, configStr)
-                ?.apply()
+            saveToText(appConfig.packageName, configStr)
         }.show()
     }
 
@@ -212,7 +215,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun initView() {
-
         binding.apply {
             addConfig.setOnClickListener { toAddFragment(null) }
             importConfigsFromPaste.setOnClickListener {
@@ -223,17 +225,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                 showInternetImportConfigDialog()
             }
         }
-
         bottomNavigationView.post {
             val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.setMargins(
-                0,
-                0,
-                20.dp,
-                px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(
-                    PhoneUtils.getViewY(bottomNavigationView)
-                ) + bottomNavigationView.height
-            )
+            layoutParams.bottomMargin = px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(
+                PhoneUtils.getViewY(bottomNavigationView)
+            ) + bottomNavigationView.height
             binding.fab.layoutParams = layoutParams
         }
     }
@@ -308,30 +304,40 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun importConfigs(configs: String) {
-        try {
-            when {
-                JsonUtil.isJsonArray(configs) -> {
-                    val dataList = JsonUtil.importConfigs(configs)
-                    if (dataList.isEmpty()) {
-                        getString(R.string.main_home_import_incorrect_format_tip).toast(
-                            requireContext()
-                        )
-                        return
-                    } else {
-                        ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
-                            requireActivity().supportFragmentManager,
-                            "import"
-                        )
-                    }
+        when {
+            JsonUtil.isJsonArray(configs) -> {
+                val dataList = JsonUtil.importConfigs(configs)
+                if (dataList.isEmpty()) {
+                    getString(R.string.main_home_import_incorrect_format_tip).toast(
+                        requireContext()
+                    )
+                    return
+                } else {
+                    ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
+                        requireActivity().supportFragmentManager,
+                        "import"
+                    )
                 }
-                JsonUtil.isJsonObject(configs) -> {
+            }
+            JsonUtil.isJsonObject(configs) -> {
+                try {
                     val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                     appConfig.id = 0
                     viewModel.insertConfigs(appConfig)
+                    if (FileUtils.isGrant(mContext)) {
+                        FileUtils.saveConfig(
+                            mContext,
+                            appConfig.packageName,
+                            Constant.APP_CONFIG_NAME,
+                            configs
+                        )
+                    }
+                    "导入成功".toast(mContext)
+                } catch (e: java.lang.Exception) {
+                    getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
                 }
             }
-        } catch (e: java.lang.Exception) {
-            getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
+            else -> getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
         }
     }
 
@@ -339,15 +345,21 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         appConfig.enable = isChecked
         viewModel.updateConfigs(appConfig)
         val configStr = Gson().toJson(appConfig)
-        if (sp.openStorage) {
-            FileUtils.verifyStoragePermissions(mContext as Activity)
-            FileUtils.createConfigFile(appConfig.packageName, configStr)
-        }
-        if (sp.openXml) {
-            configPref?.edit()?.putString(appConfig.packageName, configStr)?.apply()
-        }
+        saveToText(appConfig.packageName, configStr)
     }
 
+    private fun saveToText(packageName: String, configs: String) {
+        if (sp.openStorage && FileUtils.isGrant(requireContext())) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                FileUtils.saveConfig(
+                    requireContext(),
+                    packageName,
+                    Constant.APP_CONFIG_NAME,
+                    configs
+                )
+            }
+        }
+    }
 
     private fun adapterOnClick(appConfig: AppConfig) {
         val bottomSheetDialog = me.simpleHook.ui.custom.BottomSheetDialog(

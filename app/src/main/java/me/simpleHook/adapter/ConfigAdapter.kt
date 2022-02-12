@@ -47,13 +47,14 @@ class ConfigAdapter(
         return viewHolder
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.setTag(R.id.item_position, position)
         val methodConfig = getItem(position)
         holder.apply {
             tvClassName.text = methodConfig.className
             tvOtherName.text =
-                if (methodConfig.methodName.isEmpty()) methodConfig.fieldName else methodConfig.methodName
+                methodConfig.methodName.ifEmpty { methodConfig.fieldName }
             tvNumber.text = (position + 1).toString()
         }
     }

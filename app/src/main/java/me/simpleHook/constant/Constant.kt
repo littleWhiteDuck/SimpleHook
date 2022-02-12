@@ -22,6 +22,11 @@ object Constant {
     const val PRINT_LOG__DIRECTORY = "/storage/emulated/0/Download/simpleHook/printLog/"
     const val HOT_FIX_DIRECTORY = "/storage/emulated/0/Download/simpleHook/hotFix/"
 
+    // Android/data
+    const val ANDROID_DATA_URI =
+        "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
+    const val ANDROID_DATA_PATH = "/storage/emulated/0/Android/data/"
+
     //应用列表排序
     const val APP_LIST_BY_NAME = 0
     const val APP_LIST_BY_PACKAGE_NAME = 1
@@ -30,4 +35,9 @@ object Constant {
 
     //两次点击间隔时间
     const val CLICK_TIME = 500L
+
+    //Config: config.json、assistConfig.json
+    const val APP_CONFIG_NAME = "config.json"
+    const val EXTENSION_CONFIG_NAME = "assistConfig.json"
+
 }

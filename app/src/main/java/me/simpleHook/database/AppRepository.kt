@@ -90,7 +90,7 @@ class AppRepository(context: Context) {
     }
 
     fun getAllAssistConfigs() = assistConfigDao.getAllConfigs()
-
+    fun getAssistConfigs() = assistConfigDao.getConfigs()
     fun getFilterAssistConfigs(pattern: String) = assistConfigDao.getFilterConfigs(pattern)
 
     suspend fun queryDefaultExConfig(): List<AssistConfig> = assistConfigDao.queryDefaultExConfig()

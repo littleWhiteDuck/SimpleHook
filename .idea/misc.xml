@@ -6,7 +6,9 @@
         <entry key="..\:/littleWhiteDuck/.gradle/caches/transforms-3/4a697a7e311e0d454db15ce0250c9c6d/transformed/appcompat-1.2.0/res/drawable/abc_item_background_holo_dark.xml" value="0.15092592592592594" />
         <entry key="..\:/littleWhiteDuck/.gradle/caches/transforms-3/4a697a7e311e0d454db15ce0250c9c6d/transformed/appcompat-1.2.0/res/drawable/abc_item_background_holo_light.xml" value="0.15092592592592594" />
         <entry key="..\:/littleWhiteDuck/Android/Sdk/platforms/android-31/data/res/drawable/list_selector_background.xml" value="0.1" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable-v24/ic_help.xml" value="0.103" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1390625" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable-v24/ic_select.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/bottom_dialog_background.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/float_control_icon.xml" value="0.19427083333333334" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_arrow_upward_24.xml" value="0.10462962962962963" />
@@ -15,9 +17,14 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_file.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_launcher.xml" value="0.1390625" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1390625" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_minimize.xml" value="0.1" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_outline_delete_forever_24.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_paste.xml" value="0.15364583333333334" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_record_24.xml" value="0.1" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/ic_settings_24.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/line.xml" value="0.19427083333333334" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/line_drawable.xml" value="0.19427083333333334" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/popup_shape.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/scroll_layer.xml" value="0.16574074074074074" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/test_config_select_background.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable/thumb.xml" value="0.19427083333333334" />
@@ -33,7 +40,8 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/app_list_settings.xml" value="0.134375" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/app_list_sort_settings.xml" value="0.17395833333333333" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/config_dialog.xml" value="0.1398148148148148" />
-        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/custom_bottom_popup.xml" value="0.10260416666666666" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/custom_bottom_popup.xml" value="0.3333333333333333" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/custom_bottom_popup2.xml" value="0.16666666666666666" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/float_window_layout.xml" value="0.4466666666666667" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_app_list.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_app_system.xml" value="0.178125" />

@@ -18,7 +18,6 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.util.regex.Matcher

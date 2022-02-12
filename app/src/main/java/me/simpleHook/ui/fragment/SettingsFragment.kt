@@ -1,29 +1,41 @@
 package me.simpleHook.ui.fragment
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.AssetsUtil
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.toast
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -44,19 +56,31 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         }
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val contentResolver = requireActivity().contentResolver
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
+
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
             if (newValue as Boolean) {
-                FileUtils.verifyStoragePermissions(requireActivity())
-            }
-            true
-        }
-        findPreference<SwitchPreferenceCompat>("openXml")?.setOnPreferenceChangeListener { _, newValue ->
-            if (newValue as Boolean) {
-                "支持支持' New XSharedPreferences '的框架，如 LSPosed、EdXposed".toast(requireContext())
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    requestPermissionDialog(requireContext()) {
+                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                    }
+                } else {
+                    requestPermissionDialog(requireContext()) {
+                        FileUtils.verifyStoragePermissions(requireActivity())
+                    }
+                }
             }
             true
         }
@@ -91,18 +115,86 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<Preference>("importOldConfig")?.apply {
-            setOnPreferenceClickListener {
-                importOldConfig()
-                true
-            }
-        }
         findPreference<Preference>("termsOfUse")?.apply {
             setOnPreferenceClickListener {
                 showUseTerms()
                 true
             }
         }
+        findPreference<Preference>("clearConfigData")?.apply {
+            setOnPreferenceChangeListener { _, newValue ->
+                when (newValue as String) {
+                    "清空Hook配置" -> clearHookConfig(0)
+                    "清空扩展配置" -> clearHookConfig(1)
+                    "清空所有记录" -> clearHookConfig(2)
+                }
+                true
+            }
+        }
+    }
+
+    private fun clearHookConfig(mode: Int) {
+        showNotification("正在删除中", "请勿退出应用")
+        lifecycleScope.launch(Dispatchers.IO) {
+            when (mode) {
+                0 -> {
+                    val configs = viewModel.getConfigs()
+                    if (FileUtils.isGrant(requireContext())) {
+                        configs.forEach {
+                            FileUtils.realDeleteConfig(
+                                requireContext(),
+                                it.packageName,
+                                Constant.APP_CONFIG_NAME,
+                            )
+                        }
+                    }
+                    viewModel.deleteAllConfigs()
+                    showNotification("完成", "Hook配置已经删除成功")
+                }
+                1 -> {
+                    val configs = viewModel.getAssistConfigs()
+                    viewModel.deleteAllAssistConfigs()
+                    if (FileUtils.isGrant(requireContext())) {
+                        configs.forEach {
+                            FileUtils.fakeDeleteConfig(
+                                requireContext(),
+                                it.packageName,
+                                Constant.EXTENSION_CONFIG_NAME
+                            )
+                        }
+                    }
+                    showNotification("完成", "扩展配置已经删除成功")
+                }
+                2 -> {
+                    viewModel.deleteAllLogs()
+                    showNotification("完成", "记录已经删除成功")
+                }
+            }
+        }
+
+    }
+
+    private fun showNotification(title: String, content: String) {
+        val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as
+                NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "delete", "删除通知", NotificationManager.IMPORTANCE_HIGH
+            )
+            manager.createNotificationChannel(channel)
+        }
+        val notification = androidx.core.app.NotificationCompat.Builder(requireActivity(), "delete")
+            .setContentTitle(title)
+            .setContentText(content)
+            .setSmallIcon(R.drawable.ic_outline_delete_forever_24)
+            .setLargeIcon(
+                BitmapFactory.decodeResource(
+                    resources,
+                    R.drawable.ic_outline_delete_forever_24
+                )
+            )
+            .build()
+        manager.notify(1, notification)
     }
 
     private fun showUseTerms() {
@@ -113,58 +205,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun showUpdateRecord() {
         val message = AssetsUtil.getText(requireContext(), "update")
         warningDialog(requireContext(), title = "更新记录", message = message)
-    }
-
-    private fun importOldConfig() {
-        val strClip = ToolUtils.getClipboardContent(requireContext()) ?: ""
-        if (strClip.contains("configs") || strClip.contains("\"enable\":")) "请勿导入新版配置".toast(
-            requireContext()
-        )
-        try {
-            if (JsonUtil.isJsonObject(strClip)) {
-                val appConfigBean = Gson().fromJson(strClip, AppConfigBean::class.java)
-                appConfigBean.apply {
-                    viewModel.insertConfigs(
-                        AppConfig(
-                            packageName,
-                            appName,
-                            versionName,
-                            description,
-                            Gson().toJson(config).toString(),
-                            canUse
-                        )
-                    )
-                }
-
-            } else if (JsonUtil.isJsonArray(strClip)) {
-                val type = object : TypeToken<List<AppConfigBean>>() {}.type
-                val configBeans = Gson().fromJson<List<AppConfigBean>>(strClip, type)
-                val configItems = ArrayList<ConfigItem>()
-                configBeans.forEach {
-                    it.apply {
-                        configItems.add(
-                            ConfigItem(
-                                AppConfig(
-                                    packageName,
-                                    appName,
-                                    versionName,
-                                    description,
-                                    Gson().toJson(config).toString(),
-                                    canUse
-                                )
-                            )
-                        )
-                    }
-                }
-                ConfigDialogFragment(configItems).show(
-                    requireActivity().supportFragmentManager,
-                    "importOld"
-                )
-            }
-        } catch (e: Exception) {
-            getString(R.string.error_tip).toast(requireContext())
-        }
-
     }
 
     private fun showHelp() {

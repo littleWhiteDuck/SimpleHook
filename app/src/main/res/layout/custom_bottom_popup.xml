@@ -117,10 +117,10 @@
             app:layout_constraintTop_toBottomOf="@+id/appNameText" />
 
         <TextView
-            android:id="@+id/applicableVersion"
+            android:id="@+id/support_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_bottom_applicable_version"
+            android:text="@string/main_bottom_support_version"
             android:textAppearance="?android:textAppearanceListItemSecondary"
             app:layout_constraintBottom_toTopOf="@+id/currentVersion"
             app:layout_constraintStart_toStartOf="@+id/guideline10"
@@ -133,8 +133,8 @@
             android:text="@string/main_bottom_current_installed_version"
             android:textAppearance="?android:textAppearanceListItemSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/applicableVersion"
-            app:layout_constraintTop_toBottomOf="@+id/applicableVersion" />
+            app:layout_constraintStart_toStartOf="@+id/support_version"
+            app:layout_constraintTop_toBottomOf="@+id/support_version" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

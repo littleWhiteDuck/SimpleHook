@@ -5,11 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
-import java.util.jar.Pack200
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
@@ -23,7 +23,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val filterRecord2: LiveData<List<PrintLog>> get() = _filterRecord2
 
     // appConfig
-    fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
+    fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
         appRepository.insertConfigs(*appConfig)
     }
 
@@ -35,7 +35,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteConfigs(*appConfig)
     }
 
-    fun deleteAllConfigs() = viewModelScope.launch {
+    fun deleteAllConfigs() = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteAllConfigs()
     }
 
@@ -109,6 +109,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getAllAssistConfigs() = appRepository.getAllAssistConfigs()
+    fun getAssistConfigs() = appRepository.getAssistConfigs()
 
     fun getFilterAssistConfigs(pattern: String) = appRepository.getFilterAssistConfigs(pattern)
 

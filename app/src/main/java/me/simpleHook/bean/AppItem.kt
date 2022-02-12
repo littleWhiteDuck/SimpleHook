@@ -16,6 +16,6 @@ data class AppItem(
     val packageName: String,
     val versionName: String,
     val versionCode: String,
-    val installedTime: Long,
+    val installedTime: String,
     val targetApi: String
 ) : Parcelable

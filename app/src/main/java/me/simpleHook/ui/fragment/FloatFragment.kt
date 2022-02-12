@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -19,7 +20,6 @@ import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
-import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentFloatBinding
@@ -28,6 +28,7 @@ import me.simpleHook.util.FileUtils
 import me.simpleHook.util.JsonUtil
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class FloatFragment : Fragment() {
@@ -46,6 +47,19 @@ class FloatFragment : Fragment() {
     private val uri = Uri.parse("content://littleWhiteDuck/print_logs")
     private var stopPrint = false
     private var currentId = 0
+    private var strLog = ""
+    private val exportLog =
+        registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
+            resultUri?.also {
+                thread {
+                    FileUtils.alterDocument(
+                        requireContext(),
+                        it,
+                        JsonUtil.formatJson("[\n${strLog}\n]")
+                    )
+                }
+            }
+        }
 
     @SuppressLint("Range", "NotifyDataSetChanged")
     private fun updateData() {
@@ -125,21 +139,15 @@ class FloatFragment : Fragment() {
                     return@setOnClickListener
                 }
                 val date = Date()
-                val time = SimpleDateFormat("yy_MM_dd_hh_mm_ss").format(date)
-                val url = Constant.PRINT_LOG__DIRECTORY
+                val time = SimpleDateFormat("yy_MM_dd_hh_mm_ss").format(date) + ".json"
                 val writeList = list
                 val str = StringBuilder()
                 for (i in writeList.indices) {
                     str.append("  ${writeList[i].log},\n")
                 }
-                val strLog =
+                strLog =
                     str.toString().substring(0, str.toString().length - 2).replace("\\u003e", ">")
-                FileUtils.writeData(url, time, JsonUtil.formatJson("[\n${strLog}\n]"))
-                Toast.makeText(
-                    requireContext(),
-                    "导出路径为：${Constant.PRINT_LOG__DIRECTORY + time}.json",
-                    Toast.LENGTH_LONG
-                ).show()
+                exportLog.launch(time)
             }
             dragEnable.setOnCheckedChangeListener { _, isChecked ->
                 EasyFloat.dragEnable(isChecked, "floatPrint")

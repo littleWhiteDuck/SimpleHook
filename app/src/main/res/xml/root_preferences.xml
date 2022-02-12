@@ -9,6 +9,7 @@
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="openXml"
+            app:isPreferenceVisible="false"
             app:summary="@string/main_settings_summary_xml"
             app:title="@string/main_settings_title_xml" />
 
@@ -27,7 +28,13 @@
             app:title="@string/main_settings_title_encrypt" />
 
     </PreferenceCategory>
-
+    <PreferenceCategory app:title="常规功能">
+        <me.simpleHook.ui.custom.MenuPreference
+            app:key="clearConfigData"
+            app:summary="一键化清理配置"
+            app:entries="@array/main_settings_clear_item"
+            app:title="清空配置" />
+    </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference
             app:key="backupConfigs"
@@ -52,10 +59,6 @@
             app:key="help"
             app:summary="@string/main_settings_summary_help"
             app:title="@string/main_settings_title_help" />
-        <Preference
-            app:key="importOldConfig"
-            app:summary="剪切板导入旧版配置"
-            app:title="导入旧版配置" />
         <Preference
             app:key="termsOfUse"
             app:title="@string/main_settings_title_terms_of_use" />

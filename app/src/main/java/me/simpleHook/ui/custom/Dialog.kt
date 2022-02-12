@@ -4,6 +4,17 @@ import android.content.Context
 import android.content.DialogInterface
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import me.simpleHook.R
+
+fun requestPermissionDialog(context: Context, okClick: () -> Unit) {
+    warningDialog(
+        context,
+        context.getString(R.string.main_request_storage_permission_title),
+        context.getString(R.string.main_request_storage_permission_message),
+        okText = context.getString(R.string.main_request_storage_permission_okText),
+        okClick = okClick
+    )
+}
 
 fun warningDialog(
     context: Context,
@@ -40,7 +51,7 @@ fun customDialog(
         .setNegativeButton(cancelText) { dialog, _ -> cancelClick(dialog) }
         .setCancelable(cancelAble)
     customDialog.apply {
-        if (title.isNotEmpty()){
+        if (title.isNotEmpty()) {
             setTitle(title)
         }
         if (message.isNotEmpty()) {

@@ -9,6 +9,9 @@ interface AssistConfigDao {
     @Query("SELECT * FROM AssistConfig ORDER BY ID DESC")
     fun getAllConfigs(): LiveData<List<AssistConfig>>
 
+    @Query("SELECT * FROM AssistConfig ORDER BY ID DESC")
+    fun getConfigs(): List<AssistConfig>
+
     @Delete
     suspend fun deleteConfigs(vararg config: AssistConfig)
 

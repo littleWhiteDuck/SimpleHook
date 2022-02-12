@@ -1,6 +1,8 @@
 package me.simpleHook.ui.fragment
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -20,22 +22,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
+import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.AssistActivity
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.util.*
 
 class ExtensionFragment : Fragment() {
     private val appViewModel by activityViewModels<AppViewModel>()
     private val sp by lazy { SPUtils(requireContext()) }
-    private val assistPref by lazy { XUtils(requireContext(), "assistConfig").configPref }
+
+    //    private val assistPref by lazy { XUtils(requireContext(), "assistConfig").configPref }
     private var _binding: FragmentAssistBinding? = null
     private val binding get() = _binding!!
     private val mAdapter: AssistAdapter by lazy {
         AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
+    }
+    private val startActivityForData by lazy {
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val contentResolver = requireActivity().contentResolver
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
     }
 
     private fun itemOnLongClick(assistConfig: AssistConfig) {
@@ -44,8 +60,12 @@ class ExtensionFragment : Fragment() {
             return
         }
         appViewModel.deleteAssistConfigs(assistConfig)
-        FileUtils.deleteFile(assistConfig.packageName, false)
-        sp.remove(assistConfig.packageName)
+        FileUtils.fakeDeleteConfig(
+            requireContext(),
+            assistConfig.packageName,
+            Constant.EXTENSION_CONFIG_NAME
+        )
+//        sp.remove(assistConfig.packageName)
         val bottomNavigationView =
             requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         Snackbar.make(
@@ -68,15 +88,39 @@ class ExtensionFragment : Fragment() {
             }
         }).setAction(getString(R.string.main_extension_undo_delete_config)) {
             appViewModel.insertAssistConfigs(assistConfig)
-            if (sp.openStorage) {
-                FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)
-            }
-            if (sp.openXml) {
-                assistPref?.edit()?.putString(assistConfig.packageName, assistConfig.config)
-                    ?.apply()
-            }
+            saveToText(assistConfig.packageName, assistConfig.config)
+//            if (sp.openXml) {
+//                assistPref?.edit()?.putString(assistConfig.packageName, assistConfig.config)
+//                    ?.apply()
+//            }
         }.show()
     }
+
+    private fun saveToText(packageName: String, configs: String) {
+        if (sp.openStorage) {
+            if (FileUtils.isGrant(requireContext())) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    FileUtils.saveConfig(
+                        requireContext(),
+                        packageName,
+                        Constant.EXTENSION_CONFIG_NAME,
+                        configs
+                    )
+                }
+            } else {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    requestPermissionDialog(requireContext()) {
+                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                    }
+                } else {
+                    requestPermissionDialog(requireContext()) {
+                        FileUtils.verifyStoragePermissions(requireActivity())
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun itemOnClick(assistConfig: AssistConfig) {
         val bundle = Bundle()

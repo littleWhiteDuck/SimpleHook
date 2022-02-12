@@ -11,6 +11,13 @@ import me.simpleHook.R
 
 
 object AppUtils {
+    fun isAppInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0) != null
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon(context: Context, packageName: String): Drawable {
@@ -43,9 +50,14 @@ object AppUtils {
         return packageInfo.applicationInfo.loadIcon(context.packageManager)
     }
 
-    fun getTargetSdkVersion(context: Context, packageName: String): String{
+    fun getTargetSdkVersion(context: Context, packageName: String): String {
         return try {
-            "Target Api ${context.packageManager.getPackageInfo(packageName, 0).applicationInfo.targetSdkVersion}"
+            "Target Api ${
+                context.packageManager.getPackageInfo(
+                    packageName,
+                    0
+                ).applicationInfo.targetSdkVersion
+            }"
         } catch (e: Exception) {
             "Target Api -1"
         }
@@ -78,7 +90,7 @@ object AppUtils {
     fun getAppVersionCode(context: Context, packageName: String): String {
         return try {
             val info = context.packageManager.getPackageInfo(packageName, 0)
-            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 info.longVersionCode
             } else info.versionCode
             versionCode.toString()

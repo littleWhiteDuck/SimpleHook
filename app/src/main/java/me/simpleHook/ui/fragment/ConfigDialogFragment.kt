@@ -1,6 +1,7 @@
 package me.simpleHook.ui.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,12 +9,16 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
@@ -36,12 +41,14 @@ class ConfigDialogFragment(
     }
     private var isAnti = false
     private val sp by lazy { SPUtils(requireContext()) }
+    private lateinit var mContext: Context
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentConfigImExportBinding.inflate(inflater, container, false)
+        mContext = requireContext()
         initView()
         return binding.root
     }
@@ -53,40 +60,52 @@ class ConfigDialogFragment(
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL))
         }
+        this.isCancelable = false
         binding.apply {
             title.text = if (isImport) "导入配置" else "导出配置"
             confirm.setOnClickListener {
-                var checkIsZero = 0
+                var checkIsZero = true
+                val isGrant = FileUtils.isGrant(mContext)
                 if (isImport) {
                     for (item in configsList) {
                         if (item.isChecked) {
-                            checkIsZero++
-                            viewModel.insertConfigs(item.appConfig)
+                            checkIsZero = false
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                viewModel.insertConfigs(item.appConfig)
+                                if (isGrant) {
+                                    FileUtils.saveConfig(
+                                        mContext,
+                                        item.appConfig.packageName,
+                                        Constant.APP_CONFIG_NAME,
+                                        Gson().toJson(item.appConfig)
+                                    )
+                                }
+                            }
                         }
                     }
-                    if (checkIsZero == 0) {
-                        "为空".toast(requireContext())
-                        return@setOnClickListener
+                    if (checkIsZero) {
+                        "为空".toast(mContext)
+                    } else {
+                        "导入成功".toast(mContext)
+                        this@ConfigDialogFragment.dismiss()
                     }
                 } else {
                     val tempList = ArrayList<ConfigItem>()
                     for (item in configsList) {
                         if (item.isChecked) {
-                            checkIsZero++
+                            checkIsZero = false
                             tempList.add(item)
                         }
                     }
-                    if (checkIsZero == 0) {
-                        "为空".toast(requireContext())
-                        return@setOnClickListener
+                    if (checkIsZero) {
+                        "为空".toast(mContext)
+                    } else {
+                        val strConfig = getStrConfig(tempList)
+                        ToolUtils.toClip(mContext, strConfig)
+                        getString(R.string.main_home_export_configs_tip).toast(mContext)
+                        this@ConfigDialogFragment.dismiss()
                     }
-                    val strConfig = getStrConfig(tempList)
-                    ToolUtils.toClip(requireContext(), strConfig)
-                    getString(R.string.main_home_export_configs_tip).toast(requireContext())
                 }
-                val toast = if (isImport) "导入成功" else "导出成功"
-                toast.toast(requireContext())
-                this@ConfigDialogFragment.dismiss()
             }
             selectAll.setOnClickListener {
                 if (isAnti) {

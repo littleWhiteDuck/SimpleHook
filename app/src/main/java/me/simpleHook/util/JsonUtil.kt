@@ -3,6 +3,7 @@ package me.simpleHook.util
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -83,16 +84,16 @@ object JsonUtil {
         }
     }
 
-     fun importConfigs(configs: String): List<ConfigItem> = try {
-         val type = object : TypeToken<List<AppConfig>>(){}.type
-         val appConfigs = Gson().fromJson<List<AppConfig>>(configs, type)
-         val dataList = ArrayList<ConfigItem>()
-         appConfigs.forEach { appConfig ->
-             appConfig.id = 0
-             dataList.add(ConfigItem(appConfig))
-         }
+    fun importConfigs(configs: String): List<ConfigItem> = try {
+        val type = object : TypeToken<List<AppConfig>>() {}.type
+        val appConfigs = Gson().fromJson<List<AppConfig>>(configs, type)
+        val dataList = ArrayList<ConfigItem>()
+        appConfigs.forEach { appConfig ->
+            appConfig.id = 0
+            dataList.add(ConfigItem(appConfig))
+        }
         dataList
-    } catch (e: java.lang.Exception){
+    } catch (e: java.lang.Exception) {
         emptyList()
     }
 }

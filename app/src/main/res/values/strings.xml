@@ -13,7 +13,7 @@
     <string name="config_config_smali_to_config">smali转为配置</string>
     <string name="config_application_input_helper">例如：com.example.MyApplication</string>
     <string name="config_add_config">添加方法配置</string>
-    <string name="config_dialog_help">帮助</string>
+    <string name="config_dialog_help">\?</string>
     <string name="config_dialog_class_edit_tip">输入类名</string>
     <string name="config_dialog_class_input_helper">例如：com.example.example</string>
     <string name="config_dialog_method_input_tip">输入方法名</string>
@@ -65,7 +65,7 @@
     <string name="main_settings_summary_help">常见问题</string>
     <string name="main_settings_title_expand">增加读取配置方式</string>
     <string name="main_settings_title_storage">向储存文件中写入配置</string>
-    <string name="main_settings_summary_storage">本应用和目标应用需要拥有储存权限</string>
+    <string name="main_settings_summary_storage">本应用需要拥有储存权限(建议开启)</string>
     <string name="main_settings_summary_xml">使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改</string>
     <string name="main_settings_title_xml">向xml中写入配置</string>
     <string name="main_settings_title_experiment">实验功能</string>
@@ -81,6 +81,11 @@
     <string name="main_settings_summary_update_record">记下心动一刻</string>
     <string name="main_settings_title_update_record">更新记录</string>
     <string name="main_settings_title_terms_of_use">使用协议</string>
+    <string-array name="main_settings_clear_item">
+        <item>清空Hook配置</item>
+        <item>清空扩展配置</item>
+        <item>清空所有记录</item>
+    </string-array>
 
     <string name="main_share_config_cancel">取消</string>
     <string name="main_share_config_select_all">全选</string>
@@ -89,8 +94,8 @@
     <string name="main_bottom_download">下载</string>
     <string name="main_bottom_app_icon">应用图标</string>
     <string name="main_bottom_package_name">包名</string>
-    <string name="main_bottom_applicable_version">可用的版本</string>
-    <string name="main_bottom_current_installed_version">当前安装版本</string>
+    <string name="main_bottom_support_version">支持：%s</string>
+    <string name="main_bottom_current_installed_version">当前：%s</string>
     <string name="main_bottom_config_description">配置介绍</string>
     <string name="main_bottom_edit_config">编辑</string>
 
@@ -129,6 +134,9 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="extension_settings">设置</string>
+    <string name="main_request_storage_permission_title">获取权限</string>
+    <string name="main_request_storage_permission_message">由于部分应用无法读取到配置，所以需要获取data文件夹权限，在目标应用目录下写入配置</string>
+    <string name="main_request_storage_permission_okText">去申请</string>
 
 
 </resources>

@@ -115,20 +115,16 @@
                 android:hint="@string/config_dialog_return_value_input_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <ImageView
+        <Button
             android:id="@+id/help"
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:contentDescription="@string/config_dialog_help"
-            android:focusable="true"
-            android:padding="10dp"
+            android:text="@string/config_dialog_help"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/textView"
-            app:srcCompat="@drawable/ic_help" />
+            app:layout_constraintTop_toTopOf="@+id/textView" />
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/field_name_input"
             style="@style/config_dialog_input_layout_style"

@@ -1,10 +1,7 @@
 package me.simpleHook.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageInfo
-import android.icu.text.SimpleDateFormat
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,6 +14,7 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.TimeUtil
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
@@ -58,7 +56,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             when (sortSelected) {
                 APP_LIST_BY_NAME -> appItem.name
                 APP_LIST_BY_PACKAGE_NAME -> appItem.packageName
-                APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime.toString()
+                APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime
                 else -> appItem.targetApi
             }
         }
@@ -76,7 +74,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
                         AppUtils.getAppVersionCode(getApplication(), packageName),
-                        lastUpdateTime,
+                        TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd"),
                         AppUtils.getTargetSdkVersion(getApplication(), packageName)
                     )
                 )

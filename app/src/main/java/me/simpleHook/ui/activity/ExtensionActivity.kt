@@ -2,6 +2,8 @@ package me.simpleHook.ui.activity
 
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -12,9 +14,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -22,42 +27,51 @@ import me.simpleHook.adapter.MultiTypeAdapter
 import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
-import me.simpleHook.constant.Constant.HOT_FIX_DIRECTORY
+import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.activity.ExtensionTag.*
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
 import javax.crypto.Mac
 
-enum class ExtensionTag(val tag: String, val title: String) {
-    ALL_SWITCH("all", "总开关"),
-    BASE_64("base64", "Base64"),
-    DIGEST("digest", "摘要算法"),
-    HMAC("hmac", "信息摘要算法"),
-    CRYPT("crypt", "加密算法"),
-    DIALOG_SWITCH("dialog", "弹窗"),
-    DIALOG_CANCEL("diaCancel", "弹窗取消"),
-    TOAST_SWITCH("toast", "Toast"),
-    POPUP_SWITCH("popup", "popupWindow"),
-    POPUP_CANCEL_SWITCH("popCancel", "PopupWindow取消"),
-    CLICK_LISTENER("click", "点击事件"),
-    INTENT_DATA("intent", "intent"),
-    VPN_CHECK("vpn", "vpn"),
-    HOT_FIX("hotFix", "热修复")
-}
-
+private const val ALL_STATUS = 1
+private const val BASE_64_STATUS = 1 shl 1
+private const val DIGEST_STATUS = 1 shl 2
+private const val HMAC_STATUS = 1 shl 3
+private const val CRYPT_STATUS = 1 shl 4
+private const val DIALOG_STATUS = 1 shl 5
+private const val DIALOG_CANCEL_STATUS = 1 shl 6
+private const val TOAST_STATUS = 1 shl 7
+private const val POPUP_STATUS = 1 shl 8
+private const val POPUP_CANCEL_STATUS = 1 shl 9
+private const val CLICK_LISTENER_STATUS = 1 shl 10
+private const val INTENT_DATA_STATUS = 1 shl 11
+private const val VPN_CHECK_STATUS = 1 shl 12
+private const val HOT_FIX_STATUS = 1 shl 13
+private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
     private lateinit var assistConfig: AssistConfig
-    private val hashMap = HashMap<String, Boolean>()
+    private val hashMap = HashMap<Int, Boolean>()
     private val sp by lazy { SPUtils(this) }
-    private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
+
+    //    private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
     private val appViewModel by viewModels<AppViewModel>()
     private val itemList = ArrayList<Any>()
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
+    private lateinit var configBean: AssistConfigBean
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExtensionBinding.inflate(layoutInflater)
@@ -83,6 +97,11 @@ class AssistActivity : BaseActivity() {
             "",
             ""
         )
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (assistConfig.packageName != "默认配置" && assistConfig.appName != "默认配置") {
+                saveToText(assistConfig.packageName, "")
+            }
+        }
         initData()
         initView()
     }
@@ -90,26 +109,26 @@ class AssistActivity : BaseActivity() {
 
     private fun initData() {
         val config = assistConfig.config
-        val configBean = if (config.isNotEmpty()) Gson().fromJson(
+        configBean = if (config.isNotEmpty()) Gson().fromJson(
             config,
             AssistConfigBean::class.java
         ) else AssistConfigBean()
         configBean.apply {
             hashMap.apply {
-                put(ALL_SWITCH.name, all)
-                put(DIALOG_SWITCH.name, dialog)
-                put(DIALOG_CANCEL.name, diaCancel)
-                put(TOAST_SWITCH.name, toast)
-                put(POPUP_SWITCH.name, popup)
-                put(HOT_FIX.name, hotFix)
-                put(INTENT_DATA.name, intent)
-                put(VPN_CHECK.name, vpn)
-                put(CLICK_LISTENER.name, click)
-                put(POPUP_CANCEL_SWITCH.name, popCancel)
-                put(BASE_64.name, base64)
-                put(DIGEST.name, digest)
-                put(HMAC.name, hmac)
-                put(CRYPT.name, crypt)
+                hashMap[ALL_STATUS] = all
+                hashMap[DIALOG_STATUS] = dialog
+                hashMap[DIALOG_CANCEL_STATUS] = diaCancel
+                hashMap[POPUP_STATUS] = popup
+                hashMap[POPUP_CANCEL_STATUS] = popCancel
+                hashMap[TOAST_STATUS] = toast
+                hashMap[INTENT_DATA_STATUS] = intent
+                hashMap[HOT_FIX_STATUS] = hotFix
+                hashMap[VPN_CHECK_STATUS] = vpn
+                hashMap[CLICK_LISTENER_STATUS] = click
+                hashMap[DIGEST_STATUS] = digest
+                hashMap[HMAC_STATUS] = hmac
+                hashMap[CRYPT_STATUS] = crypt
+                hashMap[BASE_64_STATUS] = base64
             }
         }
         itemList.apply {
@@ -119,43 +138,43 @@ class AssistActivity : BaseActivity() {
                     AssistItem(
                         "应用",
                         false,
-                        "startApp",
+                        startAppTag,
                         assistConfig.packageName,
                         assistConfig.appName
                     )
                 )
-                add(AssistItem("总开关", all, ALL_SWITCH.name, ""))
+                add(AssistItem("总开关", all, ALL_STATUS, ""))
                 add(AssistTitle("算法分析(Alpha)"))
-                add(AssistItem(BASE_64.title, base64, BASE_64.name, "Base64加解密"))
-                add(AssistItem(DIGEST.title, digest, DIGEST.name, "MD5、SHA等"))
-                add(AssistItem(HMAC.title, hmac, HMAC.name, "Hmac"))
-                add(AssistItem(CRYPT.title, crypt, CRYPT.name, "AES、DES、RSA等"))
+                add(AssistItem("Base64", base64, BASE_64_STATUS, "Base64加解密"))
+                add(AssistItem("摘要算法", digest, DIGEST_STATUS, "MD5、SHA等"))
+                add(AssistItem("信息摘要算法", hmac, HMAC_STATUS, "Hmac"))
+                add(AssistItem("加密算法", crypt, CRYPT_STATUS, "AES、DES、RSA等"))
                 add(AssistTitle("界面"))
-                add(AssistItem("弹窗", dialog, DIALOG_SWITCH.name, "打印弹窗调用"))
-                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL.name, "用于一般弹窗的强制可取消"))
-                add(AssistItem("Toast", toast, TOAST_SWITCH.name, "打印toast调用"))
-                add(AssistItem("PopupWindow", popup, POPUP_SWITCH.name, "打印调用（也可作为弹窗）"))
+                add(AssistItem("弹窗", dialog, DIALOG_STATUS, "打印弹窗调用"))
+                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL_STATUS, "用于一般弹窗的强制可取消"))
+                add(AssistItem("Toast", toast, TOAST_STATUS, "打印toast调用"))
+                add(AssistItem("PopupWindow", popup, POPUP_STATUS, "打印调用（也可作为弹窗）"))
                 add(
                     AssistItem(
                         "PopupWindow可取消",
                         popCancel,
-                        POPUP_CANCEL_SWITCH.name,
+                        POPUP_CANCEL_STATUS,
                         "点击弹窗外部/返回取消"
                     )
                 )
-                add(AssistItem("点击事件", click, CLICK_LISTENER.name, "打印点击调用"))
+                add(AssistItem("点击事件", click, CLICK_LISTENER_STATUS, "打印点击调用"))
                 add(AssistTitle("其他"))
-                add(AssistItem("intent", intent, INTENT_DATA.name, "打印常见启动activity时传递的intent"))
+                add(AssistItem("intent", intent, INTENT_DATA_STATUS, "打印常见启动activity时传递的intent"))
                 add(
                     AssistItem(
                         "热修复",
                         hotFix,
-                        HOT_FIX.name,
-                        "dex放在Download/simpleHook\n/hotFix/${assistConfig.packageName}/"
+                        HOT_FIX_STATUS,
+                        "dex放在Android/data/目标应用包名/"
                     )
                 )
                 add(AssistTitle("网络"))
-                add(AssistItem("vpn", vpn, VPN_CHECK.name, "去除一般的VPN检测"))
+                add(AssistItem("vpn", vpn, VPN_CHECK_STATUS, "去除一般的VPN检测"))
                 /* add(AssistTitle("环境"))
                  add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
             }
@@ -221,7 +240,7 @@ class AssistActivity : BaseActivity() {
         }
     }
 
-    class ItemHolder(itemView: View, val onClick: (Boolean, String) -> Unit) :
+    class ItemHolder(itemView: View, val onClick: (Boolean, Int) -> Unit) :
         BasicViewHolder<AssistItem>(itemView) {
         private val assistItemView = itemView as ExtensionItemView
         private val tvTitle: TextView = assistItemView.title
@@ -232,7 +251,7 @@ class AssistActivity : BaseActivity() {
             tvTitle.text = data.title
             tvDesc.text = data.desc
             when {
-                data.tag == "startApp" -> tvControl.text = data.other
+                data.tag == startAppTag -> tvControl.text = data.other
                 data.isChecked -> {
                     tvControl.text = "已开启"
                     tvControl.setTextColor(Color.parseColor("#4F9BFA"))
@@ -247,7 +266,7 @@ class AssistActivity : BaseActivity() {
                 tvControl.apply {
                     data.apply {
                         when {
-                            tag == "startApp" -> {
+                            tag == startAppTag -> {
                                 onClick(false, tag)
                             }
                             isChecked -> {
@@ -268,17 +287,20 @@ class AssistActivity : BaseActivity() {
 
     }
 
-    private fun onClick(checked: Boolean, tag: String) {
-        if (tag == "startApp") {
+    private fun onClick(checked: Boolean, tag: Int) {
+        if (tag == startAppTag) {
             saveConfig()
             startAppAndFloat()
             return
+        } else {
+            hashMap[tag] = checked
+            /*status = if (checked){
+                if (status == 0) tag else status or tag
+            }else {
+                status and tag.inv()
+            }*/
         }
-        if (tag == HOT_FIX.name && checked) {
-            FileUtils.verifyStoragePermissions(this)
-            FileUtils.makeRootDirectory("$HOT_FIX_DIRECTORY/${assistConfig.packageName}/")
-        }
-        hashMap[tag] = checked
+
     }
 
     private fun startAppAndFloat() {
@@ -293,36 +315,80 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun saveConfig() {
-        val configBean = AssistConfigBean(
-            hashMap[ALL_SWITCH.name] == true,
-            hashMap[DIALOG_SWITCH.name] == true,
-            hashMap[POPUP_SWITCH.name] == true,
-            hashMap[DIALOG_CANCEL.name] == true,
-            hashMap[TOAST_SWITCH.name] == true,
-            hashMap[INTENT_DATA.name] == true,
-            hashMap[HOT_FIX.name] == true,
-            hashMap[VPN_CHECK.name] == true,
-            hashMap[CLICK_LISTENER.name] == true,
-            hashMap[POPUP_CANCEL_SWITCH.name] == true,
-            hashMap[DIGEST.name] == true,
-            hashMap[HMAC.name] == true,
-            hashMap[CRYPT.name] == true,
-            hashMap[BASE_64.name] == true
+
+
+        /*  configBean.apply {
+              val configBean2 = AssistConfigBean(
+                  all = isContains(ALL_STATUS),
+                  dialog = isContains(DIALOG_STATUS),
+                  diaCancel = isContains(DIALOG_CANCEL_STATUS),
+                  popCancel = isContains(POPUP_CANCEL_STATUS),
+                  popup = isContains(POPUP_STATUS),
+                  toast = isContains(TOAST_STATUS),
+                  intent = isContains(INTENT_DATA_STATUS),
+                  hotFix = isContains(HOT_FIX_STATUS),
+                  vpn = isContains(VPN_CHECK_STATUS),
+                  click = isContains(CLICK_LISTENER_STATUS),
+                  digest = isContains(DIGEST_STATUS),
+                  hmac = isContains(HMAC_STATUS),
+                  crypt = isContains(CRYPT_STATUS),
+                  base64 = isContains(BASE_64_STATUS)
+              )
+          }*/
+
+        configBean = AssistConfigBean(
+            hashMap[ALL_STATUS] == true,
+            hashMap[DIALOG_STATUS] == true,
+            hashMap[DIALOG_CANCEL_STATUS] == true,
+            hashMap[POPUP_STATUS] == true,
+            hashMap[POPUP_CANCEL_STATUS] == true,
+            hashMap[TOAST_STATUS] == true,
+            hashMap[INTENT_DATA_STATUS] == true,
+            hashMap[HOT_FIX_STATUS] == true,
+            hashMap[VPN_CHECK_STATUS] == true,
+            hashMap[CLICK_LISTENER_STATUS] == true,
+            hashMap[DIGEST_STATUS] == true,
+            hashMap[HMAC_STATUS] == true,
+            hashMap[CRYPT_STATUS] == true,
+            hashMap[BASE_64_STATUS] == true
         )
         val config = Gson().toJson(configBean)
         assistConfig.config = config
         appViewModel.updateAssistConfigs(assistConfig)
-        if (sp.openStorage) {
-            FileUtils.createConfigFile(assistConfig.packageName, assistConfig.config, false)
-        }
-        if (sp.openXml) {
-            assistPref?.edit()?.putString(packageName, config)?.commit()
-                ?: "模块未激活，将将无法使用New XSharedPreferences获取配置".toast(this, 1)
-        }
+        saveToText(assistConfig.packageName, config)
+        /* if (sp.openXml) {
+             assistPref?.edit()?.putString(packageName, config)?.commit()
+                 ?: "模块未激活，将将无法使用New XSharedPreferences获取配置".toast(this, 1)
+         }*/
         Thread.sleep(150)
         "已保存".toast(this)
     }
 
+    private fun saveToText(packageName: String, config: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (sp.openStorage) {
+                if (FileUtils.isGrant(this@AssistActivity)) {
+                    FileUtils.saveConfig(
+                        this@AssistActivity,
+                        packageName,
+                        "assistConfig.json",
+                        config
+                    )
+                } else {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        requestPermissionDialog(this@AssistActivity) {
+                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                        }
+                    } else {
+                        requestPermissionDialog(this@AssistActivity) {
+                            FileUtils.verifyStoragePermissions(this@AssistActivity)
+                        }
+                    }
+                }
+            }
+        }
+
+    }
     /*   private fun initPrintFloat() {
            EasyFloat.with(this)
                .setLayout(R.layout.float_window_layout) {
