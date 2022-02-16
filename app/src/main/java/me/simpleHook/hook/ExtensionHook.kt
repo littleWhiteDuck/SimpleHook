@@ -15,6 +15,7 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.tip
 import java.nio.charset.Charset
 import java.security.MessageDigest
@@ -50,9 +51,13 @@ object ExtensionHook {
                 super.beforeHookedMethod(param)
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace
+
                 val log = Gson().toJson(
                     LogBean(
-                        type, LogHook.toStackTrace(stackTrace), packageName
+                        type,
+                        LogHook.toStackTrace(stackTrace),
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                 )
                 LogHook.toLogMsg(context, log, packageName, type)
@@ -104,7 +109,8 @@ object ExtensionHook {
             val stackTrace = Throwable().stackTrace
             val log = Gson().toJson(
                 LogBean(
-                    type, LogHook.toStackTrace(stackTrace), packageName
+                    type, LogHook.toStackTrace(stackTrace), packageName,
+                    TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                 )
             )
             LogHook.toLogMsg(context, log, packageName, type)
@@ -124,7 +130,8 @@ object ExtensionHook {
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, LogHook.toStackTrace(stackTrace), packageName
+                            type, LogHook.toStackTrace(stackTrace), packageName,
+                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
@@ -141,7 +148,8 @@ object ExtensionHook {
                 val stackTrace = Throwable().stackTrace
                 val log = Gson().toJson(
                     LogBean(
-                        type, LogHook.toStackTrace(stackTrace), packageName
+                        type, LogHook.toStackTrace(stackTrace), packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                 )
                 LogHook.toLogMsg(context, log, packageName, type)
@@ -164,7 +172,8 @@ object ExtensionHook {
                     val logBean = LogBean(
                         "base64",
                         listOf("类型：加密", "原始数据：${String(data)}", "加密结果：$result") + items,
-                        packageName
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                     LogHook.toLogMsg(
                         context,
@@ -193,7 +202,8 @@ object ExtensionHook {
                             "原始数据：${String(data)}",
                             "解密结果：$result"
                         ) + items,
-                        packageName
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                     LogHook.toLogMsg(
                         context,
@@ -232,7 +242,8 @@ object ExtensionHook {
                             "原始数据：${String(rawData)}",
                             "加密结果：$result"
                         ) + items,
-                        packageName
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 }
@@ -263,7 +274,8 @@ object ExtensionHook {
                             "原始数据：${String(rawData)}",
                             "解密结果：$result"
                         ) + items,
-                        packageName
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 }
@@ -320,10 +332,11 @@ object ExtensionHook {
                         type,
                         listOf(
                             "加密/解密：加密",
-                            "原始数据：${hashMap.getValue("rawData")}",
+                            "原始数据：${hashMap["rawData"]}",
                             "加密结果：$result"
                         ) + items,
-                        packageName
+                        packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
                     )
                     LogHook.toLogMsg(
                         context,
@@ -435,15 +448,21 @@ object ExtensionHook {
                             val result = String(it as ByteArray)
                             map["result"] = result
                             val list = listOf(
-                                "加密/解密：${map.getValue("cryptType")}",
-                                "密钥：${map.getValue("key")}",
-                                "iv：${map["iv"] ?: "null"}",
-                                "原始数据：${map["rawData"] ?: "null"}",
-                                "${map.getValue("cryptType")}结果：${map.getValue("result")}"
+                                "加密/解密：${map["cryptType"]}",
+                                "密钥：${map["key"]}",
+                                "iv：${map["iv"]}",
+                                "原始数据：${map["rawData"]}",
+                                "${map["cryptType"] ?: "error"}结果：${map["result"]}"
                             )
                             val stackTrace = Throwable().stackTrace
                             val items = LogHook.toStackTrace(stackTrace).toList()
-                            val logBean = LogBean(map["algorithmType"]!!, list + items, packageName)
+                            val logBean = LogBean(
+                                map["algorithmType"]!!, list + items, packageName,
+                                TimeUtil.getDateTime(
+                                    System.currentTimeMillis(),
+                                    "yy-MM-dd HH:mm:ss"
+                                )
+                            )
                             LogHook.toLogMsg(
                                 context,
                                 Gson().toJson(logBean),
@@ -528,14 +547,17 @@ object ExtensionHook {
                     hasMap["result"] = String(result)
 
                     val list = listOf(
-                        "密钥：${hasMap.getValue("key")}",
-                        "密钥算法：${hasMap.getValue("keyAlgorithm")}",
-                        "原始数据：${hasMap["rawData"] ?: "null"}",
-                        "加密结果：${hasMap.getValue("result")}"
+                        "密钥：${hasMap["key"]}",
+                        "密钥算法：${hasMap["keyAlgorithm"]}",
+                        "原始数据：${hasMap["rawData"]}",
+                        "加密结果：${hasMap["result"]}"
                     )
                     val stackTrace = Throwable().stackTrace
                     val items = LogHook.toStackTrace(stackTrace).toList()
-                    val logBean = LogBean(hasMap["algorithmType"]!!, list + items, packageName)
+                    val logBean = LogBean(
+                        hasMap["algorithmType"]!!, list + items, packageName,
+                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                    )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                     hasMap.clear()
                 }
@@ -630,7 +652,10 @@ object ExtensionHook {
             extraList.add(ExtraBean(type, it, extras.get(it).toString()))
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
-        val logBean = LogBean("intent", listOf(configBean), packName)
+        val logBean = LogBean(
+            "intent", listOf(configBean), packName,
+            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+        )
         LogHook.toLogMsg(context, Gson().toJson(logBean), packName, "intent")
     }
 

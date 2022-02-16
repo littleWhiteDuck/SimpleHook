@@ -4,18 +4,18 @@ import androidx.annotation.Keep
 
 @Keep
 data class AssistConfigBean(
-    val all: Boolean = false,
-    val dialog: Boolean = false,
-    val diaCancel: Boolean = false,
-    val popup: Boolean = false,
-    val popCancel: Boolean = false,
-    val toast: Boolean = false,
-    val intent: Boolean = false,
-    val hotFix: Boolean = false,
-    val vpn: Boolean = false,
-    val click: Boolean = false,
-    val digest: Boolean = false,
-    val hmac: Boolean = false,
-    val crypt: Boolean = false,
-    val base64: Boolean = false
+    var all: Boolean = false,
+    var dialog: Boolean = false,
+    var diaCancel: Boolean = false,
+    var popup: Boolean = false,
+    var popCancel: Boolean = false,
+    var toast: Boolean = false,
+    var intent: Boolean = false,
+    var hotFix: Boolean = false,
+    var vpn: Boolean = false,
+    var click: Boolean = false,
+    var digest: Boolean = false,
+    var hmac: Boolean = false,
+    var crypt: Boolean = false,
+    var base64: Boolean = false
 )

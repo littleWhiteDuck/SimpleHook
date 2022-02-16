@@ -72,13 +72,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
             if (newValue as Boolean) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(requireContext()) {
-                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                    }
-                } else {
-                    requestPermissionDialog(requireContext()) {
-                        FileUtils.verifyStoragePermissions(requireActivity())
+                if (!FileUtils.isGrant(requireContext())) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        requestPermissionDialog(requireContext()) {
+                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                        }
+                    } else {
+                        requestPermissionDialog(requireContext()) {
+                            FileUtils.verifyStoragePermissions(requireActivity())
+                        }
                     }
                 }
             }
@@ -153,16 +155,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
-                    viewModel.deleteAllAssistConfigs()
                     if (FileUtils.isGrant(requireContext())) {
                         configs.forEach {
-                            FileUtils.fakeDeleteConfig(
+                            FileUtils.realDeleteConfig(
                                 requireContext(),
                                 it.packageName,
                                 Constant.EXTENSION_CONFIG_NAME
                             )
                         }
                     }
+                    viewModel.deleteAssistConfigsByPackageName("模板配置")
                     showNotification("完成", "扩展配置已经删除成功")
                 }
                 2 -> {
@@ -226,6 +228,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         savedInstanceState: Bundle?
     ): RecyclerView {
         val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
+        recyclerView.isVerticalScrollBarEnabled = false
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                 outRect: Rect,

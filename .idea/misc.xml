@@ -5,6 +5,9 @@
       <map>
         <entry key="..\:/littleWhiteDuck/.gradle/caches/transforms-3/4a697a7e311e0d454db15ce0250c9c6d/transformed/appcompat-1.2.0/res/drawable/abc_item_background_holo_dark.xml" value="0.15092592592592594" />
         <entry key="..\:/littleWhiteDuck/.gradle/caches/transforms-3/4a697a7e311e0d454db15ce0250c9c6d/transformed/appcompat-1.2.0/res/drawable/abc_item_background_holo_light.xml" value="0.15092592592592594" />
+        <entry key="..\:/littleWhiteDuck/.gradle/wrapper/dists/gradle-7.2-bin/caches/transforms-3/50de376f30d8b08661a451a8d11ee16f/transformed/glance-1.1.0/res/layout/glance_library_db_item.xml" value="0.22" />
+        <entry key="..\:/littleWhiteDuck/.gradle/wrapper/dists/gradle-7.2-bin/caches/transforms-3/50de376f30d8b08661a451a8d11ee16f/transformed/glance-1.1.0/res/layout/glance_library_dialog_edit_text.xml" value="0.11927083333333334" />
+        <entry key="..\:/littleWhiteDuck/.gradle/wrapper/dists/gradle-7.2-bin/caches/transforms-3/50de376f30d8b08661a451a8d11ee16f/transformed/glance-1.1.0/res/layout/glance_library_row_item.xml" value="0.11927083333333334" />
         <entry key="..\:/littleWhiteDuck/Android/Sdk/platforms/android-31/data/res/drawable/list_selector_background.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable-v24/ic_help.xml" value="0.103" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1390625" />
@@ -46,7 +49,7 @@
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_app_list.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_app_system.xml" value="0.178125" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_app_user.xml" value="0.178125" />
-        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_assist.xml" value="0.1398148148148148" />
+        <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_assist.xml" value="0.1" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_config_im_export.xml" value="0.22" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_float.xml" value="0.3333333333333333" />
         <entry key="..\:/littleWhiteDuck/AndroidStudioProjects/SimpleHook/app/src/main/res/layout/fragment_home.xml" value="0.1" />

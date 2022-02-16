@@ -1,5 +1,6 @@
 package me.simpleHook.adapter
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -35,13 +36,14 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
         return viewHolder
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val printLog = getItem(position)
         val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
         holder.itemView.setTag(R.id.item_record_position, printLog)
         holder.apply {
             title.text = logBean.type
-            time.text = logBean.packageName
+            time.text = logBean.time
             readState.text = if (printLog.read) "已读" else "未读"
             if (isType) {
                 icon.setImageDrawable(

@@ -10,7 +10,6 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     private val preferences: SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
     var openStorage by SharedPreferenceDelegates.boolean()
-    var openXml by SharedPreferenceDelegates.boolean()
     var termsOfUse by SharedPreferenceDelegates.boolean(false)
     var smali2Config by SharedPreferenceDelegates.boolean()
     var encryptConfigs by SharedPreferenceDelegates.boolean()

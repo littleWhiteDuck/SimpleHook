@@ -11,18 +11,18 @@
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/copy"
-        android:title="复制">
+        android:title="@string/record_detail_menu_copy">
         <menu>
             <item
                 android:id="@+id/copy_text"
-                android:title="普通文本" />
+                android:title="@string/record_detail_menu_copy_text" />
             <item
                 android:id="@+id/copy_json"
-                android:title="Json文本" />
+                android:title="@string/record_detail_menu_copy_json_format" />
         </menu>
 
     </item>
     <item
         android:id="@+id/help"
-        android:title="帮助" />
+        android:title="@string/record_detail_menu_help" />
 </menu>

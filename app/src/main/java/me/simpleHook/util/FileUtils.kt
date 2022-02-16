@@ -79,8 +79,7 @@ object FileUtils {
         }
         return stringBuilder.toString()
     }
-
-    private fun getDocumentFile(context: Context, pathStr: String): DocumentFile? {
+    /*private fun getDocumentFile(context: Context, pathStr: String): DocumentFile? {
         var path = pathStr
         if (path.endsWith("/")) {
             path = path.substring(0, path.length - 1)
@@ -90,32 +89,30 @@ object FileUtils {
             context,
             Uri.parse("content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata/document/primary%3A$path2")
         )
-    }
+    }*/
 
     fun realDeleteConfig(context: Context, packageName: String, name: String) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             val configUri =
-                Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/$name"))
+                Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
             try {
                 DocumentsContract.deleteDocument(context.contentResolver, configUri)
             } catch (e: java.lang.Exception) {
 
             }
         } else {
-            deleteFile(packageName, name)
+            deleteConfigFile(packageName, name)
         }
     }
 
     fun fakeDeleteConfig(context: Context, packageName: String, name: String) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             val configUri =
-                Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/$name"))
+                Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
             try {
                 alterDocument(context, configUri, "")
             } catch (e: java.lang.Exception) {
-                Handler(Looper.getMainLooper()).post {
-                    "错误".toast(context)
-                }
+
             }
         } else {
             writeConfigFile(packageName, name, "")
@@ -123,47 +120,78 @@ object FileUtils {
 
     }
 
-    fun saveConfig(context: Context, packageName: String, name: String, content: String) {
-        /*val encodeContent = Base64.encodeToString(content.toByteArray(), Base64.NO_PADDING)*/
+    private fun getDocumentFile(documentFile: DocumentFile, dir: String): DocumentFile? {
         try {
-            if (!AppUtils.isAppInstalled(context, packageName)) return
-            val path = "/storage/emulated/0/Android/data/$packageName/"
-            val packUri = Uri.parse(changeToUri(path))
-            val myUri =
-                Uri.parse(changeToUri("/storage/emulated/0/Android/data/me.simpleHook/"))
-            val configUri = Uri.parse(changeToUri("$path/$name"))
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                val configDocumentFile = DocumentFile.fromSingleUri(context, configUri)
-                val fileUri: Uri? = if (!configDocumentFile!!.exists()) {
-                    val documentFile = getDocumentFile(context, path)
-                    if (!documentFile!!.exists()) {
-                        val documentFile2 = DocumentFile.fromTreeUri(context, myUri)
-                        documentFile2!!.createDirectory(packageName)
-                    }
-                    DocumentsContract.createDocument(
-                        context.contentResolver,
-                        packUri,
-                        "application/json",
-                        name
-                    )
-                } else {
-                    configUri
-                }
-                if (content.isNotEmpty()) {
-                    fileUri?.let { alterDocument(context, it, content) } ?: "写入 $name 错误".toast(
-                        context
-                    )
-                }
-            } else {
-                writeConfigFile(packageName, fileName = name, config = content)
+            documentFile.listFiles().forEach {
+                if (it.name == dir && it.isDirectory)
+                    return it
             }
         } catch (e: Exception) {
+            return null
+        }
+        return null
+    }
+
+    private fun exists(documentFile: DocumentFile, name: String): Boolean {
+        return try {
+            documentFile.findFile(name)!!.exists()
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    fun writeDocumentFile(
+        context: Context,
+        path: String,
+        fileName: String,
+        content: String,
+        mimiType: String
+    ) {
+        try {
+            val paths = path.split("/")
+            val dataUri = Uri.parse(Constant.ANDROID_DATA_URI)
+            var documentFile = DocumentFile.fromTreeUri(context, dataUri)
+            for (i in paths.indices) {
+                if (paths[i].isEmpty()) continue
+                documentFile = getDocumentFile(documentFile!!, paths[i])
+                    ?: documentFile.createDirectory(paths[i])
+            }
+            val configFile = if (exists(documentFile!!, fileName)) {
+                documentFile.findFile(fileName);
+            } else {
+                documentFile.createFile(mimiType, fileName)
+            }
+            if (content.isNotEmpty()) {
+                configFile?.uri?.let { alterDocument(context, it, content) }
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
+        try {
+            if (!AppUtils.isAppInstalled(context, packageName)) return
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                writeDocumentFile(
+                    context,
+                    "/$packageName/simpleHook/",
+                    fileName,
+                    content,
+                    "application/json"
+                )
+            } else {
+                writeConfigFile(packageName, fileName = fileName, config = content)
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
             Handler(Looper.getMainLooper()).post {
                 "这应该是出现了bug".toast(context)
             }
         }
-
     }
+
 
     fun alterDocument(context: Context, uri: Uri, content: String) {
         try {
@@ -261,9 +289,9 @@ object FileUtils {
         }
     }
 
-    private fun deleteFile(packageName: String, fileName: String) {
+    private fun deleteConfigFile(packageName: String, fileName: String) {
         val filePath =
-            Constant.CONFIG_DIRECTORY + packageName + fileName
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + fileName
         val file = File(filePath)
         if (file.exists()) file.delete()
     }

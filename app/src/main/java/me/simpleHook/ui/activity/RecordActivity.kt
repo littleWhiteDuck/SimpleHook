@@ -20,9 +20,11 @@ import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.MyFastScroller
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FastScrollerUtil
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -47,6 +49,7 @@ class RecordActivity : BaseActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle = intent.getBundleExtra("bundle")
         val recordSummary: RecordSummary = bundle!!.getParcelable("recordSummary")!!
         isType = recordSummary.type.isNotEmpty()
@@ -91,23 +94,7 @@ class RecordActivity : BaseActivity() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
-        val verticalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
-        val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable, null)
-        val horizontalThumbDrawable =
-            resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
-        val horizontalTrackDrawable: Drawable =
-            resources.getDrawable(R.drawable.line_drawable, null)
-        MyFastScroller(
-            binding.recyclerView,
-            verticalThumbDrawable,
-            verticalTrackDrawable,
-            horizontalThumbDrawable,
-            horizontalTrackDrawable,
-            resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
-            resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
-            resources.getDimensionPixelOffset(R.dimen.fastscroll_margin)
-        )
+        FastScrollerUtil.bind(binding.recyclerView)
     }
 
     private fun initData() {

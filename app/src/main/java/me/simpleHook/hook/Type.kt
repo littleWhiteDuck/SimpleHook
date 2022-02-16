@@ -14,6 +14,7 @@ object Type {
     private const val BYTE_PATTERN = """^-?[0-9]\d*[b|B]$"""
     private const val SHORT_PATTERN = """^-?[0-9]\d*(?i)short$"""
     private const val CHAR_PATTERN = """^.*[c|C]$"""
+    private const val INTEGER_PATTERN = """^-?[0-9]\d*(?i)integer$"""
 
     fun getDataTypeValue(value: String) = when{
         matches(BOOLEAN_PATTERN,value) -> value.toBoolean()
@@ -24,7 +25,13 @@ object Type {
         matches(STRING_EMPTY_PATTERN,value) -> ""
         matches(BYTE_PATTERN,value) -> value.replace(Regex("""[b|B]"""),"").toByte()
         matches(SHORT_PATTERN,value) -> value.replace(Regex("""[(?i)short]"""),"").toShort()
-        matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""),"")[0]
+        matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "")[0]
+        matches(INTEGER_PATTERN, value) -> Integer.valueOf(
+            value.replace(
+                Regex("""[(?i)integer]"""),
+                ""
+            ).toInt()
+        )
         else -> value
     }
     fun getClassType(className:String) = when(className){

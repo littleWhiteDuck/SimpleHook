@@ -74,7 +74,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         packageName,
                         AppUtils.getAppVersionName(getApplication(), packageName),
                         AppUtils.getAppVersionCode(getApplication(), packageName),
-                        TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd"),
+                        TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                         AppUtils.getTargetSdkVersion(getApplication(), packageName)
                     )
                 )

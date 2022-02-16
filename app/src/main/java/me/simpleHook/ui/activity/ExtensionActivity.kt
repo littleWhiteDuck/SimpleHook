@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -57,10 +58,8 @@ private const val startAppTag = 666
 class AssistActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
     private lateinit var assistConfig: AssistConfig
-    private val hashMap = HashMap<Int, Boolean>()
     private val sp by lazy { SPUtils(this) }
-
-    //    private val assistPref by lazy { XUtils(this, "assistConfig").configPref }
+    private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
     private val itemList = ArrayList<Any>()
     private val startActivityForData =
@@ -71,7 +70,10 @@ class AssistActivity : BaseActivity() {
                 contentResolver.takePersistableUriPermission(it, takeFlags)
             }
         }
+    private var statusChecked = 0
+    private var statusUnChecked = 0
     private lateinit var configBean: AssistConfigBean
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExtensionBinding.inflate(layoutInflater)
@@ -88,17 +90,11 @@ class AssistActivity : BaseActivity() {
             ViewCompat.onApplyWindowInsets(window.decorView, windowInsets)
             windowInsets
         }
-
+        editMode = intent.getBooleanExtra("editMode", true)
         val bundle = intent.getBundleExtra("bundle")
-        assistConfig = bundle?.getParcelable("assistConfig") ?: AssistConfig(
-            0,
-            "",
-            false,
-            "",
-            ""
-        )
+        assistConfig = bundle!!.getParcelable("assistConfig")!!
         lifecycleScope.launch(Dispatchers.IO) {
-            if (assistConfig.packageName != "默认配置" && assistConfig.appName != "默认配置") {
+            if (assistConfig.packageName != "默认配置") {
                 saveToText(assistConfig.packageName, "")
             }
         }
@@ -113,24 +109,6 @@ class AssistActivity : BaseActivity() {
             config,
             AssistConfigBean::class.java
         ) else AssistConfigBean()
-        configBean.apply {
-            hashMap.apply {
-                hashMap[ALL_STATUS] = all
-                hashMap[DIALOG_STATUS] = dialog
-                hashMap[DIALOG_CANCEL_STATUS] = diaCancel
-                hashMap[POPUP_STATUS] = popup
-                hashMap[POPUP_CANCEL_STATUS] = popCancel
-                hashMap[TOAST_STATUS] = toast
-                hashMap[INTENT_DATA_STATUS] = intent
-                hashMap[HOT_FIX_STATUS] = hotFix
-                hashMap[VPN_CHECK_STATUS] = vpn
-                hashMap[CLICK_LISTENER_STATUS] = click
-                hashMap[DIGEST_STATUS] = digest
-                hashMap[HMAC_STATUS] = hmac
-                hashMap[CRYPT_STATUS] = crypt
-                hashMap[BASE_64_STATUS] = base64
-            }
-        }
         itemList.apply {
             configBean.apply {
                 add(AssistTitle("基本"))
@@ -170,13 +148,11 @@ class AssistActivity : BaseActivity() {
                         "热修复",
                         hotFix,
                         HOT_FIX_STATUS,
-                        "dex放在Android/data/目标应用包名/"
+                        "dex放在Android/data/目标应用包名/simpleHook/dex/"
                     )
                 )
                 add(AssistTitle("网络"))
                 add(AssistItem("vpn", vpn, VPN_CHECK_STATUS, "去除一般的VPN检测"))
-                /* add(AssistTitle("环境"))
-                 add(AssistItem("隐藏Xposed", xposed, XPOSED_CHECK, "屏蔽一般的xposed检测"))*/
             }
         }
     }
@@ -289,22 +265,42 @@ class AssistActivity : BaseActivity() {
 
     private fun onClick(checked: Boolean, tag: Int) {
         if (tag == startAppTag) {
+            if (assistConfig.packageName == "模板配置") return
             saveConfig()
             startAppAndFloat()
             return
         } else {
-            hashMap[tag] = checked
-            /*status = if (checked){
-                if (status == 0) tag else status or tag
-            }else {
-                status and tag.inv()
-            }*/
+            if (tag == HOT_FIX_STATUS) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    if (FileUtils.isGrant(this@AssistActivity)) {
+                        FileUtils.writeDocumentFile(
+                            this@AssistActivity,
+                            path = "${assistConfig.packageName}/simpleHook/dex",
+                            content = """
+                    1.dex放在此目录
+                    2.如果不生效，清除数据后重试
+                """.trimIndent(),
+                            fileName = "说明",
+                            mimiType = "text/plain",
+                        )
+                    }
+                }
+            }
+            if (checked) {
+                if (statusUnChecked isContainState tag) {
+                    statusUnChecked = statusUnChecked and tag.inv()
+                }
+                statusChecked = if (statusChecked == 0) tag else statusChecked or tag
+            } else {
+                if (statusChecked isContainState tag) {
+                    statusChecked = statusChecked and tag.inv()
+                }
+                statusUnChecked = if (statusUnChecked == 0) tag else statusUnChecked or tag
+            }
         }
-
     }
 
     private fun startAppAndFloat() {
-        /* initPrintFloat()*/
         val intent = Intent()
         intent.apply {
             action = Intent.ACTION_MAIN
@@ -314,52 +310,65 @@ class AssistActivity : BaseActivity() {
         AppUtils.startApp(assistConfig.packageName, this)
     }
 
+    private fun isContains(state: Int) =
+        statusChecked isContainState state || statusUnChecked isContainState state
+
+    private fun isChecked(state: Int) = statusChecked isContainState state
+
     private fun saveConfig() {
 
-
-        /*  configBean.apply {
-              val configBean2 = AssistConfigBean(
-                  all = isContains(ALL_STATUS),
-                  dialog = isContains(DIALOG_STATUS),
-                  diaCancel = isContains(DIALOG_CANCEL_STATUS),
-                  popCancel = isContains(POPUP_CANCEL_STATUS),
-                  popup = isContains(POPUP_STATUS),
-                  toast = isContains(TOAST_STATUS),
-                  intent = isContains(INTENT_DATA_STATUS),
-                  hotFix = isContains(HOT_FIX_STATUS),
-                  vpn = isContains(VPN_CHECK_STATUS),
-                  click = isContains(CLICK_LISTENER_STATUS),
-                  digest = isContains(DIGEST_STATUS),
-                  hmac = isContains(HMAC_STATUS),
-                  crypt = isContains(CRYPT_STATUS),
-                  base64 = isContains(BASE_64_STATUS)
-              )
-          }*/
-
-        configBean = AssistConfigBean(
-            hashMap[ALL_STATUS] == true,
-            hashMap[DIALOG_STATUS] == true,
-            hashMap[DIALOG_CANCEL_STATUS] == true,
-            hashMap[POPUP_STATUS] == true,
-            hashMap[POPUP_CANCEL_STATUS] == true,
-            hashMap[TOAST_STATUS] == true,
-            hashMap[INTENT_DATA_STATUS] == true,
-            hashMap[HOT_FIX_STATUS] == true,
-            hashMap[VPN_CHECK_STATUS] == true,
-            hashMap[CLICK_LISTENER_STATUS] == true,
-            hashMap[DIGEST_STATUS] == true,
-            hashMap[HMAC_STATUS] == true,
-            hashMap[CRYPT_STATUS] == true,
-            hashMap[BASE_64_STATUS] == true
-        )
+        if (isContains(ALL_STATUS)) {
+            configBean.all = isChecked(ALL_STATUS)
+        }
+        if (isContains(DIALOG_STATUS)) {
+            configBean.dialog = isChecked(DIALOG_STATUS)
+        }
+        if (isContains(DIALOG_CANCEL_STATUS)) {
+            configBean.diaCancel = isChecked(DIALOG_CANCEL_STATUS)
+        }
+        if (isContains(POPUP_CANCEL_STATUS)) {
+            configBean.popCancel = isChecked(POPUP_CANCEL_STATUS)
+        }
+        if (isContains(POPUP_STATUS)) {
+            configBean.popup = isChecked(POPUP_STATUS)
+        }
+        if (isContains(TOAST_STATUS)) {
+            configBean.toast = isChecked(TOAST_STATUS)
+        }
+        if (isContains(INTENT_DATA_STATUS)) {
+            configBean.intent = isChecked(INTENT_DATA_STATUS)
+        }
+        if (isContains(HOT_FIX_STATUS)) {
+            configBean.hotFix = isChecked(HOT_FIX_STATUS)
+        }
+        if (isContains(VPN_CHECK_STATUS)) {
+            configBean.vpn = isChecked(VPN_CHECK_STATUS)
+        }
+        if (isContains(CLICK_LISTENER_STATUS)) {
+            configBean.click = isChecked(CLICK_LISTENER_STATUS)
+        }
+        if (isContains(DIGEST_STATUS)) {
+            configBean.digest = isChecked(DIGEST_STATUS)
+        }
+        if (isContains(HMAC_STATUS)) {
+            configBean.hmac = isChecked(HMAC_STATUS)
+        }
+        if (isContains(CRYPT_STATUS)) {
+            configBean.crypt = isChecked(CRYPT_STATUS)
+        }
+        if (isContains(BASE_64_STATUS)) {
+            configBean.base64 = isChecked(BASE_64_STATUS)
+        }
         val config = Gson().toJson(configBean)
         assistConfig.config = config
-        appViewModel.updateAssistConfigs(assistConfig)
-        saveToText(assistConfig.packageName, config)
-        /* if (sp.openXml) {
-             assistPref?.edit()?.putString(packageName, config)?.commit()
-                 ?: "模块未激活，将将无法使用New XSharedPreferences获取配置".toast(this, 1)
-         }*/
+        if (editMode) {
+            appViewModel.updateAssistConfigs(assistConfig)
+        } else {
+            appViewModel.insertAssistConfigs(assistConfig)
+        }
+        if (assistConfig.packageName != "模板配置") {
+            saveToText(assistConfig.packageName, config)
+        }
         Thread.sleep(150)
         "已保存".toast(this)
     }
@@ -371,7 +380,7 @@ class AssistActivity : BaseActivity() {
                     FileUtils.saveConfig(
                         this@AssistActivity,
                         packageName,
-                        "assistConfig.json",
+                        Constant.EXTENSION_CONFIG_NAME,
                         config
                     )
                 } else {
@@ -389,26 +398,6 @@ class AssistActivity : BaseActivity() {
         }
 
     }
-    /*   private fun initPrintFloat() {
-           EasyFloat.with(this)
-               .setLayout(R.layout.float_window_layout) {
-                   val viewPager = it.findViewById<ViewPager2>(R.id.float_viewpager2)
-                   viewPager.adapter = object : FragmentStateAdapter(this) {
-                       override fun getItemCount() = 1
-
-                       override fun createFragment(position: Int) = FloatFragment()
-                   }
-               }
-               .setTag("floatPrint")
-               .setShowPattern(ShowPattern.ALL_TIME)
-               .setSidePattern(SidePattern.RESULT_HORIZONTAL)
-               .setDragEnable(false)
-               .setLocation(0, 0)
-               .setMatchParent(widthMatch = true, heightMatch = false)
-               .setAnimator(DefaultAnimator())
-               .show()
-       }
-   */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_assist, menu)
@@ -419,7 +408,6 @@ class AssistActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
-            /*  R.id.assistFragment_startFloat -> initPrintFloat()*/
         }
         return true
     }

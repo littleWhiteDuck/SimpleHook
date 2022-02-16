@@ -31,6 +31,7 @@ import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.CipherUtils
+import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -76,7 +77,7 @@ class Hook {
     ) {
         try {
             val strConfig =
-                File(Constant.ANDROID_DATA_PATH + packageName + "/" + Constant.APP_CONFIG_NAME).reader()
+                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
             "从文件获取配置成功".tip()
             determineCan(strConfig, packageName)
@@ -233,7 +234,10 @@ class Hook {
                             list.add("参数${i + 1}：${param.args[i]}")
                         }
                         val items = toStackTrace(Throwable().stackTrace).toList()
-                        val logBean = LogBean("参数值", list + items, packageName)
+                        val logBean = LogBean(
+                            "参数值", list + items, packageName,
+                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH-mm-ss")
+                        )
                         toLogMsg(mContext, Gson().toJson(logBean), packageName, "参数值")
                     }
                 }
@@ -246,7 +250,10 @@ class Hook {
                         list.add("方法名：$methodName")
                         list.add("返回值：${param.result}")
                         val items = toStackTrace(Throwable().stackTrace).toList()
-                        val logBean = LogBean("返回值", list + items, packageName)
+                        val logBean = LogBean(
+                            "返回值", list + items, packageName,
+                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH-mm-ss")
+                        )
                         toLogMsg(mContext, Gson().toJson(logBean), packageName, "返回值")
                     }
                 }
@@ -294,7 +301,7 @@ class Hook {
     private fun fileAssistHook(packageName: String) {
         try {
             val strConfig =
-                File(Constant.ANDROID_DATA_PATH + packageName + "/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             "获取扩展配置成功".log()
             readyAssistHook(strConfig, packageName)
@@ -328,10 +335,4 @@ class Hook {
             if (crypt) aes(context, packageName)
         }
     }
-
-    private fun getHookConfigPref(path: String = "hookConfig"): SharedPreferences? {
-        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
-        return if (pref.file.canRead()) pref else null
-    }
-
 }

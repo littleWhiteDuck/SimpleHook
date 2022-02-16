@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -39,6 +41,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.regex.Pattern
 import kotlin.concurrent.thread
+import kotlin.math.min
 
 
 class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
@@ -79,7 +82,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initViewModel() {
-        var tempSize = 0
         viewModel.getAllConfigs().observe(requireActivity()) {
             if (it.isEmpty()) {
                 binding.emptyTip.visibility = View.VISIBLE
@@ -89,17 +91,18 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             filterConfigs = it
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(it)
-                if (tempSize < it.size) {
-                    tempSize = it.size
-                    binding.mainRecycler.smoothScrollToPosition(0)
-                }
                 if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility =
                     View.GONE
             } else {
                 toFilterData(currentPattern)
             }
         }
-
+        mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                binding.mainRecycler.scrollToPosition(0)
+            }
+        })
         val linearLayoutManager = LinearLayoutManager(requireContext())
         binding.mainRecycler.apply {
             this.adapter = mAdapter
@@ -141,11 +144,12 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             }
 
         }).attachToRecyclerView(binding.mainRecycler)
+        FastScrollerUtil.bind(binding.mainRecycler)
     }
 
     fun deleteConfig(appConfig: AppConfig) {
         viewModel.deleteConfigs(appConfig)
-        FileUtils.fakeDeleteConfig(
+        FileUtils.realDeleteConfig(
             requireContext(),
             appConfig.packageName,
             Constant.APP_CONFIG_NAME
@@ -215,6 +219,24 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun initView() {
+        var maybeABug = 0
+        val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val isGesture =
+                navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
+            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            maybeABug = if (maybeABug == 0) {
+                bottomNavigationView.bottom - bottomNavigationView.top
+            } else {
+                min(maybeABug, bottomNavigationView.bottom - bottomNavigationView.top)
+            }
+            if (navigationInsets.bottom == 0) maybeABug += 10.dp
+            layoutParams.bottomMargin = if (isGesture) maybeABug + navigationInsets.bottom
+            else maybeABug + navigationInsets.bottom / 5
+            binding.fab.layoutParams = layoutParams
+            windowInsets
+        }
         binding.apply {
             addConfig.setOnClickListener { toAddFragment(null) }
             importConfigsFromPaste.setOnClickListener {
@@ -224,13 +246,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             importConfigsFromInternet.setOnClickListener {
                 showInternetImportConfigDialog()
             }
-        }
-        bottomNavigationView.post {
-            val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.bottomMargin = px2dp(PhoneUtils.getAppHeight(requireContext())) - px2dp(
-                PhoneUtils.getViewY(bottomNavigationView)
-            ) + bottomNavigationView.height
-            binding.fab.layoutParams = layoutParams
         }
     }
 
@@ -250,7 +265,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                 dialogInterface.dismiss()
             },
             cancelText = "取消"
-        )
+        ).show()
     }
 
     private fun importConfigsFromInternet(urlString: String) {
@@ -448,6 +463,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
 }
+
 
 interface HideScrollListener {
     fun onShow()

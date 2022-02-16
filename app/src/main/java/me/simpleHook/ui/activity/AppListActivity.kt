@@ -10,14 +10,11 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
@@ -27,7 +24,6 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.database.AppViewModel
-import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
@@ -43,7 +39,6 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private var isFromAssist = false
     private val viewModel by viewModels<AppViewModel>()
     private val mViewModel by viewModels<me.simpleHook.viewmodel.AppViewModel>()
-    private var assistConfig: AssistConfig? = null
     private val sp by lazy { SPUtils(this) }
     private var currentSortSelected = 0
     private var currentSortReverse = false
@@ -57,9 +52,6 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isFromAssist = intent.getBooleanExtra("isFromAssist", false)
-        lifecycleScope.launch(Dispatchers.IO) {
-            assistConfig = viewModel.queryDefaultExConfig()[0]
-        }
         initView()
         initData()
     }
@@ -131,18 +123,11 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
 
     private fun clickResponse(appItem: AppItem) {
         if (isFromAssist) {
-            assistConfig?.let {
-                it.packageName = appItem.packageName
-                it.appName = appItem.name
-                it.id = 0
-                viewModel.insertAssistConfigs(it)
-            } ?: viewModel.insertAssistConfigs(
-                AssistConfig(
-                    appName = appItem.name,
-                    packageName = appItem.packageName
-                )
-            )
-
+            val intent = Intent().also {
+                it.putExtra("appName", appItem.name)
+                it.putExtra("packageName", appItem.packageName)
+            }
+            setResult(RESULT_OK, intent)
         } else {
             val intent = Intent()
             val bundle = Bundle()
@@ -229,6 +214,6 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             sp.appListReverse = currentSortReverse
             mViewModel.fetchData(currentSortSelected, currentSortReverse)
             binding.swipeRefreshLayout.isRefreshing = true
-        }, cancelText = "取消", contentView = contentView)
+        }, cancelText = "取消", contentView = contentView).show()
     }
 }

@@ -89,9 +89,14 @@ class AppRepository(context: Context) {
         assistConfigDao.deleteAllConfigs()
     }
 
+    fun deleteAssistConfigsByPackageName(packageName: String) {
+        assistConfigDao.deleteAssistConfigsByPackageName(packageName)
+    }
+
     fun getAllAssistConfigs() = assistConfigDao.getAllConfigs()
     fun getAssistConfigs() = assistConfigDao.getConfigs()
     fun getFilterAssistConfigs(pattern: String) = assistConfigDao.getFilterConfigs(pattern)
 
-    suspend fun queryDefaultExConfig(): List<AssistConfig> = assistConfigDao.queryDefaultExConfig()
+    suspend fun queryDefaultExConfig(): List<AssistConfig> =
+        assistConfigDao.queryDefaultExConfig()
 }

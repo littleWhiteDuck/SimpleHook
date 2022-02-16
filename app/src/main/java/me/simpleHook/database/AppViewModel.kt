@@ -108,6 +108,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteAllAssistConfigs()
     }
 
+    fun deleteAssistConfigsByPackageName(packageName: String) {
+        appRepository.deleteAssistConfigsByPackageName(packageName)
+    }
+
     fun getAllAssistConfigs() = appRepository.getAllAssistConfigs()
     fun getAssistConfigs() = appRepository.getAssistConfigs()
 

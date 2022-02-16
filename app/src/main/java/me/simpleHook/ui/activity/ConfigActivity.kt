@@ -81,8 +81,6 @@ class ConfigActivity : BaseActivity() {
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
     private val sp by lazy { SPUtils(this) }
-
-    //    private val configPref by lazy { XUtils(this, "hookConfig").configPref }
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter by lazy {
         ConfigAdapter({ position -> onClick(position) },
@@ -249,7 +247,7 @@ class ConfigActivity : BaseActivity() {
             },
             cancelAble = false,
             contentView = dialogBinding.root
-        )
+        ).show()
     }
 
     private fun dialogDismiss(dialog: DialogInterface, canCancel: Boolean) {
@@ -396,13 +394,6 @@ class ConfigActivity : BaseActivity() {
         }
         val configStr = Gson().toJson(appConfig)
         saveToText(appConfig.packageName, configStr)
-        /* if (sp.openXml) {
-             configPref?.edit()?.putString(packageName, configStr)?.commit()
-                 ?: getString(R.string.config_module_can_not_use_xsp).toast(
-                     this@ConfigActivity,
-                     1
-                 )
-         }*/
         fakeWaitForSave()
     }
 

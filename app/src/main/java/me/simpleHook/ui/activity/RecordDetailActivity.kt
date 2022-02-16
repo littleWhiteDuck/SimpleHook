@@ -18,6 +18,7 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.util.regex.Matcher
@@ -29,13 +30,13 @@ class RecordDetailActivity : BaseActivity() {
     private var currentText = ""
     private lateinit var jsonText: String
     private var darkMode = false
-    private val sp by lazy { SPUtils(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRecordDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         darkMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         } else {
@@ -82,21 +83,6 @@ class RecordDetailActivity : BaseActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun initView() {
         binding.record.text = currentText
-        /* binding.webView.apply {
-             settings.javaScriptEnabled = true
-             settings.useWideViewPort = !sp.recordBreakText
-             settings.defaultTextEncodingName = "utf-8"
-             loadUrl("file:///android_asset/record.html")
-             webViewClient = object : WebViewClient() {
-                 override fun onPageFinished(view: WebView, url: String?) {
-                     Handler(Looper.getMainLooper()).postDelayed({
-                         view.loadUrl("javascript:updateData('$currentText')")
-                     }, 200)
-                     super.onPageFinished(view, url)
-                 }
-             }
-             if (darkMode) setBackgroundColor(Color.DKGRAY)
-         }*/
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -138,16 +124,11 @@ class RecordDetailActivity : BaseActivity() {
                 ToolUtils.toClip(this, JsonUtil.formatJson(jsonText))
                 "复制成功".toast(this)
             }
-            /* R.id.break_text -> {
-                 binding.webView.settings.useWideViewPort = item.isChecked
-                 item.isChecked = !item.isChecked
-                 sp.recordBreakText = item.isChecked
-             }*/
         }
         return true
     }
 
-    /* private fun findSearch(text: String, keyword: String, color: String = "red"): String {
+/*     private fun findSearch(text: String, keyword: String, color: String = "red"): String {
          if (keyword.isEmpty()) return text
          var tempText = text
          if (tempText.contains(Regex("(?i)$keyword"))) {

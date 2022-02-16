@@ -3,7 +3,6 @@ package me.simpleHook.hook
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.contentValuesOf
-import me.simpleHook.util.log
 import me.simpleHook.util.print
 import me.simpleHook.util.tip
 

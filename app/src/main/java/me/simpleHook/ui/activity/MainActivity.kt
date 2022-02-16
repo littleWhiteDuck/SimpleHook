@@ -20,13 +20,14 @@ import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.fragment.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.random.Random
 
 
@@ -101,7 +102,7 @@ class MainActivity : BaseActivity() {
                 Process.killProcess(Process.myPid())
             },
             cancelAble = false
-        )
+        ).show()
     }
 
     private fun dialogDismiss(dialog: DialogInterface, canCancel: Boolean) {

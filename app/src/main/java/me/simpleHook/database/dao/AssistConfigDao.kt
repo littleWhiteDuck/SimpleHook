@@ -18,6 +18,9 @@ interface AssistConfigDao {
     @Query("DELETE FROM AssistConfig")
     fun deleteAllConfigs()
 
+    @Query("DELETE FROM AssistConfig WHERE packageName != :packageName")
+    fun deleteAssistConfigsByPackageName(packageName: String)
+
     @Update
     suspend fun updateConfigs(vararg config: AssistConfig)
 
@@ -27,9 +30,6 @@ interface AssistConfigDao {
     @Query("SELECT * FROM AssistConfig WHERE packageName LIKE :pattern or appName LIKE :pattern ORDER BY ID DESC")
     fun getFilterConfigs(pattern: String): LiveData<List<AssistConfig>>
 
-    @Query("SELECT * FROM AssistConfig WHERE packageName = :packageName and appName = :appName")
-    suspend fun queryDefaultExConfig(
-        packageName: String = "默认配置",
-        appName: String = "默认配置"
-    ): List<AssistConfig>
+    @Query("SELECT * FROM AssistConfig WHERE packageName = '模板配置'")
+    suspend fun queryDefaultExConfig(): List<AssistConfig>
 }

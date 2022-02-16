@@ -67,11 +67,11 @@ class ConfigDialogFragment(
                 var checkIsZero = true
                 val isGrant = FileUtils.isGrant(mContext)
                 if (isImport) {
+                    val tempList = mutableListOf<AppConfig>()
                     for (item in configsList) {
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                viewModel.insertConfigs(item.appConfig)
                                 if (isGrant) {
                                     FileUtils.saveConfig(
                                         mContext,
@@ -81,8 +81,10 @@ class ConfigDialogFragment(
                                     )
                                 }
                             }
+                            tempList.add(item.appConfig)
                         }
                     }
+                    viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
                         "为空".toast(mContext)
                     } else {

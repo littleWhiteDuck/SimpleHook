@@ -9,6 +9,7 @@
     <string name="assist_close_float_window">close window for print</string>
     <string name="assist_float_drag">拖拽</string>
     <string name="assist_float_export_config_empty_tip">导出了个寂寞</string>
+    <string name="extension_settings">设置</string>
     <!--config-->
     <string name="config_config_smali_to_config">smali转为配置</string>
     <string name="config_application_input_helper">例如：com.example.MyApplication</string>
@@ -58,6 +59,10 @@
     <string name="main_home_toolbar_search_hint">搜索…</string>
     <string name="main_home_empty_tip">这里是空的，点击加号按钮添加配置</string>
 
+    <string name="main_request_storage_permission_title">获取权限</string>
+    <string name="main_request_storage_permission_message">由于部分应用无法读取到配置，所以需要获取data文件夹权限，在目标应用目录下写入配置。开启后请手动刷新配置，否则不会向储存文件写入配置。</string>
+    <string name="main_request_storage_permission_okText">去申请</string>
+
     <string name="main_settings_name">设置</string>
     <string name="main_settings_title_other">其他</string>
     <string name="main_settings_title_about">关于</string>
@@ -81,6 +86,8 @@
     <string name="main_settings_summary_update_record">记下心动一刻</string>
     <string name="main_settings_title_update_record">更新记录</string>
     <string name="main_settings_title_terms_of_use">使用协议</string>
+
+
     <string-array name="main_settings_clear_item">
         <item>清空Hook配置</item>
         <item>清空扩展配置</item>
@@ -102,6 +109,9 @@
     <string name="main_extension_delete_config_tip">已删除此配置</string>
     <string name="main_extension_undo_delete_config">撤销</string>
     <string name="main_extension_name">扩展</string>
+    <string name="main_extension_menu_create_model">创建模板</string>
+    <string name="main_extension_menu_show_model">查看模板</string>
+    <string name="main_extension_menu_about_model">关于模板</string>
 
     <string name="main_record_name">记录</string>
     <string name="main_record_empty_tip">这里是空的，可在扩展页面添加配置、设置记录项或者Hook配置页选择【打印参数值】、【打印返回值】</string>
@@ -126,17 +136,15 @@
     <string name="search">搜索</string>
     <string name="search_hint">输入应用名或包名</string>
     <string name="error_tip">出现错误</string>
+    <string name="record_detail_menu_copy_json_format">json文本</string>
+    <string name="record_detail_menu_help">帮助</string>
+    <string name="record_detail_menu_copy_text">普通文本</string>
+    <string name="record_detail_menu_copy">复制</string>
 
     <string-array name="xposed_scope">
         <item>me.hookTest</item>
         <item>me.duck.hooktest</item>
     </string-array>
-
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="extension_settings">设置</string>
-    <string name="main_request_storage_permission_title">获取权限</string>
-    <string name="main_request_storage_permission_message">由于部分应用无法读取到配置，所以需要获取data文件夹权限，在目标应用目录下写入配置</string>
-    <string name="main_request_storage_permission_okText">去申请</string>
 
 
 </resources>

@@ -63,7 +63,11 @@ class PopupWindowList private constructor(
             isOutsideTouchable = builder.outsideTouchable
             isFocusable = foscuable
             setBackgroundDrawable(ColorDrawable(-0))
-            showAtLocation(contentView, Gravity.NO_GRAVITY, locationX, locationY)
+            if (locationX == 0 && locationY == 0) {
+                showAtLocation(contentView, Gravity.CENTER, 0, 0)
+            } else {
+                showAtLocation(contentView, Gravity.NO_GRAVITY, locationX, locationY)
+            }
         }
     }
 

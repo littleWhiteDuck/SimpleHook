@@ -20,6 +20,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.RecordType
 import me.simpleHook.util.SPUtils
 
@@ -137,6 +138,7 @@ class RecordFragment : Fragment() {
                 }
             })
         }
+        FastScrollerUtil.bind(binding.recyclerView)
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
         }
