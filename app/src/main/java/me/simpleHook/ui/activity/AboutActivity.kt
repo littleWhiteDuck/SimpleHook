@@ -97,13 +97,6 @@ class AboutActivity : BaseActivity() {
             )
             add(
                 OpenSource(
-                    "FloatingActionButton - Clans",
-                    "https://github.com/Clans/FloatingActionButton",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
                     "EasyFloat - princekin-f",
                     "https://github.com/princekin-f/EasyFloat",
                     getString(R.string.about_source_license_2)

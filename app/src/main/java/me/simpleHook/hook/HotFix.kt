@@ -4,6 +4,7 @@ import android.content.Context
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
 import me.simpleHook.constant.Constant
+import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
 
@@ -12,7 +13,7 @@ object HotFix {
         if (context == null) return
         val dexFilePaths: MutableList<String> = mutableListOf()
         val fileTree: FileTreeWalk =
-            File(Constant.ANDROID_DATA_PATH + packageName + "simpleHook/" + "dex/").walk()
+            File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/dex/").walk()
         fileTree.maxDepth(1)//遍历目录层级为1，即无需检查子目录
             .filter { it.isFile } //只挑选出文件,不处理文件夹
             .filter { it.extension == "dex" } //选择扩展名为“png”的处理
@@ -21,6 +22,7 @@ object HotFix {
             }
         try {
             for (index in 0 until dexFilePaths.size) {
+                dexFilePaths[index].log()
                 val originalLoader = context.classLoader
                 val classLoader = DexClassLoader(
                     dexFilePaths[index],

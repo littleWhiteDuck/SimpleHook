@@ -3,15 +3,12 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import me.simpleHook.BuildConfig
 import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
@@ -79,11 +76,11 @@ class Hook {
             val strConfig =
                 File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "从文件获取配置成功".tip()
+            "从文件获取自定义配置成功".tip()
             determineCan(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "储存文件无运行中软件配置".tip()
-            "准备使用Context获取配置".log()
+            "储存文件无运行中软件自定义配置".tip()
+            "准备使用Context获取自定义配置".log()
             contextHook(packageName)
             /*"准备使用xml获取配置".tip()
             xmlHook(packageName)*/
@@ -126,13 +123,13 @@ class Hook {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("canUse")) == 1) {
                         val configString = getString(getColumnIndex("app_config"))
-                        "配置获取成功(context)".log()
+                        "自定义配置获取成功(context)".log()
                         startHook(configString, packageName)
                         break
                     }
                 }
                 close()
-            } ?: "cursor is null,获取配置失败".log()
+            } ?: "cursor is null,获取自定义配置失败，请开启增加读取配置方式（储存文件配置）".log()
     }
 
     private fun startHook(strConfig: String, packageName: String) {
@@ -231,7 +228,7 @@ class Hook {
                         list.add("方法名：$methodName")
                         val paramLen = param.args.size
                         for (i in 0 until paramLen) {
-                            list.add("参数${i + 1}：${param.args[i]}")
+                            list.add("参数${i + 1}：${getObjectString(param.args[i])}")
                         }
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
@@ -248,7 +245,8 @@ class Hook {
                         val list = mutableListOf<String>()
                         list.add("类名：$className")
                         list.add("方法名：$methodName")
-                        list.add("返回值：${param.result}")
+                        val result = getObjectString(param.result)
+                        list.add("返回值：$result")
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
                             "返回值", list + items, packageName,
@@ -262,6 +260,11 @@ class Hook {
         XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
     }
 
+    private fun getObjectString(value: Any): String {
+        return if (value is List<*>) {
+            Gson().toJson(value)
+        } else value.toString()
+    }
 
     @SuppressLint("Range")
     private fun contextAssistHook(packageName: String) {

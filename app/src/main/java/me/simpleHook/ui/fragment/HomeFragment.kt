@@ -46,6 +46,8 @@ import kotlin.math.min
 
 class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     HideScrollListener {
+
+    private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -54,7 +56,8 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     private lateinit var mContext: Context
     private var currentPattern = ""
     private val mAdapter: HomeAdapter by lazy {
-        HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
+        HomeAdapter(
+            { appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             { appConfigEntity -> itemOnLongClick(appConfigEntity) })
     }
@@ -63,7 +66,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
     private val sp by lazy { SPUtils(requireContext()) }
     private var isFabShow = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -232,9 +234,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                 min(maybeABug, bottomNavigationView.bottom - bottomNavigationView.top)
             }
             if (navigationInsets.bottom == 0) maybeABug += 10.dp
-            layoutParams.bottomMargin = if (isGesture) maybeABug + navigationInsets.bottom
+            val bottomMargin = if (isGesture) maybeABug + navigationInsets.bottom
             else maybeABug + navigationInsets.bottom / 5
+            layoutParams.bottomMargin = bottomMargin
             binding.fab.layoutParams = layoutParams
+            fabDistance = bottomMargin + binding.fab.height * 2
             windowInsets
         }
         binding.apply {
@@ -248,7 +252,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             }
         }
     }
-
 
     private fun showInternetImportConfigDialog() {
         val textInputLayout = TextInputLayout(requireContext())
@@ -336,18 +339,19 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             }
             JsonUtil.isJsonObject(configs) -> {
                 try {
-                    val appConfig = Gson().fromJson(configs, AppConfig::class.java)
-                    appConfig.id = 0
-                    viewModel.insertConfigs(appConfig)
-                    if (FileUtils.isGrant(mContext)) {
-                        FileUtils.saveConfig(
-                            mContext,
-                            appConfig.packageName,
-                            Constant.APP_CONFIG_NAME,
-                            configs
-                        )
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val appConfig = Gson().fromJson(configs, AppConfig::class.java)
+                        appConfig.id = 0
+                        viewModel.insertConfigs(appConfig)
+                        if (FileUtils.isGrant(mContext)) {
+                            FileUtils.saveConfig(
+                                mContext,
+                                appConfig.packageName,
+                                Constant.APP_CONFIG_NAME,
+                                configs
+                            )
+                        }
                     }
-                    "导入成功".toast(mContext)
                 } catch (e: java.lang.Exception) {
                     getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
                 }
@@ -394,7 +398,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     override fun onQueryTextSubmit(query: String?) = false
-
     override fun onQueryTextChange(newText: String): Boolean {
         val pattern = newText.trim()
         currentPattern = pattern
@@ -424,6 +427,17 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         _binding = null
     }
 
+    override fun onShow() {
+        isFabShow = true
+        binding.fab.animate().translationY(0f).interpolator = DecelerateInterpolator(3f)
+    }
+
+    override fun onHide() {
+        isFabShow = false
+        binding.fab.animate().translationY(fabDistance.toFloat()).interpolator =
+            DecelerateInterpolator(1.5f)
+    }
+
     class FabScrollListener(private val listener: HideScrollListener) :
         RecyclerView.OnScrollListener() {
         private var distance = 0
@@ -449,17 +463,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         companion object {
             private const val THRESHOLD = 20
         }
-    }
-
-    override fun onShow() {
-        isFabShow = true
-        binding.fab.animate().translationY(0f).interpolator = DecelerateInterpolator(3f)
-    }
-
-    override fun onHide() {
-        isFabShow = false
-        binding.fab.animate().translationY(binding.fab.height.px).interpolator =
-            DecelerateInterpolator(1.5f)
     }
 
 }

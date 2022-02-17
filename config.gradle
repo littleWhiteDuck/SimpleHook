@@ -1,0 +1,15 @@
+ext {
+    Boolean debug = true
+    def getVersionCode = { ->
+        def pattern = "yyMMddHH"
+        if (debug) {
+            pattern = "ddHHmmss"
+        }
+        return new Date().format(pattern, TimeZone.getTimeZone("GMT+08:00")).toInteger()
+    }
+    def _versionName = "1.0.7"
+    config = [
+            verisonName: _versionName,
+            versionCode: getVersionCode()
+    ]
+}

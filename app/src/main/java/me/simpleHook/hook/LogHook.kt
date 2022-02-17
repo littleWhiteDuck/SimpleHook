@@ -3,7 +3,10 @@ package me.simpleHook.hook
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.contentValuesOf
-import me.simpleHook.util.print
+import com.google.gson.Gson
+import me.simpleHook.constant.Constant
+import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.util.FileUtils
 import me.simpleHook.util.tip
 
 object LogHook {
@@ -21,8 +24,24 @@ object LogHook {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
             }
         } catch (e: Exception) {
-            "current error when save log，请尝试simpleHook保持运行，此次log打印在下方".tip()
-            log.print()
+            "error occurred while saving log to the database, prepare to write to the file".tip()
+            printLogToFile(log, packageName, type)
+        }
+    }
+
+    private fun printLogToFile(log: String, packageName: String, type: String) {
+        try {
+            val printLog = PrintLog(log = log, packageName = packageName, type = type)
+            val printLogStr = Gson().toJson(printLog)
+            val filePath =
+                Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/printLog/"
+            FileUtils.writeLogToFile(
+                content = printLogStr,
+                fileName = "printLog.txt",
+                filePath = filePath
+            )
+        } catch (e: Exception) {
+            "error occurred while saving log to the file, 此次log打印在下方".tip()
         }
     }
 

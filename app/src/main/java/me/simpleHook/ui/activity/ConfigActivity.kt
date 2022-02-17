@@ -329,7 +329,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun smali2Java(strSmali: String) = if (matches(smaliPattern, strSmali)) {
-        strSmali.replace("L", "").replace("/", ".").replace(";", "")
+        strSmali.replaceFirst("L", "").replace("/", ".").replace(";", "")
     } else {
         strSmali
     }
@@ -542,7 +542,20 @@ class ConfigActivity : BaseActivity() {
         while (paramStr.contains(Regex(pattern))) {
             paramStr = paramStr.replace(Regex(pattern), "$1,$2")
         }
-        paramStr = paramStr.replace("L", "").replace("/", ".").replace(";", ",")
+        val temp = paramStr.split(Regex("""[;,]"""))
+        val stringBuilder = StringBuilder()
+        temp.forEach {
+            if (it.trim().isNotEmpty()) {
+                println(it)
+                if (it.startsWith("L")) {
+                    stringBuilder.append(it.replaceFirst("L", ""))
+                } else {
+                    stringBuilder.append(it)
+                }
+                stringBuilder.append(",")
+            }
+        }
+        paramStr = stringBuilder.toString().replace("/", ".")
         if (paramStr[paramStr.length - 1] == ',') {
             paramStr = paramStr.substring(0, paramStr.length - 1)
         }

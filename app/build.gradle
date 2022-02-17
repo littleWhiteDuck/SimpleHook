@@ -1,14 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-}
-Boolean debug = true
-def getVersionCode = { ->
-    def pattern = "yyMMddHH"
-    if (debug){
-        pattern = "ddHHmmss"
-    }
-    return new Date().format(pattern, TimeZone.getTimeZone("GMT+08:00")).toInteger()
+    id 'c'
 }
 
 android {
@@ -20,6 +13,7 @@ android {
             keyPassword 'littleWhite'
         }
     }
+
     compileSdkVersion 31
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin-parcelize'
@@ -28,8 +22,9 @@ android {
         applicationId "me.simpleHook"
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode getVersionCode()
-        versionName "1.0.7"
+        versionCode rootProject.ext.config.versionCode
+        versionName rootProject.ext.config.versionName
+        flavorDimensions "default"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -59,6 +54,14 @@ android {
            /* if (buildType.name == 'release') {
                 variant.getPackageApplication().outputDirectory = new File(rootDir.absolutePath + "/app/release")
             }*/
+        }
+    }
+    productFlavors {
+        beta {
+            versionName = rootProject.ext.config.versionName+"_beta"
+        }
+        public_release {
+            versionName = rootProject.ext.config.versionName
         }
     }
 }

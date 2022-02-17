@@ -56,6 +56,8 @@ private const val HOT_FIX_STATUS = 1 shl 13
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
+
+
     private lateinit var binding: ActivityExtensionBinding
     private lateinit var assistConfig: AssistConfig
     private val sp by lazy { SPUtils(this) }
@@ -73,7 +75,6 @@ class AssistActivity : BaseActivity() {
     private var statusChecked = 0
     private var statusUnChecked = 0
     private lateinit var configBean: AssistConfigBean
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExtensionBinding.inflate(layoutInflater)
@@ -101,7 +102,6 @@ class AssistActivity : BaseActivity() {
         initData()
         initView()
     }
-
 
     private fun initData() {
         val config = assistConfig.config
@@ -209,60 +209,6 @@ class AssistActivity : BaseActivity() {
         }
     }
 
-    class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
-        private val tvTitle = itemView as AppCompatTextView
-        override fun onBindData(position: Int, data: AssistTitle) {
-            tvTitle.text = data.title
-        }
-    }
-
-    class ItemHolder(itemView: View, val onClick: (Boolean, Int) -> Unit) :
-        BasicViewHolder<AssistItem>(itemView) {
-        private val assistItemView = itemView as ExtensionItemView
-        private val tvTitle: TextView = assistItemView.title
-        private val tvDesc: TextView = assistItemView.desc
-        private val tvControl: TextView = assistItemView.control
-        override fun onBindData(position: Int, data: AssistItem) {
-            if (data.desc == "") tvDesc.visibility = View.GONE
-            tvTitle.text = data.title
-            tvDesc.text = data.desc
-            when {
-                data.tag == startAppTag -> tvControl.text = data.other
-                data.isChecked -> {
-                    tvControl.text = "已开启"
-                    tvControl.setTextColor(Color.parseColor("#4F9BFA"))
-                }
-                else -> {
-                    tvControl.text = "未开启"
-                    tvControl.setTextColor(Color.parseColor("#aaaaaa"))
-                }
-            }
-            itemView.setOnClickListener {
-                data.isChecked = !data.isChecked
-                tvControl.apply {
-                    data.apply {
-                        when {
-                            tag == startAppTag -> {
-                                onClick(false, tag)
-                            }
-                            isChecked -> {
-                                text = "已开启"
-                                setTextColor(Color.parseColor("#4F9BFA"))
-                                onClick(true, tag)
-                            }
-                            else -> {
-                                text = "未开启"
-                                setTextColor(Color.parseColor("#aaaaaa"))
-                                onClick(false, tag)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
     private fun onClick(checked: Boolean, tag: Int) {
         if (tag == startAppTag) {
             if (assistConfig.packageName == "模板配置") return
@@ -273,16 +219,26 @@ class AssistActivity : BaseActivity() {
             if (tag == HOT_FIX_STATUS) {
                 lifecycleScope.launch(Dispatchers.IO) {
                     if (FileUtils.isGrant(this@AssistActivity)) {
-                        FileUtils.writeDocumentFile(
-                            this@AssistActivity,
-                            path = "${assistConfig.packageName}/simpleHook/dex",
-                            content = """
+                        val content = """
                     1.dex放在此目录
                     2.如果不生效，清除数据后重试
-                """.trimIndent(),
-                            fileName = "说明",
-                            mimiType = "text/plain",
-                        )
+                """.trimIndent()
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+
+                            FileUtils.writeDocumentFile(
+                                this@AssistActivity,
+                                path = "${assistConfig.packageName}/simpleHook/dex",
+                                content = content,
+                                fileName = "说明",
+                                mimiType = "text/plain",
+                            )
+                        } else {
+                            FileUtils.writeJsonToFile(
+                                content = content,
+                                filePath = Constant.ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/",
+                                fileName = "说明.txt"
+                            )
+                        }
                     }
                 }
             }
@@ -314,7 +270,6 @@ class AssistActivity : BaseActivity() {
         statusChecked isContainState state || statusUnChecked isContainState state
 
     private fun isChecked(state: Int) = statusChecked isContainState state
-
     private fun saveConfig() {
 
         if (isContains(ALL_STATUS)) {
@@ -410,6 +365,60 @@ class AssistActivity : BaseActivity() {
             R.id.save_config -> saveConfig()
         }
         return true
+    }
+
+    class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
+        private val tvTitle = itemView as AppCompatTextView
+        override fun onBindData(position: Int, data: AssistTitle) {
+            tvTitle.text = data.title
+        }
+    }
+
+    class ItemHolder(itemView: View, val onClick: (Boolean, Int) -> Unit) :
+        BasicViewHolder<AssistItem>(itemView) {
+        private val assistItemView = itemView as ExtensionItemView
+        private val tvTitle: TextView = assistItemView.title
+        private val tvDesc: TextView = assistItemView.desc
+        private val tvControl: TextView = assistItemView.control
+        override fun onBindData(position: Int, data: AssistItem) {
+            if (data.desc == "") tvDesc.visibility = View.GONE
+            tvTitle.text = data.title
+            tvDesc.text = data.desc
+            when {
+                data.tag == startAppTag -> tvControl.text = data.other
+                data.isChecked -> {
+                    tvControl.text = "已开启"
+                    tvControl.setTextColor(Color.parseColor("#4F9BFA"))
+                }
+                else -> {
+                    tvControl.text = "未开启"
+                    tvControl.setTextColor(Color.parseColor("#aaaaaa"))
+                }
+            }
+            itemView.setOnClickListener {
+                data.isChecked = !data.isChecked
+                tvControl.apply {
+                    data.apply {
+                        when {
+                            tag == startAppTag -> {
+                                onClick(false, tag)
+                            }
+                            isChecked -> {
+                                text = "已开启"
+                                setTextColor(Color.parseColor("#4F9BFA"))
+                                onClick(true, tag)
+                            }
+                            else -> {
+                                text = "未开启"
+                                setTextColor(Color.parseColor("#aaaaaa"))
+                                onClick(false, tag)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 }

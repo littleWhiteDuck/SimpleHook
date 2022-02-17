@@ -2,6 +2,7 @@ package me.simpleHook.database.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import me.simpleHook.database.entity.PrintLog
@@ -44,4 +45,7 @@ interface PrintLogDao {
 
     @Update
     suspend fun updateRecord(printLog: PrintLog)
+
+    @Insert
+    suspend fun insertRecord(vararg printLog: PrintLog)
 }

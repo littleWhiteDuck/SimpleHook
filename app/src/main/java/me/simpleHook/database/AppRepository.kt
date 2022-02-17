@@ -71,6 +71,9 @@ class AppRepository(context: Context) {
         printLogDao.updateRecord(printLog)
     }
 
+    suspend fun insertRecord(vararg printLog: PrintLog) {
+        printLogDao.insertRecord(*printLog)
+    }
 
     // AssistConfig
     suspend fun insertAssistConfigs(vararg config: AssistConfig) {

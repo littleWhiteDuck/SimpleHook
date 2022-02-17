@@ -4,14 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context=".ui.fragment.HomeFragment">
 
     <TextView
-        android:visibility="gone"
         android:id="@+id/empty_tip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_home_empty_tip"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,61 +38,55 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.github.clans.fab.FloatingActionMenu
+    <me.simpleHook.ui.custom.FloatingActionMenu
         android:id="@+id/fab"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="80dp"
-        app:layout_behavior="me.simpleHook.behavior.FabBehavior"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_insetEdge="bottom"
-        app:menu_colorNormal="@color/colorPrimaryVariant"
-        app:menu_colorPressed="@color/colorPrimary"
-        app:menu_labels_ellipsize="end"
-        app:menu_labels_singleLine="true">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu_src="@drawable/ic_add_24"
+        app:menu_tint="@color/white">
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/add_config"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_24"
-            app:fab_colorNormal="@color/colorPrimaryVariant"
-            app:fab_colorPressed="@color/colorPrimary"
-            app:fab_label="添加配置"
-            app:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/import_configs_from_paste"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_paste"
-            app:fab_colorNormal="@color/colorPrimaryVariant"
-            app:fab_colorPressed="@color/colorPrimary"
-            app:fab_label="导入配置"
-            app:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/import_configs_from_internet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_cloud_download_12"
-            app:fab_colorNormal="@color/colorPrimaryVariant"
-            app:fab_colorPressed="@color/colorPrimary"
-            app:fab_label="从网络导入配置"
-            app:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
+        <me.simpleHook.ui.custom.FloatingActionButton
             android:id="@+id/share_configs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_share"
-            app:fab_colorNormal="@color/colorPrimaryVariant"
-            app:fab_colorPressed="@color/colorPrimary"
+            android:layout_marginBottom="5dp"
             app:fab_label="分享配置"
-            app:fab_size="mini" />
+            app:fab_src="@drawable/ic_share"
+            app:fab_tint="@color/white"
+            app:maxImageSize="15dp" />
 
-    </com.github.clans.fab.FloatingActionMenu>
+        <me.simpleHook.ui.custom.FloatingActionButton
+            android:id="@+id/import_configs_from_internet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:fab_label="从网络导入配置"
+            app:fab_src="@drawable/ic_cloud_download_12"
+            app:fab_tint="@color/white"
+            app:maxImageSize="15dp" />
+
+        <me.simpleHook.ui.custom.FloatingActionButton
+            android:id="@+id/import_configs_from_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:fab_label="导入配置"
+            app:fab_src="@drawable/ic_paste"
+            app:fab_tint="@color/white"
+            app:maxImageSize="15dp" />
+
+        <me.simpleHook.ui.custom.FloatingActionButton
+            android:id="@+id/add_config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:fab_label="添加配置"
+            app:fab_src="@drawable/ic_add_24"
+            app:fab_tint="@color/white"
+            app:maxImageSize="15dp" />
+    </me.simpleHook.ui.custom.FloatingActionMenu>
 </androidx.constraintlayout.widget.ConstraintLayout>

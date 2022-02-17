@@ -9,10 +9,13 @@ import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
@@ -21,6 +24,7 @@ import me.simpleHook.databinding.FragmentRecordBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FileUtils
 import me.simpleHook.util.RecordType
 import me.simpleHook.util.SPUtils
 
@@ -206,6 +210,22 @@ class RecordFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.filterRecord(currentPattern)
         }, time)
+        readFileLogInsert()
+    }
+
+    private fun readFileLogInsert() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val assistConfigs = appViewModel.getAssistConfigs()
+            val configs = appViewModel.getConfigs()
+            assistConfigs.forEach {
+                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                appViewModel.insertRecord(*list.toTypedArray())
+            }
+            configs.forEach {
+                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                appViewModel.insertRecord(*list.toTypedArray())
+            }
+        }
     }
 
     override fun onResume() {

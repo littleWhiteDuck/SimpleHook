@@ -8,8 +8,8 @@
             app:title="@string/main_settings_title_storage" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="openXml"
             app:isPreferenceVisible="false"
+            app:key="openXml"
             app:summary="@string/main_settings_summary_xml"
             app:title="@string/main_settings_title_xml" />
 
@@ -30,9 +30,9 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="常规功能">
         <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_clear_item_entries"
             app:key="clearConfigData"
             app:summary="一键化清理配置"
-            app:entries="@array/main_settings_clear_item"
             app:title="清空配置" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">

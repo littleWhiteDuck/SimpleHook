@@ -88,7 +88,8 @@ class ExtensionFragment : Fragment() {
                     modelConfig.packageName = packageName
                     modelConfig.id = 0
                     appViewModel.insertAssistConfigs(modelConfig)
-
+                    currentModel = -1
+                    saveToText(modelConfig.packageName, modelConfig.config)
                 }
             }
         }

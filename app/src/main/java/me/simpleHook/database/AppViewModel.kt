@@ -64,6 +64,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.updateRecord(printLog)
     }
 
+    fun insertRecord(vararg printLog: PrintLog) = viewModelScope.launch {
+        appRepository.insertRecord(*printLog)
+    }
+
     fun deleteAllLogs() = viewModelScope.launch {
         appRepository.deleteAllLogs()
     }

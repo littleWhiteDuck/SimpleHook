@@ -10,11 +10,10 @@ import android.os.Looper
 import android.provider.DocumentsContract
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
+import com.google.gson.Gson
 import me.simpleHook.constant.Constant
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import me.simpleHook.database.entity.PrintLog
+import java.io.*
 
 
 object FileUtils {
@@ -31,11 +30,11 @@ object FileUtils {
     }
 
     private fun writeConfigFile(packageName: String, fileName: String, config: String) {
-        val filePath = "/storage/emulated/0/Android/data/$packageName/"
+        val filePath = "/storage/emulated/0/Android/data/$packageName/simpleHook/"
         writeJsonToFile(config, filePath, fileName)
     }
 
-    private fun writeJsonToFile(content: String, filePath: String, fileName: String) {
+    fun writeJsonToFile(content: String, filePath: String, fileName: String) {
         makeFilePath(filePath, fileName)
         val strFilePath = filePath + fileName
         val strContent = "${content}\r\n"
@@ -45,7 +44,9 @@ object FileUtils {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
-            file.writer().use { it.write(strContent) }
+            file.writer().use {
+                it.write(strContent)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -292,7 +293,69 @@ object FileUtils {
     private fun deleteConfigFile(packageName: String, fileName: String) {
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + fileName
+        deleteFile(filePath)
+    }
+
+    private fun deleteFile(filePath: String) {
         val file = File(filePath)
         if (file.exists()) file.delete()
+    }
+
+    fun writeLogToFile(content: String, filePath: String, fileName: String) {
+        makeFilePath(filePath, fileName)
+        val strFilePath = filePath + fileName
+        val strContent = "${content}\r\n"
+        try {
+            val file = File(strFilePath)
+            if (!file.exists()) {
+                file.parentFile.mkdirs()
+                file.createNewFile()
+            }
+            FileWriter(file.path, true)
+                .use {
+                    it.write(strContent)
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun readLogFile(context: Context, packageName: String): List<PrintLog> {
+        val filePath =
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/printLog/printLog.txt"
+        val fileUri = Uri.parse(changeToUri(filePath))
+        val list = mutableListOf<PrintLog>()
+        try {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                context.contentResolver.openInputStream(fileUri)?.also { inputStream ->
+                    val bufferedReader = BufferedReader(InputStreamReader(inputStream))
+                    bufferedReader.useLines {
+                        it.iterator().forEach { str ->
+                            try {
+                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                            } catch (e: java.lang.Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+                DocumentsContract.deleteDocument(context.contentResolver, fileUri)
+            } else {
+                File(filePath)
+                    .useLines {
+                        it.iterator().forEach { str ->
+                            try {
+                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                            } catch (e: java.lang.Exception) {
+
+                            }
+                        }
+                    }
+                deleteFile(filePath)
+            }
+        } catch (e: Exception) {
+
+        }
+        return list
     }
 }

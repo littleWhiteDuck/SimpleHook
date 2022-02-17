@@ -3,8 +3,6 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,18 +11,21 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.custom.MyFastScroller
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FileUtils
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -114,8 +115,19 @@ class RecordActivity : BaseActivity() {
                 appViewModel.filterRecordByPack(typeOrPackageName, currentPattern)
             }
         }, delayTime)
-
+        readFileLogInsert()
     }
+
+    private fun readFileLogInsert() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val assistConfigs = appViewModel.getAssistConfigs()
+            assistConfigs.forEach {
+                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
+                appViewModel.insertRecord(*list.toTypedArray())
+            }
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_record_fragment, menu)

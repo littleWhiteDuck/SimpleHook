@@ -1,6 +1,7 @@
 package me.simpleHook.ui.custom
 
 import android.content.Context
+import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -10,7 +11,8 @@ import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
 
-abstract class CustomViewGroup(context: Context) : ViewGroup(context) {
+abstract class CustomViewGroup(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
+    constructor(context: Context) : this(context, null)
 
     protected val View.measuredWidthWithMargins get() = measuredWidth + marginStart + marginEnd
     protected val View.measuredHeightWithMargins get() = measuredHeight + marginTop + marginBottom
@@ -50,11 +52,25 @@ abstract class CustomViewGroup(context: Context) : ViewGroup(context) {
         )
     }
 
-    protected fun View.autoLayout(x: Int = 0, y: Int = 0, fromRight: Boolean = false) {
+    protected fun View.autoLayout(
+        x: Int = 0,
+        y: Int = 0,
+        fromRight: Boolean = false,
+        fromBottom: Boolean = false
+    ) {
         if (fromRight) {
-            autoLayout(this@CustomViewGroup.measuredWidth - x - measuredWidth, y)
+            val xPosition = this@CustomViewGroup.measuredWidth - x - measuredWidth
+            if (fromBottom) {
+                autoLayout(xPosition, this@CustomViewGroup.measuredHeight - y - measuredHeight)
+            } else {
+                autoLayout(xPosition, y)
+            }
         } else {
-            layout(x, y, x + measuredWidth, y + measuredHeight)
+            if (fromBottom) {
+                autoLayout(x, this@CustomViewGroup.measuredHeight - y - measuredHeight)
+            } else {
+                layout(x, y, x + measuredWidth, y + measuredHeight)
+            }
         }
     }
 
