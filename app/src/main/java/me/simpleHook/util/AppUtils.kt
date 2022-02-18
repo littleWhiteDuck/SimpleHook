@@ -24,7 +24,7 @@ object AppUtils {
         try {
             return context.packageManager.getApplicationIcon(packageName)
         } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
+
         }
         return context.resources.getDrawable(R.drawable.ic_launcher_foreground, null)
     }

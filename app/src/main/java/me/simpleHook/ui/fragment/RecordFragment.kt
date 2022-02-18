@@ -180,12 +180,6 @@ class RecordFragment : Fragment() {
                         refreshData()
                     })
             }
-            R.id.scroll_top -> {
-                binding.recyclerView.smoothScrollToPosition(0)
-            }
-            R.id.scroll_bottom -> {
-                binding.recyclerView.smoothScrollToPosition(recorderSummaryAdapter.itemCount - 1)
-            }
             R.id.toAppShow -> {
                 if (sp.showByType) {
                     refreshData(0)

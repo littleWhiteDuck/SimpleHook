@@ -140,6 +140,8 @@
     <string name="record_detail_menu_help">帮助</string>
     <string name="record_detail_menu_copy_text">普通文本</string>
     <string name="record_detail_menu_copy">复制</string>
+    <string name="record_fab_scroll_to_bottom">滑到底部</string>
+    <string name="record_scroll_to_top">滑到顶部</string>
 
     <string-array name="xposed_scope">
         <item>me.hookTest</item>

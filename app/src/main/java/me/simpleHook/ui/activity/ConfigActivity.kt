@@ -48,7 +48,9 @@ private const val PATTERN_METHOD =
     """^invoke-(virtual|direct|static)(/range)? \{.*\}, (.*)->(.*)\((.*)\)(.*)$"""
 private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
 private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
-private const val pattern = """(B|S|I|J|F|D|Z)(B|S|I|J|F|D|Z|L)"""
+private const val pattern_basic = """(B|S|I|J|F|D|Z|C)(B|S|I|J|F|D|Z|C|L)"""
+private const val pattern_basic_array = """\[(B|S|I|J|F|D|Z|C)"""
+private const val pattern_object_array = """\[L(.*)"""
 private const val CLASS_NAME_STATE = 1
 private const val METHOD_NAME_STATE = 1 shl 1
 private const val PARAMS_STATE = 1 shl 2
@@ -536,30 +538,33 @@ class ConfigActivity : BaseActivity() {
         } ?: "错误的代码".toast(this)
     }
 
+    private fun tranParam(param: String): String {
+        var temp = param
+        temp = temp.replace(Regex(pattern_object_array), "$1[]")
+        if (temp.startsWith("L")) {
+            temp = temp.replaceFirst("L", "")
+        }
+        return temp.replace("/", ".")
+    }
+
     private fun tranParams(params: String): String {
         if (params.isEmpty()) return ""
         var paramStr = params
-        while (paramStr.contains(Regex(pattern))) {
-            paramStr = paramStr.replace(Regex(pattern), "$1,$2")
+        while (paramStr.contains(Regex(pattern_basic))) {
+            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
-        val temp = paramStr.split(Regex("""[;,]"""))
-        val stringBuilder = StringBuilder()
-        temp.forEach {
-            if (it.trim().isNotEmpty()) {
-                println(it)
-                if (it.startsWith("L")) {
-                    stringBuilder.append(it.replaceFirst("L", ""))
-                } else {
-                    stringBuilder.append(it)
-                }
-                stringBuilder.append(",")
-            }
+        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
+        val paramArray = paramStr.split(Regex("[,;]"))
+        val sb = StringBuilder()
+        for (i in paramArray.indices) {
+            if (paramArray[i].trim().isEmpty()) continue
+            sb.append(tranParam(paramArray[i])).append(",")
         }
-        paramStr = stringBuilder.toString().replace("/", ".")
-        if (paramStr[paramStr.length - 1] == ',') {
-            paramStr = paramStr.substring(0, paramStr.length - 1)
+        var temp = sb.toString()
+        if (temp[temp.length - 1] == ',') {
+            temp = temp.substring(0, temp.length - 1)
         }
-        return paramStr
+        return temp
     }
 
 
@@ -567,12 +572,13 @@ class ConfigActivity : BaseActivity() {
         return when (returnType) {
             "Z" -> "true"
             "F" -> "1f"
-            "L" -> "4787107805000l"
+            "J" -> "4787107805000l"
             "D" -> "2d"
             "Ljava/lang/String;" -> "isVip"
             "S" -> "1short"
             "C" -> "1c"
             "I" -> "1"
+            "B" -> "1"
             else -> "null"
         }
     }

@@ -214,6 +214,9 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             sp.appListReverse = currentSortReverse
             mViewModel.fetchData(currentSortSelected, currentSortReverse)
             binding.swipeRefreshLayout.isRefreshing = true
-        }, cancelText = "取消", contentView = contentView).show()
+        }, cancelText = "取消", cancelClick = {
+            currentSortReverse = sp.appListReverse
+            currentSortSelected = sp.appListSortSelected
+        }, contentView = contentView, cancelAble = false).show()
     }
 }

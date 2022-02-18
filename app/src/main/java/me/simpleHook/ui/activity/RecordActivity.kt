@@ -69,6 +69,18 @@ class RecordActivity : BaseActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initView() {
+        binding.apply {
+            upFab.hide()
+            upFab.setOnClickListener {
+                recyclerView.scrollToPosition(0)
+                showDownFab()
+            }
+            downFab.hide()
+            downFab.setOnClickListener {
+                recyclerView.scrollToPosition(recordAdapter.itemCount - 1)
+                showUpFab()
+            }
+        }
         binding.recyclerView.apply {
             adapter = recordAdapter
             layoutManager = LinearLayoutManager(this@RecordActivity)
@@ -91,11 +103,40 @@ class RecordActivity : BaseActivity() {
                     }
                 }
             })
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                private var distance = 0
+                private var visible = true
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (distance > 20 && visible) {
+                        visible = false
+                        showUpFab()
+                        distance = 0
+                    } else if (distance < -20 && !visible) {
+                        visible = true
+                        distance = 0
+                        showDownFab()
+                    }
+                    if (visible && dy > 0 || !visible && dy < 0) {
+                        distance += dy
+                    }
+                }
+            })
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
         FastScrollerUtil.bind(binding.recyclerView)
+    }
+
+    private fun showDownFab() {
+        binding.downFab.show()
+        binding.upFab.hide()
+    }
+
+    private fun showUpFab() {
+        binding.upFab.show()
+        binding.downFab.hide()
     }
 
     private fun initData() {
@@ -130,8 +171,7 @@ class RecordActivity : BaseActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_record_fragment, menu)
-        menu.removeItem(R.id.toShow)
+        menuInflater.inflate(R.menu.menu_record, menu)
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.apply {
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
@@ -173,12 +213,6 @@ class RecordActivity : BaseActivity() {
                         }
                         refreshData()
                     })
-            }
-            R.id.scroll_top -> {
-                binding.recyclerView.scrollToPosition(0)
-            }
-            R.id.scroll_bottom -> {
-                binding.recyclerView.scrollToPosition(recordAdapter.itemCount - 1)
             }
         }
         return true

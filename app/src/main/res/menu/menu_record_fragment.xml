@@ -29,14 +29,6 @@
         android:icon="@drawable/ic_delete_24"
         android:title="删除已读" />
     <item
-        android:id="@+id/scroll_top"
-        android:title="滑到顶部"
-        android:icon="@drawable/ic_arrow_upward_24" />
-    <item
-        android:id="@+id/scroll_bottom"
-        android:title="滑到底部"
-        android:icon="@drawable/ic_arrow_downward_24" />
-    <item
         android:id="@+id/search"
         android:icon="@drawable/ic_search_24"
         android:title="@string/search"

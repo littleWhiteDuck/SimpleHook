@@ -16,7 +16,7 @@ import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.util.TimeUtil
-import me.simpleHook.util.tip
+import me.simpleHook.util.log
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.security.spec.EncodedKeySpec
@@ -141,18 +141,37 @@ object ExtensionHook {
     }
 
     fun hookOnClick(context: Context, packageName: String) {
+
+
         XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
-                val type = "点击事件"
-                val stackTrace = Throwable().stackTrace
-                val log = Gson().toJson(
-                    LogBean(
-                        type, LogHook.toStackTrace(stackTrace), packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+            override fun afterHookedMethod(param: MethodHookParam) {
+                try {
+                    val type = "点击事件"
+                    val view = param.thisObject as View
+                    val viewType = view.javaClass.name ?: "未获取到"
+                    val listenerInfoObject = XposedHelpers.getObjectField(view, "mListenerInfo")
+                    val mOnClickListenerObject =
+                        XposedHelpers.getObjectField(listenerInfoObject, "mOnClickListener")
+                    val callbackType = mOnClickListenerObject.javaClass.name
+                    val viewId =
+                        if (view.id == View.NO_ID) "id：无ID" else "id： " + Integer.toHexString(view.id)
+                    val stackTrace = Throwable().stackTrace
+                    val log = Gson().toJson(
+                        LogBean(
+                            type,
+                            arrayListOf(
+                                "控件类型：$viewType",
+                                "回调类名：$callbackType",
+                                viewId
+                            ) + LogHook.toStackTrace(stackTrace),
+                            packageName,
+                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        )
                     )
-                )
-                LogHook.toLogMsg(context, log, packageName, type)
+                    LogHook.toLogMsg(context, log, packageName, type)
+                } catch (e: Exception) {
+                    "error: click".log()
+                }
             }
         })
     }
@@ -571,65 +590,61 @@ object ExtensionHook {
      */
 
     fun hookIntent(context: Context, packageName: String) {
-        try {
-            val classLoader = context.classLoader
-            XposedHelpers.findAndHookMethod(
-                ACTIVITY, classLoader,
-                START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val intent = param.args[0] as Intent
-                        saveLog(context, intent, packageName)
-                    }
-                })
+        val classLoader = context.classLoader
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY, classLoader,
+            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val intent = param.args[0] as Intent
+                    saveLog(context, intent, packageName)
+                }
+            })
 
-            XposedHelpers.findAndHookMethod(
-                CONTEXT_WRAPPER, classLoader,
-                START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val intent = param.args[0] as Intent
-                        saveLog(context, intent, packageName)
-                    }
-                })
+        XposedHelpers.findAndHookMethod(
+            CONTEXT_WRAPPER, classLoader,
+            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val intent = param.args[0] as Intent
+                    saveLog(context, intent, packageName)
+                }
+            })
 
-            XposedHelpers.findAndHookMethod(
-                CONTEXT_WRAPPER,
-                classLoader, START_ACTIVITY,
-                Intent::class.java,
-                Bundle::class.java,
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val intent = param.args[0] as Intent
-                        saveLog(context, intent, packageName)
-                    }
-                })
+        XposedHelpers.findAndHookMethod(
+            CONTEXT_WRAPPER,
+            classLoader, START_ACTIVITY,
+            Intent::class.java,
+            Bundle::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val intent = param.args[0] as Intent
+                    saveLog(context, intent, packageName)
+                }
+            })
 
-            XposedHelpers.findAndHookMethod(
-                ACTIVITY,
-                classLoader, START_ACTIVITY_FOR_RESULT,
-                Intent::class.java,
-                Int::class.java,
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val intent = param.args[0] as Intent
-                        saveLog(context, intent, packageName)
-                    }
-                })
-            XposedHelpers.findAndHookMethod(
-                ACTIVITY,
-                classLoader, START_ACTIVITY_FOR_RESULT,
-                Intent::class.java,
-                Int::class.java,
-                Bundle::class.java,
-                object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY,
+            classLoader, START_ACTIVITY_FOR_RESULT,
+            Intent::class.java,
+            Int::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val intent = param.args[0] as Intent
+                    saveLog(context, intent, packageName)
+                }
+            })
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY,
+            classLoader, START_ACTIVITY_FOR_RESULT,
+            Intent::class.java,
+            Int::class.java,
+            Bundle::class.java,
+            object : XC_MethodHook() {
 
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val intent = param.args[0] as Intent
-                        saveLog(context, intent, packageName)
-                    }
-                })
-        } catch (e: Exception) {
-            "hook intent error".tip()
-        }
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val intent = param.args[0] as Intent
+                    saveLog(context, intent, packageName)
+                }
+            })
     }
 
     fun saveLog(context: Context, intent: Intent, packName: String) {

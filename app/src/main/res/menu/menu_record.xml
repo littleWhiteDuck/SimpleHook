@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search_24"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always|collapseActionView"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:icon="@drawable/ic_delete_24"
+        android:title="删除"
+        app:showAsAction="always|collapseActionView">
+        <menu>
+            <item
+                android:id="@+id/delete_all"
+                android:icon="@drawable/ic_delete_24"
+                android:title="删除全部" />
+            <item
+                android:id="@+id/delete_read"
+                android:icon="@drawable/ic_delete_24"
+                android:title="删除已读" />
+        </menu>
+    </item>
+
+</menu>

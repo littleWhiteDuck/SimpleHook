@@ -2,10 +2,10 @@ package me.simpleHook.ui.custom
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Parcelable
 import android.util.AttributeSet
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.view.ViewCompat
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.simpleHook.R
@@ -39,6 +39,7 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         }
 
     init {
+        this.removeAllViews()
         clipChildren = false
         clipToPadding = false
         val typeValue = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionButton)
@@ -51,10 +52,10 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         }
         val tint = typeValue.getColorStateList(R.styleable.FloatingActionButton_fab_tint)
         actionButton.imageTintList = tint
+        cardView.id = R.id.fab_label
         addView(cardView)
+        actionButton.id = R.id.fab_fab
         addView(actionButton)
-        cardView.id = ViewCompat.generateViewId()
-        actionButton.id = ViewCompat.generateViewId()
         typeValue.recycle()
         refreshShowState()
     }
@@ -90,4 +91,5 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         actionButton.setOnClickListener(l)
         cardView.setOnClickListener(l)
     }
+
 }
