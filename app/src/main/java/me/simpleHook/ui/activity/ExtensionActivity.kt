@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +28,7 @@ import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.constant.Constant
+import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
@@ -94,8 +94,10 @@ class AssistActivity : BaseActivity() {
         editMode = intent.getBooleanExtra("editMode", true)
         val bundle = intent.getBundleExtra("bundle")
         assistConfig = bundle!!.getParcelable("assistConfig")!!
+        supportActionBar?.title = assistConfig.appName
+        supportActionBar?.subtitle = assistConfig.packageName
         lifecycleScope.launch(Dispatchers.IO) {
-            if (assistConfig.packageName != "默认配置") {
+            if (assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
                 saveToText(assistConfig.packageName, "")
             }
         }

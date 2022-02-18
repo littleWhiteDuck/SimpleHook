@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
 import me.simpleHook.constant.Constant
+import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
@@ -118,7 +119,7 @@ class ExtensionFragment : Fragment() {
             modelList.clear()
             val showList = mutableListOf<AssistConfig>()
             for (assist in it) {
-                if (assist.packageName == "模板配置") {
+                if (assist.packageName == MODEL_EXTENSION_CONFIG) {
                     modelList.add(assist)
                 } else {
                     showList.add(assist)
@@ -293,7 +294,7 @@ class ExtensionFragment : Fragment() {
         editMode: Boolean = false,
         assistConfig: AssistConfig = AssistConfig(
             appName = "",
-            packageName = "模板配置"
+            packageName = MODEL_EXTENSION_CONFIG
         )
     ) {
         val editText = AppCompatEditText(mContext)
@@ -346,7 +347,7 @@ class ExtensionFragment : Fragment() {
         }
         customDialog(
             mContext,
-            title = "模板配置",
+            title = MODEL_EXTENSION_CONFIG,
             contentView = listView,
             okText = "确定",
             cancelText = "取消",

@@ -2,6 +2,7 @@ package me.simpleHook.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -17,6 +18,7 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var showMoreDataTip by SharedPreferenceDelegates.boolean(false)
     var appListSortSelected by SharedPreferenceDelegates.int(0)
     var appListReverse by SharedPreferenceDelegates.boolean(false)
+    var uiMode by SharedPreferenceDelegates.int(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }

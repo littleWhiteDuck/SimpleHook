@@ -34,7 +34,7 @@ class PopupWindowList private constructor(
     private var mOnItemClickListener: AdapterView.OnItemClickListener? = null
 
 
-    fun show() {
+    fun show(selectPosition: Int = -1) {
         val width = PhoneUtils.getWindowWidth(mContext)
 
         val contentView = ListView(mContext)
@@ -58,7 +58,12 @@ class PopupWindowList private constructor(
         }
         setXY()
         popupWindow = PopupWindow(contentView, popupWindowWidth, popupWindowHeight)
-
+        if (selectPosition != -1) {
+            contentView.post {
+                contentView.requestFocusFromTouch()
+                contentView.setSelection(selectPosition)
+            }
+        }
         popupWindow.apply {
             isOutsideTouchable = builder.outsideTouchable
             isFocusable = foscuable

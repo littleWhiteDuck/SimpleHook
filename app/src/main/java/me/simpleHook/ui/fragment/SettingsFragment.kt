@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
@@ -13,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -30,17 +32,17 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
+import me.simpleHook.ui.activity.MainActivity
+import me.simpleHook.ui.custom.MenuPreference
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AssetsUtil
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.toast
+import me.simpleHook.util.*
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
 
 class SettingsFragment : PreferenceFragmentCompat() {
+    private val sp by lazy { SPUtils(requireContext()) }
     private val viewModel: AppViewModel by activityViewModels()
     private val restoreConfigs =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
@@ -125,11 +127,44 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<Preference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
+                warningDialog(requireContext(), "敬告", "是否确定要删除？", okText = "确认", okClick = {
+                    when (newValue as String) {
+                        "清空Hook配置" -> clearHookConfig(0)
+                        "清空扩展配置" -> clearHookConfig(1)
+                        "清空所有记录" -> clearHookConfig(2)
+                    }
+                })
+                true
+            }
+        }
+        findPreference<MenuPreference>("uiMode")?.apply {
+            this.summary = when (sp.uiMode) {
+                MODE_NIGHT_YES -> "总是开启"
+                MODE_NIGHT_NO -> "总是关闭"
+                else -> "跟随系统"
+            }
+            setOnPreferenceChangeListener { _, newValue ->
                 when (newValue as String) {
-                    "清空Hook配置" -> clearHookConfig(0)
-                    "清空扩展配置" -> clearHookConfig(1)
-                    "清空所有记录" -> clearHookConfig(2)
+                    "总是关闭" -> {
+                        if (sp.uiMode != MODE_NIGHT_NO) {
+                            sp.uiMode = MODE_NIGHT_NO
+                            setDefaultNightMode(MODE_NIGHT_NO)
+                        }
+                    }
+                    "总是开启" -> {
+                        if (sp.uiMode != MODE_NIGHT_YES) {
+                            sp.uiMode = MODE_NIGHT_YES
+                            setDefaultNightMode(MODE_NIGHT_YES)
+                        }
+                    }
+                    "跟随系统" -> {
+                        if (sp.uiMode != MODE_NIGHT_FOLLOW_SYSTEM) {
+                            sp.uiMode = MODE_NIGHT_FOLLOW_SYSTEM
+                            setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                        }
+                    }
                 }
+                requireActivity().recreate()
                 true
             }
         }

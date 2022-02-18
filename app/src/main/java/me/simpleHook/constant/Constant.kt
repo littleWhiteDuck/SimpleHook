@@ -40,4 +40,6 @@ object Constant {
     const val APP_CONFIG_NAME = "config.json"
     const val EXTENSION_CONFIG_NAME = "assistConfig.json"
 
+    //
+    const val MODEL_EXTENSION_CONFIG = "模板配置"
 }

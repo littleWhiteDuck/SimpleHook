@@ -86,12 +86,19 @@
     <string name="main_settings_summary_update_record">记下心动一刻</string>
     <string name="main_settings_title_update_record">更新记录</string>
     <string name="main_settings_title_terms_of_use">使用协议</string>
-
-
+    <string name="main_settings_ui_mode_summary">跟随系统</string>
+    <string name="main_settings_ui_mode_title">深色主题</string>
+    <string name="main_settings_clear_data_summary">谨慎操作</string>
+    <string name="main_settings_clear_data_title">清空配置</string>
     <string-array name="main_settings_clear_item_entries">
         <item>清空Hook配置</item>
         <item>清空扩展配置</item>
         <item>清空所有记录</item>
+    </string-array>
+    <string-array name="main_settings_ui_mode_item_entries">
+        <item>总是关闭</item>
+        <item>总是开启</item>
+        <item>跟随系统</item>
     </string-array>
 
     <string name="main_share_config_cancel">取消</string>
@@ -142,6 +149,7 @@
     <string name="record_detail_menu_copy">复制</string>
     <string name="record_fab_scroll_to_bottom">滑到底部</string>
     <string name="record_scroll_to_top">滑到顶部</string>
+
 
     <string-array name="xposed_scope">
         <item>me.hookTest</item>

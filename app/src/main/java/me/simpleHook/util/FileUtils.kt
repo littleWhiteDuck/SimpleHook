@@ -30,6 +30,7 @@ object FileUtils {
     }
 
     private fun writeConfigFile(packageName: String, fileName: String, config: String) {
+        if (config.isEmpty()) return
         val filePath = "/storage/emulated/0/Android/data/$packageName/simpleHook/"
         writeJsonToFile(config, filePath, fileName)
     }

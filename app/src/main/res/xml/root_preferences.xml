@@ -30,10 +30,15 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="常规功能">
         <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_ui_mode_item_entries"
+            app:key="uiMode"
+            app:summary="@string/main_settings_ui_mode_summary"
+            app:title="@string/main_settings_ui_mode_title" />
+        <me.simpleHook.ui.custom.MenuPreference
             app:entries="@array/main_settings_clear_item_entries"
             app:key="clearConfigData"
-            app:summary="一键化清理配置"
-            app:title="清空配置" />
+            app:summary="@string/main_settings_clear_data_summary"
+            app:title="@string/main_settings_clear_data_title" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference

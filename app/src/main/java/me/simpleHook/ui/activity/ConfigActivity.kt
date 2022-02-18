@@ -25,6 +25,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppItem
@@ -388,14 +389,16 @@ class ConfigActivity : BaseActivity() {
             return
         }
         binding.progressBar.visibility = View.VISIBLE
-        val appConfig = getAppConfig()
-        if (modify) {
-            appViewModel.updateConfigs(appConfig)
-        } else {
-            appViewModel.insertConfigs(appConfig)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val appConfig = getAppConfig()
+            if (modify) {
+                appViewModel.updateConfigs(appConfig)
+            } else {
+                appViewModel.insertConfigs(appConfig)
+            }
+            val configStr = Gson().toJson(appConfig)
+            saveToText(appConfig.packageName, configStr)
         }
-        val configStr = Gson().toJson(appConfig)
-        saveToText(appConfig.packageName, configStr)
         fakeWaitForSave()
     }
 
