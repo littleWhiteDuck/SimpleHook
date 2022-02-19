@@ -149,6 +149,9 @@
     <string name="record_detail_menu_copy">复制</string>
     <string name="record_fab_scroll_to_bottom">滑到底部</string>
     <string name="record_scroll_to_top">滑到顶部</string>
+    <string name="record_menu_delete">删除</string>
+    <string name="record_menu_delete_all">删除全部</string>
+    <string name="record_menu_delete_read">删除已读</string>
 
 
     <string-array name="xposed_scope">

@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -43,7 +42,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         holder.itemView.setTag(R.id.item_select_position, appItem)
         holder.apply {
             appItem.apply {
-                ivIcon.setImageDrawable(AppUtils.getIcon(itemView.context, packageName))
+                ivIcon.setImageDrawable(IconHelper.getAppIcon(holder.itemView.context, packageName))
                 tvAppName.text = name
                 tvAppName.marquee()
                 tvPackageName.text = packageName

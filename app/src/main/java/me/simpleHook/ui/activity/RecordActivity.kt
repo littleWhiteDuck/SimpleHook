@@ -71,14 +71,14 @@ class RecordActivity : BaseActivity() {
     private fun initView() {
         binding.apply {
             upFab.hide()
+            downFab.hide()
             upFab.setOnClickListener {
                 recyclerView.scrollToPosition(0)
-                showDownFab()
+                upFab.hide()
             }
-            downFab.hide()
             downFab.setOnClickListener {
                 recyclerView.scrollToPosition(recordAdapter.itemCount - 1)
-                showUpFab()
+                downFab.hide()
             }
         }
         binding.recyclerView.apply {
@@ -110,12 +110,12 @@ class RecordActivity : BaseActivity() {
                     super.onScrolled(recyclerView, dx, dy)
                     if (distance > 20 && visible) {
                         visible = false
-                        showUpFab()
+                        showDownFab()
                         distance = 0
                     } else if (distance < -20 && !visible) {
                         visible = true
                         distance = 0
-                        showDownFab()
+                        showUpFab()
                     }
                     if (visible && dy > 0 || !visible && dy < 0) {
                         distance += dy

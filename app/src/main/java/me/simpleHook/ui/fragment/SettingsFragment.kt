@@ -127,7 +127,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<Preference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                warningDialog(requireContext(), "敬告", "是否确定要删除？", okText = "确认", okClick = {
+                warningDialog(requireContext(), "警告", "是否确定要删除？", okText = "确认", okClick = {
                     when (newValue as String) {
                         "清空Hook配置" -> clearHookConfig(0)
                         "清空扩展配置" -> clearHookConfig(1)

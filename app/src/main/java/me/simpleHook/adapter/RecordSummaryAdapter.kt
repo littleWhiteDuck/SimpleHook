@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.RecordSummary
-import me.simpleHook.ui.custom.CircleTextDrawable
 import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
 import me.simpleHook.util.dp
 
@@ -43,12 +43,17 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
                     title.text = AppUtils.getAppName(holder.icon.context, packageName)
                     desc.text = packageName
                     tvCount.text = count.toString()
-                    icon.setImageDrawable(AppUtils.getIcon(holder.itemView.context, packageName))
+                    icon.setImageDrawable(
+                        IconHelper.getAppIcon(
+                            holder.itemView.context,
+                            packageName
+                        )
+                    )
                 } else {
                     title.text = type
                     tvCount.text = count.toString()
                     val showText = RecordType.getShowText(type)
-                    icon.setImageDrawable(CircleTextDrawable(40f.dp, showText))
+                    icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))
                     desc.visibility = View.GONE
                 }
             }
