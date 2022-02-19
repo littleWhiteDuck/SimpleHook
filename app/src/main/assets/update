@@ -1,5 +1,8 @@
 v1.0.8
     1.移除【FloatingActionButton - Clans】
+    2.bug修复
+    3.支持深色模式设置
+    4.支持smali数组类型转换
 v1.0.7
     1.储存文件配置目录更改：Android/data/目标应用包名/simpleHook/
         如你用到储存文件配置，需要手动刷新配置(开启配置、关闭配置、编辑保存配置、清空配置再导入等均可刷新)

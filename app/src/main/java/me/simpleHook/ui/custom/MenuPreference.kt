@@ -10,7 +10,7 @@ import me.simpleHook.R
 
 
 class MenuPreference(context: Context, attrs: AttributeSet?) : Preference(context, attrs) {
-    var entries = arrayOf<String>()
+    private var entries = arrayOf<String>()
 
     init {
         val typeArray = context.obtainStyledAttributes(attrs, R.styleable.MenuPreference)
@@ -31,7 +31,6 @@ class MenuPreference(context: Context, attrs: AttributeSet?) : Preference(contex
     @SuppressLint("RestrictedApi")
     override fun performClick(view: View?) {
         if (entries.isEmpty()) return
-        val selectPosition = entries.indexOf(summary.toString())
         val popupWindowList = PopupWindowList.Builder(context)
             .setItemList(entries)
             .setOutsideTouchable(true)
@@ -39,6 +38,6 @@ class MenuPreference(context: Context, attrs: AttributeSet?) : Preference(contex
         popupWindowList.setOnItemClickListener { _, _, position, _ ->
             callChangeListener(entries[position])
             popupWindowList.dismiss()
-        }.show(selectPosition)
+        }.show()
     }
 }

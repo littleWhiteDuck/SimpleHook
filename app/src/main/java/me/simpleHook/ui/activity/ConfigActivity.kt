@@ -338,7 +338,10 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showHelpDialog() {
-        HelpDialogFragment("file:///android_asset/帮助.html").show(supportFragmentManager, "help")
+        HelpDialogFragment("http://dev.rubaoo.com/TimeDiaryV2/s/MXVpZ20=").show(
+            supportFragmentManager,
+            "help"
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -2,6 +2,7 @@ package me.simpleHook.ui.custom
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import me.simpleHook.R
 import me.simpleHook.util.PhoneUtils
 
@@ -34,9 +36,8 @@ class PopupWindowList private constructor(
     private var mOnItemClickListener: AdapterView.OnItemClickListener? = null
 
 
-    fun show(selectPosition: Int = -1) {
+    fun show() {
         val width = PhoneUtils.getWindowWidth(mContext)
-
         val contentView = ListView(mContext)
         contentView.apply {
             adapter =
@@ -58,12 +59,6 @@ class PopupWindowList private constructor(
         }
         setXY()
         popupWindow = PopupWindow(contentView, popupWindowWidth, popupWindowHeight)
-        if (selectPosition != -1) {
-            contentView.post {
-                contentView.requestFocusFromTouch()
-                contentView.setSelection(selectPosition)
-            }
-        }
         popupWindow.apply {
             isOutsideTouchable = builder.outsideTouchable
             isFocusable = foscuable

@@ -5,7 +5,7 @@
     <item
         android:id="@+id/config_smali_to_config"
         android:title="@string/config_config_smali_to_config"
-        android:icon="@drawable/ic_smali_config_24"
+        android:icon="@drawable/ic_paste"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
