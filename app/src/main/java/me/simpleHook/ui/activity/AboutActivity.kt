@@ -105,17 +105,22 @@ class AboutActivity : BaseActivity() {
             add(
                 OpenSource(
                     "gson - Google",
-                    "https://github.com/google/gson",
-                    getString(R.string.about_source_license_2)
+                    "https://github.com/google/gson", getString(R.string.about_source_license_2)
                 )
             )
             add(
                 OpenSource(
-                    "XposedBridge - rovo89",
-                    "https://github.com/rovo89/XposedBridge",
-                    ""
+                    "XposedBridge - rovo89", "https://github.com/rovo89/XposedBridge", ""
                 )
             )
+            add(
+                OpenSource(
+                    "RxShell - d4rken",
+                    "https://github.com/d4rken/RxShell",
+                    getString(R.string.about_source_license_2)
+                )
+            )
+
         }
     }
 

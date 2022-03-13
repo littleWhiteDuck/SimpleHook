@@ -18,6 +18,7 @@ object Constant {
     const val HOOK_RECORD_RETURN = 6
 
     //目录
+    const val CONFIG_MAIN_DIRECTORY = "/data/simpleHook/"
     const val CONFIG_DIRECTORY = "/storage/emulated/0/Download/simpleHook/data/"
     const val PRINT_LOG__DIRECTORY = "/storage/emulated/0/Download/simpleHook/printLog/"
     const val HOT_FIX_DIRECTORY = "/storage/emulated/0/Download/simpleHook/hotFix/"

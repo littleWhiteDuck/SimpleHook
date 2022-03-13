@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
@@ -28,13 +27,10 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
-import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.MenuPreference
-import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.io.*
@@ -58,34 +54,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         }
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val contentResolver = requireActivity().contentResolver
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
 
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
-            if (newValue as Boolean) {
-                if (!FileUtils.isGrant(requireContext())) {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        requestPermissionDialog(requireContext()) {
-                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                        }
-                    } else {
-                        requestPermissionDialog(requireContext()) {
-                            FileUtils.verifyStoragePermissions(requireActivity())
-                        }
-                    }
-                }
-            }
+            /*   if (newValue as Boolean) {
+                   if (!FileUtils.isGrant(requireContext())) {
+                       if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                           requestPermissionDialog(requireContext()) {
+                               startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                           }
+                       } else {
+                           requestPermissionDialog(requireContext()) {
+                               FileUtils.verifyStoragePermissions(requireActivity())
+                           }
+                       }
+                   }
+               }*/
+            if (newValue as Boolean) SuUtil.init(requireContext())
             true
         }
         findPreference<Preference>("about")?.apply {
@@ -176,28 +164,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
             when (mode) {
                 0 -> {
                     val configs = viewModel.getConfigs()
-                    if (FileUtils.isGrant(requireContext())) {
-                        configs.forEach {
-                            FileUtils.realDeleteConfig(
-                                requireContext(),
-                                it.packageName,
-                                Constant.APP_CONFIG_NAME,
-                            )
-                        }
+                    configs.forEach {
+                        FileUtils.realDeleteConfig(
+                            requireContext(),
+                            it.packageName,
+                            Constant.APP_CONFIG_NAME,
+                        )
                     }
                     viewModel.deleteAllConfigs()
                     showNotification("完成", "Hook配置已经删除成功")
                 }
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
-                    if (FileUtils.isGrant(requireContext())) {
-                        configs.forEach {
-                            FileUtils.realDeleteConfig(
-                                requireContext(),
-                                it.packageName,
-                                Constant.EXTENSION_CONFIG_NAME
-                            )
-                        }
+                    configs.forEach {
+                        FileUtils.realDeleteConfig(
+                            requireContext(), it.packageName, Constant.EXTENSION_CONFIG_NAME
+                        )
                     }
                     viewModel.deleteAssistConfigsByPackageName("模板配置")
                     showNotification("完成", "扩展配置已经删除成功")
@@ -212,8 +194,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showNotification(title: String, content: String) {
-        val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as
-                NotificationManager
+        val manager =
+            requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "delete", "删除通知", NotificationManager.IMPORTANCE_HIGH
@@ -221,16 +203,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             manager.createNotificationChannel(channel)
         }
         val notification = androidx.core.app.NotificationCompat.Builder(requireActivity(), "delete")
-            .setContentTitle(title)
-            .setContentText(content)
-            .setSmallIcon(R.drawable.ic_outline_delete_forever_24)
-            .setLargeIcon(
+            .setContentTitle(title).setContentText(content)
+            .setSmallIcon(R.drawable.ic_outline_delete_forever_24).setLargeIcon(
                 BitmapFactory.decodeResource(
-                    resources,
-                    R.drawable.ic_outline_delete_forever_24
+                    resources, R.drawable.ic_outline_delete_forever_24
                 )
-            )
-            .build()
+            ).build()
         manager.notify(1, notification)
     }
 
@@ -254,22 +232,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun backupConfigs() {
-        backupConfigs.launch("backup.json")
+        val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "yyMMdd")
+        backupConfigs.launch("time_$time.json")
     }
 
     override fun onCreateRecyclerView(
-        inflater: LayoutInflater?,
-        parent: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater?, parent: ViewGroup?, savedInstanceState: Bundle?
     ): RecyclerView {
         val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
         recyclerView.isVerticalScrollBarEnabled = false
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
+                outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
             ) {
                 // Get the position of the view in the recycler view
                 val position = parent.getChildAdapterPosition(view)
@@ -316,8 +290,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         return
                     } else {
                         ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
-                            requireActivity().supportFragmentManager,
-                            "import"
+                            requireActivity().supportFragmentManager, "import"
                         )
                     }
                 }

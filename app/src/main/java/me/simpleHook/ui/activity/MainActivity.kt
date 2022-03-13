@@ -55,17 +55,18 @@ class MainActivity : BaseActivity() {
         if (!isModuleLive()) "模块未激活".toast(this)
         getExternalFilesDir(null)
         if (sp.openStorage) {
-            if (!FileUtils.isGrant(this)) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(this) {
-                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                    }
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
-                }
-            }
+            /* if (!FileUtils.isGrant(this)) {
+                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                     requestPermissionDialog(this) {
+                         startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                     }
+                 } else {
+                     requestPermissionDialog(this) {
+                         FileUtils.verifyStoragePermissions(this)
+                     }
+                 }
+             }*/
+            SuUtil.init(this)
         }
         initUseTip()
         super.onCreate(savedInstanceState)

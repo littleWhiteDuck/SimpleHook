@@ -3,8 +3,6 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,7 +23,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppItem
@@ -38,7 +35,6 @@ import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
@@ -86,17 +82,16 @@ class ConfigActivity : BaseActivity() {
     private val sp by lazy { SPUtils(this) }
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter by lazy {
-        ConfigAdapter({ position -> onClick(position) },
-            { position -> onLongClick(position) })
+        ConfigAdapter({ position -> onClick(position) }, { position -> onLongClick(position) })
     }
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 val bundle = it.data?.getBundleExtra("bundle")
                 val appItem: AppItem = bundle?.getParcelable("appItem")!!
-                lifecycleScope.launch(Dispatchers.IO) {
-                    preprocessCreateFile(appItem.packageName)
-                }
+                /* lifecycleScope.launch(Dispatchers.IO) {
+                     preprocessCreateFile(appItem.packageName)
+                 }*/
                 appItem.apply {
                     binding.apply {
                         appNameEdit.setText(name)
@@ -154,8 +149,7 @@ class ConfigActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@ConfigActivity)
             addItemDecoration(
                 DividerItemDecoration(
-                    this@ConfigActivity,
-                    DividerItemDecoration.VERTICAL
+                    this@ConfigActivity, DividerItemDecoration.VERTICAL
                 )
             )
         }
@@ -175,12 +169,11 @@ class ConfigActivity : BaseActivity() {
             Snackbar.LENGTH_LONG
         ).apply {
             anchorView = binding.addMethodConfig
-        }
-            .setAction(getString(R.string.config_undo_repeat_config)) {
-                configList.removeAt(configList.size - 1)
-                mAdapter.submitList(configList)
-                mAdapter.notifyDataSetChanged()
-            }.show()
+        }.setAction(getString(R.string.config_undo_repeat_config)) {
+            configList.removeAt(configList.size - 1)
+            mAdapter.submitList(configList)
+            mAdapter.notifyDataSetChanged()
+        }.show()
     }
 
     private fun onClick(position: Int) {
@@ -205,20 +198,14 @@ class ConfigActivity : BaseActivity() {
             }
         }
         val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量", "打印参数值", "打印返回值")
-        dialogBinding.modeSelectSpinner.adapter =
-            ArrayAdapter(
-                this@ConfigActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                list
-            )
+        dialogBinding.modeSelectSpinner.adapter = ArrayAdapter(
+            this@ConfigActivity, android.R.layout.simple_spinner_dropdown_item, list
+        )
         dialogBinding.modeSelectSpinner.setSelection(configBean.mode)
         dialogBinding.modeSelectSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
                     hookMode = position
                     onModeChange(dialogBinding)
@@ -269,17 +256,13 @@ class ConfigActivity : BaseActivity() {
         val checkStateMode = getShowStateMode(hookMode)
         dialogBinding.apply {
             showView(
-                checkStateMode isContainState METHOD_NAME_STATE,
-                methodNameInput,
-                methodNameEdit
+                checkStateMode isContainState METHOD_NAME_STATE, methodNameInput, methodNameEdit
             )
             showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
             showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
             showView(checkStateMode isContainState FIELD_TYPE_STATE, fieldTypeInput, fieldTypeEdit)
             showView(
-                checkStateMode isContainState RESULT_VALUE_STATE,
-                resultValueInput,
-                resultValueEdit
+                checkStateMode isContainState RESULT_VALUE_STATE, resultValueInput, resultValueEdit
             )
         }
     }
@@ -339,8 +322,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun showHelpDialog() {
         HelpDialogFragment("http://dev.rubaoo.com/TimeDiaryV2/s/MXVpZ20=").show(
-            supportFragmentManager,
-            "help"
+            supportFragmentManager, "help"
         )
     }
 
@@ -407,24 +389,9 @@ class ConfigActivity : BaseActivity() {
 
     private fun saveToText(packageName: String, configStr: String) {
         if (sp.openStorage) {
-            if (FileUtils.isGrant(this)) {
-                FileUtils.saveConfig(
-                    this,
-                    packageName,
-                    "config.json",
-                    configStr
-                )
-            } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(this) {
-                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                    }
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
-                }
-            }
+            FileUtils.saveConfig(
+                this, packageName, "config.json", configStr
+            )
         }
     }
 
@@ -475,16 +442,15 @@ class ConfigActivity : BaseActivity() {
                         )
 
                     } else {
-                        configBean =
-                            ConfigBean(
-                                getMode(returnType, params),
-                                smali2Java(className),
-                                methodName,
-                                tranParams(params),
-                                "",
-                                "",
-                                ""
-                            )
+                        configBean = ConfigBean(
+                            getMode(returnType, params),
+                            smali2Java(className),
+                            methodName,
+                            tranParams(params),
+                            "",
+                            "",
+                            ""
+                        )
 
                     }
 

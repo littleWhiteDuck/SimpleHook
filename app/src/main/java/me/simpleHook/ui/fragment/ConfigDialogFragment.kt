@@ -65,7 +65,7 @@ class ConfigDialogFragment(
             title.text = if (isImport) "导入配置" else "导出配置"
             confirm.setOnClickListener {
                 var checkIsZero = true
-                val isGrant = FileUtils.isGrant(mContext)
+                val isGrant = sp.openStorage
                 if (isImport) {
                     val tempList = mutableListOf<AppConfig>()
                     for (item in configsList) {

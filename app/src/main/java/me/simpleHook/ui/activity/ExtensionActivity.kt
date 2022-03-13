@@ -96,11 +96,11 @@ class AssistActivity : BaseActivity() {
         assistConfig = bundle!!.getParcelable("assistConfig")!!
         supportActionBar?.title = assistConfig.appName
         supportActionBar?.subtitle = assistConfig.packageName
-        lifecycleScope.launch(Dispatchers.IO) {
+        /*lifecycleScope.launch(Dispatchers.IO) {
             if (assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
                 saveToText(assistConfig.packageName, "")
             }
-        }
+        }*/
         initData()
         initView()
     }
@@ -149,8 +149,7 @@ class AssistActivity : BaseActivity() {
                     AssistItem(
                         "热修复",
                         hotFix,
-                        HOT_FIX_STATUS,
-                        "dex放在Android/data/目标应用包名/simpleHook/dex/"
+                        HOT_FIX_STATUS, "dex放在/data/simpleHook/包名/dex"
                     )
                 )
                 add(AssistTitle("网络"))
@@ -213,36 +212,17 @@ class AssistActivity : BaseActivity() {
 
     private fun onClick(checked: Boolean, tag: Int) {
         if (tag == startAppTag) {
-            if (assistConfig.packageName == "模板配置") return
+            if (assistConfig.packageName == MODEL_EXTENSION_CONFIG) return
             saveConfig()
             startAppAndFloat()
             return
         } else {
-            if (tag == HOT_FIX_STATUS) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    if (FileUtils.isGrant(this@AssistActivity)) {
-                        val content = """
-                    1.dex放在此目录
-                    2.如果不生效，清除数据后重试
-                """.trimIndent()
-                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-
-                            FileUtils.writeDocumentFile(
-                                this@AssistActivity,
-                                path = "${assistConfig.packageName}/simpleHook/dex",
-                                content = content,
-                                fileName = "说明",
-                                mimiType = "text/plain",
-                            )
-                        } else {
-                            FileUtils.writeJsonToFile(
-                                content = content,
-                                filePath = Constant.ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/",
-                                fileName = "说明.txt"
-                            )
-                        }
-                    }
-                }
+            if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
+                val filePath = Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
+                FileUtils.makeRootDirectory(filePath)
+                SuUtil.set777()
+                ToolUtils.toClip(this, filePath)
+                "dex存放目录已复制到剪切板中".toast(this)
             }
             if (checked) {
                 if (statusUnChecked isContainState tag) {
@@ -333,24 +313,9 @@ class AssistActivity : BaseActivity() {
     private fun saveToText(packageName: String, config: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             if (sp.openStorage) {
-                if (FileUtils.isGrant(this@AssistActivity)) {
-                    FileUtils.saveConfig(
-                        this@AssistActivity,
-                        packageName,
-                        Constant.EXTENSION_CONFIG_NAME,
-                        config
-                    )
-                } else {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        requestPermissionDialog(this@AssistActivity) {
-                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                        }
-                    } else {
-                        requestPermissionDialog(this@AssistActivity) {
-                            FileUtils.verifyStoragePermissions(this@AssistActivity)
-                        }
-                    }
-                }
+                FileUtils.saveConfig(
+                    this@AssistActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
+                )
             }
         }
 

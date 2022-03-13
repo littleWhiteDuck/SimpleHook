@@ -1,3 +1,6 @@
+v1.0.9
+    1.修复部分参数不能打印的情况
+    2.储存文件改为使用Root权限写入配置
 v1.0.8
     1.移除【FloatingActionButton - Clans】
     2.bug修复

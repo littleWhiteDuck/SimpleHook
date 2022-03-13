@@ -368,13 +368,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun saveToText(packageName: String, configs: String) {
-        if (sp.openStorage && FileUtils.isGrant(requireContext())) {
+        if (sp.openStorage) {
             lifecycleScope.launch(Dispatchers.IO) {
                 FileUtils.saveConfig(
-                    requireContext(),
-                    packageName,
-                    Constant.APP_CONFIG_NAME,
-                    configs
+                    requireContext(), packageName, Constant.APP_CONFIG_NAME, configs
                 )
             }
         }

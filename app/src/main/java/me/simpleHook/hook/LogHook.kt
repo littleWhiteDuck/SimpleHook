@@ -34,7 +34,7 @@ object LogHook {
             val printLog = PrintLog(log = log, packageName = packageName, type = type)
             val printLogStr = Gson().toJson(printLog)
             val filePath =
-                Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/printLog/"
+                Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/"
             FileUtils.writeLogToFile(
                 content = printLogStr,
                 fileName = "printLog.txt",

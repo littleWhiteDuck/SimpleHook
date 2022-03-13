@@ -18,7 +18,7 @@ android {
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin-parcelize'
     defaultConfig {
-        resConfigs "zh_CN"
+        resConfigs 'zh_CN'
         applicationId "me.simpleHook"
         minSdkVersion 22
         targetSdkVersion 31
@@ -111,5 +111,8 @@ dependencies {
 
     //glance
     debugImplementation 'com.guolindev.glance:glance:1.1.0'
+
+    //shell
+    implementation 'com.github.d4rken:rxshell:3.0.0'
 
 }

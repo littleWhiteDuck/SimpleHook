@@ -61,7 +61,7 @@ class ExtensionFragment : Fragment() {
         AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
     }
-    private val startActivityForData =
+  /*  private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             uri?.also {
                 val contentResolver = requireActivity().contentResolver
@@ -69,7 +69,7 @@ class ExtensionFragment : Fragment() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 contentResolver.takePersistableUriPermission(it, takeFlags)
             }
-        }
+        }*/
     private val startActivityForModelCreate =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -243,25 +243,10 @@ class ExtensionFragment : Fragment() {
 
     private fun saveToText(packageName: String, configs: String) {
         if (sp.openStorage) {
-            if (FileUtils.isGrant(requireContext())) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    FileUtils.saveConfig(
-                        requireContext(),
-                        packageName,
-                        Constant.EXTENSION_CONFIG_NAME,
-                        configs
-                    )
-                }
-            } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(requireContext()) {
-                        startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                    }
-                } else {
-                    requestPermissionDialog(requireContext()) {
-                        FileUtils.verifyStoragePermissions(requireActivity())
-                    }
-                }
+            lifecycleScope.launch(Dispatchers.IO) {
+                FileUtils.saveConfig(
+                    requireContext(), packageName, Constant.EXTENSION_CONFIG_NAME, configs
+                )
             }
         }
     }

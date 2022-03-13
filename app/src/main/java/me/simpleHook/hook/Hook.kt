@@ -7,6 +7,7 @@ import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.bean.AssistConfigBean
@@ -74,7 +75,7 @@ class Hook {
     ) {
         try {
             val strConfig =
-                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.APP_CONFIG_NAME).reader()
+                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
             "从文件获取自定义配置成功".tip()
             determineCan(strConfig, packageName)
@@ -202,9 +203,9 @@ class Hook {
                 }
             }
             Constant.HOOK_BREAK -> {
-                obj[realSize] = object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        param.result = null
+                obj[realSize] = object : XC_MethodReplacement() {
+                    override fun replaceHookedMethod(param: MethodHookParam?): Any? {
+                        return null
                     }
                 }
             }
@@ -228,7 +229,7 @@ class Hook {
                         list.add("方法名：$methodName")
                         val paramLen = param.args.size
                         for (i in 0 until paramLen) {
-                            list.add("参数${i + 1}：${getObjectString(param.args[i])}")
+                            list.add("参数${i + 1}：${getObjectString(param.args[i] ?: "null")}")
                         }
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
@@ -304,7 +305,7 @@ class Hook {
     private fun fileAssistHook(packageName: String) {
         try {
             val strConfig =
-                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             "获取扩展配置成功".log()
             readyAssistHook(strConfig, packageName)

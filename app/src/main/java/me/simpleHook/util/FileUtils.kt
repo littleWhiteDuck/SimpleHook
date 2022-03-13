@@ -23,16 +23,11 @@ object FileUtils {
         writeJsonToFile(content, url, fileName)
     }
 
-    fun createConfigFile(packageName: String, config: String, isAppConfig: Boolean = true) {
-        val filePath = Constant.CONFIG_DIRECTORY + packageName + "/"
-        val fileName = if (isAppConfig) "config.json" else "assistConfig.json"
-        writeJsonToFile(config, filePath, fileName)
-    }
-
     private fun writeConfigFile(packageName: String, fileName: String, config: String) {
         if (config.isEmpty()) return
-        val filePath = "/storage/emulated/0/Android/data/$packageName/simpleHook/"
+        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/"
         writeJsonToFile(config, filePath, fileName)
+        SuUtil.set777()
     }
 
     fun writeJsonToFile(content: String, filePath: String, fileName: String) {
@@ -94,17 +89,18 @@ object FileUtils {
     }*/
 
     fun realDeleteConfig(context: Context, packageName: String, name: String) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            val configUri =
-                Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
-            try {
-                DocumentsContract.deleteDocument(context.contentResolver, configUri)
-            } catch (e: java.lang.Exception) {
+        /* if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+             val configUri =
+                 Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
+             try {
+                 DocumentsContract.deleteDocument(context.contentResolver, configUri)
+             } catch (e: java.lang.Exception) {
 
-            }
-        } else {
-            deleteConfigFile(packageName, name)
-        }
+             }
+         } else {
+             deleteConfigFile(packageName, name)
+         }*/
+        deleteConfigFile(packageName, name)
     }
 
     fun fakeDeleteConfig(context: Context, packageName: String, name: String) {
@@ -175,17 +171,18 @@ object FileUtils {
     fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
         try {
             if (!AppUtils.isAppInstalled(context, packageName)) return
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                writeDocumentFile(
-                    context,
-                    "/$packageName/simpleHook/",
-                    fileName,
-                    content,
-                    "application/json"
-                )
-            } else {
-                writeConfigFile(packageName, fileName = fileName, config = content)
-            }
+            writeConfigFile(packageName, fileName = fileName, config = content)
+            /* if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                 writeDocumentFile(
+                     context,
+                     "/$packageName/simpleHook/",
+                     fileName,
+                     content,
+                     "application/json"
+                 )
+             } else {
+                 writeConfigFile(packageName, fileName = fileName, config = content)
+             }*/
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
             Handler(Looper.getMainLooper()).post {
@@ -279,7 +276,7 @@ object FileUtils {
         return true
     }
 
-    private fun makeRootDirectory(filePath: String) {
+    fun makeRootDirectory(filePath: String) {
         val file: File?
         try {
             file = File(filePath)
@@ -292,8 +289,7 @@ object FileUtils {
     }
 
     private fun deleteConfigFile(packageName: String, fileName: String) {
-        val filePath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + fileName
+        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + fileName
         deleteFile(filePath)
     }
 
@@ -322,38 +318,19 @@ object FileUtils {
     }
 
     fun readLogFile(context: Context, packageName: String): List<PrintLog> {
-        val filePath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/printLog/printLog.txt"
-        val fileUri = Uri.parse(changeToUri(filePath))
+        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/printLog.txt"
         val list = mutableListOf<PrintLog>()
         try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                context.contentResolver.openInputStream(fileUri)?.also { inputStream ->
-                    val bufferedReader = BufferedReader(InputStreamReader(inputStream))
-                    bufferedReader.useLines {
-                        it.iterator().forEach { str ->
-                            try {
-                                list.add(Gson().fromJson(str, PrintLog::class.java))
-                            } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
-                            }
+            File(filePath).useLines {
+                    it.iterator().forEach { str ->
+                        try {
+                            list.add(Gson().fromJson(str, PrintLog::class.java))
+                        } catch (e: java.lang.Exception) {
+
                         }
                     }
                 }
-                DocumentsContract.deleteDocument(context.contentResolver, fileUri)
-            } else {
-                File(filePath)
-                    .useLines {
-                        it.iterator().forEach { str ->
-                            try {
-                                list.add(Gson().fromJson(str, PrintLog::class.java))
-                            } catch (e: java.lang.Exception) {
-
-                            }
-                        }
-                    }
-                deleteFile(filePath)
-            }
+            deleteFile(filePath)
         } catch (e: Exception) {
 
         }
