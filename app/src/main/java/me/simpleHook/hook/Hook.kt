@@ -29,7 +29,6 @@ import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.CipherUtils
-import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -52,9 +51,7 @@ class Hook {
         val packageName = loadPackageParam!!.packageName
         val classLoader = loadPackageParam.classLoader
         XposedHelpers.findAndHookMethod(
-            Application::class.java,
-            "attach", Context::class.java,
-            object : XC_MethodHook() {
+            Application::class.java, "attach", Context::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     mContext = param.args[0] as Context
                     mClassLoader = mContext?.classLoader ?: classLoader
@@ -122,10 +119,16 @@ class Hook {
         mContext?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
             ?.apply {
                 while (moveToNext()) {
-                    if (getInt(getColumnIndex("canUse")) == 1) {
-                        val configString = getString(getColumnIndex("app_config"))
-                        "自定义配置获取成功(context)".log()
-                        startHook(configString, packageName)
+                    if (getInt(getColumnIndex("enable")) == 1) {
+                        val configString = getString(getColumnIndex("config"))
+                        val appConfig = AppConfig(
+                            configs = configString,
+                            packageName = packageName,
+                            appName = "",
+                            versionName = "",
+                            description = ""
+                        )
+                        startHook(Gson().toJson(appConfig), packageName)
                         break
                     }
                 }
@@ -146,18 +149,10 @@ class Hook {
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(
-                            className,
-                            mClassLoader,
-                            fieldName,
-                            resultValues,
-                            fieldType
+                            className, mClassLoader, fieldName, resultValues, fieldType
                         )
                         Constant.HOOK_FIELD -> FieldHook.hookField(
-                            className,
-                            mClassLoader,
-                            fieldName,
-                            resultValues,
-                            fieldType
+                            className, mClassLoader, fieldName, resultValues, fieldType
                         )
                         else -> specificHook(
                             className,
@@ -179,8 +174,13 @@ class Hook {
 
 
     private fun specificHook(
-        className: String, classLoader: ClassLoader, methodName: String, values: String,
-        params: String, mode: Int, packageName: String
+        className: String,
+        classLoader: ClassLoader,
+        methodName: String,
+        values: String,
+        params: String,
+        mode: Int,
+        packageName: String
     ) {
         val methodParams = params.split(",")
         val realSize = if (params == "") 0 else methodParams.size
@@ -269,11 +269,7 @@ class Hook {
     private fun contextAssistHook(packageName: String) {
         var config = ""
         mContext?.contentResolver?.query(
-            assistUri,
-            null,
-            "packageName = ?",
-            arrayOf(packageName),
-            null
+            assistUri, null, "packageName = ?", arrayOf(packageName), null
         )?.apply {
             while (moveToNext()) {
                 config = getString(getColumnIndex("config"))
@@ -316,8 +312,7 @@ class Hook {
     }
 
     private fun readyAssistHook(
-        strConfig: String,
-        packageName: String
+        strConfig: String, packageName: String
     ) {
         if (strConfig.trim().isEmpty()) return
         val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
