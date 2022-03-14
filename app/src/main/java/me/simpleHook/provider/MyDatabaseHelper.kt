@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 
 class MyDatabaseHelper(context: Context, name: String, version: Int) :
     SQLiteOpenHelper(context, name, null, version) {
-    private val createConfig = "create table AppConfig (" +
+  /*  private val createConfig = "create table AppConfig (" +
             "packageName text," +
             "appName text," +
             "versionName text," +
@@ -25,21 +25,21 @@ class MyDatabaseHelper(context: Context, name: String, version: Int) :
             "id integer primary key autoincrement)"
     private val logAddColumn = "alter table PrintLog add column read INTEGER NOT NULL DEFAULT 0"
     private val addTypeForRecord =
-        "alter table PrintLog add column type TEXT NOT NULL DEFAULT 'update'"
+        "alter table PrintLog add column type TEXT NOT NULL DEFAULT 'update'"*/
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(createConfig)
+      /*  db.execSQL(createConfig)
         db.execSQL(createLog)
         db.execSQL(createLogConfig)
         db.execSQL(logAddColumn)
-        db.execSQL(addTypeForRecord)
+        db.execSQL(addTypeForRecord)*/
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (newVersion > 1) {
-            db.execSQL(logAddColumn)
-        }
-        if (newVersion > 2) {
-            db.execSQL(addTypeForRecord)
-        }
+        /*   if (newVersion > 1) {
+               db.execSQL(logAddColumn)
+           }
+           if (newVersion > 2) {
+               db.execSQL(addTypeForRecord)
+           }*/
     }
 }

@@ -7,38 +7,38 @@ import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.tip
 
 object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
+        val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         try {
             val contentValues =
                 contentValuesOf(
                     "packageName" to packageName,
                     "log" to log,
                     "read" to 0,
-                    "type" to type
+                    "type" to type,
+                    "time" to time
                 )
             context?.let {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
             }
         } catch (e: Exception) {
             "error occurred while saving log to the database, prepare to write to the file".tip()
-            printLogToFile(log, packageName, type)
+            printLogToFile(log, packageName, type, time)
         }
     }
 
-    private fun printLogToFile(log: String, packageName: String, type: String) {
+    private fun printLogToFile(log: String, packageName: String, type: String, time: String) {
         try {
-            val printLog = PrintLog(log = log, packageName = packageName, type = type)
+            val printLog = PrintLog(log = log, packageName = packageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
-            val filePath =
-                Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/"
+            val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/"
             FileUtils.writeLogToFile(
-                content = printLogStr,
-                fileName = "printLog.txt",
-                filePath = filePath
+                content = printLogStr, fileName = "printLog.txt", filePath = filePath
             )
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip()

@@ -26,6 +26,7 @@ import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.SuUtil
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -149,6 +150,7 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun refreshData(delayTime: Long = 500) {
+        SuUtil.set777()
         Handler(Looper.getMainLooper()).postDelayed({
             if (isType) {
                 appViewModel.filterRecordByType(typeOrPackageName, currentPattern)

@@ -15,7 +15,6 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.log
 import java.nio.charset.Charset
 import java.security.MessageDigest
@@ -54,10 +53,7 @@ object ExtensionHook {
 
                 val log = Gson().toJson(
                     LogBean(
-                        type,
-                        LogHook.toStackTrace(stackTrace),
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        type, LogHook.toStackTrace(stackTrace), packageName
                     )
                 )
                 LogHook.toLogMsg(context, log, packageName, type)
@@ -67,10 +63,7 @@ object ExtensionHook {
     }
 
     fun hookPopupWindow(
-        context: Context,
-        popupStack: Boolean,
-        cancel: Boolean,
-        packageName: String
+        context: Context, popupStack: Boolean, cancel: Boolean, packageName: String
     ) {
         XposedBridge.hookAllMethods(
             PopupWindow::class.java,
@@ -109,8 +102,7 @@ object ExtensionHook {
             val stackTrace = Throwable().stackTrace
             val log = Gson().toJson(
                 LogBean(
-                    type, LogHook.toStackTrace(stackTrace), packageName,
-                    TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                    type, LogHook.toStackTrace(stackTrace), packageName
                 )
             )
             LogHook.toLogMsg(context, log, packageName, type)
@@ -130,8 +122,7 @@ object ExtensionHook {
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, LogHook.toStackTrace(stackTrace), packageName,
-                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                            type, LogHook.toStackTrace(stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
@@ -158,14 +149,9 @@ object ExtensionHook {
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type,
-                            arrayListOf(
-                                "控件类型：$viewType",
-                                "回调类名：$callbackType",
-                                viewId
-                            ) + LogHook.toStackTrace(stackTrace),
-                            packageName,
-                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                            type, arrayListOf(
+                                "控件类型：$viewType", "回调类名：$callbackType", viewId
+                            ) + LogHook.toStackTrace(stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
@@ -191,14 +177,10 @@ object ExtensionHook {
                     val logBean = LogBean(
                         "base64",
                         listOf("类型：加密", "原始数据：${String(data)}", "加密结果：$result") + items,
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        packageName
                     )
                     LogHook.toLogMsg(
-                        context,
-                        Gson().toJson(logBean),
-                        packageName,
-                        logBean.type
+                        context, Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
             })
@@ -215,26 +197,17 @@ object ExtensionHook {
                     val items = LogHook.toStackTrace(stackTrace).toList()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
-                        "base64",
-                        listOf(
-                            "加密/解密：解密",
-                            "原始数据：${String(data)}",
-                            "解密结果：$result"
-                        ) + items,
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        "base64", listOf(
+                            "加密/解密：解密", "原始数据：${String(data)}", "解密结果：$result"
+                        ) + items, packageName
                     )
                     LogHook.toLogMsg(
-                        context,
-                        Gson().toJson(logBean),
-                        packageName,
-                        logBean.type
+                        context, Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
             })
 
-        XposedHelpers.findAndHookMethod(
-            Base64::class.java,
+        XposedHelpers.findAndHookMethod(Base64::class.java,
             "encode",
             ByteArray::class.java,
             Int::class.java,
@@ -255,22 +228,15 @@ object ExtensionHook {
                     val items = LogHook.toStackTrace(stackTrace).toList()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
-                        "base64",
-                        listOf(
-                            "加密/解密：加密",
-                            "原始数据：${String(rawData)}",
-                            "加密结果：$result"
-                        ) + items,
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        "base64", listOf(
+                            "加密/解密：加密", "原始数据：${String(rawData)}", "加密结果：$result"
+                        ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 }
-            }
-        )
+            })
 
-        XposedHelpers.findAndHookMethod(
-            Base64::class.java,
+        XposedHelpers.findAndHookMethod(Base64::class.java,
             "decode",
             ByteArray::class.java,
             Int::class.java,
@@ -287,301 +253,241 @@ object ExtensionHook {
                     val items = LogHook.toStackTrace(stackTrace).toList()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
-                        "base64",
-                        listOf(
-                            "加密/解密：解密",
-                            "原始数据：${String(rawData)}",
-                            "解密结果：$result"
-                        ) + items,
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+                        "base64", listOf(
+                            "加密/解密：解密", "原始数据：${String(rawData)}", "解密结果：$result"
+                        ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 }
-            }
-        )
+            })
     }
 
     fun shaAndMD5(context: Context, packageName: String) {
         val hashMap = HashMap<String, String>()
-        XposedBridge.hookAllMethods(
-            MessageDigest::class.java,
-            "update",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val paramLen = param.args.size
-                    if (paramLen == 1) {
-                        when (val param0 = param.args[0]) {
-                            is Byte -> {
-                                val rawData = param0.toString()
-                                hashMap["rawData"] = rawData
-                            }
-                            is ByteArray -> {
-                                val rawData = String(param0)
-                                hashMap["rawData"] = rawData
-                            }
+        XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val paramLen = param.args.size
+                if (paramLen == 1) {
+                    when (val param0 = param.args[0]) {
+                        is Byte -> {
+                            val rawData = param0.toString()
+                            hashMap["rawData"] = rawData
                         }
-                    } else if (paramLen == 3) {
-                        val input = param.args[0] as ByteArray
-                        val offset = param.args[1] as Int
-                        val len = param.args[2] as Int
-                        val rawData = ByteArray(len)
-                        System.arraycopy(input, offset, rawData, 0, len)
-                        hashMap["rawData"] = String(rawData)
+                        is ByteArray -> {
+                            val rawData = String(param0)
+                            hashMap["rawData"] = rawData
+                        }
                     }
+                } else if (paramLen == 3) {
+                    val input = param.args[0] as ByteArray
+                    val offset = param.args[1] as Int
+                    val len = param.args[2] as Int
+                    val rawData = ByteArray(len)
+                    System.arraycopy(input, offset, rawData, 0, len)
+                    hashMap["rawData"] = String(rawData)
                 }
-            })
+            }
+        })
 
-        XposedBridge.hookAllMethods(
-            MessageDigest::class.java,
-            "digest",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    if (param.args.size == 3) return
-                    if (param.args.size == 1) {
-                        val data = param.args[0] as ByteArray
-                        hashMap["rawData"] = String(data)
-                    }
-                    val md = param.thisObject as MessageDigest
-                    val type = md.algorithm ?: "未知类型"
-                    val result = byte2Sting(param.result as ByteArray)
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
-                    val logBean = LogBean(
-                        type,
-                        listOf(
-                            "加密/解密：加密",
-                            "原始数据：${hashMap["rawData"]}",
-                            "加密结果：$result"
-                        ) + items,
-                        packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
-                    )
-                    LogHook.toLogMsg(
-                        context,
-                        Gson().toJson(logBean),
-                        packageName,
-                        logBean.type
-                    )
+        XposedBridge.hookAllMethods(MessageDigest::class.java, "digest", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (param.args.size == 3) return
+                if (param.args.size == 1) {
+                    val data = param.args[0] as ByteArray
+                    hashMap["rawData"] = String(data)
                 }
-            })
+                val md = param.thisObject as MessageDigest
+                val type = md.algorithm ?: "未知类型"
+                val result = byte2Sting(param.result as ByteArray)
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(stackTrace).toList()
+                val logBean = LogBean(
+                    type, listOf(
+                        "加密/解密：加密", "原始数据：${hashMap["rawData"]}", "加密结果：$result"
+                    ) + items, packageName
+                )
+                LogHook.toLogMsg(
+                    context, Gson().toJson(logBean), packageName, logBean.type
+                )
+            }
+        })
     }
 
     fun aes(context: Context, packageName: String) {
         val map: HashMap<String, String> = HashMap()
-        XposedBridge.hookAllConstructors(
-            IvParameterSpec::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val ivParameterSpec = param.thisObject as IvParameterSpec
-                    val iv = String(ivParameterSpec.iv)
-                    map["iv"] = iv
-                }
+        XposedBridge.hookAllConstructors(IvParameterSpec::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val ivParameterSpec = param.thisObject as IvParameterSpec
+                val iv = String(ivParameterSpec.iv)
+                map["iv"] = iv
             }
-        )
-        XposedBridge.hookAllConstructors(
-            SecretKeySpec::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val secretKeySpec = param.thisObject as SecretKeySpec
-                    val keyAlgorithm = secretKeySpec.algorithm
-                    val key = String(secretKeySpec.encoded)
-                    map["keyAlgorithm"] = keyAlgorithm
-                    map["key"] = key
-                }
+        })
+        XposedBridge.hookAllConstructors(SecretKeySpec::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val secretKeySpec = param.thisObject as SecretKeySpec
+                val keyAlgorithm = secretKeySpec.algorithm
+                val key = String(secretKeySpec.encoded)
+                map["keyAlgorithm"] = keyAlgorithm
+                map["key"] = key
             }
-        )
-        XposedBridge.hookAllConstructors(
-            EncodedKeySpec::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = String(param.args[0] as ByteArray)
-                    map["key"] = key
-                }
+        })
+        XposedBridge.hookAllConstructors(EncodedKeySpec::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val key = String(param.args[0] as ByteArray)
+                map["key"] = key
             }
-        )
+        })
 
-        XposedBridge.hookAllMethods(
-            Cipher::class.java,
-            "init",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val opmode = param.args[0] as Int
-                    val cryptType = if (opmode == Cipher.ENCRYPT_MODE) "加密" else "解密"
-                    map["cryptType"] = cryptType
+        XposedBridge.hookAllMethods(Cipher::class.java, "init", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val opmode = param.args[0] as Int
+                val cryptType = if (opmode == Cipher.ENCRYPT_MODE) "加密" else "解密"
+                map["cryptType"] = cryptType
+            }
+        })
+        XposedBridge.hookAllMethods(Cipher::class.java, "update", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                /*
+                byte[] update(byte[] input)
+                byte[] update(byte[] input, int inputOffset, int inputLen)
+                 */
+                val paramLen = param.args.size
+                if (paramLen == 1 || paramLen == 3) {
+                    val input = param.args[0] as ByteArray
+                    var inputOffset = 0
+                    var inputLen = input.size
+                    if (paramLen == 3) {
+                        inputLen = param.args[1] as Int
+                        inputOffset = param.args[2] as Int
+                    }
+                    val rawData = ByteArray(inputLen)
+                    System.arraycopy(input, inputOffset, rawData, 0, inputLen)
+                    map["rawData"] = String(rawData)
                 }
-            })
-        XposedBridge.hookAllMethods(
-            Cipher::class.java,
-            "update",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    /*
-                    byte[] update(byte[] input)
-                    byte[] update(byte[] input, int inputOffset, int inputLen)
-                     */
-                    val paramLen = param.args.size
-                    if (paramLen == 1 || paramLen == 3) {
+            }
+        })
+
+        XposedBridge.hookAllMethods(Cipher::class.java, "doFinal", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                /*
+                byte[] doFinal()
+                byte[] doFinal(byte[] input)
+                byte[] doFinal(byte[] input, int inputOffset, int inputLen)
+                 */
+                val paramLen = param.args.size
+                if (paramLen == 0 || paramLen == 1 || paramLen == 3) {
+                    val cipher = param.thisObject as Cipher
+                    val algorithmType = cipher.algorithm
+                    map["algorithmType"] = algorithmType
+                    if (paramLen == 1) {
+                        val rawData = String(param.args[0] as ByteArray)
+                        map["rawData"] = rawData
+                    } else if (paramLen == 3) {
                         val input = param.args[0] as ByteArray
-                        var inputOffset = 0
-                        var inputLen = input.size
-                        if (paramLen == 3) {
-                            inputLen = param.args[1] as Int
-                            inputOffset = param.args[2] as Int
-                        }
+                        val inputOffset = param.args[1] as Int
+                        val inputLen = param.args[2] as Int
                         val rawData = ByteArray(inputLen)
                         System.arraycopy(input, inputOffset, rawData, 0, inputLen)
                         map["rawData"] = String(rawData)
                     }
-                }
-            }
-        )
-
-        XposedBridge.hookAllMethods(
-            Cipher::class.java,
-            "doFinal",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    /*
-                    byte[] doFinal()
-                    byte[] doFinal(byte[] input)
-                    byte[] doFinal(byte[] input, int inputOffset, int inputLen)
-                     */
-                    val paramLen = param.args.size
-                    if (paramLen == 0 || paramLen == 1 || paramLen == 3) {
-                        val cipher = param.thisObject as Cipher
-                        val algorithmType = cipher.algorithm
-                        map["algorithmType"] = algorithmType
-                        if (paramLen == 1) {
-                            val rawData = String(param.args[0] as ByteArray)
-                            map["rawData"] = rawData
-                        } else if (paramLen == 3) {
-                            val input = param.args[0] as ByteArray
-                            val inputOffset = param.args[1] as Int
-                            val inputLen = param.args[2] as Int
-                            val rawData = ByteArray(inputLen)
-                            System.arraycopy(input, inputOffset, rawData, 0, inputLen)
-                            map["rawData"] = String(rawData)
-                        }
-                        param.result?.let {
-                            val result = String(it as ByteArray)
-                            map["result"] = result
-                            val list = listOf(
-                                "加密/解密：${map["cryptType"]}",
-                                "密钥：${map["key"]}",
-                                "iv：${map["iv"]}",
-                                "原始数据：${map["rawData"]}",
-                                "${map["cryptType"] ?: "error"}结果：${map["result"]}"
-                            )
-                            val stackTrace = Throwable().stackTrace
-                            val items = LogHook.toStackTrace(stackTrace).toList()
-                            val logBean = LogBean(
-                                map["algorithmType"]!!, list + items, packageName,
-                                TimeUtil.getDateTime(
-                                    System.currentTimeMillis(),
-                                    "yy-MM-dd HH:mm:ss"
-                                )
-                            )
-                            LogHook.toLogMsg(
-                                context,
-                                Gson().toJson(logBean),
-                                packageName,
-                                logBean.type
-                            )
-                            map.clear()
-                        }
+                    param.result?.let {
+                        val result = String(it as ByteArray)
+                        map["result"] = result
+                        val list = listOf(
+                            "加密/解密：${map["cryptType"]}",
+                            "密钥：${map["key"]}",
+                            "iv：${map["iv"]}",
+                            "原始数据：${map["rawData"]}",
+                            "${map["cryptType"] ?: "error"}结果：${map["result"]}"
+                        )
+                        val stackTrace = Throwable().stackTrace
+                        val items = LogHook.toStackTrace(stackTrace).toList()
+                        val logBean = LogBean(
+                            map["algorithmType"]!!, list + items, packageName
+                        )
+                        LogHook.toLogMsg(
+                            context, Gson().toJson(logBean), packageName, logBean.type
+                        )
+                        map.clear()
                     }
                 }
             }
-        )
+        })
     }
 
     fun mac(context: Context, packageName: String) {
         val hasMap = HashMap<String, String>()
-        XposedBridge.hookAllMethods(
-            Mac::class.java,
-            "init",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val secretKeySpec = param.args[0] as SecretKeySpec
-                    val key = String(secretKeySpec.encoded)
-                    val keyAlgorithm = secretKeySpec.algorithm
-                    hasMap["key"] = key
-                    hasMap["keyAlgorithm"] = keyAlgorithm
-                }
+        XposedBridge.hookAllMethods(Mac::class.java, "init", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val secretKeySpec = param.args[0] as SecretKeySpec
+                val key = String(secretKeySpec.encoded)
+                val keyAlgorithm = secretKeySpec.algorithm
+                hasMap["key"] = key
+                hasMap["keyAlgorithm"] = keyAlgorithm
             }
-        )
-        XposedBridge.hookAllMethods(
-            Mac::class.java,
-            "update",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    /*
-                    void update(byte input)
-                    void update(byte[] input)
-                    void update(byte[] input, int offset, int len)
-                     */
-                    val paramLen = param.args.size
-                    if (paramLen == 1) {
-                        when (val param0 = param.args[0]) {
-                            is Byte -> {
-                                val rawData = param0.toString()
-                                hasMap["rawData"] = rawData
-                            }
-                            is ByteArray -> {
-                                val rawData = String(param0)
-                                hasMap["rawData"] = rawData
-                            }
+        })
+        XposedBridge.hookAllMethods(Mac::class.java, "update", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                /*
+                void update(byte input)
+                void update(byte[] input)
+                void update(byte[] input, int offset, int len)
+                 */
+                val paramLen = param.args.size
+                if (paramLen == 1) {
+                    when (val param0 = param.args[0]) {
+                        is Byte -> {
+                            val rawData = param0.toString()
+                            hasMap["rawData"] = rawData
                         }
-                    } else if (paramLen == 3) {
-                        val input = param.args[0] as ByteArray
-                        val offset = param.args[1] as Int
-                        val len = param.args[2] as Int
-                        val rawData = ByteArray(len)
-                        System.arraycopy(input, offset, rawData, 0, len)
-                        hasMap["rawData"] = String(rawData)
+                        is ByteArray -> {
+                            val rawData = String(param0)
+                            hasMap["rawData"] = rawData
+                        }
                     }
+                } else if (paramLen == 3) {
+                    val input = param.args[0] as ByteArray
+                    val offset = param.args[1] as Int
+                    val len = param.args[2] as Int
+                    val rawData = ByteArray(len)
+                    System.arraycopy(input, offset, rawData, 0, len)
+                    hasMap["rawData"] = String(rawData)
                 }
             }
-        )
-        XposedBridge.hookAllMethods(
-            Mac::class.java,
-            "doFinal",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    /*
-                    byte[] doFinal()
-                    byte[] doFinal(byte[] input)
-                     */
-                    val paramLen = param.args.size
-                    if (paramLen == 2) return
-                    if (paramLen == 1) {
-                        val rawData = param.args[0] as ByteArray
-                        hasMap["rawData"] = String(rawData)
-                    }
-                    val mac = param.thisObject as Mac
-                    val algorithmType = mac.algorithm
-                    hasMap["algorithmType"] = algorithmType
-                    val result = param.result as ByteArray
-                    hasMap["result"] = String(result)
+        })
+        XposedBridge.hookAllMethods(Mac::class.java, "doFinal", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                /*
+                byte[] doFinal()
+                byte[] doFinal(byte[] input)
+                 */
+                val paramLen = param.args.size
+                if (paramLen == 2) return
+                if (paramLen == 1) {
+                    val rawData = param.args[0] as ByteArray
+                    hasMap["rawData"] = String(rawData)
+                }
+                val mac = param.thisObject as Mac
+                val algorithmType = mac.algorithm
+                hasMap["algorithmType"] = algorithmType
+                val result = param.result as ByteArray
+                hasMap["result"] = String(result)
 
-                    val list = listOf(
-                        "密钥：${hasMap["key"]}",
-                        "密钥算法：${hasMap["keyAlgorithm"]}",
-                        "原始数据：${hasMap["rawData"]}",
-                        "加密结果：${hasMap["result"]}"
-                    )
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
-                    val logBean = LogBean(
-                        hasMap["algorithmType"]!!, list + items, packageName,
-                        TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
-                    )
-                    LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
-                    hasMap.clear()
-                }
+                val list = listOf(
+                    "密钥：${hasMap["key"]}",
+                    "密钥算法：${hasMap["keyAlgorithm"]}",
+                    "原始数据：${hasMap["rawData"]}",
+                    "加密结果：${hasMap["result"]}"
+                )
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(stackTrace).toList()
+                val logBean = LogBean(
+                    hasMap["algorithmType"]!!, list + items, packageName
+                )
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
+                hasMap.clear()
             }
-        )
+        })
     }
 
 
@@ -591,27 +497,31 @@ object ExtensionHook {
 
     fun hookIntent(context: Context, packageName: String) {
         val classLoader = context.classLoader
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY, classLoader,
-            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(ACTIVITY,
+            classLoader,
+            START_ACTIVITY,
+            Intent::class.java,
+            object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
                     saveLog(context, intent, packageName)
                 }
             })
 
-        XposedHelpers.findAndHookMethod(
-            CONTEXT_WRAPPER, classLoader,
-            START_ACTIVITY, Intent::class.java, object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
+            classLoader,
+            START_ACTIVITY,
+            Intent::class.java,
+            object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
                     saveLog(context, intent, packageName)
                 }
             })
 
-        XposedHelpers.findAndHookMethod(
-            CONTEXT_WRAPPER,
-            classLoader, START_ACTIVITY,
+        XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
+            classLoader,
+            START_ACTIVITY,
             Intent::class.java,
             Bundle::class.java,
             object : XC_MethodHook() {
@@ -621,9 +531,9 @@ object ExtensionHook {
                 }
             })
 
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            classLoader, START_ACTIVITY_FOR_RESULT,
+        XposedHelpers.findAndHookMethod(ACTIVITY,
+            classLoader,
+            START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
             object : XC_MethodHook() {
@@ -632,9 +542,9 @@ object ExtensionHook {
                     saveLog(context, intent, packageName)
                 }
             })
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            classLoader, START_ACTIVITY_FOR_RESULT,
+        XposedHelpers.findAndHookMethod(ACTIVITY,
+            classLoader,
+            START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
             Bundle::class.java,
@@ -668,8 +578,7 @@ object ExtensionHook {
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
         val logBean = LogBean(
-            "intent", listOf(configBean), packName,
-            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+            "intent", listOf(configBean), packName
         )
         LogHook.toLogMsg(context, Gson().toJson(logBean), packName, "intent")
     }

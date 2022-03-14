@@ -69,8 +69,8 @@
     <string name="main_settings_title_help">帮助</string>
     <string name="main_settings_summary_help">常见问题</string>
     <string name="main_settings_title_expand">增加读取配置方式</string>
-    <string name="main_settings_title_storage">向储存文件中写入配置</string>
-    <string name="main_settings_summary_storage">通过Root写入配置（大部分情况需要开启）</string>
+    <string name="main_settings_title_storage">开启Root权限写入配置</string>
+    <string name="main_settings_summary_storage">通过Root写入配置和读取部分Log（大部分情况下需要开启）</string>
     <string name="main_settings_summary_xml">使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改</string>
     <string name="main_settings_title_xml">向xml中写入配置</string>
     <string name="main_settings_title_experiment">实验功能</string>

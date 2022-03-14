@@ -23,10 +23,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.RecordType
-import me.simpleHook.util.SPUtils
+import me.simpleHook.util.*
 
 
 class RecordFragment : Fragment() {
@@ -208,6 +205,7 @@ class RecordFragment : Fragment() {
     }
 
     private fun readFileLogInsert() {
+        SuUtil.set777()
         lifecycleScope.launch(Dispatchers.IO) {
             val assistConfigs = appViewModel.getAssistConfigs()
             val configs = appViewModel.getConfigs()

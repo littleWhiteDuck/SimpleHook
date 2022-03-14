@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +13,15 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
 import me.simpleHook.database.AppViewModel
@@ -26,6 +30,8 @@ import me.simpleHook.databinding.FragmentFloatBinding
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.FileUtils
 import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.SuUtil
+import me.simpleHook.util.TimeUtil
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
@@ -38,15 +44,34 @@ class FloatFragment : Fragment() {
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
     private val list = ArrayList<PrintLog>()
     private val handler = Handler(Looper.getMainLooper())
+    private val assistConfigs by lazy { viewModel.getAssistConfigs() }
+    private val configs by lazy { viewModel.getConfigs() }
     private val refresh = object : Runnable {
         override fun run() {
+            readFileLogInsert()
             updateData()
             handler.postDelayed(this, 500)
         }
     }
+
+    private fun readFileLogInsert() {
+        SuUtil.set777()
+        lifecycleScope.launch(Dispatchers.IO) {
+            assistConfigs.forEach {
+                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                viewModel.insertRecord(*list.toTypedArray())
+            }
+            configs.forEach {
+                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                viewModel.insertRecord(*list.toTypedArray())
+            }
+        }
+    }
+
     private val uri = Uri.parse("content://littleWhiteDuck/print_logs")
     private var stopPrint = false
     private var currentId = 0
+    private var currentTime = ""
     private var strLog = ""
     private val exportLog =
         registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
@@ -65,18 +90,18 @@ class FloatFragment : Fragment() {
     private fun updateData() {
         if (!isAdded) return
         requireContext().contentResolver.query(
-            uri,
-            null,
-            "id > ?",
-            arrayOf(currentId.toString()),
-            null
+            uri, null, "time > ?", arrayOf(currentTime), null
         )?.apply {
             while (moveToNext()) {
                 val log = getString(getColumnIndex("log"))
                 val packageName = getString(getColumnIndex("packageName"))
-                val id = getInt(getColumnIndex("id"))
-                if (!stopPrint) list.add(PrintLog(id, log, packageName))
-                currentId = id
+                val time = getString(getColumnIndex("time"))
+                if (!stopPrint) list.add(
+                    PrintLog(
+                        log = log, packageName = packageName, time = time
+                    )
+                )
+                currentTime = time
             }
             close()
         }
@@ -88,7 +113,6 @@ class FloatFragment : Fragment() {
             }
         }
         handler.postDelayed(runnable, 0)
-
     }
 
 
@@ -162,6 +186,7 @@ class FloatFragment : Fragment() {
             }
 
         }
+        currentTime = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         handler.postDelayed(refresh, 500)
     }
 

@@ -233,8 +233,7 @@ class Hook {
                         }
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
-                            "参数值", list + items, packageName,
-                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH-mm-ss")
+                            "参数值", list + items, packageName
                         )
                         toLogMsg(mContext, Gson().toJson(logBean), packageName, "参数值")
                     }
@@ -250,8 +249,7 @@ class Hook {
                         list.add("返回值：$result")
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
-                            "返回值", list + items, packageName,
-                            TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH-mm-ss")
+                            "返回值", list + items, packageName
                         )
                         toLogMsg(mContext, Gson().toJson(logBean), packageName, "返回值")
                     }

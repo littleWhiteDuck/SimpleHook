@@ -1,6 +1,7 @@
 v1.0.9
     1.修复部分参数不能打印的情况
-    2.储存文件改为使用Root权限写入配置
+    2.储存文件改为使用Root权限写入配置(data/simpleHook)
+    3.优化悬浮窗查看Log（需授予Root权限）
 v1.0.8
     1.移除【FloatingActionButton - Clans】
     2.bug修复

@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
@@ -13,21 +13,24 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.constant.Constant
-import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.bean.Update
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.lang.reflect.Field
-import java.text.SimpleDateFormat
-import java.util.*
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
 import kotlin.random.Random
 
 
@@ -35,15 +38,6 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -69,6 +63,7 @@ class MainActivity : BaseActivity() {
             SuUtil.init(this)
         }
         initUseTip()
+        checkUpdate()
         super.onCreate(savedInstanceState)
     }
 
@@ -153,6 +148,64 @@ class MainActivity : BaseActivity() {
     }
 
     @Keep
-    fun isModuleLive() = false
+    private fun isModuleLive() = false
+
+    private fun checkUpdate() {
+        val urlString = "https://gitee.com/littleWhiteDuck/simpleHook/raw/master/update.json"
+        thread {
+            var info = ""
+            var connection: HttpURLConnection? = null
+            try {
+                val response = StringBuilder()
+                val url = URL(urlString)
+                connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                val input = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(input))
+                reader.use {
+                    reader.forEachLine {
+                        response.append(it)
+                    }
+                }
+                info = response.toString()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                connection?.disconnect()
+            }
+            try {
+                Looper.prepare()
+                if (info.isNotEmpty()) {
+                    val update = Gson().fromJson(info, Update::class.java)
+                    if (update.versionCode > BuildConfig.VERSION_CODE) {
+                        customDialog(title = update.title,
+                            context = this@MainActivity,
+                            message = update.message,
+                            cancelAble = false,
+                            okText = "更新",
+                            okClick = {
+                                val intent = Intent(Intent.ACTION_VIEW).also {
+                                    it.data = Uri.parse(update.downloadUrl)
+                                }
+                                startActivity(intent)
+                            },
+                            cancelText = "取消",
+                            cancelClick = {
+                                if (update.isForce) {
+                                    Process.killProcess(Process.myPid())
+                                } else {
+                                    it.dismiss()
+                                }
+                            }).show()
+                    }
+                }
+                Looper.loop()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw Exception("检查更新错误")
+            }
+        }
+    }
 
 }

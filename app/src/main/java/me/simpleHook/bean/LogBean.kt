@@ -6,14 +6,10 @@ import androidx.annotation.Keep
 data class LogBean(
     val type: String,
     val other: List<Any>,
-    val packageName: String,
-    val time: String
+    val packageName: String
 )
 
 @Keep
 data class LogBean2(
-    val type: String,
-    val other: List<IntentBean>,
-    val packageName: String,
-    val time: String
+    val type: String, val other: List<IntentBean>, val packageName: String
 )

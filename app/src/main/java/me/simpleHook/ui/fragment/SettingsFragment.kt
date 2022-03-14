@@ -60,19 +60,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
-            /*   if (newValue as Boolean) {
-                   if (!FileUtils.isGrant(requireContext())) {
-                       if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                           requestPermissionDialog(requireContext()) {
-                               startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                           }
-                       } else {
-                           requestPermissionDialog(requireContext()) {
-                               FileUtils.verifyStoragePermissions(requireActivity())
-                           }
-                       }
-                   }
-               }*/
             if (newValue as Boolean) SuUtil.init(requireContext())
             true
         }
@@ -233,7 +220,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun backupConfigs() {
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "yyMMdd")
-        backupConfigs.launch("time_$time.json")
+        backupConfigs.launch("backup_$time.json")
     }
 
     override fun onCreateRecyclerView(

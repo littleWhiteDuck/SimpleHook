@@ -42,7 +42,7 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
         holder.itemView.setTag(R.id.item_record_position, printLog)
         holder.apply {
             title.text = logBean.type
-            time.text = logBean.time
+            time.text = printLog.time
             readState.text = if (printLog.read) "已读" else "未读"
             if (isType) {
                 icon.setImageDrawable(
