@@ -141,7 +141,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val configDelete = filterConfigs[viewHolder.adapterPosition]
+                val configDelete = filterConfigs[viewHolder.absoluteAdapterPosition]
                 deleteConfig(configDelete)
             }
 
@@ -343,12 +343,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        if (FileUtils.isGrant(mContext)) {
+                        if (sp.openStorage) {
                             FileUtils.saveConfig(
-                                mContext,
-                                appConfig.packageName,
-                                Constant.APP_CONFIG_NAME,
-                                configs
+                                mContext, appConfig.packageName, Constant.APP_CONFIG_NAME, configs
                             )
                         }
                     }
