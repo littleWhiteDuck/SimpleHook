@@ -29,11 +29,11 @@ fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
 
 //xposed log
 fun String.log() {
-    XposedBridge.log("====${this}====")
+    XposedBridge.log("simpleHook: $this")
 }
 
 fun String.tip() {
-    XposedBridge.log("*****===${this}===*****")
+    XposedBridge.log("simpleHook: $this")
 }
 
 fun String.print() {

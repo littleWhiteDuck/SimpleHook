@@ -28,7 +28,6 @@ import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppItem
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
@@ -41,10 +40,8 @@ import java.lang.reflect.Field
 import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
 
-private const val PATTERN_METHOD =
-    """^invoke-(virtual|direct|static)(/range)? \{.*\}, (.*)->(.*)\((.*)\)(.*)$"""
-private const val PATTER_STATIC_FIELD = """^sget.*, (.*)->(.*):(.*)$"""
-private const val PATTER_INSTANCE_FIELD = """^iget.*, (.*)->(.*):(.*)$"""
+private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
+private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
 private const val pattern_basic = """(B|S|I|J|F|D|Z|C)(B|S|I|J|F|D|Z|C|L)"""
 private const val pattern_basic_array = """\[(B|S|I|J|F|D|Z|C)"""
 private const val pattern_object_array = """\[L(.*)"""
@@ -101,14 +98,6 @@ class ConfigActivity : BaseActivity() {
                 }
             }
         }
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -155,9 +144,6 @@ class ConfigActivity : BaseActivity() {
         }
     }
 
-    private fun preprocessCreateFile(packageName: String) {
-        saveToText(packageName, "")
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun onLongClick(position: Int) {
@@ -197,7 +183,9 @@ class ConfigActivity : BaseActivity() {
                 onModeChange(dialogBinding)
             }
         }
-        val list = arrayListOf("Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量", "打印参数值", "打印返回值")
+        val list = arrayListOf(
+            "Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量", "打印参数值", "打印返回值", "打印参返"
+        )
         dialogBinding.modeSelectSpinner.adapter = ArrayAdapter(
             this@ConfigActivity, android.R.layout.simple_spinner_dropdown_item, list
         )
@@ -303,14 +291,14 @@ class ConfigActivity : BaseActivity() {
         Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
         Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> HOOK_FIELD_CHECK
         Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
-        Constant.HOOK_RECORD_PARAMS -> RECORD_PARAMS_CHECK
+        Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
         else -> 0
     }
 
     private fun getShowStateMode(mode: Int) = when (mode) {
         Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
         Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> SHOW_FIELD
-        Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK -> SHOW_RECORD_RETURN_PARAMS_BREAK
+        Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
         else -> 0
     }
 
@@ -426,10 +414,11 @@ class ConfigActivity : BaseActivity() {
             matches(PATTERN_METHOD, string) -> {
                 val matcher = Pattern.compile(PATTERN_METHOD).matcher(string)
                 if (matcher.find()) {
-                    val className = smali2Java(matcher.group(3)!!)
-                    val methodName = matcher.group(4)!!
-                    val params = matcher.group(5)!!
-                    val returnType = matcher.group(6)!!
+                    val className = smali2Java(matcher.group(2)!!)
+                    val methodName = matcher.group(3)!!
+                    val params = matcher.group(4)!!
+                    val returnType = matcher.group(5)!!
+
                     if (getMode(returnType, params) == Constant.HOOK_RETURN) {
                         configBean = ConfigBean(
                             Constant.HOOK_RETURN,
@@ -446,10 +435,7 @@ class ConfigActivity : BaseActivity() {
                             getMode(returnType, params),
                             smali2Java(className),
                             methodName,
-                            tranParams(params),
-                            "",
-                            "",
-                            ""
+                            tranParams(params), "", "", ""
                         )
 
                     }
@@ -457,33 +443,16 @@ class ConfigActivity : BaseActivity() {
                 }
                 configBean
             }
-            matches(PATTER_STATIC_FIELD, string) -> {
-                val matcher = Pattern.compile(PATTER_STATIC_FIELD).matcher(string)
+            matches(PATTERN_FIELD, string) -> {
+                val matcher = Pattern.compile(PATTERN_FIELD).matcher(string)
                 if (matcher.find()) {
-                    val className = smali2Java(matcher.group(1)!!)
-                    val fieldName = matcher.group(2)!!
-                    val fieldType = matcher.group(3)!!
+                    val className = smali2Java(matcher.group(2)!!)
+                    val fieldName = matcher.group(3)!!
+                    val fieldType = matcher.group(4)!!
+                    val fieldMode =
+                        if (string.startsWith("iget") || string.startsWith("iput")) Constant.HOOK_FIELD else Constant.HOOK_STATIC_FIELD
                     configBean = ConfigBean(
-                        Constant.HOOK_STATIC_FIELD,
-                        smali2Java(className),
-                        "",
-                        "",
-                        fieldName,
-                        smali2Java(fieldType),
-                        getReturnValue(fieldType)
-                    )
-
-                }
-                configBean
-            }
-            matches(PATTER_INSTANCE_FIELD, string) -> {
-                val matcher = Pattern.compile(PATTER_INSTANCE_FIELD).matcher(string)
-                if (matcher.find()) {
-                    val className = smali2Java(matcher.group(1)!!)
-                    val fieldName = matcher.group(2)!!
-                    val fieldType = matcher.group(3)!!
-                    configBean = ConfigBean(
-                        Constant.HOOK_FIELD,
+                        fieldMode,
                         smali2Java(className),
                         "",
                         "",

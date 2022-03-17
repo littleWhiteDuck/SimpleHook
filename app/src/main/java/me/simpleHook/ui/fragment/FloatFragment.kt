@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import me.simpleHook.databinding.FragmentFloatBinding
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.FileUtils
 import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.SuUtil
 import me.simpleHook.util.TimeUtil
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,14 +53,13 @@ class FloatFragment : Fragment() {
     }
 
     private fun readFileLogInsert() {
-        SuUtil.set777()
         lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach {
-                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+            assistConfigs.forEach { _ ->
+                val list = FileUtils.readLogFile()
                 viewModel.insertRecord(*list.toTypedArray())
             }
-            configs.forEach {
-                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+            configs.forEach { _ ->
+                val list = FileUtils.readLogFile()
                 viewModel.insertRecord(*list.toTypedArray())
             }
         }
@@ -70,7 +67,6 @@ class FloatFragment : Fragment() {
 
     private val uri = Uri.parse("content://littleWhiteDuck/print_logs")
     private var stopPrint = false
-    private var currentId = 0
     private var currentTime = ""
     private var strLog = ""
     private val exportLog =
@@ -78,9 +74,7 @@ class FloatFragment : Fragment() {
             resultUri?.also {
                 thread {
                     FileUtils.alterDocument(
-                        requireContext(),
-                        it,
-                        JsonUtil.formatJson("[\n${strLog}\n]")
+                        requireContext(), it, JsonUtil.formatJson("[\n${strLog}\n]")
                     )
                 }
             }
@@ -117,8 +111,7 @@ class FloatFragment : Fragment() {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFloatBinding.inflate(inflater, container, false)
         initView()
@@ -133,8 +126,7 @@ class FloatFragment : Fragment() {
                 layoutManager = LinearLayoutManager(requireContext())
                 addItemDecoration(
                     DividerItemDecoration(
-                        requireContext(),
-                        DividerItemDecoration.VERTICAL
+                        requireContext(), DividerItemDecoration.VERTICAL
                     )
                 )
             }
@@ -191,20 +183,14 @@ class FloatFragment : Fragment() {
     }
 
     private fun initControlFloat() {
-        EasyFloat.with(requireActivity())
-            .setLayout(ControlView(requireContext())) {
-                it.setOnClickListener {
-                    EasyFloat.show("floatPrint")
-                    EasyFloat.hide("floatControl")
-                }
+        EasyFloat.with(requireActivity()).setLayout(ControlView(requireContext())) {
+            it.setOnClickListener {
+                EasyFloat.show("floatPrint")
+                EasyFloat.hide("floatControl")
             }
-            .setTag("floatControl")
-            .setShowPattern(ShowPattern.ALL_TIME)
-            .setSidePattern(SidePattern.RESULT_HORIZONTAL)
-            .setDragEnable(true)
-            .setLocation(100, 200)
-            .setAnimator(DefaultAnimator())
-            .show()
+        }.setTag("floatControl").setShowPattern(ShowPattern.ALL_TIME)
+            .setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
+            .setAnimator(DefaultAnimator()).show()
     }
 
 

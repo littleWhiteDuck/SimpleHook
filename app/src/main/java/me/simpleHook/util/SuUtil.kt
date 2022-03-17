@@ -16,7 +16,6 @@ object SuUtil {
             if (root.state == Root.State.ROOTED) {
                 Cmd.builder(
                     "su",
-                    "setenforce 0",
                     "mount -o remount /data",
                     "cd /data/",
                     "mkdir simpleHook",
@@ -33,6 +32,28 @@ object SuUtil {
     fun set777() {
         thread {
             Cmd.builder("chmod -R 777 /data/simpleHook").execute(session)
+        }
+    }
+
+    fun set666() {
+        thread {
+            Cmd.builder("chmod -R 666 /data/simpleHook/logTemp/log.txt").execute(session)
+        }
+    }
+
+    fun saveConfig(filePath: String, fileName: String, content: String) {
+        thread {
+            Cmd.builder(
+                "mkdir -p $filePath", "cd $filePath", "echo -e '$content' > $fileName"
+            ).execute(session)
+        }
+    }
+
+    fun deleteConfig(filePath: String) {
+        if (filePath.contains("simpleHook") && filePath.endsWith("Config.json", true)) {
+            Cmd.builder(
+                "rm -f $filePath"
+            ).execute(session)
         }
     }
 }

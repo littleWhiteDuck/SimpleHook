@@ -152,9 +152,9 @@ class ConfigDialogFragment(
             val appConfigs = ArrayList<AppConfig>()
             list.forEach { configItem ->
                 val appConfig = configItem.appConfig
-                if (sp.encryptConfigs && !appConfig.configs.startsWith("config://")) {
+                /*if (sp.encryptConfigs && !appConfig.configs.startsWith("config://")) {
                     appConfig.configs = CipherUtils.encrypt(appConfig.configs).toString()
-                }
+                }*/
                 appConfigs.add(appConfig)
             }
             Gson().toJson(appConfigs)

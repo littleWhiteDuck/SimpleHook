@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.provider.DocumentsContract
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
@@ -28,6 +27,10 @@ object FileUtils {
         val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/"
         writeJsonToFile(config, filePath, fileName)
         SuUtil.set777()
+        SuUtil.saveConfig(
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/", fileName, config
+        )
+        createLogFile()
     }
 
     fun writeJsonToFile(content: String, filePath: String, fileName: String) {
@@ -58,8 +61,7 @@ object FileUtils {
             return false
         } else {
             val permission = ActivityCompat.checkSelfPermission(
-                context,
-                "android.permission.WRITE_EXTERNAL_STORAGE"
+                context, "android.permission.WRITE_EXTERNAL_STORAGE"
             )
             return permission == PackageManager.PERMISSION_GRANTED
         }
@@ -101,6 +103,7 @@ object FileUtils {
              deleteConfigFile(packageName, name)
          }*/
         deleteConfigFile(packageName, name)
+        SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + name)
     }
 
     fun fakeDeleteConfig(context: Context, packageName: String, name: String) {
@@ -121,8 +124,7 @@ object FileUtils {
     private fun getDocumentFile(documentFile: DocumentFile, dir: String): DocumentFile? {
         try {
             documentFile.listFiles().forEach {
-                if (it.name == dir && it.isDirectory)
-                    return it
+                if (it.name == dir && it.isDirectory) return it
             }
         } catch (e: Exception) {
             return null
@@ -140,11 +142,7 @@ object FileUtils {
     }
 
     fun writeDocumentFile(
-        context: Context,
-        path: String,
-        fileName: String,
-        content: String,
-        mimiType: String
+        context: Context, path: String, fileName: String, content: String, mimiType: String
     ) {
         try {
             val paths = path.split("/")
@@ -210,8 +208,7 @@ object FileUtils {
     fun verifyStoragePermissions(activity: Activity) {
         try {
             ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(
+                activity, arrayOf(
                     "android.permission.READ_EXTERNAL_STORAGE",
                     "android.permission.WRITE_EXTERNAL_STORAGE"
                 ), 1
@@ -298,41 +295,55 @@ object FileUtils {
         if (file.exists()) file.delete()
     }
 
-    fun writeLogToFile(content: String, filePath: String, fileName: String) {
-        makeFilePath(filePath, fileName)
-        val strFilePath = filePath + fileName
+    fun writeLogToFile(content: String, filePath: String) {
         val strContent = "${content}\r\n"
         try {
-            val file = File(strFilePath)
+            val file = File(filePath)
             if (!file.exists()) {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
-            FileWriter(file.path, true)
-                .use {
-                    it.write(strContent)
-                }
+            FileWriter(file.path, true).use {
+                it.write(strContent)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun readLogFile(context: Context, packageName: String): List<PrintLog> {
-        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/printLog.txt"
+    fun createLogFile() {
+        try {
+            val file = File(Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY)
+            if (!file.exists()) {
+                file.parentFile.mkdirs()
+                file.createNewFile()
+                SuUtil.set666()
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    fun readLogFile(): List<PrintLog> {
+        val filePath = Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
         val list = mutableListOf<PrintLog>()
         try {
-            File(filePath).useLines {
-                    it.iterator().forEach { str ->
-                        try {
-                            list.add(Gson().fromJson(str, PrintLog::class.java))
-                        } catch (e: java.lang.Exception) {
+            val file = File(filePath)
+            file.useLines {
+                it.iterator().forEach { str ->
+                    try {
+                        list.add(Gson().fromJson(str, PrintLog::class.java))
+                    } catch (e: java.lang.Exception) {
 
-                        }
                     }
                 }
-            deleteFile(filePath)
+            }
+            file.writer().use {
+                it.write("")
+            }
         } catch (e: Exception) {
-
+            createLogFile()
         }
         return list
     }

@@ -74,16 +74,33 @@ class Hook {
             val strConfig =
                 File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "从文件获取自定义配置成功".tip()
+            "$packageName: 从根目录文件获取自定义配置成功".tip()
             determineCan(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "储存文件无运行中软件自定义配置".tip()
-            "准备使用Context获取自定义配置".log()
+            "$packageName: 根目录储存文件无运行中软件自定义配置".tip()
+            "$packageName: 准备从私有目录获取自定义配置".log()
+            fileHook2(packageName)
+            /*"准备使用xml获取配置".tip()
+            xmlHook(packageName)*/
+        }
+    }
+
+    private fun fileHook2(
+        packageName: String
+    ) {
+        try {
+            val strConfig =
+                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.APP_CONFIG_NAME).reader()
+                    .use { it.readText() }
+            "$packageName: 从私有目录文件获取自定义配置成功".tip()
+            determineCan(strConfig, packageName)
+        } catch (e: FileNotFoundException) {
+            "$packageName: 私有目录储存文件无运行中软件自定义配置".tip()
+            "$packageName: 准备使用Context获取自定义配置".log()
             contextHook(packageName)
             /*"准备使用xml获取配置".tip()
             xmlHook(packageName)*/
         }
-
     }
 
     /*  private fun xmlHook(
@@ -133,17 +150,13 @@ class Hook {
                     }
                 }
                 close()
-            } ?: "cursor is null,获取自定义配置失败，请开启增加读取配置方式（储存文件配置）".log()
+            } ?: "cursor is null,获取自定义配置失败，请开启增加读取配置方式（Root写入配置）".log()
     }
 
     private fun startHook(strConfig: String, packageName: String) {
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-            if (appConfig.configs.startsWith("config://")) {
-                appConfig.configs =
-                    CipherUtils.decrypt(appConfig.configs.replace("config://", "")).toString()
-            }
             val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
             configs.forEach {
                 it.apply {
@@ -255,6 +268,27 @@ class Hook {
                     }
                 }
             }
+            Constant.HOOK_RECORD_PARAMS_RETURN -> {
+                obj[realSize] = object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        if (param.args.isEmpty()) return
+                        val list = mutableListOf<String>()
+                        list.add("类名：$className")
+                        list.add("方法名：$methodName")
+                        val paramLen = param.args.size
+                        for (i in 0 until paramLen) {
+                            list.add("参数${i + 1}：${getObjectString(param.args[i] ?: "null")}")
+                        }
+                        val result = getObjectString(param.result)
+                        list.add("返回值：$result")
+                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        val logBean = LogBean(
+                            "参返", list + items, packageName
+                        )
+                        toLogMsg(mContext, Gson().toJson(logBean), packageName, "参返")
+                    }
+                }
+            }
         }
         XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
     }
@@ -299,12 +333,28 @@ class Hook {
     private fun fileAssistHook(packageName: String) {
         try {
             val strConfig =
-                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "获取扩展配置成功".log()
+            "$packageName: 根目录获取扩展配置成功".log()
             readyAssistHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "储存文件无运行中软件扩展配置".log()
+            "$packageName: 根目录储存文件无运行中软件扩展配置".log()
+            fileAssistHook2(packageName)
+            /* "准备从xml中获取扩展配置".log()
+             xmlAssistHook(packageName)*/
+        }
+
+    }
+
+    private fun fileAssistHook2(packageName: String) {
+        try {
+            val strConfig =
+                File(Constant.ANDROID_DATA_PATH + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                    .use { it.readText() }
+            "$packageName: 私有目录获取扩展配置成功".log()
+            readyAssistHook(strConfig, packageName)
+        } catch (e: FileNotFoundException) {
+            "$packageName: 私有目录储存文件无运行中软件扩展配置".log()
             /* "准备从xml中获取扩展配置".log()
              xmlAssistHook(packageName)*/
         }

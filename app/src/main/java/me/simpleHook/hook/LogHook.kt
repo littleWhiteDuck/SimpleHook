@@ -15,14 +15,13 @@ object LogHook {
     fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         try {
-            val contentValues =
-                contentValuesOf(
-                    "packageName" to packageName,
-                    "log" to log,
-                    "read" to 0,
-                    "type" to type,
-                    "time" to time
-                )
+            val contentValues = contentValuesOf(
+                "packageName" to packageName,
+                "log" to log,
+                "read" to 0,
+                "type" to type,
+                "time" to time
+            )
             context?.let {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
             }
@@ -36,9 +35,9 @@ object LogHook {
         try {
             val printLog = PrintLog(log = log, packageName = packageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
-            val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/printLog/"
+            val filePath = Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
             FileUtils.writeLogToFile(
-                content = printLogStr, fileName = "printLog.txt", filePath = filePath
+                content = printLogStr, filePath = filePath
             )
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip()

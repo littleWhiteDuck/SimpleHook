@@ -23,7 +23,10 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.RecordType
+import me.simpleHook.util.SPUtils
 
 
 class RecordFragment : Fragment() {
@@ -46,6 +49,8 @@ class RecordFragment : Fragment() {
     }
     private val sp by lazy { SPUtils(requireContext()) }
     private var currentPattern = ""
+    private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
+    private val configs by lazy { appViewModel.getConfigs() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +58,7 @@ class RecordFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         initView()
@@ -71,13 +75,11 @@ class RecordFragment : Fragment() {
                 binding.emptyTip.visibility = View.GONE
             }
             if (it.size >= 66666 && !sp.showMoreDataTip) {
-                warningDialog(
-                    requireContext(),
+                warningDialog(requireContext(),
                     title = "提示",
                     message = "数据过多可能造成查询较慢等问题，建议删除部分或全部数据",
                     okText = "不再提示",
-                    okClick = { sp.showMoreDataTip = true }
-                )
+                    okClick = { sp.showMoreDataTip = true })
             }
             val hashSet = HashSet<String>()
             val hasMap = HashMap<String, Int>()
@@ -121,10 +123,7 @@ class RecordFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(object : RecyclerView.ItemDecoration() {
                 override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
+                    outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
                 ) {
                     // Get the position of the view in the recycler view
                     val position = parent.getChildAdapterPosition(view)
@@ -164,15 +163,16 @@ class RecordFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete_all -> {
-                warningDialog(requireContext(), title = "警告",
-                    message = "你是否确定删除所有记录？", okClick = {
-                        appViewModel.deleteAllLogs()
-                        refreshData()
-                    })
+                warningDialog(requireContext(), title = "警告", message = "你是否确定删除所有记录？", okClick = {
+                    appViewModel.deleteAllLogs()
+                    refreshData()
+                })
             }
             R.id.delete_read -> {
-                warningDialog(requireContext(), title = "警告",
-                    message = "你是否确定删除所有已读记录？", okClick = {
+                warningDialog(requireContext(),
+                    title = "警告",
+                    message = "你是否确定删除所有已读记录？",
+                    okClick = {
                         appViewModel.deleteRecordByRead()
                         refreshData()
                     })
@@ -202,19 +202,17 @@ class RecordFragment : Fragment() {
             appViewModel.filterRecord(currentPattern)
         }, time)
         readFileLogInsert()
+        readFileLogInsert()
     }
 
     private fun readFileLogInsert() {
-        SuUtil.set777()
         lifecycleScope.launch(Dispatchers.IO) {
-            val assistConfigs = appViewModel.getAssistConfigs()
-            val configs = appViewModel.getConfigs()
-            assistConfigs.forEach {
-                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+            assistConfigs.forEach { _ ->
+                val list = FileUtils.readLogFile()
                 appViewModel.insertRecord(*list.toTypedArray())
             }
-            configs.forEach {
-                val list = FileUtils.readLogFile(requireContext(), it.packageName)
+            configs.forEach { _ ->
+                val list = FileUtils.readLogFile()
                 appViewModel.insertRecord(*list.toTypedArray())
             }
         }

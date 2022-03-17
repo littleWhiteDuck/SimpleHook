@@ -206,18 +206,18 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun copyConfigs(config: AppConfig) {
-        val originConfig = config.configs
-        val configs = if (sp.encryptConfigs && !originConfig.startsWith("config://")) {
-            CipherUtils.encrypt(config.configs)
-        } else {
-            config.configs
-        }
-        configs?.apply {
+        /* val originConfig = config.configs
+         val configs = if (sp.encryptConfigs && !originConfig.startsWith("config://")) {
+             CipherUtils.encrypt(config.configs)
+         } else {
+             config.configs
+         }*/
+        config.apply {
             config.configs = configs
             ToolUtils.toClip(requireContext(), Gson().toJson(config))
             getString(R.string.main_home_export_configs_tip).toast(requireContext())
         }
-        config.configs = originConfig
+//        config.configs = originConfig
     }
 
     private fun initView() {

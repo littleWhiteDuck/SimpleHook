@@ -44,6 +44,8 @@ class RecordActivity : BaseActivity() {
             startActivity(intent)
         })
     }
+    private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
+    private val configs by lazy { appViewModel.getConfigs() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,13 +161,17 @@ class RecordActivity : BaseActivity() {
             }
         }, delayTime)
         readFileLogInsert()
+        readFileLogInsert()
     }
 
     private fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val assistConfigs = appViewModel.getAssistConfigs()
-            assistConfigs.forEach {
-                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
+            assistConfigs.forEach { _ ->
+                val list = FileUtils.readLogFile()
+                appViewModel.insertRecord(*list.toTypedArray())
+            }
+            configs.forEach { _ ->
+                val list = FileUtils.readLogFile()
                 appViewModel.insertRecord(*list.toTypedArray())
             }
         }
