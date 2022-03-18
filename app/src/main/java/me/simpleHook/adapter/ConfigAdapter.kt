@@ -8,21 +8,20 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
+import me.simpleHook.constant.Constant
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.util.marquee
 
 class ConfigAdapter(
-    private val onClick: (position: Int) -> Unit,
-    private val onLongClick: (position: Int) -> Unit
-) :
-    ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
+    private val onClick: (position: Int) -> Unit, private val onLongClick: (position: Int) -> Unit
+) : ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
 
 
-    inner class ViewHolder(itemView: ConfigItemView) :
-        RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: ConfigItemView) : RecyclerView.ViewHolder(itemView) {
         val tvClassName = itemView.className
         val tvOtherName = itemView.otherName
         val tvNumber = itemView.num
+        val tip = itemView.tip
     }
 
     @SuppressLint("ResourceType")
@@ -53,31 +52,28 @@ class ConfigAdapter(
         val methodConfig = getItem(position)
         holder.apply {
             tvClassName.text = methodConfig.className
-            tvOtherName.text =
-                methodConfig.methodName.ifEmpty { methodConfig.fieldName }
+            tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
             tvNumber.text = (position + 1).toString()
+            tip.tip.text = when (methodConfig.mode) {
+                Constant.HOOK_RETURN -> "返回值"
+                Constant.HOOK_PARAM -> "参数值"
+                Constant.HOOK_STATIC_FIELD, Constant.HOOK_FIELD -> "变量值"
+                Constant.HOOK_BREAK -> "中断"
+                Constant.HOOK_RECORD_PARAMS -> "打印参数"
+                Constant.HOOK_RECORD_RETURN -> "打印返回"
+                Constant.HOOK_RECORD_PARAMS_RETURN -> "打印参返"
+                else -> "未知"
+            }
         }
     }
 
     object MethodConfigDiffCallback : DiffUtil.ItemCallback<ConfigBean>() {
         override fun areItemsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
-            return oldItem.className == newItem.className &&
-                    oldItem.methodName == newItem.methodName &&
-                    oldItem.mode == newItem.mode &&
-                    oldItem.params == newItem.params &&
-                    oldItem.resultValues == newItem.resultValues &&
-                    oldItem.fieldType == newItem.fieldType &&
-                    oldItem.fieldName == newItem.fieldName
+            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldType == newItem.fieldType && oldItem.fieldName == newItem.fieldName
         }
 
         override fun areContentsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
-            return oldItem.className == newItem.className &&
-                    oldItem.methodName == newItem.methodName &&
-                    oldItem.mode == newItem.mode &&
-                    oldItem.params == newItem.params &&
-                    oldItem.resultValues == newItem.resultValues &&
-                    oldItem.fieldType == newItem.fieldType &&
-                    oldItem.fieldName == newItem.fieldName
+            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldType == newItem.fieldType && oldItem.fieldName == newItem.fieldName
         }
     }
 

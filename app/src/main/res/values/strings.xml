@@ -152,6 +152,7 @@
     <string name="record_menu_delete">删除</string>
     <string name="record_menu_delete_all">删除全部</string>
     <string name="record_menu_delete_read">删除已读</string>
+    <string name="about_donate_me">donate me</string>
 
 
     <string-array name="xposed_scope">

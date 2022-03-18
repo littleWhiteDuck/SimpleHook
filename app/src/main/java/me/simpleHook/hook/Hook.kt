@@ -258,7 +258,7 @@ class Hook {
                         val list = mutableListOf<String>()
                         list.add("类名：$className")
                         list.add("方法名：$methodName")
-                        val result = getObjectString(param.result)
+                        val result = getObjectString(param.result ?: "null")
                         list.add("返回值：$result")
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
@@ -279,7 +279,7 @@ class Hook {
                         for (i in 0 until paramLen) {
                             list.add("参数${i + 1}：${getObjectString(param.args[i] ?: "null")}")
                         }
-                        val result = getObjectString(param.result)
+                        val result = getObjectString(param.result ?: "null")
                         list.add("返回值：$result")
                         val items = toStackTrace(Throwable().stackTrace).toList()
                         val logBean = LogBean(
@@ -333,7 +333,7 @@ class Hook {
     private fun fileAssistHook(packageName: String) {
         try {
             val strConfig =
-                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             "$packageName: 根目录获取扩展配置成功".log()
             readyAssistHook(strConfig, packageName)
@@ -349,7 +349,7 @@ class Hook {
     private fun fileAssistHook2(packageName: String) {
         try {
             val strConfig =
-                File(Constant.ANDROID_DATA_PATH + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             "$packageName: 私有目录获取扩展配置成功".log()
             readyAssistHook(strConfig, packageName)

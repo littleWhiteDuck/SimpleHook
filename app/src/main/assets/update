@@ -1,12 +1,13 @@
 v1.1.0
     1.增加储存文件配置目录
       现有:
-        ①：/data/simpleHook(需开启Root权限写入配置)
-        ②：/storage/emulated/0/Android/data/packageName/simpleHook/(需开启Root权限写入配置)
-        ③：数据库(部分框架需挂后台，应用target api30及以上不可用)
-    2.优化记录（需授予Root权限）
+        ①：/data/simpleHook(需开启Root权限写入配置)（设置页面开启）
+        ②：/storage/emulated/0/Android/data/packageName/simpleHook/(需开启Root权限写入配置)（设置页面开启）
+        ③：数据库(部分框架需挂后台，应用target api30及以上不可用)（默认方式）
+    2.配置页面加入模式提示
     3.支持方法签名/字段签名一键化转配置（详看帮助第6条）
     4.移除加密配置
+    5.增加参数值和返回值打印到一块【打印参返】
 v1.0.9
     1.修复部分参数不能打印的情况
     2.储存文件改为使用Root权限写入配置(data/simpleHook)

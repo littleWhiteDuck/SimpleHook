@@ -105,7 +105,8 @@ class AboutActivity : BaseActivity() {
             add(
                 OpenSource(
                     "gson - Google",
-                    "https://github.com/google/gson", getString(R.string.about_source_license_2)
+                    "https://github.com/google/gson",
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
@@ -126,6 +127,12 @@ class AboutActivity : BaseActivity() {
 
     private fun initView() {
         binding.apply {
+            donateMe.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW).also {
+                    it.data = Uri.parse("https://xydh.fun/littleWhiteDuck")
+                }
+                startActivity(intent)
+            }
             rev.adapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
                 override fun getItemViewType(position: Int, data: Any): Int {
                     return when (data) {
@@ -139,8 +146,7 @@ class AboutActivity : BaseActivity() {
                 override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
                     1 -> AppCompatTextView(parent.context).apply {
                         layoutParams = ViewGroup.MarginLayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
                         ).also {
                             it.setMargins(12.dp, 0, 0, 0)
                         }
@@ -152,8 +158,7 @@ class AboutActivity : BaseActivity() {
                 }
 
                 override fun onCreateViewHolder(
-                    parent: ViewGroup,
-                    itemView: View
+                    parent: ViewGroup, itemView: View
                 ): BasicViewHolder<*> {
 
                     return when (itemView) {
@@ -168,8 +173,7 @@ class AboutActivity : BaseActivity() {
             rev.layoutManager = LinearLayoutManager(this@AboutActivity)
             rev.addItemDecoration(
                 DividerItemDecoration(
-                    this@AboutActivity,
-                    LinearLayoutManager.VERTICAL
+                    this@AboutActivity, LinearLayoutManager.VERTICAL
                 )
             )
         }

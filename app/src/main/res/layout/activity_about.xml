@@ -35,6 +35,17 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/donate_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/about_donate_me"
+        android:src="@drawable/ic_favorite_24"
+        app:tint="#FCE4EC"
+        app:layout_anchor="@id/appBar"
+        app:layout_anchorGravity="bottom|end" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rev"
         android:layout_width="match_parent"
