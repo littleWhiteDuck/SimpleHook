@@ -6,8 +6,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.PopupWindow
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.children
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -46,14 +50,23 @@ object ExtensionHook {
 
     fun hookToast(context: Context, packageName: String) {
         XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
+            override fun afterHookedMethod(param: MethodHookParam?) {
+                val toast: Toast = param?.thisObject as Toast
+                val list = mutableListOf<String>()
+                XposedHelpers.getObjectField(toast, "mText")?.also {
+                    list.add("文本：${it.toString()}")
+                }
+                val toastView = toast.view
+                if (toastView is ViewGroup) {
+                    list += getAllTextView(toastView)
+                } else if (toastView is TextView) {
+                    list.add("文本：" + toastView.text.toString())
+                }
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace
-
                 val log = Gson().toJson(
                     LogBean(
-                        type, LogHook.toStackTrace(stackTrace), packageName
+                        type, list + LogHook.toStackTrace(stackTrace), packageName
                     )
                 )
                 LogHook.toLogMsg(context, log, packageName, type)
@@ -98,11 +111,18 @@ object ExtensionHook {
             popupWindow.isOutsideTouchable = true
         }
         if (popupStack) {
+            val list = mutableListOf<String>()
+            val contentView = popupWindow.contentView
+            if (contentView is ViewGroup) {
+                list += getAllTextView(contentView)
+            } else if (contentView is TextView) {
+                list.add("文本：" + contentView.text.toString())
+            }
             val type = "PopupWindow"
             val stackTrace = Throwable().stackTrace
             val log = Gson().toJson(
                 LogBean(
-                    type, LogHook.toStackTrace(stackTrace), packageName
+                    type, list + LogHook.toStackTrace(stackTrace), packageName
                 )
             )
             LogHook.toLogMsg(context, log, packageName, type)
@@ -111,18 +131,26 @@ object ExtensionHook {
 
     fun hookDialog(context: Context, isSwitch: Boolean, cancel: Boolean, packageName: String) {
         XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                super.beforeHookedMethod(param)
+            override fun afterHookedMethod(param: MethodHookParam?) {
+                val dialog = param?.thisObject as Dialog
                 if (cancel) {
-                    val dialog = param?.thisObject as Dialog
                     dialog.setCancelable(true)
                 }
                 if (isSwitch) {
+                    val list = mutableListOf<String>()
                     val type = "弹窗"
+                    val dialogView: View? = dialog.window?.decorView
+                    dialogView?.also {
+                        if (it is ViewGroup) {
+                            list += getAllTextView(it)
+                        } else if (it is TextView) {
+                            list.add("文本：" + it.text.toString())
+                        }
+                    }
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.toStackTrace(stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
@@ -131,12 +159,33 @@ object ExtensionHook {
         })
     }
 
+    private fun getAllTextView(viewGroup: ViewGroup): List<String> {
+        val list = mutableListOf<String>()
+        viewGroup.children.forEach {
+            when (it) {
+                is Button -> {
+                    if (it.text.toString().isNotEmpty()) {
+                        list.add("按钮：" + it.text.toString())
+                    }
+                }
+                is TextView -> {
+                    if (it.text.toString().isNotEmpty()) {
+                        list.add("文本：" + it.text.toString())
+                    }
+                }
+                is ViewGroup -> {
+                    list += getAllTextView(it)
+                }
+            }
+        }
+        return list
+    }
+
     fun hookOnClick(context: Context, packageName: String) {
-
-
         XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 try {
+                    val list = mutableListOf<String>()
                     val type = "点击事件"
                     val view = param.thisObject as View
                     val viewType = view.javaClass.name ?: "未获取到"
@@ -146,12 +195,18 @@ object ExtensionHook {
                     val callbackType = mOnClickListenerObject.javaClass.name
                     val viewId =
                         if (view.id == View.NO_ID) "id：无ID" else "id： " + Integer.toHexString(view.id)
+                    list.add("控件类型：$viewType")
+                    list.add("回调类名：$callbackType")
+                    list.add(viewId)
+                    if (view is TextView) {
+                        list.add("文本：" + view.text.toString())
+                    } else if (view is ViewGroup) {
+                        list += getAllTextView(view)
+                    }
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, arrayListOf(
-                                "控件类型：$viewType", "回调类名：$callbackType", viewId
-                            ) + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.toStackTrace(stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)

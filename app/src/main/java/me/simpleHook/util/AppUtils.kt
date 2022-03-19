@@ -54,8 +54,7 @@ object AppUtils {
         return try {
             "Target Api ${
                 context.packageManager.getPackageInfo(
-                    packageName,
-                    0
+                    packageName, 0
                 ).applicationInfo.targetSdkVersion
             }"
         } catch (e: Exception) {
@@ -67,8 +66,7 @@ object AppUtils {
         return try {
             context.packageManager.getPackageInfo(packageName, 0).applicationInfo.loadLabel(
                 context.packageManager
-            )
-                .toString()
+            ).toString()
         } catch (e: java.lang.Exception) {
             "未获取到"
         }
@@ -92,7 +90,9 @@ object AppUtils {
             val info = context.packageManager.getPackageInfo(packageName, 0)
             val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 info.longVersionCode
-            } else info.versionCode
+            } else {
+                info.versionCode
+            }
             versionCode.toString()
         } catch (e: Exception) {
             ""

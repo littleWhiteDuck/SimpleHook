@@ -55,8 +55,7 @@ class AboutActivity : BaseActivity() {
             add(
                 Author(
                     getString(R.string.about_tester_zj),
-                    getString(R.string.about_introduce_test_bug),
-                    R.drawable.zhengji
+                    getString(R.string.about_introduce_test_bug), R.drawable.zhengji
                 )
             )
             add(
@@ -64,6 +63,12 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_tester_j),
                     getString(R.string.about_introduce_test_bug),
                     R.drawable.jian
+                )
+            )
+            add(Title("开源"))
+            add(
+                Author(
+                    "待开源", "待技术有所提升，写的代码勉强能看时，即会开源", null
                 )
             )
             add(Title(getString(R.string.about_title_open_sources)))

@@ -311,7 +311,7 @@ object FileUtils {
         }
     }
 
-    fun createLogFile() {
+    private fun createLogFile() {
         try {
             val file = File(Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY)
             if (!file.exists()) {

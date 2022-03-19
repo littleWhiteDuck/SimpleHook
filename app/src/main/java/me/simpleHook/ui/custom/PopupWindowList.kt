@@ -2,7 +2,6 @@ package me.simpleHook.ui.custom
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
@@ -13,14 +12,12 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColorInt
 import me.simpleHook.R
 import me.simpleHook.util.PhoneUtils
 
 
 class PopupWindowList private constructor(
-    private val builder: Builder,
-    private val mContext: Context
+    private val builder: Builder, private val mContext: Context
 ) {
     private var popupWindowWidth: Int = 0
     private var popupWindowHeight: Int = 0

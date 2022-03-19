@@ -1,6 +1,8 @@
 package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
@@ -9,6 +11,7 @@ import android.os.Looper
 import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.app.DialogCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText

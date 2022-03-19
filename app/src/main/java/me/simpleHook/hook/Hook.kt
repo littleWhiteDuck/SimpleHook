@@ -28,7 +28,6 @@ import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Type.getDataTypeValue
-import me.simpleHook.util.CipherUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File

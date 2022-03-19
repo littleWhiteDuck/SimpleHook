@@ -20,11 +20,12 @@ class AvatarView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         val saveCount = canvas.saveLayer(bounds, null)
         canvas.drawOval(0f, 0f, avatarWidth, avatarWidth, paint)
-        paint.xfermode = TRANSFER_MODE
-        canvas.drawBitmap(avatarIcon, 0f, 0f, paint)
-        paint.xfermode = null
-        canvas.restoreToCount(saveCount)
-
+        if (iconId != 0) {
+            paint.xfermode = TRANSFER_MODE
+            canvas.drawBitmap(avatarIcon, 0f, 0f, paint)
+            paint.xfermode = null
+            canvas.restoreToCount(saveCount)
+        }
     }
 
     private fun getAvatar(): Bitmap {
