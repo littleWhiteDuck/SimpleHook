@@ -1,17 +1,15 @@
 package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.app.DialogCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
@@ -20,9 +18,12 @@ import com.google.gson.Gson
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.Update
+import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
@@ -41,6 +42,14 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -50,20 +59,22 @@ class MainActivity : BaseActivity() {
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         if (!isModuleLive()) "模块未激活".toast(this)
-        getExternalFilesDir(null)
         if (sp.openStorage) {
-            /* if (!FileUtils.isGrant(this)) {
-                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                     requestPermissionDialog(this) {
-                         startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                     }
-                 } else {
-                     requestPermissionDialog(this) {
-                         FileUtils.verifyStoragePermissions(this)
-                     }
-                 }
-             }*/
-            SuUtil.init(this)
+            if (FlavorUtils.isNormal()) {
+                if (!FileUtils.isGrant(this)) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        requestPermissionDialog(this) {
+                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                        }
+                    } else {
+                        requestPermissionDialog(this) {
+                            FileUtils.verifyStoragePermissions(this)
+                        }
+                    }
+                }
+            } else {
+                SuUtil.init(this)
+            }
         }
         initUseTip()
         checkUpdate()

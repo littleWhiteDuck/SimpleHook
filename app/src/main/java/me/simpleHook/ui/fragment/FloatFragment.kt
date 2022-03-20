@@ -28,6 +28,7 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentFloatBinding
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.TimeUtil
 import java.text.SimpleDateFormat
@@ -36,6 +37,8 @@ import kotlin.concurrent.thread
 
 
 class FloatFragment : Fragment() {
+
+
     private val viewModel by activityViewModels<AppViewModel>()
     private var _binding: FragmentFloatBinding? = null
     private val binding get() = _binding!!
@@ -51,20 +54,6 @@ class FloatFragment : Fragment() {
             handler.postDelayed(this, 500)
         }
     }
-
-    private fun readFileLogInsert() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach { _ ->
-                val list = FileUtils.readLogFile()
-                viewModel.insertRecord(*list.toTypedArray())
-            }
-            configs.forEach { _ ->
-                val list = FileUtils.readLogFile()
-                viewModel.insertRecord(*list.toTypedArray())
-            }
-        }
-    }
-
     private val uri = Uri.parse("content://littleWhiteDuck/print_logs")
     private var stopPrint = false
     private var currentTime = ""
@@ -79,6 +68,24 @@ class FloatFragment : Fragment() {
                 }
             }
         }
+
+    private fun readFileLogInsert() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (FlavorUtils.isNormal()) {
+                assistConfigs.forEach {
+                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                    viewModel.insertRecord(*list.toTypedArray())
+                }
+                configs.forEach {
+                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                    viewModel.insertRecord(*list.toTypedArray())
+                }
+            } else {
+                val list = FileUtils.readLogFile()
+                viewModel.insertRecord(*list.toTypedArray())
+            }
+        }
+    }
 
     @SuppressLint("Range", "NotifyDataSetChanged")
     private fun updateData() {
@@ -108,7 +115,6 @@ class FloatFragment : Fragment() {
         }
         handler.postDelayed(runnable, 0)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -192,7 +198,6 @@ class FloatFragment : Fragment() {
             .setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
             .setAnimator(DefaultAnimator()).show()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

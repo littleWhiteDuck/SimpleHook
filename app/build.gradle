@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    def normal = rootProject.ext.config.normal
     signingConfigs {
         mySign {
             storeFile file('D:\\littleWhiteDuck\\sign\\littleWhiteDuck.jks')
@@ -35,6 +36,10 @@ android {
             zipAlignEnabled true
             signingConfig signingConfigs.mySign
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("Boolean", "normal", "${normal}")
+        }
+        debug {
+            buildConfigField("Boolean", "normal", "${normal}")
         }
     }
     compileOptions {
@@ -50,7 +55,7 @@ android {
     buildToolsVersion '31.0.0'
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "simlpeHook(${variant.versionCode})_${variant.versionName}.apk"
+            outputFileName = "simpleHook(${variant.versionCode})_${variant.versionName}.apk"
            /* if (buildType.name == 'release') {
                 variant.getPackageApplication().outputDirectory = new File(rootDir.absolutePath + "/app/release")
             }*/

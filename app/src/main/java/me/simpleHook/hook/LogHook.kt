@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.TimeUtil
 import me.simpleHook.util.tip
 
@@ -35,7 +36,11 @@ object LogHook {
         try {
             val printLog = PrintLog(log = log, packageName = packageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
-            val filePath = Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
+            val filePath = if (FlavorUtils.isNormal()) {
+                Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
+            } else {
+                Constant.CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
+            }
             FileUtils.writeLogToFile(
                 content = printLogStr, filePath = filePath
             )

@@ -4,8 +4,8 @@
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="openStorage"
-            app:summary="@string/main_settings_summary_storage"
-            app:title="@string/main_settings_title_storage" />
+            app:summary="@string/main_settings_summary_storage_root"
+            app:title="@string/main_settings_title_storage_root" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:isPreferenceVisible="false"

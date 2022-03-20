@@ -4,6 +4,7 @@ import android.content.Context
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
 import me.simpleHook.constant.Constant
+import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -12,8 +13,12 @@ object HotFix {
     fun startFix(context: Context?, packageName: String) {
         if (context == null) return
         val dexFilePaths: MutableList<String> = mutableListOf()
-        val fileTree: FileTreeWalk =
-            File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/dex/").walk()
+        val pathName = if (FlavorUtils.isNormal()) {
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/dex/"
+        } else {
+            Constant.CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
+        }
+        val fileTree: FileTreeWalk = File(pathName).walk()
         fileTree.maxDepth(1)//遍历目录层级为1，即无需检查子目录
             .filter { it.isFile } //只挑选出文件,不处理文件夹
             .filter { it.extension == "dex" } //选择扩展名为“png”的处理
@@ -25,10 +30,7 @@ object HotFix {
                 dexFilePaths[index].log()
                 val originalLoader = context.classLoader
                 val classLoader = DexClassLoader(
-                    dexFilePaths[index],
-                    context.cacheDir.path,
-                    null,
-                    null
+                    dexFilePaths[index], context.cacheDir.path, null, null
                 )
                 val loaderClass: Class<*> = BaseDexClassLoader::class.java
                 val pathListField = loaderClass.getDeclaredField("pathList")
@@ -45,8 +47,7 @@ object HotFix {
                 val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
                 val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
                 val concatDexElementsObject = java.lang.reflect.Array.newInstance(
-                    dexElementsObject.javaClass.componentType,
-                    oldLength + newLength
+                    dexElementsObject.javaClass.componentType, oldLength + newLength
                 )
                 for (i in 0 until newLength) {
                     java.lang.reflect.Array.set(

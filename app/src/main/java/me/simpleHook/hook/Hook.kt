@@ -28,6 +28,7 @@ import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Type.getDataTypeValue
+import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
@@ -60,7 +61,12 @@ class Hook {
                         //优先通过context扩展hook：dialog、toast等
                         contextAssistHook(packageName)
                         //优先读取文件配置准备hook
-                        fileHook(packageName)
+                        if (FlavorUtils.isNormal()) {
+                            fileHook2(packageName)
+                        } else {
+                            fileHook(packageName)
+                        }
+
                     }
                 }
             })
@@ -308,7 +314,9 @@ class Hook {
                 config = getString(getColumnIndex("config"))
             }
             close()
-        } ?: fileAssistHook(packageName)
+        } ?: if (FlavorUtils.isNormal()) fileAssistHook2(packageName) else fileAssistHook(
+            packageName
+        )
         if (config == "") return
         mContext?.also {
             readyAssistHook(config, packageName)

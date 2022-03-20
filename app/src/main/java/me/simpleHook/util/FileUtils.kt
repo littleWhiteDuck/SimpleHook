@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.DocumentsContract
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
@@ -17,23 +18,24 @@ import java.io.*
 
 object FileUtils {
 
-    fun writeData(url: String, name: String, content: String) {
-        val fileName = "${name}.json"
-        writeJsonToFile(content, url, fileName)
-    }
 
     private fun writeConfigFile(packageName: String, fileName: String, config: String) {
         if (config.isEmpty()) return
-        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/"
-        writeJsonToFile(config, filePath, fileName)
-        SuUtil.set777()
-        SuUtil.saveConfig(
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/", fileName, config
-        )
-        createLogFile()
+        if (FlavorUtils.isNormal()) {
+            val filePath = Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/"
+            writeTextToFile(config, filePath, fileName)
+        } else {
+            val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/"
+            writeTextToFile(config, filePath, fileName)
+            SuUtil.set777()
+            SuUtil.saveConfig(
+                Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/", fileName, config
+            )
+            createLogFile()
+        }
     }
 
-    fun writeJsonToFile(content: String, filePath: String, fileName: String) {
+    fun writeTextToFile(content: String, filePath: String, fileName: String) {
         makeFilePath(filePath, fileName)
         val strFilePath = filePath + fileName
         val strContent = "${content}\r\n"
@@ -91,19 +93,21 @@ object FileUtils {
     }*/
 
     fun realDeleteConfig(context: Context, packageName: String, name: String) {
-        /* if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-             val configUri =
-                 Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
-             try {
-                 DocumentsContract.deleteDocument(context.contentResolver, configUri)
-             } catch (e: java.lang.Exception) {
+        if (FlavorUtils.isNormal()) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                val configUri =
+                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
+                try {
+                    DocumentsContract.deleteDocument(context.contentResolver, configUri)
+                } catch (e: java.lang.Exception) {
 
-             }
-         } else {
-             deleteConfigFile(packageName, name)
-         }*/
-        deleteConfigFile(packageName, name)
-        SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + name)
+                }
+            } else {
+                deleteConfigFile(packageName, name)
+            }
+        } else {
+            deleteConfigFile(packageName, name)
+        }
     }
 
     fun fakeDeleteConfig(context: Context, packageName: String, name: String) {
@@ -169,18 +173,21 @@ object FileUtils {
     fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
         try {
             if (!AppUtils.isAppInstalled(context, packageName)) return
-            writeConfigFile(packageName, fileName = fileName, config = content)
-            /* if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                 writeDocumentFile(
-                     context,
-                     "/$packageName/simpleHook/",
-                     fileName,
-                     content,
-                     "application/json"
-                 )
-             } else {
-                 writeConfigFile(packageName, fileName = fileName, config = content)
-             }*/
+            if (FlavorUtils.isNormal()) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    writeDocumentFile(
+                        context,
+                        "/$packageName/simpleHook/config/",
+                        fileName,
+                        content,
+                        "application/json"
+                    )
+                } else {
+                    writeConfigFile(packageName, fileName = fileName, config = content)
+                }
+            } else {
+                writeConfigFile(packageName, fileName = fileName, config = content)
+            }
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
             Handler(Looper.getMainLooper()).post {
@@ -286,8 +293,16 @@ object FileUtils {
     }
 
     private fun deleteConfigFile(packageName: String, fileName: String) {
-        val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + fileName
-        deleteFile(filePath)
+        val dataConfigPath =
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + fileName
+        if (FlavorUtils.isNormal()) {
+            deleteFile(dataConfigPath)
+        } else {
+            val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + fileName
+            deleteFile(filePath)
+            SuUtil.deleteConfig(dataConfigPath)
+        }
+
     }
 
     private fun deleteFile(filePath: String) {
@@ -344,6 +359,44 @@ object FileUtils {
             }
         } catch (e: Exception) {
             createLogFile()
+        }
+        return list
+    }
+
+    fun readLogFile(context: Context, packageName: String): List<PrintLog> {
+        val filePath =
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
+        val fileUri = Uri.parse(changeToUri(filePath))
+        val list = mutableListOf<PrintLog>()
+        try {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                context.contentResolver.openInputStream(fileUri)?.also { inputStream ->
+                    val bufferedReader = BufferedReader(InputStreamReader(inputStream))
+                    bufferedReader.useLines {
+                        it.iterator().forEach { str ->
+                            try {
+                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                            } catch (e: java.lang.Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+                DocumentsContract.deleteDocument(context.contentResolver, fileUri)
+            } else {
+                File(filePath).useLines {
+                        it.iterator().forEach { str ->
+                            try {
+                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                            } catch (e: java.lang.Exception) {
+
+                            }
+                        }
+                    }
+                deleteFile(filePath)
+            }
+        } catch (e: Exception) {
+
         }
         return list
     }

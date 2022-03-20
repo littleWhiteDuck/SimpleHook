@@ -23,10 +23,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.RecordType
-import me.simpleHook.util.SPUtils
+import me.simpleHook.util.*
 
 
 class RecordFragment : Fragment() {
@@ -207,16 +204,22 @@ class RecordFragment : Fragment() {
 
     private fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach { _ ->
-                val list = FileUtils.readLogFile()
-                appViewModel.insertRecord(*list.toTypedArray())
-            }
-            configs.forEach { _ ->
+            if (FlavorUtils.isNormal()) {
+                assistConfigs.forEach {
+                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                    appViewModel.insertRecord(*list.toTypedArray())
+                }
+                configs.forEach {
+                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
+                    appViewModel.insertRecord(*list.toTypedArray())
+                }
+            } else {
                 val list = FileUtils.readLogFile()
                 appViewModel.insertRecord(*list.toTypedArray())
             }
         }
     }
+
 
     override fun onResume() {
         super.onResume()

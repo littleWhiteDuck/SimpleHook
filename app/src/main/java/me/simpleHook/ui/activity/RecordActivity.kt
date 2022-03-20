@@ -23,10 +23,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.SuUtil
+import me.simpleHook.util.*
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -89,10 +86,7 @@ class RecordActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@RecordActivity)
             addItemDecoration(object : RecyclerView.ItemDecoration() {
                 override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
+                    outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
                 ) {
                     // Get the position of the view in the recycler view
                     val position = parent.getChildAdapterPosition(view)
@@ -152,7 +146,6 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun refreshData(delayTime: Long = 500) {
-        SuUtil.set777()
         Handler(Looper.getMainLooper()).postDelayed({
             if (isType) {
                 appViewModel.filterRecordByType(typeOrPackageName, currentPattern)
@@ -166,11 +159,16 @@ class RecordActivity : BaseActivity() {
 
     private fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach { _ ->
-                val list = FileUtils.readLogFile()
-                appViewModel.insertRecord(*list.toTypedArray())
-            }
-            configs.forEach { _ ->
+            if (FlavorUtils.isNormal()) {
+                assistConfigs.forEach {
+                    val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
+                    appViewModel.insertRecord(*list.toTypedArray())
+                }
+                configs.forEach {
+                    val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
+                    appViewModel.insertRecord(*list.toTypedArray())
+                }
+            } else {
                 val list = FileUtils.readLogFile()
                 appViewModel.insertRecord(*list.toTypedArray())
             }
@@ -201,26 +199,24 @@ class RecordActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> onBackPressed()
             R.id.delete_all -> {
-                warningDialog(this, title = "警告",
-                    message = "你是否确定删除所有记录？", okClick = {
-                        if (isType) {
-                            appViewModel.deleteRecordByType(typeOrPackageName)
-                        } else {
-                            appViewModel.deleteRecordByPack(typeOrPackageName)
-                        }
-                        refreshData()
-                    })
+                warningDialog(this, title = "警告", message = "你是否确定删除所有记录？", okClick = {
+                    if (isType) {
+                        appViewModel.deleteRecordByType(typeOrPackageName)
+                    } else {
+                        appViewModel.deleteRecordByPack(typeOrPackageName)
+                    }
+                    refreshData()
+                })
             }
             R.id.delete_read -> {
-                warningDialog(this, title = "警告",
-                    message = "你是否确定删除所有已读记录？", okClick = {
-                        if (isType) {
-                            appViewModel.deleteReadRecordByType(type = typeOrPackageName)
-                        } else {
-                            appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName)
-                        }
-                        refreshData()
-                    })
+                warningDialog(this, title = "警告", message = "你是否确定删除所有已读记录？", okClick = {
+                    if (isType) {
+                        appViewModel.deleteReadRecordByType(type = typeOrPackageName)
+                    } else {
+                        appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName)
+                    }
+                    refreshData()
+                })
             }
         }
         return true

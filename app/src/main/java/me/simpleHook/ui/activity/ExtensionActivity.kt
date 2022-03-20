@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -108,19 +109,14 @@ class AssistActivity : BaseActivity() {
     private fun initData() {
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
-            config,
-            AssistConfigBean::class.java
+            config, AssistConfigBean::class.java
         ) else AssistConfigBean()
         itemList.apply {
             configBean.apply {
                 add(AssistTitle("基本"))
                 add(
                     AssistItem(
-                        "应用",
-                        false,
-                        startAppTag,
-                        assistConfig.packageName,
-                        assistConfig.appName
+                        "应用", false, startAppTag, assistConfig.packageName, assistConfig.appName
                     )
                 )
                 add(AssistItem("总开关", all, ALL_STATUS, ""))
@@ -136,10 +132,7 @@ class AssistActivity : BaseActivity() {
                 add(AssistItem("PopupWindow", popup, POPUP_STATUS, "打印调用（也可作为弹窗）"))
                 add(
                     AssistItem(
-                        "PopupWindow可取消",
-                        popCancel,
-                        POPUP_CANCEL_STATUS,
-                        "点击弹窗外部/返回取消"
+                        "PopupWindow可取消", popCancel, POPUP_CANCEL_STATUS, "点击弹窗外部/返回取消"
                     )
                 )
                 add(AssistItem("点击事件", click, CLICK_LISTENER_STATUS, "打印点击调用"))
@@ -147,9 +140,7 @@ class AssistActivity : BaseActivity() {
                 add(AssistItem("intent", intent, INTENT_DATA_STATUS, "打印常见启动activity时传递的intent"))
                 add(
                     AssistItem(
-                        "热修复",
-                        hotFix,
-                        HOT_FIX_STATUS, "dex放在/data/simpleHook/包名/dex"
+                        "热修复", hotFix, HOT_FIX_STATUS, "dex放在/data/simpleHook/包名/dex"
                     )
                 )
                 add(AssistTitle("网络"))
@@ -169,8 +160,7 @@ class AssistActivity : BaseActivity() {
             override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
                 1 -> AppCompatTextView(parent.context).apply {
                     layoutParams = ViewGroup.MarginLayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
                     ).also {
                         it.setMargins(16.dp, 0, 0, 0)
                     }
@@ -180,16 +170,13 @@ class AssistActivity : BaseActivity() {
             }
 
             override fun onCreateViewHolder(
-                parent: ViewGroup,
-                itemView: View
+                parent: ViewGroup, itemView: View
             ): BasicViewHolder<*> {
                 return when (itemView) {
                     is AppCompatTextView -> TitleHolder(itemView)
-                    is ExtensionItemView -> ItemHolder(itemView)
-                    { checked, tag ->
+                    is ExtensionItemView -> ItemHolder(itemView) { checked, tag ->
                         onClick(
-                            checked,
-                            tag
+                            checked, tag
                         )
                     }
                     else -> throw IllegalArgumentException("unknown view: $itemView")
@@ -203,8 +190,7 @@ class AssistActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@AssistActivity)
             addItemDecoration(
                 DividerItemDecoration(
-                    this@AssistActivity,
-                    LinearLayoutManager.VERTICAL
+                    this@AssistActivity, LinearLayoutManager.VERTICAL
                 )
             )
         }
@@ -218,11 +204,59 @@ class AssistActivity : BaseActivity() {
             return
         } else {
             if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
-                val filePath = Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
-                FileUtils.makeRootDirectory(filePath)
-                SuUtil.set777()
-                ToolUtils.toClip(this, filePath)
-                "dex存放目录已复制到剪切板中".toast(this)
+                if (sp.openStorage) {
+                    val tip = """
+                     若是root版：导入dex后，手动给可读权限（Root）或重新打开simpleHook软件（需有Root权限）
+                     1. 无效，取消此应用作用域，再给此应用作用域
+                     2. 无效，清除数据，重复1
+                     3. 无效，卸载重装，重复1
+                     4. 无效，与你无缘，用不了
+                    """.trimIndent()
+                    if (FlavorUtils.isNormal()) {
+                        if (FileUtils.isGrant(this)) {
+                            val filePath =
+                                Constant.ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                                FileUtils.writeDocumentFile(
+                                    content = tip,
+                                    context = this,
+                                    path = "/${assistConfig.packageName}/simpleHook/dex/",
+                                    fileName = "说明.txt",
+                                    mimiType = "text/plain"
+                                )
+                            } else {
+                                FileUtils.writeTextToFile(
+                                    tip, filePath, "说明.txt"
+                                )
+                            }
+                            ToolUtils.toClip(this, filePath)
+                            "dex存放目录已复制到剪切板中".toast(this)
+                        } else {
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                                requestPermissionDialog(this) {
+                                    startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                                }
+                            } else {
+                                requestPermissionDialog(this) {
+                                    FileUtils.verifyStoragePermissions(this)
+                                }
+                            }
+                        }
+
+                    } else {
+                        val filePath =
+                            Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
+                        FileUtils.writeTextToFile(
+                            tip, filePath, "说明.txt"
+                        )
+                        ToolUtils.toClip(this, filePath)
+                        "dex存放目录已复制到剪切板中".toast(this)
+                    }
+
+                } else {
+                    "未开启增加读取配置：不可用".toast(this)
+                }
+
             }
             if (checked) {
                 if (statusUnChecked isContainState tag) {

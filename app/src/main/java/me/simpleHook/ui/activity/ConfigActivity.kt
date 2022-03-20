@@ -3,6 +3,8 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -28,12 +30,14 @@ import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.AppItem
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
@@ -98,7 +102,14 @@ class ConfigActivity : BaseActivity() {
                 }
             }
         }
-
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -377,9 +388,27 @@ class ConfigActivity : BaseActivity() {
 
     private fun saveToText(packageName: String, configStr: String) {
         if (sp.openStorage) {
-            FileUtils.saveConfig(
-                this, packageName, "config.json", configStr
-            )
+            if (FlavorUtils.isNormal()) {
+                if (FileUtils.isGrant(this)) {
+                    FileUtils.saveConfig(
+                        this, packageName, Constant.APP_CONFIG_NAME, configStr
+                    )
+                } else {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        requestPermissionDialog(this) {
+                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                        }
+                    } else {
+                        requestPermissionDialog(this) {
+                            FileUtils.verifyStoragePermissions(this)
+                        }
+                    }
+                }
+            } else {
+                FileUtils.saveConfig(
+                    this, packageName, Constant.APP_CONFIG_NAME, configStr
+                )
+            }
         }
     }
 

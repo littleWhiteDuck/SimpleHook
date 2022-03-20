@@ -27,10 +27,12 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.custom.MenuPreference
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.io.*
@@ -54,14 +56,44 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         }
-
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            uri?.also {
+                val contentResolver = requireActivity().contentResolver
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            }
+        }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        findPreference<SwitchPreferenceCompat>("openStorage")?.setOnPreferenceChangeListener { _, newValue ->
-            if (newValue as Boolean) SuUtil.init(requireContext())
-            true
+        findPreference<SwitchPreferenceCompat>("openStorage")?.apply {
+            if (FlavorUtils.isNormal()) {
+                title = getString(R.string.main_settings_title_storage)
+                summary = getString(R.string.main_settings_summary_storage)
+            }
+            setOnPreferenceChangeListener { _, newValue ->
+                if (newValue as Boolean) {
+                    if (FlavorUtils.isNormal()) {
+                        if (!FileUtils.isGrant(requireContext())) {
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                                requestPermissionDialog(requireContext()) {
+                                    startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                                }
+                            } else {
+                                requestPermissionDialog(requireContext()) {
+                                    FileUtils.verifyStoragePermissions(requireActivity())
+                                }
+                            }
+                        }
+                    } else {
+                        SuUtil.init(requireContext())
+                    }
+                }
+                true
+            }
         }
         findPreference<Preference>("about")?.apply {
             setOnPreferenceClickListener {
