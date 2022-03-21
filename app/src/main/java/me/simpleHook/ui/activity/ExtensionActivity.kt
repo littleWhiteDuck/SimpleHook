@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +28,7 @@ import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.constant.Constant
+import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
@@ -107,6 +107,8 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun initData() {
+        val dexPath =
+            if (FlavorUtils.isNormal()) "dex放在$ANDROID_DATA_PATH/目标应用包名/simpleHook/dex/" else "dex放在/data/simpleHook/目标应用包名/dex/"
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
             config, AssistConfigBean::class.java
@@ -140,7 +142,7 @@ class AssistActivity : BaseActivity() {
                 add(AssistItem("intent", intent, INTENT_DATA_STATUS, "打印常见启动activity时传递的intent"))
                 add(
                     AssistItem(
-                        "热修复", hotFix, HOT_FIX_STATUS, "dex放在/data/simpleHook/包名/dex"
+                        "热修复", hotFix, HOT_FIX_STATUS, dexPath
                     )
                 )
                 add(AssistTitle("网络"))
@@ -215,7 +217,7 @@ class AssistActivity : BaseActivity() {
                     if (FlavorUtils.isNormal()) {
                         if (FileUtils.isGrant(this)) {
                             val filePath =
-                                Constant.ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
+                                ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
                             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                                 FileUtils.writeDocumentFile(
                                     content = tip,

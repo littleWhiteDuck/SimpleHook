@@ -299,7 +299,7 @@ class Hook {
     }
 
     private fun getObjectString(value: Any): String {
-        return if (value is List<*>) {
+        return if (value is List<*> || value is Array<*>) {
             Gson().toJson(value)
         } else value.toString()
     }

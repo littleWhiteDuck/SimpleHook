@@ -203,6 +203,7 @@ class RecordFragment : Fragment() {
     }
 
     private fun readFileLogInsert() {
+        if (!isAdded) return
         lifecycleScope.launch(Dispatchers.IO) {
             if (FlavorUtils.isNormal()) {
                 assistConfigs.forEach {

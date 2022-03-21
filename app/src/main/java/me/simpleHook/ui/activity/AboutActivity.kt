@@ -68,7 +68,7 @@ class AboutActivity : BaseActivity() {
             add(Title("开源"))
             add(
                 Author(
-                    "待开源", "待技术有所提升，写的代码勉强能看时，即会开源", null
+                    "待开源", "待开源... ...", null
                 )
             )
             add(Title(getString(R.string.about_title_open_sources)))

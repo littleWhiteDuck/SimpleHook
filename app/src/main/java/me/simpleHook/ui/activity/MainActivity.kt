@@ -11,10 +11,13 @@ import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.Update
@@ -165,7 +168,7 @@ class MainActivity : BaseActivity() {
     private fun isModuleLive() = false
 
     private fun checkUpdate() {
-        val urlString = "https://gitee.com/littleWhiteDuck/simpleHook/raw/master/update.json"
+        val urlString = "https://gitee.com/littleWhiteDuck/simpleHook/raw/master/update2.json"
         thread {
             var info = ""
             var connection: HttpURLConnection? = null
@@ -188,36 +191,36 @@ class MainActivity : BaseActivity() {
             } finally {
                 connection?.disconnect()
             }
-            try {
-                Looper.prepare()
-                if (info.isNotEmpty()) {
-                    val update = Gson().fromJson(info, Update::class.java)
-                    if (update.versionCode > BuildConfig.VERSION_CODE) {
-                        customDialog(title = update.title,
-                            context = this@MainActivity,
-                            message = update.message,
-                            cancelAble = false,
-                            okText = "更新",
-                            okClick = {
-                                val intent = Intent(Intent.ACTION_VIEW).also {
-                                    it.data = Uri.parse(update.downloadUrl)
-                                }
-                                startActivity(intent)
-                            },
-                            cancelText = "取消",
-                            cancelClick = {
-                                if (update.isForce) {
-                                    Process.killProcess(Process.myPid())
-                                } else {
-                                    it.dismiss()
-                                }
-                            }).show()
+            runOnUiThread {
+                try {
+                    if (info.isNotEmpty()) {
+                        val update = Gson().fromJson(info, Update::class.java)
+                        if (update.versionCode > BuildConfig.VERSION_CODE) {
+                            customDialog(title = update.title,
+                                context = this@MainActivity,
+                                message = update.message,
+                                cancelAble = false,
+                                okText = "更新",
+                                okClick = {
+                                    val intent = Intent(Intent.ACTION_VIEW).also {
+                                        it.data = Uri.parse(update.downloadUrl)
+                                    }
+                                    startActivity(intent)
+                                },
+                                cancelText = "取消",
+                                cancelClick = {
+                                    if (update.isForce) {
+                                        Process.killProcess(Process.myPid())
+                                    } else {
+                                        it.dismiss()
+                                    }
+                                }).show()
+                        }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    throw Exception("检查更新错误")
                 }
-                Looper.loop()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw Exception("检查更新错误")
             }
         }
     }
