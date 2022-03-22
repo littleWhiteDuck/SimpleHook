@@ -65,12 +65,6 @@ class AboutActivity : BaseActivity() {
                     R.drawable.jian
                 )
             )
-            add(Title("开源"))
-            add(
-                Author(
-                    "待开源", "待开源... ...", null
-                )
-            )
             add(Title(getString(R.string.about_title_open_sources)))
             add(
                 OpenSource(
@@ -117,6 +111,13 @@ class AboutActivity : BaseActivity() {
             add(
                 OpenSource(
                     "XposedBridge - rovo89", "https://github.com/rovo89/XposedBridge", ""
+                )
+            )
+            add(
+                OpenSource(
+                    "RxShell - d4rken",
+                    "https://github.com/d4rken/RxShell",
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(

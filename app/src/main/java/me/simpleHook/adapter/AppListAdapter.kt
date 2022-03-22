@@ -10,6 +10,8 @@ import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
+import java.lang.Exception
+import kotlin.concurrent.thread
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
     private lateinit var listener: OnItemClickListener
@@ -42,7 +44,18 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         holder.itemView.setTag(R.id.item_select_position, appItem)
         holder.apply {
             appItem.apply {
-                ivIcon.setImageDrawable(IconHelper.getAppIcon(holder.itemView.context, packageName))
+                thread {
+                    // only test , need fix
+                    try {
+                        ivIcon.setImageDrawable(
+                            IconHelper.getAppIcon(
+                                holder.itemView.context, packageName
+                            )
+                        )
+                    } catch (e: Exception) {
+
+                    }
+                }
                 tvAppName.text = name
                 tvAppName.marquee()
                 tvPackageName.text = packageName
@@ -78,10 +91,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
             oldItem.packageName == newItem.packageName
 
         override fun areContentsTheSame(oldItem: AppItem, newItem: AppItem): Boolean =
-            oldItem.name == newItem.name &&
-                    oldItem.packageName == newItem.packageName &&
-                    oldItem.versionName == newItem.versionName &&
-                    oldItem.installedTime == newItem.installedTime
+            oldItem.name == newItem.name && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.installedTime == newItem.installedTime
 
     }
 

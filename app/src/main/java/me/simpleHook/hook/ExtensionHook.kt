@@ -53,14 +53,19 @@ object ExtensionHook {
             override fun afterHookedMethod(param: MethodHookParam?) {
                 val toast: Toast = param?.thisObject as Toast
                 val list = mutableListOf<String>()
-                XposedHelpers.getObjectField(toast, "mText")?.also {
-                    list.add("文本：${it.toString()}")
-                }
-                val toastView = toast.view
-                if (toastView is ViewGroup) {
-                    list += getAllTextView(toastView)
-                } else if (toastView is TextView) {
-                    list.add("文本：" + toastView.text.toString())
+                // not test some cases
+                try {
+                    XposedHelpers.getObjectField(toast, "mText")?.also {
+                        list.add("文本：$it")
+                    }
+                    val toastView = toast.view
+                    if (toastView is ViewGroup) {
+                        list += getAllTextView(toastView)
+                    } else if (toastView is TextView) {
+                        list.add("文本：" + toastView.text.toString())
+                    }
+                } catch (e: Exception) {
+                    "$packageName: get toast info error".log()
                 }
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace

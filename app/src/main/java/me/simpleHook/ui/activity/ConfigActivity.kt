@@ -88,17 +88,16 @@ class ConfigActivity : BaseActivity() {
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                val bundle = it.data?.getBundleExtra("bundle")
-                val appItem: AppItem = bundle?.getParcelable("appItem")!!
+                val appName = it.data?.getStringExtra("appName")
+                val versionName = it.data?.getStringExtra("versionName")
+                val packageName = it.data?.getStringExtra("packageName")
                 /* lifecycleScope.launch(Dispatchers.IO) {
                      preprocessCreateFile(appItem.packageName)
                  }*/
-                appItem.apply {
-                    binding.apply {
-                        appNameEdit.setText(name)
-                        appVersionNameEdit.setText(versionName)
-                        packageNameEdit.setText(packageName)
-                    }
+                binding.apply {
+                    appNameEdit.setText(appName)
+                    appVersionNameEdit.setText(versionName)
+                    packageNameEdit.setText(packageName)
                 }
             }
         }

@@ -22,8 +22,7 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
     private var _binding: FragmentAppListBinding? = null
     private val binding get() = _binding!!
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAppListBinding.inflate(inflater, container, false)
         initView()

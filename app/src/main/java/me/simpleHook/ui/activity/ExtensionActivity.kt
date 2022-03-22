@@ -108,7 +108,7 @@ class AssistActivity : BaseActivity() {
 
     private fun initData() {
         val dexPath =
-            if (FlavorUtils.isNormal()) "dex放在$ANDROID_DATA_PATH/目标应用包名/simpleHook/dex/" else "dex放在/data/simpleHook/目标应用包名/dex/"
+            if (FlavorUtils.isNormal()) "dex放在Android/data/目标应用包名/simpleHook/dex/" else "dex放在/data/simpleHook/目标应用包名/dex/"
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
             config, AssistConfigBean::class.java

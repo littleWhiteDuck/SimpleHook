@@ -13,8 +13,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
@@ -30,7 +28,7 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.SPUtils
 
-class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
+class AppListActivity : BaseActivity() {
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
     private lateinit var binding: ActivityAppListBinding
     private var currentQueryText = ""
@@ -129,10 +127,11 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
             }
             setResult(RESULT_OK, intent)
         } else {
-            val intent = Intent()
-            val bundle = Bundle()
-            bundle.putParcelable("appItem", appItem)
-            intent.putExtra("bundle", bundle)
+            val intent = Intent().also {
+                it.putExtra("appName", appItem.name)
+                it.putExtra("packageName", appItem.packageName)
+                it.putExtra("versionName", appItem.versionName)
+            }
             setResult(RESULT_OK, intent)
             finish()
         }
@@ -143,8 +142,7 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
     private fun filterUserList() {
         val filter1 = mViewModel.userApps.value?.filter {
             !blackList.contains(it.packageName) && (it.packageName.contains(
-                currentQueryText,
-                true
+                currentQueryText, true
             ) || it.name.contains(currentQueryText, true))
         }
         userAdapter.submitList(filter1)
@@ -152,8 +150,9 @@ class AppListActivity : BaseActivity(), CoroutineScope by MainScope() {
 
     private fun filterSystemList() {
         val filter2 = mViewModel.systemApps.value?.filter {
-            it.packageName.contains(currentQueryText, true) ||
-                    it.name.contains(currentQueryText, true)
+            it.packageName.contains(currentQueryText, true) || it.name.contains(
+                currentQueryText, true
+            )
         }
         systemAdapter.submitList(filter2)
     }

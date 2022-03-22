@@ -19,10 +19,7 @@ object HotFix {
             Constant.CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
         }
         val fileTree: FileTreeWalk = File(pathName).walk()
-        fileTree.maxDepth(1)//遍历目录层级为1，即无需检查子目录
-            .filter { it.isFile } //只挑选出文件,不处理文件夹
-            .filter { it.extension == "dex" } //选择扩展名为“png”的处理
-            .forEach {//循环处理符合条件的文件
+        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {//循环处理符合条件的文件
                 dexFilePaths.add(it.absolutePath)
             }
         try {
@@ -43,7 +40,6 @@ object HotFix {
                 val originalPathListObject = pathListField[originalLoader]
                 val originalDexElementsObject = dexElementsField[originalPathListObject]
 
-                //数组操作，把最新的补丁dex文件插入到最前面
                 val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
                 val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
                 val concatDexElementsObject = java.lang.reflect.Array.newInstance(
