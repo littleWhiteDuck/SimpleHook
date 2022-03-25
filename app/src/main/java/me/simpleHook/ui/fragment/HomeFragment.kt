@@ -44,8 +44,7 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 
-class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
-    HideScrollListener {
+class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListener {
 
     private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
@@ -56,8 +55,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     private lateinit var mContext: Context
     private var currentPattern = ""
     private val mAdapter: HomeAdapter by lazy {
-        HomeAdapter(
-            { appConfigEntity -> adapterOnClick(appConfigEntity) },
+        HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
             { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             { appConfigEntity -> itemOnLongClick(appConfigEntity) })
     }
@@ -73,8 +71,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         initView()
@@ -113,10 +110,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
         }
         binding.mainRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
+                outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
             ) {
                 // Get the position of the view in the recycler view
                 val position = parent.getChildAdapterPosition(view)
@@ -152,13 +146,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     fun deleteConfig(appConfig: AppConfig) {
         viewModel.deleteConfigs(appConfig)
         FileUtils.realDeleteConfig(
-            requireContext(),
-            appConfig.packageName,
-            Constant.APP_CONFIG_NAME
+            requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
         )
         Snackbar.make(
-            binding.fab,
-            getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
+            binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
         ).apply {
             anchorView = bottomNavigationView
         }.addCallback(object : Snackbar.Callback() {
@@ -181,14 +172,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
     private fun itemOnLongClick(appConfig: AppConfig) {
-        var arrayList =
+        val arrayList =
             requireContext().resources.getStringArray(R.array.main_home_item_select_item)
-        if (appConfig.configs.startsWith("config://")) arrayList =
-            arrayOf(arrayList[0], arrayList[1])
-        val popupWindowList = PopupWindowList.Builder(requireContext())
-            .setItemList(arrayList)
-            .setOutsideTouchable(true)
-            .build()
+        val popupWindowList = PopupWindowList.Builder(requireContext()).setItemList(arrayList)
+            .setOutsideTouchable(true).build()
         popupWindowList.setOnItemClickListener { _, _, position, _ ->
             popupWindowList.dismiss()
             when (position) {
@@ -315,8 +302,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                 dataList.add(ConfigItem(config))
             }
             ConfigDialogFragment(dataList, false).show(
-                requireActivity().supportFragmentManager,
-                "export"
+                requireActivity().supportFragmentManager, "export"
             )
         }
     }
@@ -332,8 +318,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener,
                     return
                 } else {
                     ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
-                        requireActivity().supportFragmentManager,
-                        "import"
+                        requireActivity().supportFragmentManager, "import"
                     )
                 }
             }

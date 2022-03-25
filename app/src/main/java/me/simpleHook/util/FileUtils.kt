@@ -96,7 +96,7 @@ object FileUtils {
         if (FlavorUtils.isNormal()) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 val configUri =
-                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/$name"))
+                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/config/$name"))
                 try {
                     DocumentsContract.deleteDocument(context.contentResolver, configUri)
                 } catch (e: java.lang.Exception) {

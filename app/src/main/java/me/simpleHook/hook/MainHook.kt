@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
@@ -19,10 +20,12 @@ import me.simpleHook.hook.ExtensionHook.aes
 import me.simpleHook.hook.ExtensionHook.base64
 import me.simpleHook.hook.ExtensionHook.hookDialog
 import me.simpleHook.hook.ExtensionHook.hookIntent
+import me.simpleHook.hook.ExtensionHook.hookJSON
 import me.simpleHook.hook.ExtensionHook.hookOnClick
 import me.simpleHook.hook.ExtensionHook.hookPopupWindow
 import me.simpleHook.hook.ExtensionHook.hookToast
 import me.simpleHook.hook.ExtensionHook.hookVpnCheck
+import me.simpleHook.hook.ExtensionHook.init
 import me.simpleHook.hook.ExtensionHook.mac
 import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
@@ -33,6 +36,7 @@ import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.*
 
 
 private const val selfCheckConfig =
@@ -46,7 +50,7 @@ class Hook {
         private val prefAssistConfig by lazy { getHookConfigPref("assistConfig") }*/
     private var mContext: Context? = null
     private lateinit var mClassLoader: ClassLoader
-
+    private var isEnglish = false
     fun initHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
         val packageName = loadPackageParam!!.packageName
         val classLoader = loadPackageParam.classLoader
@@ -55,6 +59,12 @@ class Hook {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     mContext = param.args[0] as Context
                     mClassLoader = mContext?.classLoader ?: classLoader
+                    val curLocale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        mContext!!.resources.configuration.locales[0]
+                    } else {
+                        mContext!!.resources.configuration.locale
+                    }
+                    isEnglish = curLocale.language == Locale.ENGLISH.language
                     if (packageName == "me.simpleHook") {
                         startHook(selfCheckConfig, packageName)
                     } else {
@@ -68,6 +78,8 @@ class Hook {
                         }
 
                     }
+
+
                 }
             })
     }
@@ -242,18 +254,19 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
+                        val type = if (isEnglish) "Param value" else "参数值"
                         val list = mutableListOf<String>()
-                        list.add("类名：$className")
-                        list.add("方法名：$methodName")
+                        list.add(getIntroText("Class name: $className"))
+                        list.add(getIntroText("Method name: $methodName"))
                         val paramLen = param.args.size
                         for (i in 0 until paramLen) {
-                            list.add("参数${i + 1}：${getObjectString(param.args[i] ?: "null")}")
+                            list.add(getIntroText("Param${i + 1}: ${getObjectString(param.args[i] ?: "null")}"))
                         }
-                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
                         val logBean = LogBean(
-                            "参数值", list + items, packageName
+                            type, list + items, packageName
                         )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, "参数值")
+                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
                     }
                 }
             }
@@ -261,15 +274,16 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val list = mutableListOf<String>()
-                        list.add("类名：$className")
-                        list.add("方法名：$methodName")
+                        val type = if (isEnglish) "Return value" else "返回值"
+                        list.add(getIntroText("Class name: $className"))
+                        list.add(getIntroText("Method name: $methodName"))
                         val result = getObjectString(param.result ?: "null")
-                        list.add("返回值：$result")
-                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        list.add(getIntroText("Return value: $result"))
+                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
                         val logBean = LogBean(
-                            "返回值", list + items, packageName
+                            type, list + items, packageName
                         )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, "返回值")
+                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
                     }
                 }
             }
@@ -277,20 +291,21 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
+                        val type = if (isEnglish) "Param value and return Value" else "参返"
                         val list = mutableListOf<String>()
-                        list.add("类名：$className")
-                        list.add("方法名：$methodName")
+                        list.add(getIntroText("Class name: $className"))
+                        list.add(getIntroText("Method name: $methodName"))
                         val paramLen = param.args.size
                         for (i in 0 until paramLen) {
-                            list.add("参数${i + 1}：${getObjectString(param.args[i] ?: "null")}")
+                            list.add(getIntroText("Param${i + 1}: ${getObjectString(param.args[i] ?: "null")}"))
                         }
                         val result = getObjectString(param.result ?: "null")
-                        list.add("返回值：$result")
-                        val items = toStackTrace(Throwable().stackTrace).toList()
+                        list.add(getIntroText("Return value: $result"))
+                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
                         val logBean = LogBean(
-                            "参返", list + items, packageName
+                            type, list + items, packageName
                         )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, "参返")
+                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
                     }
                 }
             }
@@ -376,6 +391,7 @@ class Hook {
         configBean.apply {
             if (!all) return
             val context: Context = mContext!!
+            init(context)
             hookDialog(context, dialog, diaCancel, packageName)
             if (toast) hookToast(context, packageName)
             hookPopupWindow(context, popup, popCancel, packageName)
@@ -387,6 +403,19 @@ class Hook {
             if (digest) shaAndMD5(context, packageName)
             if (hmac) mac(context, packageName)
             if (crypt) aes(context, packageName)
+            if (json) hookJSON(context, packageName)
+        }
+    }
+
+
+    private fun getIntroText(intro: String): String {
+        if (isEnglish) return intro
+        return when {
+            intro.startsWith("Class name: ") -> intro.replaceFirst("Class name: ", "类名：")
+            intro.startsWith("Method name: ") -> intro.replaceFirst("Method name: ", "方法名：")
+            intro.startsWith("Param") -> intro.replaceFirst("Param", "参数")
+            intro.startsWith("Return value: ") -> intro.replaceFirst("Return value: ", "返回值：")
+            else -> "error"
         }
     }
 }

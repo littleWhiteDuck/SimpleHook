@@ -54,6 +54,7 @@ private const val CLICK_LISTENER_STATUS = 1 shl 10
 private const val INTENT_DATA_STATUS = 1 shl 11
 private const val VPN_CHECK_STATUS = 1 shl 12
 private const val HOT_FIX_STATUS = 1 shl 13
+private const val JSON_STATUS = 1 shl 14
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
@@ -107,46 +108,170 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun initData() {
-        val dexPath =
-            if (FlavorUtils.isNormal()) "dex放在Android/data/目标应用包名/simpleHook/dex/" else "dex放在/data/simpleHook/目标应用包名/dex/"
+        val dexPosition = if (LanguageUtils.isEnglish(this)) "dex on " else "dex放在"
+        val dexPath = if (FlavorUtils.isNormal()) {
+            dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
+        } else {
+            dexPosition + "/data/simpleHook//${assistConfig.packageName}/dex/"
+        }
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
             config, AssistConfigBean::class.java
         ) else AssistConfigBean()
         itemList.apply {
             configBean.apply {
-                add(AssistTitle("基本"))
+                add(AssistTitle(getString(R.string.extension_item_title_basic)))
                 add(
                     AssistItem(
-                        "应用", false, startAppTag, assistConfig.packageName, assistConfig.appName
+                        getString(R.string.extension_item_title_application),
+                        false,
+                        startAppTag,
+                        assistConfig.packageName,
+                        assistConfig.appName
                     )
                 )
-                add(AssistItem("总开关", all, ALL_STATUS, ""))
-                add(AssistTitle("算法分析(Alpha)"))
-                add(AssistItem("Base64", base64, BASE_64_STATUS, "Base64加解密"))
-                add(AssistItem("摘要算法", digest, DIGEST_STATUS, "MD5、SHA等"))
-                add(AssistItem("信息摘要算法", hmac, HMAC_STATUS, "Hmac"))
-                add(AssistItem("加密算法", crypt, CRYPT_STATUS, "AES、DES、RSA等"))
-                add(AssistTitle("界面"))
-                add(AssistItem("弹窗", dialog, DIALOG_STATUS, "打印弹窗调用"))
-                add(AssistItem("弹窗", diaCancel, DIALOG_CANCEL_STATUS, "用于一般弹窗的强制可取消"))
-                add(AssistItem("Toast", toast, TOAST_STATUS, "打印toast调用"))
-                add(AssistItem("PopupWindow", popup, POPUP_STATUS, "打印调用（也可作为弹窗）"))
                 add(
                     AssistItem(
-                        "PopupWindow可取消", popCancel, POPUP_CANCEL_STATUS, "点击弹窗外部/返回取消"
+                        getString(R.string.extension_item_title_all_switch), all, ALL_STATUS, ""
                     )
                 )
-                add(AssistItem("点击事件", click, CLICK_LISTENER_STATUS, "打印点击调用"))
-                add(AssistTitle("其他"))
-                add(AssistItem("intent", intent, INTENT_DATA_STATUS, "打印常见启动activity时传递的intent"))
+                add(AssistTitle(getString(R.string.extension_item_title_algorithm_analysis)))
                 add(
                     AssistItem(
-                        "热修复", hotFix, HOT_FIX_STATUS, dexPath
+                        getString(R.string.extension_item_title_base64),
+                        base64,
+                        BASE_64_STATUS,
+                        getString(
+                            R.string.extension_item_desc_base64
+                        )
                     )
                 )
-                add(AssistTitle("网络"))
-                add(AssistItem("vpn", vpn, VPN_CHECK_STATUS, "去除一般的VPN检测"))
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_digest_algorithm),
+                        digest,
+                        DIGEST_STATUS,
+                        getString(
+                            R.string.extension_item_desc_digest_algorithm
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_hmac), hmac, HMAC_STATUS, getString(
+                            R.string.extension_item_desc_hmac
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_encrypt_algorithm),
+                        crypt,
+                        CRYPT_STATUS,
+                        getString(
+                            R.string.extension_item_desc_encrypt_algorithm
+                        )
+                    )
+                )
+                add(AssistTitle(getString(R.string.extension_item_title_ui)))
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_dialog),
+                        dialog,
+                        DIALOG_STATUS,
+                        getString(
+                            R.string.extension_item_desc_dialog
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_dialog_cancel),
+                        diaCancel,
+                        DIALOG_CANCEL_STATUS,
+                        getString(
+                            R.string.extension_item_desc_dialog_cancel
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_toast),
+                        toast,
+                        TOAST_STATUS,
+                        getString(
+                            R.string.extension_item_desc_toast
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_popup_window),
+                        popup,
+                        POPUP_STATUS,
+                        getString(
+                            R.string.extension_item_desc_popup_window
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_popup_window_cancel),
+                        popCancel,
+                        POPUP_CANCEL_STATUS,
+                        getString(
+                            R.string.extension_item_desc_popup_window_cancel
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_click_event),
+                        click,
+                        CLICK_LISTENER_STATUS,
+                        getString(
+                            R.string.extension_item_desc_click_event
+                        )
+                    )
+                )
+                add(AssistTitle(getString(R.string.extension_item_title_others)))
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_json),
+                        json,
+                        JSON_STATUS,
+                        getString(R.string.extension_item_desc_json)
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_intent),
+                        intent,
+                        INTENT_DATA_STATUS,
+                        getString(
+                            R.string.extension_item_desc_intent
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_hot_fix),
+                        hotFix,
+                        HOT_FIX_STATUS,
+                        dexPath
+                    )
+                )
+                add(AssistTitle(getString(R.string.extension_item_title_network)))
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_vpn),
+                        vpn,
+                        VPN_CHECK_STATUS,
+                        getString(
+                            R.string.extension_item_desc_vpn
+                        )
+                    )
+                )
             }
         }
     }
@@ -206,58 +331,7 @@ class AssistActivity : BaseActivity() {
             return
         } else {
             if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
-                if (sp.openStorage) {
-                    val tip = """
-                     若是root版：导入dex后，手动给可读权限（Root）或重新打开simpleHook软件（需有Root权限）
-                     1. 无效，取消此应用作用域，再给此应用作用域
-                     2. 无效，清除数据，重复1
-                     3. 无效，卸载重装，重复1
-                     4. 无效，与你无缘，用不了
-                    """.trimIndent()
-                    if (FlavorUtils.isNormal()) {
-                        if (FileUtils.isGrant(this)) {
-                            val filePath =
-                                ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                                FileUtils.writeDocumentFile(
-                                    content = tip,
-                                    context = this,
-                                    path = "/${assistConfig.packageName}/simpleHook/dex/",
-                                    fileName = "说明.txt",
-                                    mimiType = "text/plain"
-                                )
-                            } else {
-                                FileUtils.writeTextToFile(
-                                    tip, filePath, "说明.txt"
-                                )
-                            }
-                            ToolUtils.toClip(this, filePath)
-                            "dex存放目录已复制到剪切板中".toast(this)
-                        } else {
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                                requestPermissionDialog(this) {
-                                    startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
-                                }
-                            } else {
-                                requestPermissionDialog(this) {
-                                    FileUtils.verifyStoragePermissions(this)
-                                }
-                            }
-                        }
-
-                    } else {
-                        val filePath =
-                            Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
-                        FileUtils.writeTextToFile(
-                            tip, filePath, "说明.txt"
-                        )
-                        ToolUtils.toClip(this, filePath)
-                        "dex存放目录已复制到剪切板中".toast(this)
-                    }
-
-                } else {
-                    "未开启增加读取配置：不可用".toast(this)
-                }
+                createDexDirectory()
 
             }
             if (checked) {
@@ -271,6 +345,64 @@ class AssistActivity : BaseActivity() {
                 }
                 statusUnChecked = if (statusUnChecked == 0) tag else statusUnChecked or tag
             }
+        }
+    }
+
+    private fun createDexDirectory(tipToast: Boolean = true) {
+        if (sp.openStorage) {
+            val tip = """
+                     若是root版：导入dex后，手动给可读权限（Root）或重新打开simpleHook软件（需有Root权限）
+                     1. 无效，取消此应用作用域，再给此应用作用域
+                     2. 无效，清除数据，重复1
+                     3. 无效，卸载重装，重复1
+                     4. 无效，与你无缘，用不了
+                    """.trimIndent()
+            if (FlavorUtils.isNormal()) {
+                if (FileUtils.isGrant(this)) {
+                    val filePath = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        FileUtils.writeDocumentFile(
+                            content = tip,
+                            context = this,
+                            path = "/${assistConfig.packageName}/simpleHook/dex/",
+                            fileName = "说明.txt",
+                            mimiType = "text/plain"
+                        )
+                    } else {
+                        FileUtils.writeTextToFile(
+                            tip, filePath, "说明.txt"
+                        )
+                    }
+                    if (tipToast) {
+                        ToolUtils.toClip(this, filePath)
+                        "dex存放目录已复制到剪切板中".toast(this)
+                    }
+
+                } else {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        requestPermissionDialog(this) {
+                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                        }
+                    } else {
+                        requestPermissionDialog(this) {
+                            FileUtils.verifyStoragePermissions(this)
+                        }
+                    }
+                }
+
+            } else {
+                val filePath = Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
+                FileUtils.writeTextToFile(
+                    tip, filePath, "说明.txt"
+                )
+                if (tipToast) {
+                    ToolUtils.toClip(this, filePath)
+                    "dex存放目录已复制到剪切板中".toast(this)
+                }
+            }
+
+        } else {
+            "未开启增加读取配置：不可用".toast(this)
         }
     }
 
@@ -313,6 +445,9 @@ class AssistActivity : BaseActivity() {
         }
         if (isContains(HOT_FIX_STATUS)) {
             configBean.hotFix = isChecked(HOT_FIX_STATUS)
+            if (configBean.hotFix) {
+                createDexDirectory(tipToast = false)
+            }
         }
         if (isContains(VPN_CHECK_STATUS)) {
             configBean.vpn = isChecked(VPN_CHECK_STATUS)
@@ -331,6 +466,9 @@ class AssistActivity : BaseActivity() {
         }
         if (isContains(BASE_64_STATUS)) {
             configBean.base64 = isChecked(BASE_64_STATUS)
+        }
+        if (isContains(JSON_STATUS)) {
+            configBean.json = isChecked(JSON_STATUS)
         }
         val config = Gson().toJson(configBean)
         assistConfig.config = config
@@ -390,11 +528,12 @@ class AssistActivity : BaseActivity() {
             when {
                 data.tag == startAppTag -> tvControl.text = data.other
                 data.isChecked -> {
-                    tvControl.text = "已开启"
+                    tvControl.text = itemView.context.getString(R.string.extension_item_status_open)
                     tvControl.setTextColor(Color.parseColor("#4F9BFA"))
                 }
                 else -> {
-                    tvControl.text = "未开启"
+                    tvControl.text =
+                        itemView.context.getString(R.string.extension_item_status_close)
                     tvControl.setTextColor(Color.parseColor("#aaaaaa"))
                 }
             }
@@ -407,12 +546,14 @@ class AssistActivity : BaseActivity() {
                                 onClick(false, tag)
                             }
                             isChecked -> {
-                                text = "已开启"
+                                text =
+                                    itemView.context.getString(R.string.extension_item_status_open)
                                 setTextColor(Color.parseColor("#4F9BFA"))
                                 onClick(true, tag)
                             }
                             else -> {
-                                text = "未开启"
+                                text =
+                                    itemView.context.getString(R.string.extension_item_status_close)
                                 setTextColor(Color.parseColor("#aaaaaa"))
                                 onClick(false, tag)
                             }

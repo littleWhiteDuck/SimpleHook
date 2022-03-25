@@ -133,7 +133,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout7"
                 style="@style/add_text_input_layout_style"
-                app:helperText="可留空"
+                app:helperText="@string/config_description_input_helper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textInputLayout6">

@@ -50,18 +50,19 @@ class ConfigAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.setTag(R.id.item_position, position)
         val methodConfig = getItem(position)
+        val context = holder.itemView.context
         holder.apply {
             tvClassName.text = methodConfig.className
             tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
             tvNumber.text = (position + 1).toString()
             tip.tip.text = when (methodConfig.mode) {
-                Constant.HOOK_RETURN -> "返回值"
-                Constant.HOOK_PARAM -> "参数值"
-                Constant.HOOK_STATIC_FIELD, Constant.HOOK_FIELD -> "变量值"
-                Constant.HOOK_BREAK -> "中断"
-                Constant.HOOK_RECORD_PARAMS -> "打印参数"
-                Constant.HOOK_RECORD_RETURN -> "打印返回"
-                Constant.HOOK_RECORD_PARAMS_RETURN -> "打印参返"
+                Constant.HOOK_RETURN -> context.getString(R.string.config_mode_tip_return_value)
+                Constant.HOOK_PARAM -> context.getString(R.string.config_mode_tip_param_value)
+                Constant.HOOK_STATIC_FIELD, Constant.HOOK_FIELD -> context.getString(R.string.config_mode_tip_field_value)
+                Constant.HOOK_BREAK -> context.getString(R.string.config_mode_tip_break)
+                Constant.HOOK_RECORD_PARAMS -> context.getString(R.string.config_mode_tip_record_param_value)
+                Constant.HOOK_RECORD_RETURN -> context.getString(R.string.config_mode_tip_record_return_value)
+                Constant.HOOK_RECORD_PARAMS_RETURN -> context.getString(R.string.config_mode_tip_record_param_return_value)
                 else -> "未知"
             }
         }

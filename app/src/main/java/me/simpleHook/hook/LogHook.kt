@@ -6,10 +6,7 @@ import androidx.core.content.contentValuesOf
 import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.TimeUtil
-import me.simpleHook.util.tip
+import me.simpleHook.util.*
 
 object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
@@ -46,27 +43,31 @@ object LogHook {
             )
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip()
+            log.log()
         }
     }
 
     fun toStackTrace(
-        stackTrace: Array<StackTraceElement>
+        context: Context, stackTrace: Array<StackTraceElement>
     ): List<String> {
+        val isEnglish = LanguageUtils.isEnglish(context)
         val items = mutableListOf<String>()
         var notBug = 0
         for (element in stackTrace) {
             val className = element.className
             if (className.startsWith("me.simpleHook") || className.startsWith("littleWhiteDuck") || className.startsWith(
                     "de.robv.android.xposed"
-                ) || className.contains("LspHooker") || className.contains("EdHooker") || className.startsWith(
+                ) || className.contains(
+                    "LspHooker", true
+                ) || className.contains("EdHooker") || className.startsWith(
                     "me.weishu"
                 )
             ) continue
             if (notBug == 0) {
-                items.add("调用堆栈：")
+                items.add(if (isEnglish) "Call stack: " else "调用堆栈：")
             }
             notBug++
-            items.add("类：${element.className} -->方法：${element.methodName}(line：${element.lineNumber})")
+            items.add("${if (isEnglish) "Class : " else "类："}${element.className} -->${if (isEnglish) "Method : " else "方法："}${element.methodName}(line：${element.lineNumber})")
         }
         return items
     }

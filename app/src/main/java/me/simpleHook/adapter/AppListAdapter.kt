@@ -10,7 +10,6 @@ import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
-import java.lang.Exception
 import kotlin.concurrent.thread
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {

@@ -134,37 +134,47 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<Preference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                warningDialog(requireContext(), "警告", "是否确定要删除？", okText = "确认", okClick = {
-                    when (newValue as String) {
-                        "清空Hook配置" -> clearHookConfig(0)
-                        "清空扩展配置" -> clearHookConfig(1)
-                        "清空所有记录" -> clearHookConfig(2)
-                    }
-                })
+                warningDialog(requireContext(),
+                    getString(R.string.settings_clear_warning_dialog_title),
+                    getString(
+                        R.string.settings_clear_warning_dialog_message
+                    ),
+                    okText = getString(
+                        R.string.settings_clear_warning_dialog_confirm
+                    ),
+                    okClick = {
+                        when (newValue as String) {
+                            getString(R.string.settings_clear_hook_config) -> clearHookConfig(0)
+                            getString(R.string.setting_clear_extension_config) -> clearHookConfig(1)
+                            getString(R.string.settings_clear_all_record) -> clearHookConfig(2)
+                        }
+                    })
                 true
             }
         }
         findPreference<MenuPreference>("uiMode")?.apply {
+            val arrayList =
+                requireContext().resources.getStringArray(R.array.main_settings_ui_mode_item_entries)
             this.summary = when (sp.uiMode) {
-                MODE_NIGHT_YES -> "总是开启"
-                MODE_NIGHT_NO -> "总是关闭"
-                else -> "跟随系统"
+                MODE_NIGHT_YES -> arrayList[1]
+                MODE_NIGHT_NO -> arrayList[0]
+                else -> arrayList[2]
             }
             setOnPreferenceChangeListener { _, newValue ->
                 when (newValue as String) {
-                    "总是关闭" -> {
+                    arrayList[0] -> {
                         if (sp.uiMode != MODE_NIGHT_NO) {
                             sp.uiMode = MODE_NIGHT_NO
                             setDefaultNightMode(MODE_NIGHT_NO)
                         }
                     }
-                    "总是开启" -> {
+                    arrayList[1] -> {
                         if (sp.uiMode != MODE_NIGHT_YES) {
                             sp.uiMode = MODE_NIGHT_YES
                             setDefaultNightMode(MODE_NIGHT_YES)
                         }
                     }
-                    "跟随系统" -> {
+                    arrayList[2] -> {
                         if (sp.uiMode != MODE_NIGHT_FOLLOW_SYSTEM) {
                             sp.uiMode = MODE_NIGHT_FOLLOW_SYSTEM
                             setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
@@ -242,8 +252,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showHelp() {
-        val message = AssetsUtil.getText(requireContext(), "help")
-        warningDialog(requireContext(), title = "帮助", message = message)
+        val intent = Intent(Intent.ACTION_VIEW).also {
+            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHookShare")
+        }
+        startActivity(intent)
     }
 
     private fun restoreConfigs() {

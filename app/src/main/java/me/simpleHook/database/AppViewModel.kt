@@ -57,7 +57,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun filterRecordByType(type: String, pattern: String) = viewModelScope.launch {
-        _filterRecord2.value = appRepository.filterRecordByType("%$type%", "%$pattern%")
+        _filterRecord2.value = appRepository.filterRecordByType(type, "%$pattern%")
     }
 
     fun updateRecord(printLog: PrintLog) = viewModelScope.launch {

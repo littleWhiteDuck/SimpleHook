@@ -48,9 +48,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     private fun getSortAppList(
-        appList: List<AppItem>,
-        sortSelected: Int,
-        reverseChecked: Boolean
+        appList: List<AppItem>, sortSelected: Int, reverseChecked: Boolean
     ): List<AppItem> {
         val tempList = appList.sortedBy { appItem ->
             when (sortSelected) {

@@ -49,6 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
+                android:minHeight="48dp"
                 android:padding="5dp"
                 android:scrollbars="vertical"
                 android:text="@string/main_bottom_config_description"
@@ -77,12 +78,6 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.2" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.7" />
 
         <ImageView
             android:id="@+id/appIcon"
@@ -110,31 +105,22 @@
             android:id="@+id/packageNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:text="@string/main_bottom_package_name"
             android:textAppearance="?android:textAppearanceListItemSecondary"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/version_info"
             app:layout_constraintStart_toStartOf="@+id/appNameText"
             app:layout_constraintTop_toBottomOf="@+id/appNameText" />
 
         <TextView
-            android:id="@+id/support_version"
+            android:id="@+id/version_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_bottom_support_version"
-            android:textAppearance="?android:textAppearanceListItemSecondary"
-            app:layout_constraintBottom_toTopOf="@+id/currentVersion"
-            app:layout_constraintStart_toStartOf="@+id/guideline10"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/currentVersion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/main_bottom_current_installed_version"
+            android:text="@string/main_bottom_version_info"
             android:textAppearance="?android:textAppearanceListItemSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/support_version"
-            app:layout_constraintTop_toBottomOf="@+id/support_version" />
+            app:layout_constraintStart_toStartOf="@+id/packageNameText" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

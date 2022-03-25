@@ -5,17 +5,17 @@
 
     <item
         android:id="@+id/toShow"
-        android:title="显示方式">
+        android:title="@string/record_menu_show_method">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:checked="true"
                     android:id="@+id/toTypeShow"
-                    android:title="按照类型划分" />
+                    android:title="@string/record_menu_type_show" />
                 <item
                     android:checked="false"
                     android:id="@+id/toAppShow"
-                    android:title="按照应用划分" />
+                    android:title="@string/record_menu_app_show" />
             </group>
         </menu>
 
@@ -23,11 +23,11 @@
     <item
         android:id="@+id/delete_all"
         android:icon="@drawable/ic_delete_24"
-        android:title="删除全部" />
+        android:title="@string/record_menu_delete_all" />
     <item
         android:id="@+id/delete_read"
         android:icon="@drawable/ic_delete_24"
-        android:title="删除已读" />
+        android:title="@string/record_menu_delete_read" />
     <item
         android:id="@+id/search"
         android:icon="@drawable/ic_search_24"

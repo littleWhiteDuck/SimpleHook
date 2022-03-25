@@ -10,6 +10,12 @@ object RecordType {
         type.startsWith("md5", true) -> "MD5"
         type.contains("popupWindow", true) -> "Popup"
         "中断执行|返回值|参数值".contains(type) -> type[0].toString()
+        type == "Click Event" -> "Click"
+        type.startsWith("JSON ") -> "JSON"
+        type.startsWith("JSONArray ") -> "JSONArray"
+        type == "Return value" -> "Return"
+        type == "Param value" -> "Param"
+        type == "Param value and return Value" -> "PR"
         else -> type
     }
 

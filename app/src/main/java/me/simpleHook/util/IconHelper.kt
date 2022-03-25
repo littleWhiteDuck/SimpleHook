@@ -22,4 +22,8 @@ object IconHelper {
             iconMap[packageName] = it
         }
     }
+
+    fun isExists(packageName: String): Boolean {
+        return iconMap[packageName] != null
+    }
 }

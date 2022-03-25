@@ -30,7 +30,8 @@
         <Spinner
             android:id="@+id/modeSelectSpinner"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/textView2"
             app:layout_constraintStart_toEndOf="@+id/textView2"
             app:layout_constraintTop_toTopOf="@+id/textView2" />
 
@@ -86,7 +87,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/params_type_input"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="例如：boolean,int,java.lang.String"
+            app:helperText="@string/config_dialog_params_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/method_name_input">
@@ -102,7 +103,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/result_value_input"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="例如：true,0,isVip"
+            app:helperText="@string/config_dialog_return_value_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/field_type_input">

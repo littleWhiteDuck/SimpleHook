@@ -374,6 +374,11 @@ class ExtensionFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         if (menu.findItem(R.id.app_bar_search) == null) {
             inflater.inflate(R.menu.menu_assist_fragment, menu)
+            if (LanguageUtils.isEnglish(requireContext())) {
+                menu.removeItem(R.id.create_model)
+                menu.removeItem(R.id.show_model)
+                menu.removeItem(R.id.about_model)
+            }
         }
     }
 

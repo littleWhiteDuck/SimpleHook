@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            app:fab_label="分享配置"
+            app:fab_label="@string/home_fab__share_config"
             app:fab_src="@drawable/ic_share"
             app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            app:fab_label="从网络导入配置"
+            app:fab_label="@string/home_fab_import_config_from_internet"
             app:fab_src="@drawable/ic_cloud_download_12"
             app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            app:fab_label="导入配置"
+            app:fab_label="@string/home_fab_import_config_from_clip"
             app:fab_src="@drawable/ic_paste"
             app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            app:fab_label="添加配置"
+            app:fab_label="@string/home_fab_add_config"
             app:fab_src="@drawable/ic_add_24"
             app:fab_tint="@color/white"
             app:maxImageSize="15dp" />

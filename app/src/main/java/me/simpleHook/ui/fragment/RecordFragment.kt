@@ -73,9 +73,9 @@ class RecordFragment : Fragment() {
             }
             if (it.size >= 66666 && !sp.showMoreDataTip) {
                 warningDialog(requireContext(),
-                    title = "提示",
-                    message = "数据过多可能造成查询较慢等问题，建议删除部分或全部数据",
-                    okText = "不再提示",
+                    title = getString(R.string.record_warn_dialog_title),
+                    message = getString(R.string.record_warn_dialog_message_more_data),
+                    okText = getString(R.string.record_warn_dialog_ok_more_data),
                     okClick = { sp.showMoreDataTip = true })
             }
             val hashSet = HashSet<String>()
@@ -160,15 +160,20 @@ class RecordFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete_all -> {
-                warningDialog(requireContext(), title = "警告", message = "你是否确定删除所有记录？", okClick = {
-                    appViewModel.deleteAllLogs()
-                    refreshData()
-                })
+                warningDialog(requireContext(),
+                    title = getString(R.string.record_warn_dialog_title),
+                    message = getString(
+                        R.string.record_warn_dialog_message_delete_all
+                    ),
+                    okClick = {
+                        appViewModel.deleteAllLogs()
+                        refreshData()
+                    })
             }
             R.id.delete_read -> {
                 warningDialog(requireContext(),
-                    title = "警告",
-                    message = "你是否确定删除所有已读记录？",
+                    title = getString(R.string.record_warn_dialog_title),
+                    message = getString(R.string.record_warn_dialog_message_delete_read),
                     okClick = {
                         appViewModel.deleteRecordByRead()
                         refreshData()

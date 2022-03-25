@@ -49,11 +49,12 @@ class RecordDetailActivity : BaseActivity() {
         supportActionBar?.title =
             AppUtils.getAppName(this@RecordDetailActivity, logBean.packageName)
         supportActionBar?.subtitle = logBean.packageName
+        val foreStr = if (LanguageUtils.isEnglish(this)) "Type: " else "类型："
         if (logBean.type.equals("intent", ignoreCase = true)) {
             val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
             val intentBean = logBean2.other[0]
             val sb = StringBuilder()
-            sb.append("类型：${logBean.type}\n")
+            sb.append("${foreStr + logBean.type}\n")
                 .append("packageName：${intentBean.packageName}\n")
                 .append("className：${intentBean.className}\n")
                 .append("action：${intentBean.action}\n")
@@ -71,11 +72,9 @@ class RecordDetailActivity : BaseActivity() {
             }
             val nLine: Int = -1
             currentText = StringBuilder().lineFeesItem(
-                logList, "类型：${logBean.type}\n", nLine = nLine, nLineString =
-                ""
-            )
-                .replace("类：", "  ")
-                .replace("方法：", "")
+                logList, "${foreStr + logBean.type}\n", nLine = nLine, nLineString = ""
+            ).replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
+                .replace("Method : ", "")
         }
         initView()
     }
@@ -118,11 +117,11 @@ class RecordDetailActivity : BaseActivity() {
             }
             R.id.copy_text -> {
                 ToolUtils.toClip(this, currentText)
-                "复制成功".toast(this)
+                getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.copy_json -> {
-                ToolUtils.toClip(this, JsonUtil.formatJson(jsonText))
-                "复制成功".toast(this)
+                ToolUtils.toClip(this, JsonUtil.formatJson(jsonText).replace("\\u003e", "-> "))
+                getString(R.string.main_home_export_configs_tip).toast(this)
             }
         }
         return true

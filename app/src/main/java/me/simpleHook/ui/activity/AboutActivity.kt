@@ -51,11 +51,17 @@ class AboutActivity : BaseActivity() {
                     R.drawable.author
                 )
             )
+            add(
+                Author(
+                    "Source Code", "https://github.com/littleWhiteDuck/SimpleHookShare", null
+                )
+            )
             add(Title(getString(R.string.about_title_tester)))
             add(
                 Author(
                     getString(R.string.about_tester_zj),
-                    getString(R.string.about_introduce_test_bug), R.drawable.zhengji
+                    getString(R.string.about_introduce_test_bug),
+                    R.drawable.zhengji
                 )
             )
             add(
@@ -120,14 +126,6 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_source_license_2)
                 )
             )
-            add(
-                OpenSource(
-                    "RxShell - d4rken",
-                    "https://github.com/d4rken/RxShell",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-
         }
     }
 
@@ -191,12 +189,19 @@ class AboutActivity : BaseActivity() {
         private val tvName = authorView.name
         private val tvIntro = authorView.introduce
         private val ivIcon = authorView.avatar
+        private val intent = Intent(Intent.ACTION_VIEW)
         override fun onBindData(position: Int, data: Author) {
             tvName.text = data.name
             tvIntro.text = data.introduce
             data.id?.let {
                 ivIcon.iconId = it
                 ivIcon.avatarWidth = 50f.dp
+            }
+            itemView.setOnClickListener {
+                if (data.name == "Source Code") {
+                    intent.data = Uri.parse(data.introduce)
+                    itemView.context.startActivity(intent)
+                }
             }
         }
 

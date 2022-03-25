@@ -26,26 +26,26 @@
         <activity
             android:name=".ui.activity.RecordDetailActivity"
             android:exported="false"
-            android:label="记录" />
+            android:label="@string/app_record" />
         <activity
             android:name=".ui.activity.RecordActivity"
             android:exported="false"
-            android:label="记录" />
+            android:label="@string/app_record" />
         <activity
             android:name=".ui.activity.AboutActivity"
-            android:label="关于"
+            android:label="@string/app_about"
             android:theme="@style/Theme.SimpleHook" />
         <activity
             android:name=".ui.activity.AssistActivity"
-            android:label="扩展"
+            android:label="@string/app_extension"
             android:theme="@style/Theme.SimpleHook" />
         <activity
             android:name=".ui.activity.AppListActivity"
-            android:label="选取应用"
+            android:label="@string/app_select_app"
             android:theme="@style/Theme.SimpleHook" />
         <activity
             android:name=".ui.activity.ConfigActivity"
-            android:label="配置"
+            android:label="@string/app_config"
             android:theme="@style/Theme.SimpleHook" />
         <activity
             android:name=".ui.activity.MainActivity"
@@ -71,7 +71,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="自定义hook" />
+            android:value="自定义hook/DIY hook" />
         <meta-data
             android:name="xposedminversion"
             android:value="53" />

@@ -40,15 +40,18 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
         val printLog = getItem(position)
         val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
         holder.itemView.setTag(R.id.item_record_position, printLog)
+        val context = holder.itemView.context
         holder.apply {
             title.text = logBean.type
             time.text = printLog.time
-            readState.text = if (printLog.read) "已读" else "未读"
+            readState.text =
+                if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
+                    R.string.record_item_status_unread
+                )
             if (isType) {
                 icon.setImageDrawable(
                     IconHelper.getAppIcon(
-                        holder.itemView.context,
-                        logBean.packageName
+                        holder.itemView.context, logBean.packageName
                     )
                 )
             } else {

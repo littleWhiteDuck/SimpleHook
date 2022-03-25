@@ -21,7 +21,6 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
-import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
@@ -35,7 +34,6 @@ class AppListActivity : BaseActivity() {
     private val userAdapter by lazy { AppListAdapter.getAppSelectAdapter1() }
     private val systemAdapter by lazy { AppListAdapter.getAppSelectAdapter2() }
     private var isFromAssist = false
-    private val viewModel by viewModels<AppViewModel>()
     private val mViewModel by viewModels<me.simpleHook.viewmodel.AppViewModel>()
     private val sp by lazy { SPUtils(this) }
     private var currentSortSelected = 0
@@ -97,8 +95,8 @@ class AppListActivity : BaseActivity() {
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 run {
                     when (position) {
-                        0 -> tab.text = "用户应用"
-                        1 -> tab.text = "系统应用"
+                        0 -> tab.text = getString(R.string.app_list_tab_user_app)
+                        1 -> tab.text = getString(R.string.app_list_tab_system_app)
                     }
                 }
             }.attach()
@@ -208,14 +206,24 @@ class AppListActivity : BaseActivity() {
         val reverseSort = contentView.findViewById<CheckBox>(R.id.reverse_sort)
         reverseSort.setOnCheckedChangeListener { _, isChecked -> currentSortReverse = isChecked }
         reverseSort.isChecked = currentSortReverse
-        customDialog(this, title = "排序方式", okText = "确定", okClick = {
-            sp.appListSortSelected = currentSortSelected
-            sp.appListReverse = currentSortReverse
-            mViewModel.fetchData(currentSortSelected, currentSortReverse)
-            binding.swipeRefreshLayout.isRefreshing = true
-        }, cancelText = "取消", cancelClick = {
-            currentSortReverse = sp.appListReverse
-            currentSortSelected = sp.appListSortSelected
-        }, contentView = contentView, cancelAble = false).show()
+        customDialog(this,
+            title = getString(R.string.app_list_sort_dialog_title),
+            okText = getString(
+                R.string.app_list_sort_dialog_confirm
+            ),
+            okClick = {
+                sp.appListSortSelected = currentSortSelected
+                sp.appListReverse = currentSortReverse
+                mViewModel.fetchData(currentSortSelected, currentSortReverse)
+                binding.swipeRefreshLayout.isRefreshing = true
+            },
+            cancelText = getString(R.string.app_list_sort_dialog_cancel),
+            cancelClick = {
+                currentSortReverse = sp.appListReverse
+                currentSortSelected = sp.appListSortSelected
+            },
+            contentView = contentView,
+            cancelAble = false
+        ).show()
     }
 }

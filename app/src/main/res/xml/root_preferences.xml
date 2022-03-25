@@ -23,11 +23,11 @@
         
 
     </PreferenceCategory>
-    <PreferenceCategory app:title="常规功能">
+    <PreferenceCategory app:title="@string/main_settings_title_normal">
         <me.simpleHook.ui.custom.MenuPreference
             app:entries="@array/main_settings_ui_mode_item_entries"
             app:key="uiMode"
-            app:summary="@string/main_settings_ui_mode_summary"
+            app:summary="@string/main_settings_ui_mode_summary_follow_system"
             app:title="@string/main_settings_ui_mode_title" />
         <me.simpleHook.ui.custom.MenuPreference
             app:entries="@array/main_settings_clear_item_entries"

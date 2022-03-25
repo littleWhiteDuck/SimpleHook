@@ -22,15 +22,14 @@ fun warningDialog(
     title: String,
     message: String,
     okClick: () -> Unit = {},
-    okText: String = "确认"
+    okText: String = context.getString(R.string.dialog_confirm)
 ) {
     customDialog(
         context,
         title = title,
         message = message,
         okText = okText,
-        okClick = { okClick() },
-        cancelText = "取消"
+        okClick = { okClick() }, cancelText = context.getString(R.string.dialog_cancel)
     ).show()
 }
 

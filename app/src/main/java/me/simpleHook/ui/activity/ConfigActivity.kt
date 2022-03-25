@@ -27,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
-import me.simpleHook.bean.AppItem
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
@@ -38,7 +37,6 @@ import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.fragment.HelpDialogFragment
 import me.simpleHook.util.*
 import java.lang.reflect.Field
 import java.util.regex.Pattern
@@ -193,9 +191,7 @@ class ConfigActivity : BaseActivity() {
                 onModeChange(dialogBinding)
             }
         }
-        val list = arrayListOf(
-            "Hook返回值", "Hook参数值", "中断执行", "Hook静态变量", "Hook变量", "打印参数值", "打印返回值", "打印参返"
-        )
+        val list = resources.getStringArray(R.array.config_hook_mode_item)
         dialogBinding.modeSelectSpinner.adapter = ArrayAdapter(
             this@ConfigActivity, android.R.layout.simple_spinner_dropdown_item, list
         )
@@ -290,7 +286,7 @@ class ConfigActivity : BaseActivity() {
                 ConfigBean(hookMode, className, methodName, params, fieldName, fieldType, results)
             addConfig(configBean)
         } else {
-            "所填内容与所选模式不匹配".toast(this)
+            getString(R.string.config_info_not_match_mode).toast(this)
         }
         return canCancel
     }
@@ -319,9 +315,10 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showHelpDialog() {
-        HelpDialogFragment("http://dev.rubaoo.com/TimeDiaryV2/s/MXVpZ20=").show(
-            supportFragmentManager, "help"
-        )
+        val intent = Intent(Intent.ACTION_VIEW).also {
+            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHookShare")
+        }
+        startActivity(intent)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -463,7 +460,10 @@ class ConfigActivity : BaseActivity() {
                             getMode(returnType, params),
                             smali2Java(className),
                             methodName,
-                            tranParams(params), "", "", ""
+                            tranParams(params),
+                            "",
+                            "",
+                            ""
                         )
 
                     }
@@ -504,7 +504,7 @@ class ConfigActivity : BaseActivity() {
             ).apply {
                 anchorView = binding.addMethodConfig
             }.show()
-        } ?: "错误的代码".toast(this)
+        } ?: getString(R.string.config_smali_to_config_error).toast(this)
     }
 
     private fun tranParam(param: String): String {

@@ -17,25 +17,25 @@
             android:id="@+id/app_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="应用名称" />
+            android:text="@string/sort_app_name" />
 
         <RadioButton
             android:id="@+id/package_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="应用包名" />
+            android:text="@string/sort_app_package_name" />
 
         <RadioButton
             android:id="@+id/installed_time"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="安装时间" />
+            android:text="@string/sort_app_installed_time" />
 
         <RadioButton
             android:id="@+id/target_api"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="target api" />
+            android:text="@string/sort_app_target_api" />
     </RadioGroup>
 
     <CheckBox
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:checked="false"
         android:layout_marginStart="18dp"
-        android:text="逆向排序"
+        android:text="@string/sort_reverse_order"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radio_settings" />
 

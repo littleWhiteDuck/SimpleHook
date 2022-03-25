@@ -17,5 +17,6 @@ data class AssistConfigBean(
     var digest: Boolean = false,
     var hmac: Boolean = false,
     var crypt: Boolean = false,
-    var base64: Boolean = false
+    var base64: Boolean = false,
+    var json: Boolean = false
 )

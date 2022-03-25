@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
+import android.util.Log
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -76,7 +77,6 @@ class MainActivity : BaseActivity() {
             }
         }
         initUseTip()
-        checkUpdate()
         super.onCreate(savedInstanceState)
     }
 
@@ -163,62 +163,5 @@ class MainActivity : BaseActivity() {
     @Keep
     private fun isModuleLive() = false
 
-    private fun checkUpdate() {
-        val urlString = "https://gitee.com/littleWhiteDuck/simpleHook/raw/master/update2.json"
-        thread {
-            var info = ""
-            var connection: HttpURLConnection? = null
-            try {
-                val response = StringBuilder()
-                val url = URL(urlString)
-                connection = url.openConnection() as HttpURLConnection
-                connection.connectTimeout = 8000
-                connection.readTimeout = 8000
-                val input = connection.inputStream
-                val reader = BufferedReader(InputStreamReader(input))
-                reader.use {
-                    reader.forEachLine {
-                        response.append(it)
-                    }
-                }
-                info = response.toString()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                connection?.disconnect()
-            }
-            runOnUiThread {
-                try {
-                    if (info.isNotEmpty()) {
-                        val update = Gson().fromJson(info, Update::class.java)
-                        if (update.versionCode > BuildConfig.VERSION_CODE) {
-                            customDialog(title = update.title,
-                                context = this@MainActivity,
-                                message = update.message,
-                                cancelAble = false,
-                                okText = "更新",
-                                okClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW).also {
-                                        it.data = Uri.parse(update.downloadUrl)
-                                    }
-                                    startActivity(intent)
-                                },
-                                cancelText = "取消",
-                                cancelClick = {
-                                    if (update.isForce) {
-                                        Process.killProcess(Process.myPid())
-                                    } else {
-                                        it.dismiss()
-                                    }
-                                }).show()
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    throw Exception("检查更新错误")
-                }
-            }
-        }
-    }
 
 }

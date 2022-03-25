@@ -6,7 +6,6 @@ import android.util.TypedValue
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
@@ -16,8 +15,7 @@ import me.simpleHook.util.dp
 class ExtensionItemView(context: Context) : CustomViewGroup(context) {
     init {
         val typedValue = TypedValue()
-        getContext().theme
-            .resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
+        getContext().theme.resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
         val attribute = intArrayOf(R.attr.selectableItemBackground)
         val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
         background = typedArray.getDrawable(0)
@@ -38,23 +36,27 @@ class ExtensionItemView(context: Context) : CustomViewGroup(context) {
         }
     val control = AppCompatTextView(context).apply {
         layoutParams =
-            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+            MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
+                it.marginStart = 5.dp
+            }
         addView(this)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         control.autoMeasure()
-        val textViewWidth = measuredWidth - control.measuredWidthWithMargins - paddingStart - paddingEnd
+        val textViewWidth =
+            measuredWidth - control.measuredWidthWithMargins - paddingStart - paddingEnd
         title.measure(textViewWidth.toExactlyMeasureSpec(), title.defaultHeightMeasureSpec(this))
         desc.measure(textViewWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
-        val height = if (desc.visibility == GONE) paddingTop + title.measuredHeight + paddingBottom else paddingTop + title.measuredHeight + desc.measuredHeightWithMargins + paddingBottom
+        val height =
+            if (desc.visibility == GONE) paddingTop + title.measuredHeight + paddingBottom else paddingTop + title.measuredHeight + desc.measuredHeightWithMargins + paddingBottom
         setMeasuredDimension(measuredWidth, height)
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
         title.autoLayout(paddingStart + title.marginLeft, paddingTop)
         desc.autoLayout(title.left, title.bottom + desc.marginTop)
-        control.autoLayout(paddingEnd + control.marginRight, control.toVerticalCenter(this), fromRight = true)
+        control.autoLayout(paddingEnd, control.toVerticalCenter(this), fromRight = true)
     }
 }
