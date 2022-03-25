@@ -24,13 +24,13 @@
 
 **首页**
 
-<img src="images\main_home_screenshot.png" style="zoom: 10%;" />
+<img src="images\main_home_screenshot.png" width = "200" />
 
 点击加号，可添加配置，点击添加配置进入下面页面
 
 **配置页面**
 
-<img src="images/config_screenshot.png" style="zoom:10%;" />
+<img src="images/config_screenshot.png" width = "200" />
 
 点击‘搜索样式’图标，可进入AppList页面，进行选择应用
 
@@ -38,19 +38,24 @@
 
 点击右下角加号，可在弹出窗口填写配置
 
-<img src="images\config_dialog_screenshot.png" style="zoom:10%;" />
+<img src="images\config_dialog_screenshot.png" width = "200" />
 
 有多种模式可以选择，输入类名前建议了解设置页面（smali to config），它可以简化填写
 
 **扩展页面**
 
-<img src="images\main_extension_screenshot.png" style="zoom:10%;" />
+<img src="images\main_extension_screenshot.png" width = "200" />
+
+**具体功能**
+
+<img src="images\extension_main_features_shot.png" width = "200" />
+
 
 点击“播放样式”按钮，可打开悬浮窗（需要授予悬浮窗权限），然后打开目标应用，可以显示一些信息（开启了打印参数值、返回值、扩展页面大部分功能）
 
 悬浮窗
 
-<img src="images\main_extension_print_dialog.png" style="zoom:10%;" />
+<img src="images\main_extension_print_dialog.png" width = "200" />
 
 ## 自定义Hook编写规则
 
@@ -250,11 +255,17 @@ public class Example{
 ### 1.hook没有效果
 
 > 你可能没有打开 开启储存权限写入配置（设置页顶部）
+>
 > 如果不开启，仅仅会从数据库读取数据，但是有个问题，https://medium.com/androiddevelopers/package-visibility-in-android-11-cc857f221cd9
-> 开启储存权限写入配置,仍然没有效果
+>
+> 开启储存权限写入配置,仍然没有效果：
+>
 > 可看框架日志，若提示储存文件无储存文件配置，确保开启写入储存配置
+>
 > 另外，储存文件更新配置某些情况下需要手动刷新，开启、关闭、编辑保存即可刷新
+>
 > 切换ROOT版和普通版也需手动刷新配置(一般仅扩展配置需要)
+>
 > 卸载目标应用重新安装后，一般也需要手动刷新配置(一般仅扩展配置需要)
 
 ### 2.什么是smali转配置
@@ -273,11 +284,17 @@ public class Example{
 ### 3.root版和普通版有什么区别
 
 > 两者功能上没有任何区别，仅仅在写入本地配置目录上有所区别
+>
 > root配置存储目录有：
+>
 > /data/simpleHook/目标应用包名/config/    hook.json是自定义hook配置，assist.json是扩展功能配置
+>
 > /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ hook.json是自定义hook配置，assist.json是扩展功能配置
+>
 > 普通版配置存储目录有：
+>
 > /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ hook.json是自定义hook配置，assist.json是扩展功能配置
+>
 > 如何选用，首先使用普通版，若普通版无法使用，再去使用root版，两个版本在不同机型上都可能有一个版本没有效果
 
 ### 4.部分记录无法在正常被记录
