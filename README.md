@@ -4,13 +4,15 @@
 
 # simpleHook使用说明
 
+中文文档|[English](README_EN.md)
+
 > [simpleHook.apk](https://wwp.lanzoub.com/b0177tlri)(密码：simple)
 
 > tg:@simpleHook
 
 > 本软件主打简单，如名字一样，如果你追求更复杂的hook操作，推荐使用 JShook（frida）、曲境（电脑端浏览器操作）；如果你追求更多的扩展功能，推荐使用算法助手
 
-> 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow等
+> 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow、JSONObject创建增加等
 
 > 开发计划：
 >
@@ -287,13 +289,19 @@ public class Example{
 >
 > root配置存储目录有：
 >
-> /data/simpleHook/目标应用包名/config/    hook.json是自定义hook配置，assist.json是扩展功能配置
+> /data/simpleHook/目标应用包名/config/    
+> 
+> hook.json是自定义hook配置，assist.json是扩展功能配置
 >
-> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ hook.json是自定义hook配置，assist.json是扩展功能配置
+> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
+> 
+> hook.json是自定义hook配置，assist.json是扩展功能配置
 >
 > 普通版配置存储目录有：
 >
-> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ hook.json是自定义hook配置，assist.json是扩展功能配置
+> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
+> 
+> hook.json是自定义hook配置，assist.json是扩展功能配置
 >
 > 如何选用，首先使用普通版，若普通版无法使用，再去使用root版，两个版本在不同机型上都可能有一个版本没有效果
 
@@ -305,4 +313,6 @@ public class Example{
 
 ### 5.需要本软件挂后台才能使用
 
-> 你可能没有打开 开启储存权限写入配置（重新保存或开关配置设置页顶）
+> 你可能没有打开 开启储存权限写入配置（开关配置设置页顶）
+>
+> 打开后记得手动刷新配置（重新保存或开关配置）
