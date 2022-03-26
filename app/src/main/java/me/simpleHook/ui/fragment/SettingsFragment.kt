@@ -31,6 +31,7 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
+import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.MenuPreference
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
@@ -182,6 +183,50 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                 }
                 requireActivity().recreate()
+                true
+            }
+        }
+
+        findPreference<MenuPreference>("selectLanguage")?.apply {
+            val arrayList =
+                requireContext().resources.getStringArray(R.array.main_settings_language_item_entries)
+            this.summary = when (sp.language) {
+                Locale.SIMPLIFIED_CHINESE.toString() -> arrayList[1]
+                Locale.TRADITIONAL_CHINESE.toString() -> arrayList[2]
+                Locale.ENGLISH.language.toString() -> arrayList[3]
+                else -> arrayList[0]
+            }
+            setOnPreferenceChangeListener { _, newValue ->
+                when (newValue as String) {
+                    arrayList[1] -> {
+                        LanguageUtils.switchLanguage(
+                            Locale.SIMPLIFIED_CHINESE.toString(),
+                            requireActivity(),
+                            MainActivity::class.java
+                        )
+                    }
+                    arrayList[2] -> {
+                        LanguageUtils.switchLanguage(
+                            Locale.TRADITIONAL_CHINESE.toString(),
+                            requireActivity(),
+                            MainActivity::class.java
+                        )
+                    }
+                    arrayList[3] -> {
+                        LanguageUtils.switchLanguage(
+                            Locale.ENGLISH.toString(),
+                            requireActivity(),
+                            MainActivity::class.java
+                        )
+                    }
+                    else -> {
+                        LanguageUtils.switchLanguage(
+                            "system",
+                            requireActivity(),
+                            MainActivity::class.java
+                        )
+                    }
+                }
                 true
             }
         }

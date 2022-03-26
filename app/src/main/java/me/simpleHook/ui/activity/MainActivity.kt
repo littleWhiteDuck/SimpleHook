@@ -14,10 +14,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.gson.Gson
-import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.bean.Update
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.databinding.ActivityMainBinding
@@ -29,12 +26,7 @@ import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.lang.reflect.Field
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.concurrent.thread
 import kotlin.random.Random
 
 

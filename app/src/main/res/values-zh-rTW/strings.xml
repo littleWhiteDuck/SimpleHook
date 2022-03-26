@@ -1,0 +1,253 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--assist-->
+    <string name="assist_start_float_window">開啟懸浮窗</string>
+    <string name="assist_float_print_log">打印輸出</string>
+    <string name="assist_float_minify">最小化</string>
+    <string name="assist_float_import_Log">導出</string>
+    <string name="assist_float_clear_log">清空</string>
+    <string name="assist_float_pause_print">暫停</string>
+    <string name="assist_float_drag">拖拽</string>
+    <string name="assist_float_export_config_empty_tip">導出了個寂寞</string>
+    <string name="extension_settings">設置</string>
+    <!--config-->
+    <string name="config_config_smali_to_config">smali轉為配置</string>
+    <string name="config_application_input_helper">例如：com.example.MyApplication</string>
+    <string name="config_add_config">添加方法配置</string>
+    <string name="config_dialog_help">\?</string>
+    <string name="config_dialog_class_edit_tip">輸入類名</string>
+    <string name="config_dialog_class_input_helper">例如：com.example.example</string>
+    <string name="config_dialog_method_input_tip">輸入方法名</string>
+    <string name="config_dialog_method_input_helper">例如：isVip</string>
+    <string name="config_dialog_params_input_tip">輸入參數類型</string>
+    <string name="config_dialog_return_value_input_tip">輸入修改值</string>
+    <string name="config_dialog_field_name_edit_hint">輸入變量名</string>
+    <string name="config_dialog_field_name_input_tip">例如：isPro</string>
+    <string name="config_dialog_field_type_input_tip">例如：boolean、int(可不填)</string>
+    <string name="config_dialog_field_type_edit_hint">請輸入變量類型</string>
+    <string name="config_dialog_title">方法配置</string>
+    <string name="config_dialog_mode_select">選擇模式：</string>
+    <string name="config_package_name_input_tip">輸入包名</string>
+    <string name="config_package_name_input_helper">例如：com.example.example</string>
+    <string name="config_app_name_input_tip">輸入應用名</string>
+    <string name="config_app_name_input_helper">例如：SimpleHook</string>
+    <string name="config_version_input_tip">輸入版本名</string>
+    <string name="config_version_input_helper">例如：1.0.0</string>
+    <string name="config_description_input_tip">輸入描述</string>
+    <string name="config_menu_save_config">保存配置</string>
+    <string name="config_menu_select_app">選擇app</string>
+    <string name="config_undo_repeat_config">撤銷</string>
+    <string name="config_add_repeat_config_tip">已經重復新增了一個，快去更改</string>
+    <string name="config_dialog_delete_this">刪除</string>
+    <string name="config_dialog_cancel">取消</string>
+    <string name="config_dialog_alter_this">修改</string>
+    <string name="config_dialog_add_a_new">增加</string>
+    <string name="config_help_dialog_title">幫助</string>
+    <string name="config_help_dialog_cancel">取消</string>
+    <string name="config_dialog_config_empty">有必填項為空</string>
+    <string name="config_save_empty_config_tip">配置為空</string>
+    <string name="config_add_config_tip">已添加配置</string>
+    <!--main-->
+    <string name="app_name">SimpleHook</string>
+    <string name="main_home_name">首頁</string>
+    <string name="main_home_undo_delete_config">撤銷</string>
+    <string name="main_home_export_configs_tip">已復製到剪切板</string>
+    <string name="main_home_import_incorrect_format_tip">格式錯誤</string>
+    <string name="main_home_delete_config_tip">已刪除此配置</string>
+    <string name="main_home_toolbar_search_hint">搜索…</string>
+    <string name="main_home_empty_tip">這裏是空的，點擊加號按鈕添加配置</string>
+
+    <string name="main_request_storage_permission_title">獲取權限</string>
+    <string name="main_request_storage_permission_message">由於部分應用無法讀取到配置，所以需要獲取data文件夾權限，在目標應用目錄下寫入配置。開啟後請手動刷新配置，否則不會向儲存文件寫入配置。</string>
+    <string name="main_request_storage_permission_okText">去申請</string>
+
+    <string name="main_settings_name">設置</string>
+    <string name="main_settings_title_other">其他</string>
+    <string name="main_settings_title_about">關於</string>
+    <string name="main_settings_title_help">幫助</string>
+    <string name="main_settings_summary_help">常見問題</string>
+    <string name="main_settings_title_expand">增加讀取配置方式</string>
+    <string name="main_settings_title_storage">開啟儲存權限寫入配置</string>
+    <string name="main_settings_summary_storage">將配置寫入本地和讀取部分Log（大部分情況下需要開啟）</string>
+    <string name="main_settings_title_storage_root">開啟Root權限寫入配置</string>
+    <string name="main_settings_summary_storage_root">通過Root寫入配置和讀取部分Log（大部分情況下需要開啟）</string>
+    <string name="main_settings_title_experiment">實驗功能</string>
+    <string name="main_settings_summary_to_config">詳細說明見常見問題第2條</string>
+    <string name="main_settings_title_to_config">smali轉化為配置</string>
+    <string name="main_settings_title_backup_restore">備份恢復</string>
+    <string name="main_settings_summary_backup">備份配置到文件</string>
+    <string name="main_settings_title_backup">備份</string>
+    <string name="main_settings_summary_restore">從文件恢復到應用</string>
+    <string name="main_settings_title_restore">恢復</string>
+    <string name="main_settings_summary_update_record">記下心動一刻</string>
+    <string name="main_settings_title_update_record">更新記錄</string>
+    <string name="main_settings_title_terms_of_use">使用協議</string>
+    <string name="main_settings_ui_mode_summary_follow_system">跟隨系統</string>
+    <string name="main_settings_ui_mode_title">深色主題</string>
+    <string name="main_settings_clear_data_summary">謹慎操作</string>
+    <string name="main_settings_clear_data_title">清空配置</string>
+    <string name="main_settings_select_language_title">語言</string>
+    <string-array name="main_settings_clear_item_entries">
+        <item>清空Hook配置</item>
+        <item>清空擴展配置</item>
+        <item>清空所有記錄</item>
+    </string-array>
+    <string-array name="main_settings_ui_mode_item_entries">
+        <item>總是關閉</item>
+        <item>總是開啟</item>
+        <item>跟隨系統</item>
+    </string-array>
+
+    <string-array name="main_settings_language_item_entries">
+        <item>跟隨系統</item>
+        <item>中文（简体）</item>
+        <item>中文（繁體）</item>
+        <item>English</item>
+    </string-array>
+
+    <string name="main_share_config_cancel">取消</string>
+    <string name="main_share_config_select_all">全選</string>
+    <string name="main_share_config_confirm">確認</string>
+
+    <string name="main_bottom_download">下載</string>
+    <string name="main_bottom_app_icon">應用圖標</string>
+    <string name="main_bottom_package_name">包名</string>
+    <string name="main_bottom_version_info">當前：%s, 支持：%s</string>
+    <string name="main_bottom_config_description">配置介紹</string>
+    <string name="main_bottom_edit_config">編輯</string>
+
+    <string name="main_extension_delete_config_tip">已刪除此配置</string>
+    <string name="main_extension_undo_delete_config">撤銷</string>
+    <string name="main_extension_name">擴展</string>
+    <string name="main_extension_menu_create_model">創建模板</string>
+    <string name="main_extension_menu_show_model">查看模板</string>
+    <string name="main_extension_menu_about_model">關於模板</string>
+
+    <string name="main_record_name">記錄</string>
+    <string name="main_record_empty_tip">這裏是空的，可在擴展頁面添加配置、設置記錄項或者Hook配置頁選擇【打印參數值】、【打印返回值】</string>
+
+    <string-array name="main_home_item_select_item">
+        <item>分享</item>
+        <item>刪除</item>
+        <item>編輯</item>
+    </string-array>
+    <!--about-->
+    <string name="about_title_author">開發者</string>
+    <string name="about_title_tester">測試人員</string>
+    <string name="about_introduce_test_bug">測試bug</string>
+    <string name="about_title_open_sources">開源相關</string>
+    <string name="about_menu_add_group">加入Q群</string>
+    <!--others-->
+    <string name="search">搜索</string>
+    <string name="search_hint">輸入應用名或包名</string>
+    <string name="error_tip">出現錯誤</string>
+    <string name="record_detail_menu_copy_json_format">json文本</string>
+    <string name="record_detail_menu_help">幫助</string>
+    <string name="record_detail_menu_copy_text">普通文本</string>
+    <string name="record_detail_menu_copy">復製</string>
+    <string name="record_fab_scroll_to_bottom">滑到底部</string>
+    <string name="record_scroll_to_top">滑到頂部</string>
+    <string name="record_menu_delete">刪除</string>
+    <string name="record_menu_delete_all">刪除全部</string>
+    <string name="record_menu_delete_read">刪除已讀</string>
+    <string name="app_record">記錄</string>
+    <string name="app_about">關於</string>
+    <string name="app_extension">擴展</string>
+    <string name="app_select_app">選取應用</string>
+    <string name="app_config">配置</string>
+    <string name="main_settings_title_normal">常規功能</string>
+    <string name="app_list_tab_user_app">用戶應用</string>
+    <string name="app_list_tab_system_app">系統應用</string>
+    <string name="config_smali_to_config_error">不符合smali to config規範</string>
+    <string name="config_info_not_match_mode">所填內容與所選模式不匹配</string>
+    <string name="config_dialog_params_input_helper">例如：boolean,int,java.lang.String</string>
+    <string name="config_dialog_return_value_input_helper">例如：true,0,isVip</string>
+    <string name="app_list_sort_dialog_title">排序方式</string>
+    <string name="app_list_sort_dialog_confirm">確定</string>
+    <string name="app_list_sort_dialog_cancel">取消</string>
+    <string name="sort_app_name">應用名稱</string>
+    <string name="sort_app_package_name">應用包名</string>
+    <string name="sort_app_installed_time">安裝時間</string>
+    <string name="sort_app_target_api">target api</string>
+    <string name="sort_reverse_order">逆向排序</string>
+    <string name="config_description_input_helper">可留空</string>
+    <string name="home_fab__share_config">分享配置</string>
+    <string name="home_fab_import_config_from_internet">從網絡導入配置</string>
+    <string name="home_fab_import_config_from_clip">導入配置</string>
+    <string name="home_fab_add_config">添加配置</string>
+    <string name="config_mode_tip_return_value">返回值</string>
+    <string name="config_mode_tip_param_value">參數值</string>
+    <string name="config_mode_tip_field_value">變量值</string>
+    <string name="config_mode_tip_break">中斷</string>
+    <string name="config_mode_tip_record_param_value">打印參數</string>
+    <string name="config_mode_tip_record_return_value">打印返回</string>
+    <string name="config_mode_tip_record_param_return_value">打印參返</string>
+    <string name="settings_clear_hook_config">清空Hook配置</string>
+    <string name="setting_clear_extension_config">清空擴展配置</string>
+    <string name="settings_clear_all_record">清空所有記錄</string>
+    <string name="settings_clear_warning_dialog_title">警告</string>
+    <string name="settings_clear_warning_dialog_message">是否確定要刪除？</string>
+    <string name="settings_clear_warning_dialog_confirm">確認</string>
+    <string name="extension_item_status_open">已開啟</string>
+    <string name="extension_item_status_close">未開啟</string>
+    <string name="extension_item_title_basic">基本</string>
+    <string name="extension_item_title_application">應用</string>
+    <string name="extension_item_title_all_switch">總開關</string>
+    <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
+    <string name="extension_item_desc_base64">Base64加解密</string>
+    <string name="extension_item_title_digest_algorithm">摘要算法</string>
+    <string name="extension_item_desc_digest_algorithm">MD5、SHA等</string>
+    <string name="extension_item_title_hmac">信息摘要算法</string>
+    <string name="extension_item_desc_hmac">Hmac</string>
+    <string name="extension_item_title_encrypt_algorithm">加密算法</string>
+    <string name="extension_item_desc_encrypt_algorithm">AES、DES、RSA等</string>
+    <string name="extension_item_title_ui">界面</string>
+    <string name="extension_item_title_dialog">彈窗</string>
+    <string name="extension_item_desc_dialog">打印彈窗調用堆棧和信息</string>
+    <string name="extension_item_title_dialog_cancel">彈窗</string>
+    <string name="extension_item_desc_dialog_cancel">用於一般彈窗的強製可取消</string>
+    <string name="extension_item_title_toast">Toast</string>
+    <string name="extension_item_desc_toast">打印toast調用、信息</string>
+    <string name="extension_item_title_popup_window">PopupWindow</string>
+    <string name="extension_item_desc_popup_window">打印調用、顯示信息（也可作為彈窗）</string>
+    <string name="extension_item_title_popup_window_cancel">PopupWindow可取消</string>
+    <string name="extension_item_desc_popup_window_cancel">點擊彈窗外部/返回取消</string>
+    <string name="extension_item_title_click_event">點擊事件</string>
+    <string name="extension_item_desc_click_event">打印點擊調用、顯示內容</string>
+    <string name="extension_item_title_others">其他</string>
+    <string name="extension_item_title_intent">intent</string>
+    <string name="extension_item_desc_intent">打印常見啟動activity時傳遞的intent</string>
+    <string name="extension_item_title_hot_fix">熱修復</string>
+    <string name="extension_item_title_network">網絡</string>
+    <string name="extension_item_title_vpn">vpn</string>
+    <string name="extension_item_desc_vpn">去除一般的VPN檢測</string>
+    <string name="record_menu_show_method">顯示方式</string>
+    <string name="record_menu_type_show">按照類型劃分</string>
+    <string name="record_menu_app_show">按照應用劃分</string>
+    <string name="extension_item_title_json">JSON操作</string>
+    <string name="extension_item_desc_json">記錄JSONObject和JSONArray創建時內容、增加內容</string>
+    <string name="record_warn_dialog_title">警告</string>
+    <string name="record_warn_dialog_message_delete_read">你是否確定刪除所有已讀記錄？</string>
+    <string name="record_warn_dialog_message_delete_all">你是否確定刪除所有記錄？</string>
+    <string name="dialog_confirm">確認</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="record_warn_dialog_message_more_data">數據過多可能造成查詢較慢等問題，建議刪除部分或全部數據</string>
+    <string name="record_warn_dialog_ok_more_data">不再提示</string>
+    <string name="record_item_status_read">已讀</string>
+    <string name="record_item_status_unread">未讀</string>
+    <string-array name="config_hook_mode_item">
+        <item>Hook返回值</item>
+        <item>Hook參數值</item>
+        <item>中斷執行</item>
+        <item>Hook靜態變量</item>
+        <item>Hook變量</item>
+        <item>打印參數值</item>
+        <item>打印返回值</item>
+        <item>打印參返</item>
+    </string-array>
+    <string-array name="xposed_scope">
+        <item>me.duck.hooktest</item>
+    </string-array>
+    <string name="record_tip_log_out_of_memory">日誌文本太大，無法讀取，已刪除</string>
+
+
+</resources>

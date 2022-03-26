@@ -49,7 +49,7 @@ class RecordDetailActivity : BaseActivity() {
         supportActionBar?.title =
             AppUtils.getAppName(this@RecordDetailActivity, logBean.packageName)
         supportActionBar?.subtitle = logBean.packageName
-        val foreStr = if (LanguageUtils.isEnglish(this)) "Type: " else "类型："
+        val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
         if (logBean.type.equals("intent", ignoreCase = true)) {
             val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
             val intentBean = logBean2.other[0]

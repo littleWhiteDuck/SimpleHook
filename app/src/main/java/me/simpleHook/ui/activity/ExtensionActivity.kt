@@ -108,7 +108,7 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun initData() {
-        val dexPosition = if (LanguageUtils.isEnglish(this)) "dex on " else "dex放在"
+        val dexPosition = if (LanguageUtils.isNotChinese()) "dex on " else "dex放在"
         val dexPath = if (FlavorUtils.isNormal()) {
             dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
         } else {

@@ -3,8 +3,6 @@ package me.simpleHook.ui.fragment
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -34,16 +32,15 @@ import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.AssistActivity
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+import java.util.*
 import kotlin.math.min
 
 class ExtensionFragment : Fragment() {
@@ -374,7 +371,7 @@ class ExtensionFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         if (menu.findItem(R.id.app_bar_search) == null) {
             inflater.inflate(R.menu.menu_assist_fragment, menu)
-            if (LanguageUtils.isEnglish(requireContext())) {
+            if (LanguageUtils.isNotChinese() || sp.language == Locale.ENGLISH.language) {
                 menu.removeItem(R.id.create_model)
                 menu.removeItem(R.id.show_model)
                 menu.removeItem(R.id.about_model)

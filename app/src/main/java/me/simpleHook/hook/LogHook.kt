@@ -50,7 +50,7 @@ object LogHook {
     fun toStackTrace(
         context: Context, stackTrace: Array<StackTraceElement>
     ): List<String> {
-        val isEnglish = LanguageUtils.isEnglish(context)
+        val isNotChinese = LanguageUtils.isNotChinese()
         val items = mutableListOf<String>()
         var notBug = 0
         for (element in stackTrace) {
@@ -64,10 +64,10 @@ object LogHook {
                 )
             ) continue
             if (notBug == 0) {
-                items.add(if (isEnglish) "Call stack: " else "调用堆栈：")
+                items.add(if (isNotChinese) "Call stack: " else "调用堆栈：")
             }
             notBug++
-            items.add("${if (isEnglish) "Class : " else "类："}${element.className} -->${if (isEnglish) "Method : " else "方法："}${element.methodName}(line：${element.lineNumber})")
+            items.add("${if (isNotChinese) "Class : " else "类："}${element.className} -->${if (isNotChinese) "Method : " else "方法："}${element.methodName}(line：${element.lineNumber})")
         }
         return items
     }

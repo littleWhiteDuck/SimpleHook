@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--assist-->
     <string name="assist_start_float_window">开启悬浮窗</string>
     <string name="assist_float_print_log">打印输出</string>
@@ -92,6 +92,8 @@
     <string name="main_settings_ui_mode_title">深色主题</string>
     <string name="main_settings_clear_data_summary">谨慎操作</string>
     <string name="main_settings_clear_data_title">清空配置</string>
+    <string name="main_settings_select_language_summary" translatable="false">中文（简体）</string>
+    <string name="main_settings_select_language_title">语言</string>
     <string-array name="main_settings_clear_item_entries">
         <item>清空Hook配置</item>
         <item>清空扩展配置</item>
@@ -101,6 +103,13 @@
         <item>总是关闭</item>
         <item>总是开启</item>
         <item>跟随系统</item>
+    </string-array>
+
+    <string-array name="main_settings_language_item_entries">
+        <item>跟随系统</item>
+        <item>中文（简体）</item>
+        <item>中文（繁體）</item>
+        <item>English</item>
     </string-array>
 
     <string name="main_share_config_cancel">取消</string>
@@ -240,6 +249,7 @@
     <string name="record_warn_dialog_ok_more_data">不再提示</string>
     <string name="record_item_status_read">已读</string>
     <string name="record_item_status_unread">未读</string>
+    <string name="record_tip_log_out_of_memory">日志文本太大，无法读取，已删除</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>

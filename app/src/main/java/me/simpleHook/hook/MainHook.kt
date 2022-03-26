@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
@@ -32,11 +31,11 @@ import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
 import java.io.FileNotFoundException
-import java.util.*
 
 
 private const val selfCheckConfig =
@@ -50,7 +49,7 @@ class Hook {
         private val prefAssistConfig by lazy { getHookConfigPref("assistConfig") }*/
     private var mContext: Context? = null
     private lateinit var mClassLoader: ClassLoader
-    private var isEnglish = false
+    private var isNotChinese = false
     fun initHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
         val packageName = loadPackageParam!!.packageName
         val classLoader = loadPackageParam.classLoader
@@ -59,12 +58,7 @@ class Hook {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     mContext = param.args[0] as Context
                     mClassLoader = mContext?.classLoader ?: classLoader
-                    val curLocale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        mContext!!.resources.configuration.locales[0]
-                    } else {
-                        mContext!!.resources.configuration.locale
-                    }
-                    isEnglish = curLocale.language == Locale.ENGLISH.language
+                    isNotChinese = LanguageUtils.isNotChinese()
                     if (packageName == "me.simpleHook") {
                         startHook(selfCheckConfig, packageName)
                     } else {
@@ -254,7 +248,7 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
-                        val type = if (isEnglish) "Param value" else "参数值"
+                        val type = if (isNotChinese) "Param value" else "参数值"
                         val list = mutableListOf<String>()
                         list.add(getIntroText("Class name: $className"))
                         list.add(getIntroText("Method name: $methodName"))
@@ -274,7 +268,7 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val list = mutableListOf<String>()
-                        val type = if (isEnglish) "Return value" else "返回值"
+                        val type = if (isNotChinese) "Return value" else "返回值"
                         list.add(getIntroText("Class name: $className"))
                         list.add(getIntroText("Method name: $methodName"))
                         val result = getObjectString(param.result ?: "null")
@@ -291,7 +285,7 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
-                        val type = if (isEnglish) "Param value and return Value" else "参返"
+                        val type = if (isNotChinese) "Param&Return Value" else "参返"
                         val list = mutableListOf<String>()
                         list.add(getIntroText("Class name: $className"))
                         list.add(getIntroText("Method name: $methodName"))
@@ -391,7 +385,7 @@ class Hook {
         configBean.apply {
             if (!all) return
             val context: Context = mContext!!
-            init(context)
+            init()
             hookDialog(context, dialog, diaCancel, packageName)
             if (toast) hookToast(context, packageName)
             hookPopupWindow(context, popup, popCancel, packageName)
@@ -409,7 +403,7 @@ class Hook {
 
 
     private fun getIntroText(intro: String): String {
-        if (isEnglish) return intro
+        if (isNotChinese) return intro
         return when {
             intro.startsWith("Class name: ") -> intro.replaceFirst("Class name: ", "类名：")
             intro.startsWith("Method name: ") -> intro.replaceFirst("Method name: ", "方法名：")

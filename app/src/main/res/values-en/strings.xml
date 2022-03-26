@@ -224,4 +224,13 @@
     <string name="record_warn_dialog_ok_more_data">Do not remind again</string>
     <string name="record_item_status_read">Read</string>
     <string name="record_item_status_unread">Unread</string>
+
+    <string-array name="main_settings_language_item_entries">
+        <item>Follow system</item>
+        <item>中文（简体）</item>
+        <item>中文（繁體）</item>
+        <item>ENGLISH</item>
+    </string-array>
+    <string name="main_settings_select_language_title">Language</string>
+    <string name="record_tip_log_out_of_memory">Log text too large to read, deleted</string>
 </resources>

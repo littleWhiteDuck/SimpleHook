@@ -15,7 +15,7 @@ object RecordType {
         type.startsWith("JSONArray ") -> "JSONArray"
         type == "Return value" -> "Return"
         type == "Param value" -> "Param"
-        type == "Param value and return Value" -> "PR"
+        type == "Param&Return Value" -> "PR"
         else -> type
     }
 

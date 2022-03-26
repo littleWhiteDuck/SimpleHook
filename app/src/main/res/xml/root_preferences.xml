@@ -34,6 +34,11 @@
             app:key="clearConfigData"
             app:summary="@string/main_settings_clear_data_summary"
             app:title="@string/main_settings_clear_data_title" />
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_language_item_entries"
+            app:key="selectLanguage"
+            app:summary="@string/main_settings_select_language_summary"
+            app:title="@string/main_settings_select_language_title" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference

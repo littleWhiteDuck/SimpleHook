@@ -11,6 +11,7 @@ import android.provider.DocumentsContract
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
+import me.simpleHook.R
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import java.io.*
@@ -392,11 +393,18 @@ object FileUtils {
 
                             }
                         }
-                    }
+                }
                 deleteFile(filePath)
             }
         } catch (e: Exception) {
 
+        } catch (e: java.lang.OutOfMemoryError) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                DocumentsContract.deleteDocument(context.contentResolver, fileUri)
+            } else {
+                deleteFile(filePath)
+            }
+            context.getString(R.string.record_tip_log_out_of_memory).toast(context)
         }
         return list
     }

@@ -39,13 +39,15 @@ private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 object ExtensionHook {
     private var isEnglish = false
 
-    fun init(context: Context) {
-        isEnglish = LanguageUtils.isEnglish(context)
+    fun init() {
+        isEnglish = LanguageUtils.isNotChinese()
     }
 
     fun hookVpnCheck(context: Context) {
-        XposedHelpers.findAndHookMethod(
-            "java.net.NetworkInterface", context.classLoader, "getName", object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
+            context.classLoader,
+            "getName",
+            object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     super.beforeHookedMethod(param)
                     param.result = "are you ok"
@@ -241,7 +243,7 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            "Encrypt/Decrypt: encrypt",
+                            getIntroText("Encrypt/Decrypt: encrypt"),
                             getIntroText("Raw Data: ${String(data)}"),
                             getIntroText("Encrypt Result: $result")
                         ) + items, packageName
@@ -265,7 +267,7 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            "Encrypt/Decrypt: decrypt",
+                            getIntroText("Encrypt/Decrypt: decrypt"),
                             getIntroText("Raw Data: ${String(data)}"),
                             getIntroText("Decrypt Result: $result")
                         ) + items, packageName
@@ -298,7 +300,7 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            "Encrypt/Decrypt: encrypt",
+                            getIntroText("Encrypt/Decrypt: encrypt"),
                             getIntroText("Raw Data: ${String(rawData)}"),
                             getIntroText("Encrypt Result: $result")
                         ) + items, packageName
@@ -325,7 +327,7 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            "Encrypt/Decrypt: decrypt",
+                            getIntroText("Encrypt/Decrypt: decrypt"),
                             getIntroText("Raw Data: ${String(rawData)}"),
                             getIntroText("Decrypt Result: $result")
                         ) + items, packageName
@@ -759,14 +761,11 @@ object ExtensionHook {
             intro.startsWith("Decrypt Result: ") -> intro.replaceFirst("Decrypt Result: ", "解密结果：")
             intro.startsWith("Key: ") -> intro.replaceFirst("Key: ", "密钥：")
             intro.startsWith("key Algorithm: ") -> intro.replaceFirst("key Algorithm: ", "密钥算法：")
-            intro.startsWith("key Algorithm: ") -> intro.replaceFirst("key Algorithm: ", "密钥算法：")
-            intro.startsWith("key Algorithm: ") -> intro.replaceFirst("key Algorithm: ", "密钥算法：")
-            intro.startsWith("key Algorithm: ") -> intro.replaceFirst("key Algorithm: ", "密钥算法：")
             intro == "encrypt" -> "加密"
             intro == "decrypt" -> "解密"
             intro == "Encrypt/Decrypt: decrypt" -> "加密/解密：解密"
             intro == "Encrypt/Decrypt: encrypt" -> "加密/解密：加密"
-            else -> "error"
+            else -> intro
         }
     }
 }

@@ -40,7 +40,7 @@ interface PrintLogDao {
     @Query("SELECT * FROM PrintLog WHERE packageName = :packageName and log like :pattern ORDER BY time DESC")
     suspend fun filterRecordByPack(packageName: String, pattern: String): List<PrintLog>
 
-    @Query("SELECT * FROM PrintLog WHERE type = :type and log like :pattern ORDER BY time DESC")
+    @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY time DESC")
     suspend fun filterRecordByType(type: String, pattern: String): List<PrintLog>
 
     @Update
