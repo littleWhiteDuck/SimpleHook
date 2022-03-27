@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.simpleHook.bean.RecordBean
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
@@ -21,6 +22,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private var _filterRecord2 = MutableLiveData<List<PrintLog>>()
     val filterRecord2: LiveData<List<PrintLog>> get() = _filterRecord2
+    private var _filterRecordPT = MutableLiveData<List<RecordBean>>()
+    val filterRecordPT: LiveData<List<RecordBean>> get() = _filterRecordPT
 
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
@@ -50,6 +53,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun filterRecord(pattern: String) = viewModelScope.launch {
         _filterRecord.value = appRepository.filterRecord("%$pattern%")
+    }
+
+    fun getAllRecord() = viewModelScope.launch {
+        _filterRecordPT.value = appRepository.getAllRecord()
     }
 
     fun filterRecordByPack(packageName: String, pattern: String) = viewModelScope.launch {

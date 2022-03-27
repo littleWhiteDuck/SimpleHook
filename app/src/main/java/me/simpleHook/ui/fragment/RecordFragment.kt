@@ -45,7 +45,6 @@ class RecordFragment : Fragment() {
         }
     }
     private val sp by lazy { SPUtils(requireContext()) }
-    private var currentPattern = ""
     private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
     private val configs by lazy { appViewModel.getConfigs() }
 
@@ -65,14 +64,15 @@ class RecordFragment : Fragment() {
     private fun initView() {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.progressBar.visibility = View.GONE
-        appViewModel.filterRecord.observe(requireActivity()) {
+        appViewModel.filterRecordPT.observe(requireActivity()) {
             if (it.isEmpty()) {
                 binding.emptyTip.visibility = View.VISIBLE
             } else {
                 binding.emptyTip.visibility = View.GONE
             }
             if (it.size >= 66666 && !sp.showMoreDataTip) {
-                warningDialog(requireContext(),
+                warningDialog(
+                    requireContext(),
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_more_data),
                     okText = getString(R.string.record_warn_dialog_ok_more_data),
@@ -201,15 +201,14 @@ class RecordFragment : Fragment() {
         if (!binding.swipeRefreshLayout.isRefreshing && showRefresh) binding.swipeRefreshLayout.isRefreshing =
             true
         Handler(Looper.getMainLooper()).postDelayed({
-            appViewModel.filterRecord(currentPattern)
+            appViewModel.getAllRecord()
         }, time)
         readFileLogInsert()
         readFileLogInsert()
     }
 
     private fun readFileLogInsert() {
-        if (!isAdded) return
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             if (FlavorUtils.isNormal()) {
                 assistConfigs.forEach {
                     val list = FileUtils.readLogFile(requireContext(), it.packageName)

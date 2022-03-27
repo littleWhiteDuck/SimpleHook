@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.bean.AssistConfigBean
@@ -304,7 +305,16 @@ class Hook {
                 }
             }
         }
-        XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+        try {
+            XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+        } catch (e: NoSuchMethodError) {
+            "请确保填写的方法名/参数等数据正确".log()
+            XposedBridge.log(e.stackTraceToString())
+        } catch (e: XposedHelpers.ClassNotFoundError) {
+            "请确保填写的类名正确".log()
+            XposedBridge.log(e.stackTraceToString())
+        }
+
     }
 
     private fun getObjectString(value: Any): String {

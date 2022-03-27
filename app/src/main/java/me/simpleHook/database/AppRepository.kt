@@ -37,6 +37,8 @@ class AppRepository(context: Context) {
 
     suspend fun filterRecord(pattern: String) = printLogDao.filterRecord(pattern)
 
+    suspend fun getAllRecord() = printLogDao.getAllRecord()
+
     suspend fun filterRecordByPack(packageName: String, pattern: String) =
         printLogDao.filterRecordByPack(packageName, pattern)
 
