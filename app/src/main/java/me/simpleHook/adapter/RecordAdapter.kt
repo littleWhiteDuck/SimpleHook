@@ -2,20 +2,20 @@ package me.simpleHook.adapter
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.util.IconHelper
 import me.simpleHook.ui.view.record.RecordItemView
+import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
 import me.simpleHook.util.dp
 
 class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> Unit) :
-    ListAdapter<PrintLog, RecordAdapter.ViewHolder>(RecordDiff) {
+    PagingDataAdapter<PrintLog, RecordAdapter.ViewHolder>(RecordDiff) {
     inner class ViewHolder(recordView: RecordItemView) : RecyclerView.ViewHolder(recordView) {
         val container = recordView.container
         val title = container.title
@@ -37,7 +37,7 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val printLog = getItem(position)
+        val printLog = getItem(position) ?: return
         val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
         holder.itemView.setTag(R.id.item_record_position, printLog)
         val context = holder.itemView.context

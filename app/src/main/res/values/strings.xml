@@ -250,6 +250,10 @@
     <string name="record_item_status_read">已读</string>
     <string name="record_item_status_unread">未读</string>
     <string name="record_tip_log_out_of_memory">日志文本太大，无法读取，已删除</string>
+    <string name="main_module_not_activated_tip">模块未激活</string>
+    <string name="main_agreement_tip">请认真阅读</string>
+    <string name="main_agreement_confirm">同意使用</string>
+    <string name="main_agreement_cancel">拒绝使用</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>

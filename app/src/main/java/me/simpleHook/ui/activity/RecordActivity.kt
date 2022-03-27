@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
@@ -107,7 +108,7 @@ class RecordActivity : BaseActivity() {
                     super.onScrolled(recyclerView, dx, dy)
                     if (distance > 20 && visible) {
                         visible = false
-                        showDownFab()
+                        //*showDownFab()
                         distance = 0
                     } else if (distance < -20 && !visible) {
                         visible = true
@@ -137,21 +138,18 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun initData() {
-        appViewModel.filterRecord2.observe(this) {
-            recordAdapter.submitList(it)
-            binding.progressBar.visibility = View.GONE
-            binding.swipeRefreshLayout.isRefreshing = false
+        lifecycleScope.launch {
+            appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                recordAdapter.submitData(it)
+                binding.progressBar.visibility = View.GONE
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
         }
-        refreshData(0)
     }
 
     private fun refreshData(delayTime: Long = 500) {
         Handler(Looper.getMainLooper()).postDelayed({
-            if (isType) {
-                appViewModel.filterRecordByType(typeOrPackageName, currentPattern)
-            } else {
-                appViewModel.filterRecordByPack(typeOrPackageName, currentPattern)
-            }
+            recordAdapter.refresh()
         }, delayTime)
         readFileLogInsert()
         readFileLogInsert()
@@ -186,7 +184,7 @@ class RecordActivity : BaseActivity() {
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     currentPattern = newText?.trim() ?: ""
-                    refreshData(0)
+                    appViewModel.queryInit.value = currentPattern
                     return true
                 }
 

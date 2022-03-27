@@ -9,7 +9,7 @@ class AppRepository(context: Context) {
     private val appConfigDao = AppDatabase.getDatabase(context).getAppConfigDao()
     private val printLogDao = AppDatabase.getDatabase(context).getLogDao()
     private val assistConfigDao = AppDatabase.getDatabase(context).getAssistConfigDao()
-
+    fun getPrintLogDao() = printLogDao
     suspend fun insertConfigs(vararg appConfig: AppConfig) {
         appConfigDao.insertConfigs(*appConfig)
     }

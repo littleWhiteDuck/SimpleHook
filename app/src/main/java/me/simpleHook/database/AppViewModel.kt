@@ -5,7 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.database.entity.AppConfig
@@ -49,6 +53,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }
 
     // Record
+    val queryInit = MutableStateFlow("")
+
+    private val pagingConfig = PagingConfig(
+        pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200
+    )
+
+    fun getRecord(typeOrPack: String, isType: Boolean): Flow<PagingData<PrintLog>> {
+        return Pager(
+            config = pagingConfig
+        ) {
+            if (isType) {
+                appRepository.getPrintLogDao().getRecordByType("%$typeOrPack%")
+            } else {
+                appRepository.getPrintLogDao().getRecordByPack(typeOrPack)
+            }
+        }.flow.cachedIn(viewModelScope).combine(queryInit, transform = { printLog, query ->
+                printLog.filter { it.log.contains(query, true) }
+            })
+    }
+
     fun getAllLogs() = appRepository.getAllLogs()
 
     fun filterRecord(pattern: String) = viewModelScope.launch {

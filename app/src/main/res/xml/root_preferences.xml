@@ -20,7 +20,7 @@
             app:key="smali2Config"
             app:summary="@string/main_settings_summary_to_config"
             app:title="@string/main_settings_title_to_config" />
-        
+
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_normal">
@@ -29,16 +29,18 @@
             app:key="uiMode"
             app:summary="@string/main_settings_ui_mode_summary_follow_system"
             app:title="@string/main_settings_ui_mode_title" />
-        <me.simpleHook.ui.custom.MenuPreference
-            app:entries="@array/main_settings_clear_item_entries"
-            app:key="clearConfigData"
-            app:summary="@string/main_settings_clear_data_summary"
-            app:title="@string/main_settings_clear_data_title" />
+
         <me.simpleHook.ui.custom.MenuPreference
             app:entries="@array/main_settings_language_item_entries"
             app:key="selectLanguage"
             app:summary="@string/main_settings_select_language_summary"
             app:title="@string/main_settings_select_language_title" />
+
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_clear_item_entries"
+            app:key="clearConfigData"
+            app:summary="@string/main_settings_clear_data_summary"
+            app:title="@string/main_settings_clear_data_title" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference

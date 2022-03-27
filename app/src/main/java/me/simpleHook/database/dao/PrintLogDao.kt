@@ -1,6 +1,7 @@
 package me.simpleHook.database.dao
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -46,6 +47,12 @@ interface PrintLogDao {
 
     @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY time DESC")
     suspend fun filterRecordByType(type: String, pattern: String): List<PrintLog>
+
+    @Query("SELECT * FROM PrintLog WHERE packageName = :packageName ORDER BY time DESC")
+    fun getRecordByPack(packageName: String): PagingSource<Int, PrintLog>
+
+    @Query("SELECT * FROM PrintLog WHERE type like :type ORDER BY time DESC")
+    fun getRecordByType(type: String): PagingSource<Int, PrintLog>
 
     @Update
     suspend fun updateRecord(printLog: PrintLog)

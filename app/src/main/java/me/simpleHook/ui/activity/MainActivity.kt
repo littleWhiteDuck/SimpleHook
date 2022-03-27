@@ -50,7 +50,7 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
-        if (!isModuleLive()) "模块未激活".toast(this)
+        if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
         if (sp.openStorage) {
             if (FlavorUtils.isNormal()) {
                 if (!FileUtils.isGrant(this)) {
@@ -88,17 +88,17 @@ class MainActivity : BaseActivity() {
             this,
             title = "使用协议",
             contentView = contentView,
-            okText = "同意使用",
+            okText = getString(R.string.main_agreement_confirm),
             okClick = { dialogInterface ->
                 val canCancel = resultEdit.text.toString().trim() == (random1 * random2).toString()
                 if (canCancel) {
                     sp.termsOfUse = true
                 } else {
-                    "请认真阅读".toast(this)
+                    getString(R.string.main_agreement_tip).toast(this)
                 }
                 dialogDismiss(dialogInterface, canCancel)
             },
-            cancelText = "拒绝使用",
+            cancelText = getString(R.string.main_agreement_cancel),
             cancelClick = {
                 Process.killProcess(Process.myPid())
             },

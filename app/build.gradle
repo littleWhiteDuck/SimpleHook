@@ -121,9 +121,9 @@ dependencies {
     //shell
     implementation 'com.github.d4rken:rxshell:3.0.0'
 
-    /*//paging3
+    //paging3
     def paging_version = "3.1.0"
     implementation("androidx.paging:paging-runtime:$paging_version")
 
-    implementation("androidx.room:room-paging:2.5.0-alpha01")*/
+    implementation("androidx.room:room-paging:2.5.0-alpha01")
 }

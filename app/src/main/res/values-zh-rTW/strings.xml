@@ -248,6 +248,10 @@
         <item>me.duck.hooktest</item>
     </string-array>
     <string name="record_tip_log_out_of_memory">日誌文本太大，無法讀取，已刪除</string>
+    <string name="main_module_not_activated_tip">模塊未激活</string>
+    <string name="main_agreement_tip">請認真閱讀</string>
+    <string name="main_agreement_confirm">同意使用</string>
+    <string name="main_agreement_cancel">拒絕使用</string>
 
 
 </resources>

@@ -1,11 +1,15 @@
 v1.1.6
-    1.修复：bug
-    2.部分配置错误不再影响其他配置HOOK（ClassNotFoundError、ClassNotFoundError）
+    1.修复一些bug
+    2.部分配置错误不再影响其他配置正常HOOK（ClassNotFoundError、NoSuchMethodError）
     3.支持设置中文（繁体）、English
+    4.优化分类记录加载速度，修复数据相对过多导致内存溢出的问题
+    5.使用paging3加载【记录】
 
-    1.Fix: some issues
-    2.Some configuration errors no longer affect other configuration hooks（ClassNotFoundError、ClassNotFoundError）
+    1.Fix some issues
+    2.Some configuration errors no longer affect other configuration hooks（ClassNotFoundError、NoSuchMethodError）
     3.Support setting 中文（繁体）、English
+    4.Improve the loading speed of classified records, and fix the problem of memory overflow
+    5.Load [record] by paging3
 v1.1.5
     1.增加：英语语言显示
     2.增加：记录JSON操作

@@ -233,4 +233,8 @@
     </string-array>
     <string name="main_settings_select_language_title">Language</string>
     <string name="record_tip_log_out_of_memory">Log text too large to read, deleted</string>
+    <string name="main_module_not_activated_tip">Module not activated</string>
+    <string name="main_agreement_tip">Calculate the bottom multiplication</string>
+    <string name="main_agreement_confirm">Agree</string>
+    <string name="main_agreement_cancel">Deny</string>
 </resources>
