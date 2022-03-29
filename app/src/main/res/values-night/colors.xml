@@ -2,4 +2,6 @@
 <resources>
     <color name="popup_window_background">#0c0c0c</color>
     <color name="paint_color">#FFFFFFFF</color>
+    <color name="config_tag_background">@color/white</color>
+    <color name="config_tag_text_color">@color/black</color>
 </resources>

@@ -2,6 +2,7 @@ package me.simpleHook.adapter
 
 
 import android.annotation.SuppressLint
+import android.text.SpannableString
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,10 +11,13 @@ import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.ui.view.config.ConfigItemView
+import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.marquee
 
 class ConfigAdapter(
-    private val onClick: (position: Int) -> Unit, private val onLongClick: (position: Int) -> Unit
+    private val onClick: (position: Int) -> Unit,
+    private val onLongClick: (position: Int) -> Unit,
+    private val onCheckedChange: (position: Int, isChecked: Boolean) -> Unit
 ) : ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
 
 
@@ -22,6 +26,7 @@ class ConfigAdapter(
         val tvOtherName = itemView.otherName
         val tvNumber = itemView.num
         val tip = itemView.tip
+        val enable = itemView.enable
     }
 
     @SuppressLint("ResourceType")
@@ -42,6 +47,10 @@ class ConfigAdapter(
                     true
                 }
             }
+            enable.setOnCheckedChangeListener { _, isChecked ->
+                val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
+                onCheckedChange(position, isChecked)
+            }
         }
         return viewHolder
     }
@@ -55,7 +64,8 @@ class ConfigAdapter(
             tvClassName.text = methodConfig.className
             tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
             tvNumber.text = (position + 1).toString()
-            tip.tip.text = when (methodConfig.mode) {
+            enable.isChecked = methodConfig.enable
+            val tipText = when (methodConfig.mode) {
                 Constant.HOOK_RETURN -> context.getString(R.string.config_mode_tip_return_value)
                 Constant.HOOK_PARAM -> context.getString(R.string.config_mode_tip_param_value)
                 Constant.HOOK_STATIC_FIELD, Constant.HOOK_FIELD -> context.getString(R.string.config_mode_tip_field_value)
@@ -65,6 +75,17 @@ class ConfigAdapter(
                 Constant.HOOK_RECORD_PARAMS_RETURN -> context.getString(R.string.config_mode_tip_record_param_return_value)
                 else -> "未知"
             }
+            val span = SpannableString("$tipText ").also {
+                val bgColor = context.resources.getColor(R.color.config_tag_background)
+                val textColor = context.resources.getColor(R.color.config_tag_text_color)
+                it.setSpan(
+                    RoundBackgroundColorSpan(bgColor, textColor),
+                    0,
+                    tipText.length,
+                    SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                )
+            }
+            tip.text = span
         }
     }
 

@@ -3,10 +3,14 @@ package me.simpleHook.ui.view.config
 import android.content.Context
 import android.util.TypedValue
 import android.view.Gravity
+import android.widget.CheckBox
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
 import com.google.android.material.textview.MaterialTextView
+import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.util.dp
 
@@ -14,13 +18,13 @@ import me.simpleHook.util.dp
 class ConfigItemView(context: Context) : CustomViewGroup(context) {
 
 
-    val num = MaterialTextView(context).apply {
+    val num = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_sans_serif)).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         gravity = Gravity.CENTER
         setPadding(5.dp, 5.dp, 5.dp, 5.dp)
         addView(this)
     }
-    val className = MaterialTextView(context).apply {
+    val className = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_item)).apply {
         layoutParams =
             MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
                 it.marginStart = 5.dp
@@ -35,14 +39,21 @@ class ConfigItemView(context: Context) : CustomViewGroup(context) {
             }
         addView(this)
     }
-    val tip = CardText(context).apply {
+    val tip = AppCompatTextView(context).apply {
+        layoutParams =
+            MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
+                it.setMargins(0, 5.dp, 0, 0)
+            }
+        addView(this)
+    }
+
+    val enable = CheckBox(context).apply {
         layoutParams =
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                 it.marginStart = 3.dp
-                it.marginEnd = 2.dp
+                it.marginEnd = 3.dp
             }
-        radius = 10f.dp
-        alpha = 0.6f
+        addView(this)
     }
 
 
@@ -55,15 +66,15 @@ class ConfigItemView(context: Context) : CustomViewGroup(context) {
         val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
         background = typedArray.getDrawable(0)
         setPadding(5.dp, 5.dp, 5.dp, 5.dp)
-        addView(tip)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        enable.autoMeasure()
         num.measure(num.defaultWidthMeasureSpec(this), num.defaultHeightMeasureSpec(this))
         tip.autoMeasure()
         val leftWidth =
-            measuredWidth - paddingStart - paddingEnd - num.measuredWidthWithMarginsPaddings - className.marginStart - tip.measuredWidthWithMargins
+            measuredWidth - paddingStart - paddingEnd - num.measuredWidthWithMarginsPaddings - className.marginStart - enable.measuredWidthWithMargins
         className.measure(
             leftWidth.toExactlyMeasureSpec(), className.defaultHeightMeasureSpec(this)
         )
@@ -72,14 +83,15 @@ class ConfigItemView(context: Context) : CustomViewGroup(context) {
         )
         setMeasuredDimension(
             measuredWidth,
-            className.measuredHeight + otherName.measuredHeightWithMargins + paddingTop + paddingBottom
+            tip.measuredHeightWithMargins + className.measuredHeight + otherName.measuredHeightWithMargins + paddingTop + paddingBottom
         )
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-        tip.autoLayout(paddingEnd + tip.marginEnd, tip.toVerticalCenter(this), true)
+        enable.autoLayout(paddingEnd + tip.marginEnd, tip.toVerticalCenter(this), true)
         num.autoLayout(paddingStart + num.paddingStart, num.toVerticalCenter(this))
         className.autoLayout(num.right + num.paddingEnd + className.marginStart, paddingTop)
         otherName.autoLayout(className.left, className.bottom + otherName.marginTop)
+        tip.autoLayout(className.left, otherName.bottom + tip.marginTop)
     }
 }

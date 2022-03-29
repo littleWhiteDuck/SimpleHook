@@ -171,6 +171,7 @@ class Hook {
             val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
             val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
             configs.forEach {
+                if (!it.enable) return@forEach
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(

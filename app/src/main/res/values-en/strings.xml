@@ -147,12 +147,12 @@
     <string name="home_fab_import_config_from_clip">Import config</string>
     <string name="home_fab_add_config">Add config</string>
     <string name="config_mode_tip_return_value">Return</string>
-    <string name="config_mode_tip_param_value">Param</string>
+    <string name="config_mode_tip_param_value">Parameter</string>
     <string name="config_mode_tip_field_value">Field</string>
     <string name="config_mode_tip_break">Break</string>
-    <string name="config_mode_tip_record_param_value">RP</string>
-    <string name="config_mode_tip_record_return_value">RR</string>
-    <string name="config_mode_tip_record_param_return_value">RPR</string>
+    <string name="config_mode_tip_record_param_value">Record param</string>
+    <string name="config_mode_tip_record_return_value">Record return</string>
+    <string name="config_mode_tip_record_param_return_value">Record param and return</string>
 
     <string-array name="config_hook_mode_item">
         <item>Hook return value</item>

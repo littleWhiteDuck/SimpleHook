@@ -15,6 +15,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -76,12 +77,15 @@ class ConfigActivity : BaseActivity() {
     private var modifyConfig = false
     private var modifyConfigPosition = 0
     private var configId = 0
+    private var visibleFab = true
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
     private val sp by lazy { SPUtils(this) }
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter by lazy {
-        ConfigAdapter({ position -> onClick(position) }, { position -> onLongClick(position) })
+        ConfigAdapter({ position -> onClick(position) },
+            { position -> onLongClick(position) },
+            { position, isChecked -> onCheckedChange(position, isChecked) })
     }
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -150,6 +154,16 @@ class ConfigActivity : BaseActivity() {
                 )
             )
         }
+        binding.nsv.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            val distance = scrollY - oldScrollY
+            if (distance > 20 && visibleFab) {
+                visibleFab = false
+                binding.addMethodConfig.hide()
+            } else if (distance < -20 && !visibleFab) {
+                visibleFab = true
+                binding.addMethodConfig.show()
+            }
+        })
     }
 
 
@@ -174,6 +188,10 @@ class ConfigActivity : BaseActivity() {
         modifyConfigPosition = position
         val methodConfig = configList[position]
         showDialog(methodConfig)
+    }
+
+    private fun onCheckedChange(position: Int, checked: Boolean) {
+        configList[position] = configList[position].copy(enable = checked)
     }
 
     private fun showDialog(configBean: ConfigBean = ConfigBean(0, "", "", "", "", "", "")) {
@@ -212,8 +230,7 @@ class ConfigActivity : BaseActivity() {
             R.string.config_dialog_add_a_new
         )
         val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
-        customDialog(
-            this,
+        customDialog(this,
             okText = okText,
             okClick = { dialog ->
                 dialogDismiss(
@@ -316,7 +333,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun showHelpDialog() {
         val intent = Intent(Intent.ACTION_VIEW).also {
-            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHookShare")
+            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHook")
         }
         startActivity(intent)
     }
@@ -334,6 +351,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun deleteConfig(configBean: ConfigBean) {
         addRemoveItem(configBean, false)
+        if (!visibleFab) binding.addMethodConfig.show()
     }
 
     @SuppressLint("NotifyDataSetChanged")

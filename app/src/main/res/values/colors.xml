@@ -13,4 +13,6 @@
     <color name="colorPrimaryVariant">#4F9BFA</color>
     <color name="popup_window_background">#eeeeee</color>
     <color name="paint_color">#FF000000</color>
+    <color name="config_tag_background">@color/black</color>
+    <color name="config_tag_text_color">@color/white</color>
 </resources>

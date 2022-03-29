@@ -75,12 +75,12 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         initView()
-        initViewModel()
+        initData()
         return binding.root
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun initViewModel() {
+    private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
             if (it.isEmpty()) {
                 binding.emptyTip.visibility = View.VISIBLE

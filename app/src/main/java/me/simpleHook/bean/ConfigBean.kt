@@ -14,11 +14,12 @@ import androidx.annotation.Keep
  */
 @Keep
 data class ConfigBean(
-    val mode:Int,
-    val className:String,
-    val methodName:String = "",
-    val params:String = "",
-    val fieldName:String = "",
+    val mode: Int = 0,
+    val className: String = "",
+    val methodName: String = "",
+    val params: String = "",
+    val fieldName: String = "",
     val fieldType: String = "",
-    val resultValues:String = ""
+    val resultValues: String = "",
+    var enable: Boolean = true
 )
