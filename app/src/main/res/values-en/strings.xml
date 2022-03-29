@@ -237,4 +237,11 @@
     <string name="main_agreement_tip">Calculate the bottom multiplication</string>
     <string name="main_agreement_confirm">Agree</string>
     <string name="main_agreement_cancel">Deny</string>
+    <string name="main_settings_title_JS_config">Export as JSHook config</string>
+    <string name="main_settings_summary_js_config">For testing only, not fully supported</string>
+    <string name="config_dialog_title_export_js_config">Export as JSHook-Rhino config</string>
+    <string name="config_dialog_title_export_config">Export configuration</string>
+    <string name="config_dialog_title_import_config">Import configuration</string>
+    <string name="config_dialog_button_invert_selection">Invert selection</string>
+    <string name="config_dialog_button_select_all">Select all</string>
 </resources>

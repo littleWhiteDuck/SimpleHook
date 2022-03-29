@@ -49,9 +49,7 @@ class FloatFragment : Fragment() {
     private val configs by lazy { viewModel.getConfigs() }
     private val refresh = object : Runnable {
         override fun run() {
-            if (isAdded) {
-                readFileLogInsert()
-            }
+            readFileLogInsert()
             updateData()
             handler.postDelayed(this, 500)
         }
@@ -72,7 +70,7 @@ class FloatFragment : Fragment() {
         }
 
     private fun readFileLogInsert() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             if (FlavorUtils.isNormal()) {
                 assistConfigs.forEach {
                     val list = FileUtils.readLogFile(requireContext(), it.packageName)
@@ -91,7 +89,6 @@ class FloatFragment : Fragment() {
 
     @SuppressLint("Range", "NotifyDataSetChanged")
     private fun updateData() {
-        if (!isAdded) return
         requireContext().contentResolver.query(
             uri, null, "time > ?", arrayOf(currentTime), null
         )?.apply {

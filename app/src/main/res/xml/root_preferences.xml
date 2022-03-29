@@ -20,7 +20,10 @@
             app:key="smali2Config"
             app:summary="@string/main_settings_summary_to_config"
             app:title="@string/main_settings_title_to_config" />
-
+        <Preference
+            app:key="toJSConfig"
+            app:summary="@string/main_settings_summary_js_config"
+            app:title="@string/main_settings_title_JS_config" />
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_normal">

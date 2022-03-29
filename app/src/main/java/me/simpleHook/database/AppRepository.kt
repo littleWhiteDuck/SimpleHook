@@ -49,6 +49,10 @@ class AppRepository(context: Context) {
         printLogDao.deleteAllLogs()
     }
 
+    suspend fun deleteRecordById(id: Int) {
+        printLogDao.deleteRecordById(id)
+    }
+
     suspend fun deleteRecordByRead(read: Int) {
         printLogDao.deleteReadRecord(read)
     }

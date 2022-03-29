@@ -10,6 +10,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
@@ -135,10 +136,38 @@ class RecordFragment : Fragment() {
                 }
             })
         }
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val recordSummary =
+                    recorderSummaryAdapter.currentList[viewHolder.absoluteAdapterPosition]
+                deleteRecord(recordSummary)
+            }
+
+        }).attachToRecyclerView(binding.recyclerView)
         FastScrollerUtil.bind(binding.recyclerView)
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
         }
+    }
+
+    private fun deleteRecord(recordSummary: RecordSummary) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            if (recordSummary.type.isNotEmpty()) {
+                appViewModel.deleteRecordByType(recordSummary.type)
+            } else {
+                appViewModel.deleteRecordByPack(recordSummary.packageName)
+            }
+        }
+        refreshData(200, true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

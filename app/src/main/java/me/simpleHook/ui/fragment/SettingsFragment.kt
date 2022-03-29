@@ -214,21 +214,38 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                     arrayList[3] -> {
                         LanguageUtils.switchLanguage(
-                            Locale.ENGLISH.toString(),
-                            requireActivity(),
-                            MainActivity::class.java
+                            Locale.ENGLISH.toString(), requireActivity(), MainActivity::class.java
                         )
                     }
                     else -> {
                         LanguageUtils.switchLanguage(
-                            "system",
-                            requireActivity(),
-                            MainActivity::class.java
+                            "system", requireActivity(), MainActivity::class.java
                         )
                     }
                 }
                 true
             }
+        }
+
+        findPreference<Preference>("toJSConfig")?.apply {
+            setOnPreferenceClickListener {
+                toJSConfig()
+                true
+            }
+        }
+    }
+
+    private fun toJSConfig() {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val configItems = mutableListOf<ConfigItem>()
+            viewModel.getConfigs().forEach {
+                configItems.add(ConfigItem(it))
+            }
+            ConfigDialogFragment(
+                configItems, Constant.CONFIG_EXPORT_JS_MODE
+            ).show(
+                requireActivity().supportFragmentManager, "toJS"
+            )
         }
     }
 
@@ -365,7 +382,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         )
                         return
                     } else {
-                        ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
+                        ConfigDialogFragment(
+                            dataList as ArrayList<ConfigItem>, Constant.CONFIG_IMPORT_MODE
+                        ).show(
                             requireActivity().supportFragmentManager, "import"
                         )
                     }

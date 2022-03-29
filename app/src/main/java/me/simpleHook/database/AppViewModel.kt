@@ -103,6 +103,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteAllLogs()
     }
 
+    fun deleteRecordById(id: Int) = viewModelScope.launch {
+        appRepository.deleteRecordById(id)
+    }
+
     fun deleteRecordByType(type: String) = viewModelScope.launch {
         appRepository.deleteRecordByType("%$type%")
     }

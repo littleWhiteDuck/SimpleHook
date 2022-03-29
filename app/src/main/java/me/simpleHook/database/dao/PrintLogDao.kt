@@ -15,6 +15,9 @@ interface PrintLogDao {
     @Query("DELETE FROM PrintLog")
     suspend fun deleteAllLogs()
 
+    @Query("DELETE FROM PrintLog WHERE id = :id")
+    suspend fun deleteRecordById(id: Int)
+
     @Query("DELETE FROM PrintLog WHERE type like :type")
     suspend fun deleteRecordByType(type: String)
 

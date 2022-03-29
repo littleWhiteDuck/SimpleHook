@@ -22,6 +22,7 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
         val icon = container.icon
         val time = container.desc
         val readState = container.tip
+        var id: Int? = null
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,12 +43,12 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
         holder.itemView.setTag(R.id.item_record_position, printLog)
         val context = holder.itemView.context
         holder.apply {
+            id = printLog.id
             title.text = logBean.type
             time.text = printLog.time
-            readState.text =
-                if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
-                    R.string.record_item_status_unread
-                )
+            readState.text = if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
+                R.string.record_item_status_unread
+            )
             if (isType) {
                 icon.setImageDrawable(
                     IconHelper.getAppIcon(

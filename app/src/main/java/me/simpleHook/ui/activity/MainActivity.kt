@@ -6,13 +6,18 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
@@ -25,7 +30,9 @@ import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
+import org.json.JSONObject
 import java.lang.reflect.Field
+import java.net.URL
 import kotlin.random.Random
 
 
@@ -68,7 +75,44 @@ class MainActivity : BaseActivity() {
             }
         }
         initUseTip()
+        checkUpdate()
         super.onCreate(savedInstanceState)
+    }
+
+    private fun checkUpdate() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val result =
+                    JSONObject(URL("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest").readText())
+                val versionName = result.optString("name")
+                if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
+                    val body = result.optString("body").substringAfterLast("更新日志")
+                    val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
+                    Looper.prepare()
+                    customDialog(
+                        this@MainActivity,
+                        title = "新版本 $versionName",
+                        message = message,
+                        okText = "更新",
+                        okClick = {
+                            val intent = Intent(Intent.ACTION_VIEW).also {
+                                it.data =
+                                    Uri.parse("https://github.com/littleWhiteDuck/SimpleHook/releases/latest")
+                            }
+                            startActivity(intent)
+                        },
+                        cancelText = "取消",
+                        cancelClick = {
+                            it.dismiss()
+                        },
+                        cancelAble = false
+                    ).show()
+                    Looper.loop()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n", "InflateParams")

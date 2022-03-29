@@ -56,23 +56,29 @@ object ExtensionHook {
     }
 
     fun hookToast(context: Context, packageName: String) {
-        XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
                 val list = mutableListOf<String>()
                 // not test some cases
+                val toast: Toast = param?.thisObject as Toast
                 try {
-                    val toast: Toast = param?.thisObject as Toast
                     XposedHelpers.getObjectField(toast, "mText")?.also {
                         list.add(getIntroText("Text: $it"))
                     }
-                    val toastView = toast.view
-                    if (toastView is ViewGroup) {
-                        list += getAllTextView(toastView)
-                    } else if (toastView is TextView) {
-                        list.add(getIntroText("Text: " + toastView.text.toString()))
+                } catch (e: NoSuchFieldError) {
+                    "toast error1".log()
+                }
+                try {
+                    XposedHelpers.getObjectField(toast, "mNextView")?.also {
+                        val toastView = it as View
+                        if (toastView is ViewGroup) {
+                            list += getAllTextView(toastView)
+                        } else if (toastView is TextView) {
+                            list.add(getIntroText("Text: " + toastView.text.toString()))
+                        }
                     }
-                } catch (e: Exception) {
-                    "$packageName: get toast info error".log()
+                } catch (e: NoSuchFieldError) {
+                    "toast error2".log()
                 }
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace

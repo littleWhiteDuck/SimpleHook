@@ -45,4 +45,11 @@ object Constant {
 
     //
     const val MODEL_EXTENSION_CONFIG = "模板配置"
+
+
+    // importConfig exportConfig
+
+    const val CONFIG_IMPORT_MODE = 0
+    const val CONFIG_EXPORT_MODE = 1
+    const val CONFIG_EXPORT_JS_MODE = 2
 }

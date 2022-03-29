@@ -191,7 +191,7 @@
     <string name="config_mode_tip_return_value">返回值</string>
     <string name="config_mode_tip_param_value">参数值</string>
     <string name="config_mode_tip_field_value">变量值</string>
-    <string name="config_mode_tip_break">中断</string>
+    <string name="config_mode_tip_break">拦截</string>
     <string name="config_mode_tip_record_param_value">打印参数</string>
     <string name="config_mode_tip_record_return_value">打印返回</string>
     <string name="config_mode_tip_record_param_return_value">打印参返</string>
@@ -254,10 +254,17 @@
     <string name="main_agreement_tip">请认真阅读</string>
     <string name="main_agreement_confirm">同意使用</string>
     <string name="main_agreement_cancel">拒绝使用</string>
+    <string name="main_settings_title_JS_config">导出为JSHook配置</string>
+    <string name="main_settings_summary_js_config">仅用于测试，未完全支持</string>
+    <string name="config_dialog_title_import_config">导入配置</string>
+    <string name="config_dialog_title_export_config">导出配置</string>
+    <string name="config_dialog_title_export_js_config">导出为JSHook-Rhino配置</string>
+    <string name="config_dialog_button_invert_selection">反选</string>
+    <string name="config_dialog_button_select_all">全选</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>
-        <item>中断执行</item>
+        <item>拦截执行</item>
         <item>Hook静态变量</item>
         <item>Hook变量</item>
         <item>打印参数值</item>

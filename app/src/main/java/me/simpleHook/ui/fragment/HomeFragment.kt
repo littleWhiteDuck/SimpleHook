@@ -301,7 +301,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
             for (config in filterConfigs) {
                 dataList.add(ConfigItem(config))
             }
-            ConfigDialogFragment(dataList, false).show(
+            ConfigDialogFragment(dataList, Constant.CONFIG_EXPORT_MODE).show(
                 requireActivity().supportFragmentManager, "export"
             )
         }
@@ -317,7 +317,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                     )
                     return
                 } else {
-                    ConfigDialogFragment(dataList as ArrayList<ConfigItem>).show(
+                    ConfigDialogFragment(
+                        dataList as ArrayList<ConfigItem>,
+                        Constant.CONFIG_IMPORT_MODE
+                    ).show(
                         requireActivity().supportFragmentManager, "import"
                     )
                 }

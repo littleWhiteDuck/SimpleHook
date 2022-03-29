@@ -1,3 +1,16 @@
+v1.1.7
+    1.增加：单个配置的开关
+    2.增加实验功能：导出配置为JSHook-Rhino，仍然存在一些问题待解决
+    3.修复部分机型无法记录Toast的问题
+    4.加入更新检测（Github）
+    5.记录可滑动删除
+
+    1.Add: switch for single configuration
+    2.Add experimental function: export configuration as JSHook-Rhino, there are still some problems to be solved
+    3.Fix: the problem that some models could not record Toast
+    4.Add: update check (Github)
+    5.Records can be swiped to delete
+
 v1.1.6
     1.修复一些bug
     2.部分配置错误不再影响其他配置正常HOOK（ClassNotFoundError、NoSuchMethodError）
@@ -10,6 +23,7 @@ v1.1.6
     3.Support setting 中文（繁体）、English
     4.Improve the loading speed of classified records, and fix the problem of memory overflow
     5.Load [record] by paging3
+
 v1.1.5
     1.增加：英语语言显示
     2.增加：记录JSON操作
@@ -19,6 +33,7 @@ v1.1.5
     2.Add: Log JSON operations
     3.Fix: a bug by delete config
     4.remove: check new version
+
 v1.1.3
     1.Hook部分代码已放到github
     2.修复部分情况下造成的闪退
