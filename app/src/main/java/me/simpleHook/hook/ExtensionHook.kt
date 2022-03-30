@@ -67,18 +67,18 @@ object ExtensionHook {
                     }
                 } catch (e: NoSuchFieldError) {
                     "toast error1".log()
-                }
-                try {
-                    XposedHelpers.getObjectField(toast, "mNextView")?.also {
-                        val toastView = it as View
-                        if (toastView is ViewGroup) {
-                            list += getAllTextView(toastView)
-                        } else if (toastView is TextView) {
-                            list.add(getIntroText("Text: " + toastView.text.toString()))
+                    try {
+                        XposedHelpers.getObjectField(toast, "mNextView")?.also {
+                            val toastView = it as View
+                            if (toastView is ViewGroup) {
+                                list += getAllTextView(toastView)
+                            } else if (toastView is TextView) {
+                                list.add(getIntroText("Text: " + toastView.text.toString()))
+                            }
                         }
+                    } catch (e: NoSuchFieldError) {
+                        "toast error2".log()
                     }
-                } catch (e: NoSuchFieldError) {
-                    "toast error2".log()
                 }
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace

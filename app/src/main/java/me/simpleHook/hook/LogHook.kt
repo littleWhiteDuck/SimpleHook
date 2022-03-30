@@ -12,9 +12,10 @@ object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+        val tempPackageName = if (type == Constant.SIMPLE_HOOK_ERROR) type else packageName
         try {
             val contentValues = contentValuesOf(
-                "packageName" to packageName,
+                "packageName" to tempPackageName,
                 "log" to log,
                 "read" to 0,
                 "type" to type,
@@ -31,7 +32,9 @@ object LogHook {
 
     private fun printLogToFile(log: String, packageName: String, type: String, time: String) {
         try {
-            val printLog = PrintLog(log = log, packageName = packageName, type = type, time = time)
+            val tempPackageName = if (type == Constant.SIMPLE_HOOK_ERROR) type else packageName
+            val printLog =
+                PrintLog(log = log, packageName = tempPackageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
             val filePath = if (FlavorUtils.isNormal()) {
                 Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY

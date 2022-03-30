@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.constant.Constant
 import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.IconHelper
@@ -40,13 +41,15 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
         holder.apply {
             recordSummary.apply {
                 if (packMode) {
-                    title.text = AppUtils.getAppName(holder.icon.context, packageName)
+                    title.text =
+                        if (packageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+                            holder.icon.context, packageName
+                        )
                     desc.text = packageName
                     tvCount.text = count.toString()
                     icon.setImageDrawable(
                         IconHelper.getAppIcon(
-                            holder.itemView.context,
-                            packageName
+                            holder.itemView.context, packageName
                         )
                     )
                 } else {

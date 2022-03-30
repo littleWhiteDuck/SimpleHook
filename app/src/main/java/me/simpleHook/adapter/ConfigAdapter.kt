@@ -2,7 +2,10 @@ package me.simpleHook.adapter
 
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.text.SpannableString
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
+import me.simpleHook.hook.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.marquee
@@ -62,7 +66,66 @@ class ConfigAdapter(
         val context = holder.itemView.context
         holder.apply {
             tvClassName.text = methodConfig.className
-            tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
+            when (methodConfig.mode) {
+                Constant.HOOK_BREAK -> {
+                    val showText = "${methodConfig.methodName}(${methodConfig.params})"
+                    val spannableString = SpannableString(showText).also {
+                        it.setSpan(
+                            StrikethroughSpan(),
+                            0,
+                            showText.length,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                    }
+                    tvOtherName.text = spannableString
+                }
+                Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> {
+                    val showText = "${methodConfig.fieldName} -> ${
+                        transformValue(
+                            Type.getDataTypeValue(methodConfig.resultValues)
+                        )
+                    }"
+                    tvOtherName.text = showText
+                }
+                Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS_RETURN -> {
+                    val showText = "${methodConfig.methodName}(${methodConfig.params})"
+                    val spannableString = SpannableString(showText).also {
+                        it.setSpan(
+                            StyleSpan(Typeface.ITALIC),
+                            0,
+                            showText.length,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                    }
+                    tvOtherName.text = spannableString
+                }
+                Constant.HOOK_PARAM -> {
+                    val params = methodConfig.params.split(",")
+                    val values = methodConfig.resultValues.split(",")
+                    var temp = ""
+                    for (i in values.indices) {
+                        temp += if (values[i] == "") {
+                            params[i]
+                        } else {
+                            params[i] + "->" + transformValue(Type.getDataTypeValue(values[i]))
+                        }
+                        if (i != params.size - 1) temp += ","
+                    }
+                    val showText = "${methodConfig.methodName}(${temp})"
+                    tvOtherName.text = showText
+                }
+                Constant.HOOK_RETURN -> {
+                    val showText = "${methodConfig.methodName}(${methodConfig.params}) -> ${
+                        transformValue(
+                            Type.getDataTypeValue(methodConfig.resultValues)
+                        )
+                    }"
+                    tvOtherName.text = showText
+                }
+                else -> {
+                    tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
+                }
+            }
             tvNumber.text = (position + 1).toString()
             enable.isChecked = methodConfig.enable
             val tipText = when (methodConfig.mode) {
@@ -86,6 +149,14 @@ class ConfigAdapter(
                 )
             }
             tip.text = span
+        }
+    }
+
+    private fun transformValue(value: Any?): String {
+        return if (value is String) {
+            "\"$value\""
+        } else {
+            value.toString()
         }
     }
 

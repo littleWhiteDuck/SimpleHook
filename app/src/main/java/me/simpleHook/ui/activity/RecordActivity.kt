@@ -21,11 +21,15 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.FlavorUtils
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -61,7 +65,10 @@ class RecordActivity : BaseActivity() {
             supportActionBar?.title = typeOrPackageName
         } else {
             supportActionBar?.apply {
-                title = AppUtils.getAppName(this@RecordActivity, typeOrPackageName)
+                title =
+                    if (typeOrPackageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+                        this@RecordActivity, typeOrPackageName
+                    )
                 subtitle = typeOrPackageName
             }
         }

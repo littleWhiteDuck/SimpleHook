@@ -129,6 +129,17 @@ class ConfigActivity : BaseActivity() {
         binding.apply {
             packageNameInputLayout.isEnabled = false
             addMethodConfig.setOnClickListener { showDialog() }
+            addMethodConfig.setOnLongClickListener {
+                visibleFab = false
+                addMethodConfig.hide()
+                true
+            }
+            toolbar.setOnClickListener {
+                if (!visibleFab) {
+                    visibleFab = true
+                    addMethodConfig.show()
+                }
+            }
         }
         appConfig?.let {
             modify = true

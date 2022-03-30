@@ -72,8 +72,7 @@ class RecordFragment : Fragment() {
                 binding.emptyTip.visibility = View.GONE
             }
             if (it.size >= 66666 && !sp.showMoreDataTip) {
-                warningDialog(
-                    requireContext(),
+                warningDialog(requireContext(),
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_more_data),
                     okText = getString(R.string.record_warn_dialog_ok_more_data),

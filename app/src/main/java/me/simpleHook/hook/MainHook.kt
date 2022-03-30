@@ -309,9 +309,25 @@ class Hook {
         try {
             XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
         } catch (e: NoSuchMethodError) {
+            val list = listOf(
+                "错误类型：NoSuchMethodError",
+                "解决方案：使用smali转配置",
+                "所填类名：$className",
+                "所填方法(参数)：$methodName($params)",
+                "具体原因：${e.stackTraceToString()}"
+            )
+            ErrorTool.toLog(mContext!!, list, packageName)
             "请确保填写的方法名/参数等数据正确".log()
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
+            val list = listOf(
+                "错误类型：ClassNotFoundError",
+                "解决方案：请确保你填写的类名正确",
+                "所填类名：$className",
+                "所填方法(参数)：$methodName($params)",
+                "具体原因：${e.stackTraceToString()}"
+            )
+            ErrorTool.toLog(mContext!!, list, packageName)
             "请确保填写的类名正确".log()
             XposedBridge.log(e.stackTraceToString())
         }

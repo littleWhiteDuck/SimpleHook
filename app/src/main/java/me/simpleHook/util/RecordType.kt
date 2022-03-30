@@ -1,5 +1,7 @@
 package me.simpleHook.util
 
+import me.simpleHook.constant.Constant
+
 object RecordType {
     fun getShowText(type: String) = when {
         type.startsWith("sha", true) -> "SHA"
@@ -16,6 +18,7 @@ object RecordType {
         type == "Return value" -> "Return"
         type == "Param value" -> "Param"
         type == "Param&Return Value" -> "PR"
+        type == Constant.SIMPLE_HOOK_ERROR -> "Error"
         else -> type
     }
 

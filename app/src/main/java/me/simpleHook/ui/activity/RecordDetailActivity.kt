@@ -16,6 +16,7 @@ import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.ui.WindowPreferencesManager
@@ -47,7 +48,9 @@ class RecordDetailActivity : BaseActivity() {
         jsonText = printLog.log
         val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
         supportActionBar?.title =
-            AppUtils.getAppName(this@RecordDetailActivity, logBean.packageName)
+            if (printLog.packageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+                this@RecordDetailActivity, logBean.packageName
+            )
         supportActionBar?.subtitle = logBean.packageName
         val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
         if (logBean.type.equals("intent", ignoreCase = true)) {
@@ -57,8 +60,7 @@ class RecordDetailActivity : BaseActivity() {
             sb.append("${foreStr + logBean.type}\n")
                 .append("packageName：${intentBean.packageName}\n")
                 .append("className：${intentBean.className}\n")
-                .append("action：${intentBean.action}\n")
-                .append("data：${intentBean.data}\n")
+                .append("action：${intentBean.action}\n").append("data：${intentBean.data}\n")
                 .append("extras：\n")
             intentBean.extras.forEach {
                 sb.append("   type：${it.type}，key：${it.key}，value：${it.value}\n")
@@ -145,10 +147,7 @@ class RecordDetailActivity : BaseActivity() {
             val start: Int = matcher.start()
             val end: Int = matcher.end()
             spannableString.setSpan(
-                ForegroundColorSpan(color),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
         return spannableString

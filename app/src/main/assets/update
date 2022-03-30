@@ -4,12 +4,16 @@ v1.1.7
     3.修复部分机型无法记录Toast的问题
     4.加入更新检测（Github）
     5.记录可滑动删除
+    6.修复：部分类型判断错误
+    7.配置页面显示细节调整
 
     1.Add: switch for single configuration
     2.Add experimental function: export configuration as JSHook-Rhino, there are still some problems to be solved
     3.Fix: the problem that some models could not record Toast
     4.Add: update check (Github)
     5.Records can be swiped to delete
+    6.fix：some type judgment errors
+    7.Configuration page display details adjustment
 
 v1.1.6
     1.修复一些bug
