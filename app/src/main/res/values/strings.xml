@@ -231,6 +231,7 @@
     <string name="extension_item_title_others">其他</string>
     <string name="extension_item_title_intent">intent</string>
     <string name="extension_item_desc_intent">打印常见启动activity时传递的intent</string>
+    <string name="extension_item_title_hot_fix_dex">热修复dex</string>
     <string name="extension_item_title_hot_fix">热修复</string>
     <string name="extension_item_title_network">网络</string>
     <string name="extension_item_title_vpn">vpn</string>
@@ -238,8 +239,10 @@
     <string name="record_menu_show_method">显示方式</string>
     <string name="record_menu_type_show">按照类型划分</string>
     <string name="record_menu_app_show">按照应用划分</string>
-    <string name="extension_item_title_json">JSON操作</string>
-    <string name="extension_item_desc_json">记录JSONObject和JSONArray创建时内容、增加内容</string>
+    <string name="extension_item_title_json_object" translatable="false">JSONObject</string>
+    <string name="extension_item_desc_json_object">记录JSONObject创建时内容、增加时内容</string>
+    <string name="extension_item_title_json_array" translatable="false">JSONArray</string>
+    <string name="extension_item_desc_json_array">记录JSONArray创建时内容、增加时内容</string>
     <string name="record_warn_dialog_title">警告</string>
     <string name="record_warn_dialog_message_delete_read">你是否确定删除所有已读记录？</string>
     <string name="record_warn_dialog_message_delete_all">你是否确定删除所有记录？</string>

@@ -6,14 +6,18 @@ v1.1.7
     5.记录可滑动删除
     6.修复：部分类型判断错误
     7.配置页面显示细节调整
+    8.增加：参数类型填”*“，会Hook改方法所在类所有同名方法（框架不会捕捉异常，如果不生效，需要自行排查问题）
+    9.Hook过程中部分错误会被记录，记录页面查看【Hook Error】
 
     1.Add: switch for single configuration
     2.Add experimental function: export configuration as JSHook-Rhino, there are still some problems to be solved
     3.Fix: the problem that some models could not record Toast
     4.Add: update check (Github)
     5.Records can be swiped to delete
-    6.fix：some type judgment errors
+    6.fix: some type judgment errors
     7.Configuration page display details adjustment
+    8.Add: Enter in "*" for the parameter type, it will hook all methods with the same name in the class where the method is located (the xposed framework will not catch exceptions, if it does not take effect, you need to troubleshoot the problem yourself)
+    9.Some errors during the hooking process will be recorded, check the record page [Hook Error]
 
 v1.1.6
     1.修复一些bug

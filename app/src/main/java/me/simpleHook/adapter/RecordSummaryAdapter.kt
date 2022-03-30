@@ -42,7 +42,7 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
             recordSummary.apply {
                 if (packMode) {
                     title.text =
-                        if (packageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+                        if (packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
                             holder.icon.context, packageName
                         )
                     desc.text = packageName
@@ -53,7 +53,7 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
                         )
                     )
                 } else {
-                    title.text = type
+                    title.text = if (type.startsWith("Error")) "Hook Error" else type
                     tvCount.text = count.toString()
                     val showText = RecordType.getShowText(type)
                     icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))

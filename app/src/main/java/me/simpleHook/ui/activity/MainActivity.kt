@@ -80,13 +80,17 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkUpdate() {
+        if (BuildConfig.VERSION_NAME.contains("beta")) return
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result =
                     JSONObject(URL("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest").readText())
                 val versionName = result.optString("name")
-                if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
-                    val body = result.optString("body").substringAfterLast("更新日志")
+                if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME.replace(
+                        Regex("""_root|_beta"""), ""
+                    ) != versionName
+                ) {
+                    val body = result.optString("body").substringAfterLast("更新记录")
                     val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
                     Looper.prepare()
                     customDialog(

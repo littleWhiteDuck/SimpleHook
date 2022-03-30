@@ -18,7 +18,7 @@ object RecordType {
         type == "Return value" -> "Return"
         type == "Param value" -> "Param"
         type == "Param&Return Value" -> "PR"
-        type == Constant.SIMPLE_HOOK_ERROR -> "Error"
+        type.startsWith("Error") -> "Error"
         else -> type
     }
 
@@ -29,6 +29,7 @@ object RecordType {
         type.startsWith("rsa", true) -> "RSA"
         type.startsWith("Hmac", true) -> "Hmac"
         type.startsWith("md5", true) -> "MD5"
+        type.startsWith("Error") -> "Error"
         else -> type
     }
 }

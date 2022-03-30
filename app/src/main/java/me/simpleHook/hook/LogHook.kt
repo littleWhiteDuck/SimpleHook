@@ -12,7 +12,7 @@ object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
-        val tempPackageName = if (type == Constant.SIMPLE_HOOK_ERROR) type else packageName
+        val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
         try {
             val contentValues = contentValuesOf(
                 "packageName" to tempPackageName,
@@ -32,7 +32,7 @@ object LogHook {
 
     private fun printLogToFile(log: String, packageName: String, type: String, time: String) {
         try {
-            val tempPackageName = if (type == Constant.SIMPLE_HOOK_ERROR) type else packageName
+            val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
             val printLog =
                 PrintLog(log = log, packageName = tempPackageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)

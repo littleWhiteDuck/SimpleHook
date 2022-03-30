@@ -16,11 +16,14 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.hook.ErrorTool.noSuchMethod
+import me.simpleHook.hook.ErrorTool.notFoundClass
 import me.simpleHook.hook.ExtensionHook.aes
 import me.simpleHook.hook.ExtensionHook.base64
 import me.simpleHook.hook.ExtensionHook.hookDialog
 import me.simpleHook.hook.ExtensionHook.hookIntent
-import me.simpleHook.hook.ExtensionHook.hookJSON
+import me.simpleHook.hook.ExtensionHook.hookJSONArray
+import me.simpleHook.hook.ExtensionHook.hookJSONObject
 import me.simpleHook.hook.ExtensionHook.hookOnClick
 import me.simpleHook.hook.ExtensionHook.hookPopupWindow
 import me.simpleHook.hook.ExtensionHook.hookToast
@@ -175,10 +178,22 @@ class Hook {
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(
-                            className, mClassLoader, fieldName, resultValues, fieldType
+                            className,
+                            mClassLoader,
+                            fieldName,
+                            resultValues,
+                            fieldType,
+                            mContext!!,
+                            packageName
                         )
                         Constant.HOOK_FIELD -> FieldHook.hookField(
-                            className, mClassLoader, fieldName, resultValues, fieldType
+                            className,
+                            mClassLoader,
+                            fieldName,
+                            resultValues,
+                            fieldType,
+                            mContext!!,
+                            packageName
                         )
                         else -> specificHook(
                             className,
@@ -195,6 +210,7 @@ class Hook {
         } catch (e: Exception) {
             "config error".log()
             strConfig.log()
+            XposedBridge.log(e.stackTraceToString())
         }
     }
 
@@ -209,9 +225,9 @@ class Hook {
         packageName: String
     ) {
         val methodParams = params.split(",")
-        val realSize = if (params == "") 0 else methodParams.size
+        val realSize = if (params == "" || params == "*") 0 else methodParams.size
         val obj = arrayOfNulls<Any>(realSize + 1)
-        for (i in methodParams.indices) {
+        for (i in 0 until realSize) {
             val classType = Type.getClassType(methodParams[i])
             if (classType == null) {
                 obj[i] = methodParams[i]
@@ -238,11 +254,23 @@ class Hook {
             Constant.HOOK_PARAM -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        for (i in methodParams.indices) {
-                            if (values.split(",")[i] == "") continue
-                            val targetValue = getDataTypeValue(values.split(",")[i])
-                            param.args[i] = targetValue
+                        try {
+                            for (i in param.args.indices) {
+                                if (values.split(",")[i] == "") continue
+                                val targetValue = getDataTypeValue(values.split(",")[i])
+                                param.args[i] = targetValue
+                            }
+                        } catch (e: java.lang.Exception) {
+                            val list = listOf(
+                                "错误类型：HookParamsError",
+                                "解决方案：请查看修改值个数是否与参数个数相同",
+                                "所填类名：$className",
+                                "所填方法(参数)：$methodName($params)",
+                                "具体原因：${e.stackTraceToString()}"
+                            )
+                            ErrorTool.toLog(mContext!!, list, packageName, "Error HookParamsError")
                         }
+
                     }
                 }
             }
@@ -307,27 +335,28 @@ class Hook {
             }
         }
         try {
-            XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+            if (params == "*") {
+                val hookClass = classLoader.loadClass(className)
+                XposedBridge.hookAllMethods(hookClass, methodName, obj[realSize] as XC_MethodHook?)
+            } else {
+                XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+            }
         } catch (e: NoSuchMethodError) {
-            val list = listOf(
-                "错误类型：NoSuchMethodError",
-                "解决方案：使用smali转配置",
-                "所填类名：$className",
-                "所填方法(参数)：$methodName($params)",
-                "具体原因：${e.stackTraceToString()}"
+            noSuchMethod(
+                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
-            ErrorTool.toLog(mContext!!, list, packageName)
             "请确保填写的方法名/参数等数据正确".log()
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
-            val list = listOf(
-                "错误类型：ClassNotFoundError",
-                "解决方案：请确保你填写的类名正确",
-                "所填类名：$className",
-                "所填方法(参数)：$methodName($params)",
-                "具体原因：${e.stackTraceToString()}"
+            notFoundClass(
+                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
-            ErrorTool.toLog(mContext!!, list, packageName)
+            "请确保填写的类名正确".log()
+            XposedBridge.log(e.stackTraceToString())
+        } catch (e: ClassNotFoundException) {
+            notFoundClass(
+                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
+            )
             "请确保填写的类名正确".log()
             XposedBridge.log(e.stackTraceToString())
         }
@@ -424,7 +453,8 @@ class Hook {
             if (digest) shaAndMD5(context, packageName)
             if (hmac) mac(context, packageName)
             if (crypt) aes(context, packageName)
-            if (json) hookJSON(context, packageName)
+            if (jsonObject) hookJSONObject(context, packageName)
+            if (jsonArray) hookJSONArray(context, packageName)
         }
     }
 

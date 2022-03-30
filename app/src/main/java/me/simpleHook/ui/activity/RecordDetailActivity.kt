@@ -48,7 +48,7 @@ class RecordDetailActivity : BaseActivity() {
         jsonText = printLog.log
         val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
         supportActionBar?.title =
-            if (printLog.packageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+            if (printLog.packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
                 this@RecordDetailActivity, logBean.packageName
             )
         supportActionBar?.subtitle = logBean.packageName

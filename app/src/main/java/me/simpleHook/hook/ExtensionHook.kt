@@ -678,7 +678,7 @@ object ExtensionHook {
         return sb.toString()
     }
 
-    fun hookJSON(context: Context, packageName: String) {
+    fun hookJSONObject(context: Context, packageName: String) {
         XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val type = if (isEnglish) "JSON put" else "JSON 增加"
@@ -712,6 +712,9 @@ object ExtensionHook {
                 LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
             }
         })
+    }
+
+    fun hookJSONArray(context: Context, packageName: String) {
 
         XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {

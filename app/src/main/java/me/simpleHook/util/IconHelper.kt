@@ -19,7 +19,7 @@ object IconHelper {
     }
 
     fun getAppIcon(context: Context, packageName: String): Drawable {
-        if (packageName == Constant.SIMPLE_HOOK_ERROR) return getTextIcon(text = "Error")
+        if (packageName.startsWith("error")) return getTextIcon(text = "Error")
         return iconMap[packageName] ?: AppUtils.getIcon(context, packageName).also {
             iconMap[packageName] = it
         }

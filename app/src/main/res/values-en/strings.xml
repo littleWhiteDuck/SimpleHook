@@ -206,15 +206,13 @@
     <string name="extension_item_title_others">Others</string>
     <string name="extension_item_title_intent">Intent</string>
     <string name="extension_item_desc_intent">Record the intent information passed when common startup activities</string>
-    <string name="extension_item_title_hot_fix">Hot fix</string>
+    <string name="extension_item_title_hot_fix_dex">Hot fix dex</string>
     <string name="extension_item_title_network">Network</string>
     <string name="extension_item_title_vpn">Vpn</string>
     <string name="extension_item_desc_vpn">Remove general VPN detection</string>
     <string name="record_menu_show_method">Show method</string>
     <string name="record_menu_type_show">By type</string>
     <string name="record_menu_app_show">By application</string>
-    <string name="extension_item_title_json">JSON operations</string>
-    <string name="extension_item_desc_json">Record the content and add content when JSONObject and JSONArray are created</string>
     <string name="record_warn_dialog_title">Warning</string>
     <string name="record_warn_dialog_message_delete_read">Are you sure to delete all read records?</string>
     <string name="record_warn_dialog_message_delete_all">Are you sure to delete all records?</string>
@@ -244,4 +242,7 @@
     <string name="config_dialog_title_import_config">Import configuration</string>
     <string name="config_dialog_button_invert_selection">Invert selection</string>
     <string name="config_dialog_button_select_all">Select all</string>
+    <string name="extension_item_desc_json_object">Record the content of JSONObject when it is created and when it is added</string>
+    <string name="extension_item_desc_json_array">Record the content of JSONArray when it is created and when it is added</string>
+    <string name="extension_item_title_hot_fix">"Hot fix "</string>
 </resources>

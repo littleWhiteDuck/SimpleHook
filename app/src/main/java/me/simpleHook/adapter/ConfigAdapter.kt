@@ -100,19 +100,26 @@ class ConfigAdapter(
                     tvOtherName.text = spannableString
                 }
                 Constant.HOOK_PARAM -> {
-                    val params = methodConfig.params.split(",")
-                    val values = methodConfig.resultValues.split(",")
-                    var temp = ""
-                    for (i in values.indices) {
-                        temp += if (values[i] == "") {
-                            params[i]
-                        } else {
-                            params[i] + "->" + transformValue(Type.getDataTypeValue(values[i]))
+                    if (methodConfig.params == "*") {
+                        val showText =
+                            "${methodConfig.methodName}(*) -> ${methodConfig.resultValues}"
+                        tvOtherName.text = showText
+                    } else {
+                        val params = methodConfig.params.split(",")
+                        val values = methodConfig.resultValues.split(",")
+                        var temp = ""
+                        for (i in params.indices) {
+                            temp += if (values[i] == "") {
+                                params[i]
+                            } else {
+                                params[i] + "->" + transformValue(Type.getDataTypeValue(values[i]))
+                            }
+                            if (i != params.size - 1) temp += ","
                         }
-                        if (i != params.size - 1) temp += ","
+                        val showText = "${methodConfig.methodName}(${temp})"
+                        tvOtherName.text = showText
                     }
-                    val showText = "${methodConfig.methodName}(${temp})"
-                    tvOtherName.text = showText
+
                 }
                 Constant.HOOK_RETURN -> {
                     val showText = "${methodConfig.methodName}(${methodConfig.params}) -> ${

@@ -216,15 +216,13 @@
     <string name="extension_item_title_others">其他</string>
     <string name="extension_item_title_intent">intent</string>
     <string name="extension_item_desc_intent">打印常見啟動activity時傳遞的intent</string>
-    <string name="extension_item_title_hot_fix">熱修復</string>
+    <string name="extension_item_title_hot_fix_dex">熱修復dex</string>
     <string name="extension_item_title_network">網絡</string>
     <string name="extension_item_title_vpn">vpn</string>
     <string name="extension_item_desc_vpn">去除一般的VPN檢測</string>
     <string name="record_menu_show_method">顯示方式</string>
     <string name="record_menu_type_show">按照類型劃分</string>
     <string name="record_menu_app_show">按照應用劃分</string>
-    <string name="extension_item_title_json">JSON操作</string>
-    <string name="extension_item_desc_json">記錄JSONObject和JSONArray創建時內容、增加內容</string>
     <string name="record_warn_dialog_title">警告</string>
     <string name="record_warn_dialog_message_delete_read">你是否確定刪除所有已讀記錄？</string>
     <string name="record_warn_dialog_message_delete_all">你是否確定刪除所有記錄？</string>
@@ -259,6 +257,9 @@
     <string name="config_dialog_title_export_config">導出配置</string>
     <string name="config_dialog_button_invert_selection">反選</string>
     <string name="config_dialog_button_select_all">全選</string>
+    <string name="extension_item_desc_json_object">记录JSONObject创建时内容、增加时内容</string>
+    <string name="extension_item_desc_json_array">記錄JSONArray創建時內容、增加時內容記錄JSONArray創建時內容、增加時內容</string>
+    <string name="extension_item_title_hot_fix">熱修復</string>
 
 
 </resources>

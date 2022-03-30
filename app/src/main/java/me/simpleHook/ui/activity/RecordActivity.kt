@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
-import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
@@ -62,11 +61,12 @@ class RecordActivity : BaseActivity() {
         isType = recordSummary.type.isNotEmpty()
         typeOrPackageName = if (isType) recordSummary.type else recordSummary.packageName
         if (isType) {
-            supportActionBar?.title = typeOrPackageName
+            supportActionBar?.title =
+                if (typeOrPackageName.startsWith("Error")) "Hook Error" else typeOrPackageName
         } else {
             supportActionBar?.apply {
                 title =
-                    if (typeOrPackageName == Constant.SIMPLE_HOOK_ERROR) "SimpleHook" else AppUtils.getAppName(
+                    if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
                         this@RecordActivity, typeOrPackageName
                     )
                 subtitle = typeOrPackageName
