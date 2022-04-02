@@ -67,6 +67,8 @@
 
 ### 简要的基本介绍
 
+- 请优先使用普通版，普通版无法使用时，再使用ROOT版！！！
+
 - 支持Java语法和Smali语法填写配置信息
 
   ```java
@@ -102,14 +104,15 @@
   短整型(short、S)：1short、2short  //要注意 数字后带short 
   字符(char、C)：195c、一c // 符合char类型的后面带c
   字节(byte、B)：2b、3b   // 符合byte类型的后面带b
-  单浮点(float、F)：2f、3f //要注意 数字后带f
-  双浮点(double、D): 2d、3d //要注意 数字后带d
+  单浮点(float、F)：2f、3f、3.0f //要注意 数字后带f
+  双浮点(double、D): 2d、3d、3.0d //要注意 数字后带d
   其他类型(只能返回null(字符串除外))：null
   字符串(java.lang.String)：不符合上面的全部化为字符串类型
   	其他情况：
   	数字：111s, 2002s 数字后面加s // 常见于 "111111" 这种，但是本软件你需要在数字后面加入s，如果你不加s，会被转成数字，可能导致目标应用崩溃
   	布尔：trues、falses // 常见于 "true" 、"false" 这种，但是本软件你需要在布尔值后面加入s，如果你不加s，会被转成布尔值，可能导致目标应用崩溃
   	null: nulls // 常见于 "null"这种，但是本软件你需要在null后面加入s，如果你不加s，会被转成null，可能导致目标应用空指针
+    空字符串：英文单词'empty' 或者中文汉字'空' （如果你直接填空，将无法保存配置，这样做是为了预防你在使用时，不填修改值，导致无法正常Hook）
   ```
 
 ### 具体的hook模式
@@ -209,6 +212,33 @@ public void testBreakMethod() {
 }
 ```
 
+#### Hook所有方法
+```java
+
+/*
+  Hook一个类所有同名方法，方法参数类型填写 * 即可
+*/
+```
+
+#### 构造方法
+```java
+import simple.example;
+public class Example{
+  int a;
+  int b;
+  public Example(int a, boolean b) {
+    this.a = a;
+    this.b = b
+  }
+}
+// Hook模式，根据自己的需求选择
+/*
+ 方法名填写规则
+      java语法: 类名的简写名称，如上面代码示例，方法名应填 Example
+      smali语法：方法名填 <init>
+ */
+```
+
 #### 静态变量
 
 ```java
@@ -273,7 +303,7 @@ public class Example{
 ### 2.什么是smali转配置
 
 ```smali
-  开启此实验功能后，配置页面顶部会增加‘粘贴板’图标，点击可将应用调用代码或签名，转化为配置（防止手动输入错误），增加配置后你   需要手动选择合适的模式以及结果值
+  开启此实验功能后，配置页面顶部会增加‘粘贴板’图标，点击可将应用调用代码或签名，转化为配置（防止手动输入错误），增加配置后你需要手动选择合适的模式以及结果值
   调用代码例子：
    iget v0, p0, Lme/duck/hooktest/bean/UseBean;->level:I
    invoke-virtual {v0}, Lme/duck/hooktest/bean/UseBean;->isHook()Z

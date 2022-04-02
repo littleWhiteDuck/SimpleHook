@@ -68,6 +68,8 @@ The following is the writing rule: (You can download *[HookTest.apk](https://lit
 
 ### A brief basic introduction
 
+- Please use the normal version first, and use the ROOT version when the normal version cannot be used! ! !
+
 - Support Java syntax and Smali syntax to fill in configuration information
 
   ````java
@@ -111,6 +113,7 @@ The following is the writing rule: (You can download *[HookTest.apk](https://lit
     Numbers: 111s, 2002s followed by s // common in "111111", but in this software, you need to add s after the number, if you don't add s, it will be converted to a number, which may cause the target application to crash
     Boolean: trues, falses // Common in "true" and "false", but in this software, you need to add s after the boolean value. If you don't add s, it will be converted to a boolean value, which may cause the target application to crash
     null: nulls // Common in "null", but you need to add s after null in this software. If you don't add s, it will be converted to null, which may lead to a null pointer in the target application
+    Empty string: the English word 'empty' or the Chinese character '空' (If you fill in the blanks directly, you will not be able to save the configuration. This is to prevent you from not filling in the modified value when you are using it, resulting in failure of normal Hook)
   ````
 
 ### Specific hook mode
@@ -208,6 +211,32 @@ public void printString() {
 public void testBreakMethod() {
     System.out.println("test Break Mode")
 }
+````
+#### Hook all methods
+````java
+
+/*
+   Hook all methods of the same name in a class, fill in * for the method parameter type
+*/
+````
+
+#### Construction method
+````java
+import simple.example;
+public class Example{
+   int a;
+   int b;
+   public Example(int a, boolean b) {
+     this.a = a;
+     this.b = b
+   }
+}
+// Hook mode, choose according to your own needs
+/*
+  Method name filling rules
+       java syntax: shorthand name of the class name, such as the above code example, the method name should be filled in Example
+       smali syntax: fill in <init> for the method name
+  */
 ````
 
 #### static variables
