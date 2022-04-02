@@ -19,7 +19,11 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.hook.Tip.getTip
+import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
+import org.json.JSONArray
+import org.json.JSONObject
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.security.spec.EncodedKeySpec
@@ -34,10 +38,14 @@ private const val START_ACTIVITY = "startActivity"
 private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
 object ExtensionHook {
+    private var isEnglish = false
+
+    fun init() {
+        isEnglish = LanguageUtils.isNotChinese()
+    }
 
     fun hookVpnCheck(context: Context) {
-        XposedHelpers.findAndHookMethod(
-            "java.net.NetworkInterface",
+        XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
             context.classLoader,
             "getName",
             object : XC_MethodHook() {
@@ -49,29 +57,35 @@ object ExtensionHook {
     }
 
     fun hookToast(context: Context, packageName: String) {
-        XposedBridge.hookAllMethods(Toast::class.java, "show", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam?) {
-                val toast: Toast = param?.thisObject as Toast
+        XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam?) {
                 val list = mutableListOf<String>()
                 // not test some cases
+                val toast: Toast = param?.thisObject as Toast
                 try {
                     XposedHelpers.getObjectField(toast, "mText")?.also {
-                        list.add("文本：$it")
+                        list.add(getTip("text") + it)
                     }
-                    val toastView = toast.view
-                    if (toastView is ViewGroup) {
-                        list += getAllTextView(toastView)
-                    } else if (toastView is TextView) {
-                        list.add("文本：" + toastView.text.toString())
+                } catch (e: NoSuchFieldError) {
+                    "toast error1".log(packageName)
+                    try {
+                        XposedHelpers.getObjectField(toast, "mNextView")?.also {
+                            val toastView = it as View
+                            if (toastView is ViewGroup) {
+                                list += getAllTextView(toastView)
+                            } else if (toastView is TextView) {
+                                list.add(getTip("text") + toastView.text.toString())
+                            }
+                        }
+                    } catch (e: NoSuchFieldError) {
+                        "toast error2".log(packageName)
                     }
-                } catch (e: Exception) {
-                    "$packageName: get toast info error".log()
                 }
                 val type = "Toast"
                 val stackTrace = Throwable().stackTrace
                 val log = Gson().toJson(
                     LogBean(
-                        type, list + LogHook.toStackTrace(stackTrace), packageName
+                        type, list + LogHook.toStackTrace(context, stackTrace), packageName
                     )
                 )
                 LogHook.toLogMsg(context, log, packageName, type)
@@ -121,13 +135,13 @@ object ExtensionHook {
             if (contentView is ViewGroup) {
                 list += getAllTextView(contentView)
             } else if (contentView is TextView) {
-                list.add("文本：" + contentView.text.toString())
+                list.add(getTip("text") + contentView.text.toString())
             }
             val type = "PopupWindow"
             val stackTrace = Throwable().stackTrace
             val log = Gson().toJson(
                 LogBean(
-                    type, list + LogHook.toStackTrace(stackTrace), packageName
+                    type, list + LogHook.toStackTrace(context, stackTrace), packageName
                 )
             )
             LogHook.toLogMsg(context, log, packageName, type)
@@ -143,19 +157,19 @@ object ExtensionHook {
                 }
                 if (isSwitch) {
                     val list = mutableListOf<String>()
-                    val type = "弹窗"
+                    val type = if (isEnglish) "Dialog" else "弹窗"
                     val dialogView: View? = dialog.window?.decorView
                     dialogView?.also {
                         if (it is ViewGroup) {
                             list += getAllTextView(it)
                         } else if (it is TextView) {
-                            list.add("文本：" + it.text.toString())
+                            list.add(getTip("text") + it.text.toString())
                         }
                     }
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.toStackTrace(context, stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
@@ -170,12 +184,12 @@ object ExtensionHook {
             when (it) {
                 is Button -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add("按钮：" + it.text.toString())
+                        list.add(getTip("button") + it.text.toString())
                     }
                 }
                 is TextView -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add("文本：" + it.text.toString())
+                        list.add(getTip("text") + it.text.toString())
                     }
                 }
                 is ViewGroup -> {
@@ -191,7 +205,7 @@ object ExtensionHook {
             override fun afterHookedMethod(param: MethodHookParam) {
                 try {
                     val list = mutableListOf<String>()
-                    val type = "点击事件"
+                    val type = if (isEnglish) "Click Event" else "点击事件"
                     val view = param.thisObject as View
                     val viewType = view.javaClass.name ?: "未获取到"
                     val listenerInfoObject = XposedHelpers.getObjectField(view, "mListenerInfo")
@@ -199,32 +213,31 @@ object ExtensionHook {
                         XposedHelpers.getObjectField(listenerInfoObject, "mOnClickListener")
                     val callbackType = mOnClickListenerObject.javaClass.name
                     val viewId =
-                        if (view.id == View.NO_ID) "id：无ID" else "id： " + Integer.toHexString(view.id)
-                    list.add("控件类型：$viewType")
-                    list.add("回调类名：$callbackType")
+                        if (view.id == View.NO_ID) "id：NO ID" else "id： " + Integer.toHexString(view.id)
+                    list.add(getTip("viewType") + viewType)
+                    list.add(getTip("callbackType") + callbackType)
                     list.add(viewId)
                     if (view is TextView) {
-                        list.add("文本：" + view.text.toString())
+                        list.add(getTip("text") + view.text.toString())
                     } else if (view is ViewGroup) {
                         list += getAllTextView(view)
                     }
                     val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.toStackTrace(context, stackTrace), packageName
                         )
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
                 } catch (e: Exception) {
-                    "error: click".log()
+                    "error: click".log(packageName)
                 }
             }
         })
     }
 
     fun base64(context: Context, packageName: String) {
-        XposedHelpers.findAndHookMethod(
-            "java.util.Base64.Encoder",
+        XposedHelpers.findAndHookMethod("java.util.Base64.Encoder",
             context.classLoader,
             "encode",
             ByteArray::class.java,
@@ -232,12 +245,14 @@ object ExtensionHook {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
                     val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace)
+                    val items = LogHook.toStackTrace(context, stackTrace)
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
-                        "base64",
-                        listOf("类型：加密", "原始数据：${String(data)}", "加密结果：$result") + items,
-                        packageName
+                        "base64", listOf(
+                            getTip("isEncrypt"),
+                            getTip("rawData") + String(data),
+                            getTip("encryptResult") + result
+                        ) + items, packageName
                     )
                     LogHook.toLogMsg(
                         context, Gson().toJson(logBean), packageName, logBean.type
@@ -245,8 +260,7 @@ object ExtensionHook {
                 }
             })
 
-        XposedHelpers.findAndHookMethod(
-            "java.util.Base64.Decoder",
+        XposedHelpers.findAndHookMethod("java.util.Base64.Decoder",
             context.classLoader,
             "decode",
             ByteArray::class.java,
@@ -254,11 +268,13 @@ object ExtensionHook {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
                     val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.toStackTrace(context, stackTrace).toList()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            "加密/解密：解密", "原始数据：${String(data)}", "解密结果：$result"
+                            getTip("isDecrypt"),
+                            getTip("rawData") + String(data),
+                            getTip("decryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(
@@ -285,11 +301,13 @@ object ExtensionHook {
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
                     val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.toStackTrace(context, stackTrace).toList()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            "加密/解密：加密", "原始数据：${String(rawData)}", "加密结果：$result"
+                            getTip("isEncrypt"),
+                            getTip("rawData") + String(rawData),
+                            getTip("encryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
@@ -310,11 +328,13 @@ object ExtensionHook {
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
                     val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.toStackTrace(context, stackTrace).toList()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            "加密/解密：解密", "原始数据：${String(rawData)}", "解密结果：$result"
+                            getTip("isDecrypt"),
+                            getTip("rawData") + String(rawData),
+                            getTip("decryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
@@ -357,13 +377,15 @@ object ExtensionHook {
                     hashMap["rawData"] = String(data)
                 }
                 val md = param.thisObject as MessageDigest
-                val type = md.algorithm ?: "未知类型"
+                val type = md.algorithm ?: "unknown"
                 val result = byte2Sting(param.result as ByteArray)
                 val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
                 val logBean = LogBean(
                     type, listOf(
-                        "加密/解密：加密", "原始数据：${hashMap["rawData"]}", "加密结果：$result"
+                        getTip("isEncrypt"),
+                        getTip("rawData") + hashMap["rawData"],
+                        getTip("encryptResult") + result
                     ) + items, packageName
                 )
                 LogHook.toLogMsg(
@@ -401,7 +423,8 @@ object ExtensionHook {
         XposedBridge.hookAllMethods(Cipher::class.java, "init", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val opmode = param.args[0] as Int
-                val cryptType = if (opmode == Cipher.ENCRYPT_MODE) "加密" else "解密"
+                val cryptType =
+                    if (opmode == Cipher.ENCRYPT_MODE) getTip("encrypt") else getTip("decrypt")
                 map["cryptType"] = cryptType
             }
         })
@@ -454,14 +477,14 @@ object ExtensionHook {
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(
-                            "加密/解密：${map["cryptType"]}",
-                            "密钥：${map["key"]}",
+                            getTip("Encrypt/Decrypt: ${map["cryptType"]}"),
+                            getTip("key") + map["key"],
                             "iv：${map["iv"]}",
-                            "原始数据：${map["rawData"]}",
-                            "${map["cryptType"] ?: "error"}结果：${map["result"]}"
+                            getTip("rawData") + map["rawData"],
+                            getTip("${map["cryptType"] ?: "error"}Result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
-                        val items = LogHook.toStackTrace(stackTrace).toList()
+                        val items = LogHook.toStackTrace(context, stackTrace).toList()
                         val logBean = LogBean(
                             map["algorithmType"]!!, list + items, packageName
                         )
@@ -534,13 +557,13 @@ object ExtensionHook {
                 hasMap["result"] = String(result)
 
                 val list = listOf(
-                    "密钥：${hasMap["key"]}",
-                    "密钥算法：${hasMap["keyAlgorithm"]}",
-                    "原始数据：${hasMap["rawData"]}",
-                    "加密结果：${hasMap["result"]}"
+                    getTip("key") + hasMap["key"],
+                    getTip("keyAlgorithm") + hasMap["keyAlgorithm"],
+                    getTip("rawData") + hasMap["rawData"],
+                    getTip("encryptResult") + hasMap["result"]
                 )
                 val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
                 val logBean = LogBean(
                     hasMap["algorithmType"]!!, list + items, packageName
                 )
@@ -652,5 +675,84 @@ object ExtensionHook {
             sb.append(Integer.toHexString(0xFF and b.toInt()))
         }
         return sb.toString()
+    }
+
+    fun hookJSONObject(context: Context, packageName: String) {
+        XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val type = if (isEnglish) "JSON put" else "JSON 增加"
+                val name = param.args[0] as String
+                val value = getObjectString(param.args[1] ?: "null")
+                val list = arrayListOf("Name: $name", "Value: $value")
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
+                val logBean = LogBean(
+                    type, list + items, packageName
+                )
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+
+        XposedBridge.hookAllConstructors(JSONObject::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val type = if (isEnglish) "JSON creation" else "JSON 创建"
+                val jsonObject = param.thisObject
+                val map: LinkedHashMap<String, Any> = XposedHelpers.getObjectField(
+                    jsonObject, "nameValuePairs"
+                ) as LinkedHashMap<String, Any>
+                if (map.isEmpty()) return
+                val value = Gson().toJson(map)
+                val list = arrayListOf("Value: $value")
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
+                val logBean = LogBean(
+                    type, list + items, packageName
+                )
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+    }
+
+    fun hookJSONArray(context: Context, packageName: String) {
+
+        XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val type = if (isEnglish) "JSONArray put" else "JSONArray 增加"
+                val name = param.args[0] as String
+                val value = getObjectString(param.args[1] ?: "null")
+                val list = arrayListOf("Name: $name", "Value: $value")
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
+                val logBean = LogBean(
+                    type, list + items, packageName
+                )
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+
+        XposedBridge.hookAllConstructors(JSONArray::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val type = if (isEnglish) "JSONArray creation" else "JSONArray 创建"
+                val jsonObject = param.thisObject
+                val map: List<Any> = XposedHelpers.getObjectField(
+                    jsonObject, "values"
+                ) as List<Any>
+                if (map.isEmpty()) return
+                val value = Gson().toJson(map)
+                val list = arrayListOf("Value: $value")
+                val stackTrace = Throwable().stackTrace
+                val items = LogHook.toStackTrace(context, stackTrace).toList()
+                val logBean = LogBean(
+                    type, list + items, packageName
+                )
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+    }
+
+    private fun getObjectString(value: Any): String {
+        return if (value is List<*> || value is Array<*>) {
+            Gson().toJson(value)
+        } else value.toString()
     }
 }
