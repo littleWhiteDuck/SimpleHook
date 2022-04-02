@@ -25,7 +25,9 @@ object LogHook {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
             }
         } catch (e: Exception) {
-            "error occurred while saving log to the database, prepare to write to the file".tip()
+            "error occurred while saving log to the database, prepare to write to the file".tip(
+                packageName
+            )
             printLogToFile(log, packageName, type, time)
         }
     }
@@ -45,8 +47,8 @@ object LogHook {
                 content = printLogStr, filePath = filePath
             )
         } catch (e: Exception) {
-            "error occurred while saving log to the file, 此次log打印在下方".tip()
-            log.log()
+            "error occurred while saving log to the file, 此次log打印在下方".tip(packageName)
+            log.log(packageName)
         }
     }
 

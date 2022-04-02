@@ -24,7 +24,7 @@ object HotFix {
             }
         try {
             for (index in 0 until dexFilePaths.size) {
-                dexFilePaths[index].log()
+                dexFilePaths[index].log(packageName)
                 val originalLoader = context.classLoader
                 val classLoader = DexClassLoader(
                     dexFilePaths[index], context.cacheDir.path, null, null
@@ -63,7 +63,7 @@ object HotFix {
             }
 
         } catch (e: Exception) {
-            "hot fix error".tip()
+            "hot fix error".tip(packageName)
         }
     }
 }

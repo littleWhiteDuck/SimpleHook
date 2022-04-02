@@ -33,6 +33,7 @@ import me.simpleHook.hook.ExtensionHook.mac
 import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
+import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.LanguageUtils
@@ -89,11 +90,10 @@ class Hook {
             val strConfig =
                 File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "$packageName: 从根目录文件获取自定义配置成功".tip()
+            getTip("getConfigSuccessRoot").log(packageName)
             determineCan(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "$packageName: 根目录储存文件无运行中软件自定义配置".tip()
-            "$packageName: 准备从私有目录获取自定义配置".log()
+            getTip("failedGetConfigRoot").log(packageName)
             fileHook2(packageName)
             /*"准备使用xml获取配置".tip()
             xmlHook(packageName)*/
@@ -107,11 +107,13 @@ class Hook {
             val strConfig =
                 File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "$packageName: 从私有目录文件获取自定义配置成功".tip()
+            getTip("getConfigSuccessData").tip(packageName)
             determineCan(strConfig, packageName)
+            if (!FlavorUtils.isNormal()) {
+                getTip("useNormalVersion").tip(packageName)
+            }
         } catch (e: FileNotFoundException) {
-            "$packageName: 私有目录储存文件无运行中软件自定义配置".tip()
-            "$packageName: 准备使用Context获取自定义配置".log()
+            getTip("failedGetConfigData").tip(packageName)
             contextHook(packageName)
             /*"准备使用xml获取配置".tip()
             xmlHook(packageName)*/
@@ -140,7 +142,7 @@ class Hook {
         if (strConfig.trim().isNotEmpty()) {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             if (appConfig.enable) {
-                "开始自定义Hook".log()
+                getTip("startCustomHook").log(packageName)
                 startHook(strConfig, packageName)
             }
         }
@@ -160,12 +162,13 @@ class Hook {
                             versionName = "",
                             description = ""
                         )
+                        getTip("getConfigSuccessDB").log(packageName)
                         startHook(Gson().toJson(appConfig), packageName)
                         break
                     }
                 }
                 close()
-            } ?: "cursor is null,获取自定义配置失败，请开启增加读取配置方式（Root写入配置）".log()
+            } ?: getTip("failedGetConfigDB").log(packageName)
     }
 
     private fun startHook(strConfig: String, packageName: String) {
@@ -208,8 +211,8 @@ class Hook {
                 }
             }
         } catch (e: Exception) {
-            "config error".log()
-            strConfig.log()
+            "config error".log(packageName)
+            strConfig.log(packageName)
             XposedBridge.log(e.stackTraceToString())
         }
     }
@@ -239,8 +242,7 @@ class Hook {
             Constant.HOOK_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val targetValue = getDataTypeValue(values)
-                        param.result = targetValue
+                        hookReturnValue(values, param)
                     }
                 }
             }
@@ -254,23 +256,7 @@ class Hook {
             Constant.HOOK_PARAM -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        try {
-                            for (i in param.args.indices) {
-                                if (values.split(",")[i] == "") continue
-                                val targetValue = getDataTypeValue(values.split(",")[i])
-                                param.args[i] = targetValue
-                            }
-                        } catch (e: java.lang.Exception) {
-                            val list = listOf(
-                                "错误类型：HookParamsError",
-                                "解决方案：请查看修改值个数是否与参数个数相同",
-                                "所填类名：$className",
-                                "所填方法(参数)：$methodName($params)",
-                                "具体原因：${e.stackTraceToString()}"
-                            )
-                            ErrorTool.toLog(mContext!!, list, packageName, "Error HookParamsError")
-                        }
-
+                        hookParamsValue(param, values, className, methodName, params, packageName)
                     }
                 }
             }
@@ -278,36 +264,14 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
-                        val type = if (isNotChinese) "Param value" else "参数值"
-                        val list = mutableListOf<String>()
-                        list.add(getIntroText("Class name: $className"))
-                        list.add(getIntroText("Method name: $methodName"))
-                        val paramLen = param.args.size
-                        for (i in 0 until paramLen) {
-                            list.add(getIntroText("Param${i + 1}: ${getObjectString(param.args[i] ?: "null")}"))
-                        }
-                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
-                        val logBean = LogBean(
-                            type, list + items, packageName
-                        )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                        recordParamsValue(className, methodName, param, packageName)
                     }
                 }
             }
             Constant.HOOK_RECORD_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val list = mutableListOf<String>()
-                        val type = if (isNotChinese) "Return value" else "返回值"
-                        list.add(getIntroText("Class name: $className"))
-                        list.add(getIntroText("Method name: $methodName"))
-                        val result = getObjectString(param.result ?: "null")
-                        list.add(getIntroText("Return value: $result"))
-                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
-                        val logBean = LogBean(
-                            type, list + items, packageName
-                        )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                        recordReturnValue(className, methodName, param, packageName)
                     }
                 }
             }
@@ -315,21 +279,7 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.args.isEmpty()) return
-                        val type = if (isNotChinese) "Param&Return Value" else "参返"
-                        val list = mutableListOf<String>()
-                        list.add(getIntroText("Class name: $className"))
-                        list.add(getIntroText("Method name: $methodName"))
-                        val paramLen = param.args.size
-                        for (i in 0 until paramLen) {
-                            list.add(getIntroText("Param${i + 1}: ${getObjectString(param.args[i] ?: "null")}"))
-                        }
-                        val result = getObjectString(param.result ?: "null")
-                        list.add(getIntroText("Return value: $result"))
-                        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
-                        val logBean = LogBean(
-                            type, list + items, packageName
-                        )
-                        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                        recordParamsAndReturn(className, methodName, param, packageName)
                     }
                 }
             }
@@ -337,30 +287,136 @@ class Hook {
         try {
             if (params == "*") {
                 val hookClass = classLoader.loadClass(className)
-                XposedBridge.hookAllMethods(hookClass, methodName, obj[realSize] as XC_MethodHook?)
+                if (methodName == "<init>") {
+                    XposedBridge.hookAllConstructors(hookClass, obj[realSize] as XC_MethodHook?)
+                } else {
+                    XposedBridge.hookAllMethods(
+                        hookClass, methodName, obj[realSize] as XC_MethodHook?
+                    )
+                }
             } else {
-                XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+                if (methodName == "<init>") {
+                    XposedHelpers.findAndHookConstructor(className, classLoader, *obj)
+                } else {
+                    XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+                }
             }
         } catch (e: NoSuchMethodError) {
             noSuchMethod(
                 mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
-            "请确保填写的方法名/参数等数据正确".log()
+            getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
             notFoundClass(
                 mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
-            "请确保填写的类名正确".log()
+            getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
             notFoundClass(
                 mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
-            "请确保填写的类名正确".log()
+            getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         }
 
+    }
+
+    private fun hookReturnValue(
+        values: String, param: XC_MethodHook.MethodHookParam
+    ) {
+        val targetValue = getDataTypeValue(values)
+        param.result = targetValue
+    }
+
+    private fun hookParamsValue(
+        param: XC_MethodHook.MethodHookParam,
+        values: String,
+        className: String,
+        methodName: String,
+        params: String,
+        packageName: String
+    ) {
+        try {
+            for (i in param.args.indices) {
+                if (values.split(",")[i] == "") continue
+                val targetValue = getDataTypeValue(values.split(",")[i])
+                param.args[i] = targetValue
+            }
+        } catch (e: java.lang.Exception) {
+            val list = listOf(
+                getTip("errorType") + "HookParamsError",
+                getTip("solution") + getTip("paramsNotEqualValues"),
+                getTip("filledClassName") + className,
+                getTip("filledMethodParams") + "$methodName($params)",
+                getTip("detailReason") + e.stackTraceToString()
+            )
+            ErrorTool.toLog(mContext!!, list, packageName, "Error HookParamsError")
+        }
+    }
+
+    private fun recordParamsValue(
+        className: String,
+        methodName: String,
+        param: XC_MethodHook.MethodHookParam,
+        packageName: String
+    ) {
+        val type = if (isNotChinese) "Param value" else "参数值"
+        val list = mutableListOf<String>()
+        list.add(getTip("className") + className)
+        list.add(getTip("methodName") + methodName)
+        val paramLen = param.args.size
+        for (i in 0 until paramLen) {
+            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        }
+        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val logBean = LogBean(
+            type, list + items, packageName
+        )
+        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+    }
+
+    private fun recordReturnValue(
+        className: String,
+        methodName: String,
+        param: XC_MethodHook.MethodHookParam,
+        packageName: String
+    ) {
+        val list = mutableListOf<String>()
+        val type = if (isNotChinese) "Return value" else "返回值"
+        list.add(getTip("className") + className)
+        list.add(getTip("methodName") + methodName)
+        val result = getObjectString(param.result ?: "null")
+        list.add(getTip("returnValue") + result)
+        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val logBean = LogBean(
+            type, list + items, packageName
+        )
+        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+    }
+
+    private fun recordParamsAndReturn(
+        className: String,
+        methodName: String,
+        param: XC_MethodHook.MethodHookParam,
+        packageName: String
+    ) {
+        val type = if (isNotChinese) "Param&Return Value" else "参返"
+        val list = mutableListOf<String>()
+        list.add(getTip("className") + className)
+        list.add(getTip("methodName") + methodName)
+        val paramLen = param.args.size
+        for (i in 0 until paramLen) {
+            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        }
+        val result = getObjectString(param.result ?: "null")
+        list.add(getTip("returnValue") + result)
+        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val logBean = LogBean(
+            type, list + items, packageName
+        )
+        toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
     }
 
     private fun getObjectString(value: Any): String {
@@ -379,11 +435,15 @@ class Hook {
                 config = getString(getColumnIndex("config"))
             }
             close()
-        } ?: if (FlavorUtils.isNormal()) fileAssistHook2(packageName) else fileAssistHook(
-            packageName
-        )
+        } ?: run {
+            getTip("failedGetExtensionConfigDB").log(packageName)
+            if (FlavorUtils.isNormal()) fileAssistHook2(packageName) else fileAssistHook(
+                packageName
+            )
+        }
         if (config == "") return
         mContext?.also {
+            getTip("getExtensionConfigSuccessDB").log(packageName)
             readyAssistHook(config, packageName)
         }
     }
@@ -407,10 +467,10 @@ class Hook {
             val strConfig =
                 File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "$packageName: 根目录获取扩展配置成功".log()
+            getTip("getExtensionConfigSuccessRoot").log(packageName)
             readyAssistHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "$packageName: 根目录储存文件无运行中软件扩展配置".log()
+            getTip("failedGetExtensionConfigRoot").log(packageName)
             fileAssistHook2(packageName)
             /* "准备从xml中获取扩展配置".log()
              xmlAssistHook(packageName)*/
@@ -423,10 +483,10 @@ class Hook {
             val strConfig =
                 File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
-            "$packageName: 私有目录获取扩展配置成功".log()
+            getTip("getExtensionConfigSuccessData").log(packageName)
             readyAssistHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
-            "$packageName: 私有目录储存文件无运行中软件扩展配置".log()
+            getTip("getExtensionConfigSuccessData").log(packageName)
             /* "准备从xml中获取扩展配置".log()
              xmlAssistHook(packageName)*/
         }
@@ -437,6 +497,7 @@ class Hook {
         strConfig: String, packageName: String
     ) {
         if (strConfig.trim().isEmpty()) return
+        getTip("startExtensionHook").log(packageName)
         val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
         configBean.apply {
             if (!all) return
@@ -455,18 +516,6 @@ class Hook {
             if (crypt) aes(context, packageName)
             if (jsonObject) hookJSONObject(context, packageName)
             if (jsonArray) hookJSONArray(context, packageName)
-        }
-    }
-
-
-    private fun getIntroText(intro: String): String {
-        if (isNotChinese) return intro
-        return when {
-            intro.startsWith("Class name: ") -> intro.replaceFirst("Class name: ", "类名：")
-            intro.startsWith("Method name: ") -> intro.replaceFirst("Method name: ", "方法名：")
-            intro.startsWith("Param") -> intro.replaceFirst("Param", "参数")
-            intro.startsWith("Return value: ") -> intro.replaceFirst("Return value: ", "返回值：")
-            else -> "error"
         }
     }
 }

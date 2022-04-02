@@ -260,6 +260,7 @@
     <string name="extension_item_desc_json_object">记录JSONObject创建时内容、增加时内容</string>
     <string name="extension_item_desc_json_array">記錄JSONArray創建時內容、增加時內容記錄JSONArray創建時內容、增加時內容</string>
     <string name="extension_item_title_hot_fix">熱修復</string>
+    <string name="config_hook_constructor_tip">此模式hook構造方法可能導致目標應用出問題</string>
 
 
 </resources>

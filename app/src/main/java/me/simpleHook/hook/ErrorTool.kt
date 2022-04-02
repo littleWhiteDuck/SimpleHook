@@ -3,6 +3,7 @@ package me.simpleHook.hook
 import android.content.Context
 import com.google.gson.Gson
 import me.simpleHook.bean.LogBean
+import me.simpleHook.hook.Tip.getTip
 
 object ErrorTool {
     fun toLog(
@@ -16,11 +17,11 @@ object ErrorTool {
         context: Context, packageName: String, className: String, methodName: String, error: String
     ) {
         val list = listOf(
-            "错误类型：ClassNotFoundError",
-            "解决方案：请确保你填写的类名正确",
-            "所填类名：$className",
-            "所填方法(参数)|变量名：$methodName",
-            "具体原因：$error"
+            getTip("errorType") + "ClassNotFoundError",
+            getTip("solution") + getTip("notFoundClass"),
+            getTip("filledClassName") + className,
+            getTip("filledMethodOrField") + methodName,
+            getTip("detailReason") + error
         )
         toLog(context, list, packageName, "Error ClassNotFoundError")
     }
@@ -29,11 +30,11 @@ object ErrorTool {
         context: Context, packageName: String, className: String, methodName: String, error: String
     ) {
         val list = listOf(
-            "错误类型：NoSuchMethodError",
-            "解决方案：使用smali转配置",
-            "所填类名：$className",
-            "所填方法(参数)：$methodName",
-            "具体原因：$error"
+            getTip("errorType") + "NoSuchMethodError",
+            getTip("solution") + getTip("useSmali2Config"),
+            getTip("filledClassName") + className,
+            getTip("filledMethodParams") + methodName,
+            getTip("detailReason") + error
         )
         toLog(context, list, packageName, "Error NoSuchMethodError")
     }

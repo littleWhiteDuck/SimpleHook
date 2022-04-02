@@ -9,7 +9,7 @@ import java.lang.reflect.Method
 open class BaseActivity : AppCompatActivity() {
 
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
-        if (menu.javaClass.simpleName.equals("MenuBuilder", true)){
+        if (menu.javaClass.simpleName.equals("MenuBuilder", true)) {
             try {
                 val method: Method =
                     menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)

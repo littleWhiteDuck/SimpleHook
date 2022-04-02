@@ -245,4 +245,5 @@
     <string name="extension_item_desc_json_object">Record the content of JSONObject when it is created and when it is added</string>
     <string name="extension_item_desc_json_array">Record the content of JSONArray when it is created and when it is added</string>
     <string name="extension_item_title_hot_fix">"Hot fix "</string>
+    <string name="config_hook_constructor_tip">This modal hook constructor may cause problems for the target application</string>
 </resources>

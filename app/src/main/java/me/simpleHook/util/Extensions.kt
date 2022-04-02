@@ -28,12 +28,12 @@ fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
 }
 
 //xposed log
-fun String.log() {
-    XposedBridge.log("simpleHook: $this")
+fun String.log(packageName: String) {
+    XposedBridge.log("simpleHook($packageName): $this")
 }
 
-fun String.tip() {
-    XposedBridge.log("simpleHook: $this")
+fun String.tip(packageName: String) {
+    XposedBridge.log("simpleHook($packageName): $this")
 }
 
 fun String.print() {
@@ -52,9 +52,7 @@ fun TextView.marquee() {
 
 val Float.dp
     get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        this,
-        Resources.getSystem().displayMetrics
+        TypedValue.COMPLEX_UNIT_DIP, this, Resources.getSystem().displayMetrics
     )
 
 val Int.dp
@@ -62,9 +60,7 @@ val Int.dp
 
 val Float.px
     get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_PX,
-        this,
-        Resources.getSystem().displayMetrics
+        TypedValue.COMPLEX_UNIT_PX, this, Resources.getSystem().displayMetrics
     )
 
 val Int.px
@@ -78,8 +74,7 @@ fun px2dp(pxValue: Int): Int {
 
 val Float.sp
     get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_SP, this,
-        Resources.getSystem().displayMetrics
+        TypedValue.COMPLEX_UNIT_SP, this, Resources.getSystem().displayMetrics
     )
 
 
@@ -120,10 +115,7 @@ fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
 }
 
 fun StringBuilder.lineFeesItem(
-    list: List<String>,
-    foreground: String,
-    nLine: Int = 0,
-    nLineString: String = ""
+    list: List<String>, foreground: String, nLine: Int = 0, nLineString: String = ""
 ): String {
     this.append(foreground)
     list.forEachIndexed { index, s ->

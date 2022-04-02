@@ -264,6 +264,7 @@
     <string name="config_dialog_title_export_js_config">导出为JSHook-Rhino配置</string>
     <string name="config_dialog_button_invert_selection">反选</string>
     <string name="config_dialog_button_select_all">全选</string>
+    <string name="config_hook_constructor_tip">此模式hook构造方法可能导致目标应用出问题</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>

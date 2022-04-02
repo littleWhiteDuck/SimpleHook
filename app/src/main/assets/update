@@ -1,3 +1,14 @@
+v1.1.8
+    1.修复多个问题
+    2.更多的英文支持
+    3.支持hook构造方法
+        方法名填写类名简称或者<init>
+
+    1.Fix multiple issues
+    2.More English support
+    3.Support hook construction method
+         The method name fills in the simple name of the class or <init>
+
 v1.1.7
     1.增加：单个配置的开关
     2.增加实验功能：导出配置为JSHook-Rhino，仍然存在一些问题待解决

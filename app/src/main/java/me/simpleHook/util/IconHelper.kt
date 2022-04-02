@@ -2,7 +2,6 @@ package me.simpleHook.util
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import me.simpleHook.constant.Constant
 import me.simpleHook.ui.custom.CircleTextDrawable
 
 /*
@@ -27,5 +26,13 @@ object IconHelper {
 
     fun isExists(packageName: String): Boolean {
         return iconMap[packageName] != null
+    }
+
+    fun loadIcon(context: Context, packageName: String) {
+        if (iconMap[packageName] == null) {
+            AppUtils.getIcon(context, packageName).also {
+                iconMap[packageName] = it
+            }
+        }
     }
 }

@@ -13,9 +13,7 @@ import me.simpleHook.util.toast
 
 
 class BottomSheetDialog(
-    context: Context,
-    private val appConfig: AppConfig,
-    private val onClick: () -> Unit
+    context: Context, private val appConfig: AppConfig, private val onClick: () -> Unit
 ) : BottomSheetDialog(context) {
 
     @SuppressLint("SetTextI18n")
@@ -30,8 +28,8 @@ class BottomSheetDialog(
                 appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
                 versionInfo.text = context.getString(
                     R.string.main_bottom_version_info,
-                    versionName,
-                    AppUtils.getAppVersionName(context, packageName)
+                    AppUtils.getAppVersionName(context, packageName),
+                    versionName
                 )
                 editConfigButton.setOnClickListener {
                     onClick()

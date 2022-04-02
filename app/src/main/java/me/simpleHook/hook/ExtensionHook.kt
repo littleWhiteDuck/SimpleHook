@@ -19,6 +19,7 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 import org.json.JSONArray
@@ -63,21 +64,21 @@ object ExtensionHook {
                 val toast: Toast = param?.thisObject as Toast
                 try {
                     XposedHelpers.getObjectField(toast, "mText")?.also {
-                        list.add(getIntroText("Text: $it"))
+                        list.add(getTip("text") + it)
                     }
                 } catch (e: NoSuchFieldError) {
-                    "toast error1".log()
+                    "toast error1".log(packageName)
                     try {
                         XposedHelpers.getObjectField(toast, "mNextView")?.also {
                             val toastView = it as View
                             if (toastView is ViewGroup) {
                                 list += getAllTextView(toastView)
                             } else if (toastView is TextView) {
-                                list.add(getIntroText("Text: " + toastView.text.toString()))
+                                list.add(getTip("text") + toastView.text.toString())
                             }
                         }
                     } catch (e: NoSuchFieldError) {
-                        "toast error2".log()
+                        "toast error2".log(packageName)
                     }
                 }
                 val type = "Toast"
@@ -134,7 +135,7 @@ object ExtensionHook {
             if (contentView is ViewGroup) {
                 list += getAllTextView(contentView)
             } else if (contentView is TextView) {
-                list.add(getIntroText("Text: " + contentView.text.toString()))
+                list.add(getTip("text") + contentView.text.toString())
             }
             val type = "PopupWindow"
             val stackTrace = Throwable().stackTrace
@@ -162,7 +163,7 @@ object ExtensionHook {
                         if (it is ViewGroup) {
                             list += getAllTextView(it)
                         } else if (it is TextView) {
-                            list.add(getIntroText("Text: " + it.text.toString()))
+                            list.add(getTip("text") + it.text.toString())
                         }
                     }
                     val stackTrace = Throwable().stackTrace
@@ -183,12 +184,12 @@ object ExtensionHook {
             when (it) {
                 is Button -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add(getIntroText("Button: " + it.text.toString()))
+                        list.add(getTip("button") + it.text.toString())
                     }
                 }
                 is TextView -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add(getIntroText("Text: " + it.text.toString()))
+                        list.add(getTip("text") + it.text.toString())
                     }
                 }
                 is ViewGroup -> {
@@ -213,11 +214,11 @@ object ExtensionHook {
                     val callbackType = mOnClickListenerObject.javaClass.name
                     val viewId =
                         if (view.id == View.NO_ID) "id：NO ID" else "id： " + Integer.toHexString(view.id)
-                    list.add(getIntroText("View Type: $viewType"))
-                    list.add(getIntroText("Callback Type: $callbackType"))
+                    list.add(getTip("viewType") + viewType)
+                    list.add(getTip("callbackType") + callbackType)
                     list.add(viewId)
                     if (view is TextView) {
-                        list.add(getIntroText("Text: " + view.text.toString()))
+                        list.add(getTip("text") + view.text.toString())
                     } else if (view is ViewGroup) {
                         list += getAllTextView(view)
                     }
@@ -229,7 +230,7 @@ object ExtensionHook {
                     )
                     LogHook.toLogMsg(context, log, packageName, type)
                 } catch (e: Exception) {
-                    "error: click".log()
+                    "error: click".log(packageName)
                 }
             }
         })
@@ -249,9 +250,9 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            getIntroText("Encrypt/Decrypt: encrypt"),
-                            getIntroText("Raw Data: ${String(data)}"),
-                            getIntroText("Encrypt Result: $result")
+                            getTip("isEncrypt"),
+                            getTip("rawData") + String(data),
+                            getTip("encryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(
@@ -273,9 +274,9 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            getIntroText("Encrypt/Decrypt: decrypt"),
-                            getIntroText("Raw Data: ${String(data)}"),
-                            getIntroText("Decrypt Result: $result")
+                            getTip("isDecrypt"),
+                            getTip("rawData") + String(data),
+                            getTip("decryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(
@@ -306,9 +307,9 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            getIntroText("Encrypt/Decrypt: encrypt"),
-                            getIntroText("Raw Data: ${String(rawData)}"),
-                            getIntroText("Encrypt Result: $result")
+                            getTip("isEncrypt"),
+                            getTip("rawData") + String(rawData),
+                            getTip("encryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
@@ -333,9 +334,9 @@ object ExtensionHook {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            getIntroText("Encrypt/Decrypt: decrypt"),
-                            getIntroText("Raw Data: ${String(rawData)}"),
-                            getIntroText("Decrypt Result: $result")
+                            getTip("isDecrypt"),
+                            getTip("rawData") + String(rawData),
+                            getTip("decryptResult") + result
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
@@ -384,9 +385,9 @@ object ExtensionHook {
                 val items = LogHook.toStackTrace(context, stackTrace).toList()
                 val logBean = LogBean(
                     type, listOf(
-                        getIntroText("Encrypt/Decrypt: encrypt"),
-                        getIntroText("Raw Data: ${hashMap["rawData"]}"),
-                        getIntroText("Encrypt Result: $result")
+                        getTip("isEncrypt"),
+                        getTip("rawData") + hashMap["rawData"],
+                        getTip("encryptResult") + result
                     ) + items, packageName
                 )
                 LogHook.toLogMsg(
@@ -425,7 +426,7 @@ object ExtensionHook {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val opmode = param.args[0] as Int
                 val cryptType =
-                    if (opmode == Cipher.ENCRYPT_MODE) getIntroText("encrypt") else getIntroText("decrypt")
+                    if (opmode == Cipher.ENCRYPT_MODE) getTip("encrypt") else getTip("decrypt")
                 map["cryptType"] = cryptType
             }
         })
@@ -478,11 +479,11 @@ object ExtensionHook {
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(
-                            getIntroText("Encrypt/Decrypt: ${map["cryptType"]}"),
-                            getIntroText("Key: ${map["key"]}"),
+                            getTip("Encrypt/Decrypt: ${map["cryptType"]}"),
+                            getTip("key") + map["key"],
                             "iv：${map["iv"]}",
-                            getIntroText("Raw Data：${map["rawData"]}"),
-                            getIntroText("${map["cryptType"] ?: "error"} Result: ${map["result"]}")
+                            getTip("rawData") + map["rawData"],
+                            getTip("${map["cryptType"] ?: "error"}Result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
                         val items = LogHook.toStackTrace(context, stackTrace).toList()
@@ -558,10 +559,10 @@ object ExtensionHook {
                 hasMap["result"] = String(result)
 
                 val list = listOf(
-                    getIntroText("Key: ${hasMap["key"]}"),
-                    getIntroText("Key Algorithm: ${hasMap["keyAlgorithm"]}"),
-                    getIntroText("Raw Data: ${hasMap["rawData"]}"),
-                    getIntroText("Encrypt Result: ${hasMap["result"]}")
+                    getTip("key") + hasMap["key"],
+                    getTip("keyAlgorithm") + hasMap["keyAlgorithm"],
+                    getTip("rawData") + hasMap["rawData"],
+                    getTip("encryptResult") + hasMap["result"]
                 )
                 val stackTrace = Throwable().stackTrace
                 val items = LogHook.toStackTrace(context, stackTrace).toList()
@@ -755,26 +756,5 @@ object ExtensionHook {
         return if (value is List<*> || value is Array<*>) {
             Gson().toJson(value)
         } else value.toString()
-    }
-
-    private fun getIntroText(intro: String): String {
-        if (isEnglish) return intro
-        return when {
-            intro.startsWith("Text") -> intro.replaceFirst("Text: ", "文本：")
-            intro.startsWith("Button") -> intro.replaceFirst("Button: ", "按钮：")
-            intro.startsWith("Callback Type") -> intro.replaceFirst("callbackType: ", "回调类名：")
-            intro.startsWith("View Type") -> intro.replaceFirst("viewType: ", "控件类型：")
-            intro.startsWith("Type: encrypt") -> intro.replaceFirst("Type: encrypt", "类型：加密")
-            intro.startsWith("Raw Data: ") -> intro.replaceFirst("Raw Data: ", "原始数据：")
-            intro.startsWith("Encrypt Result: ") -> intro.replaceFirst("Encrypt Result: ", "加密结果：")
-            intro.startsWith("Decrypt Result: ") -> intro.replaceFirst("Decrypt Result: ", "解密结果：")
-            intro.startsWith("Key: ") -> intro.replaceFirst("Key: ", "密钥：")
-            intro.startsWith("key Algorithm: ") -> intro.replaceFirst("key Algorithm: ", "密钥算法：")
-            intro == "encrypt" -> "加密"
-            intro == "decrypt" -> "解密"
-            intro == "Encrypt/Decrypt: decrypt" -> "加密/解密：解密"
-            intro == "Encrypt/Decrypt: encrypt" -> "加密/解密：加密"
-            else -> intro
-        }
     }
 }

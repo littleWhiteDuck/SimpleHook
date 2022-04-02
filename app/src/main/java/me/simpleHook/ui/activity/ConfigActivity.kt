@@ -245,7 +245,7 @@ class ConfigActivity : BaseActivity() {
             okText = okText,
             okClick = { dialog ->
                 dialogDismiss(
-                    dialog, toCheck(dialogBinding)
+                    dialog, toCheck(dialogBinding, hookMode)
                 )
             },
             cancelText = getString(R.string.config_dialog_cancel),
@@ -294,14 +294,14 @@ class ConfigActivity : BaseActivity() {
         if (!isShow) edit.setText("")
     }
 
-    private fun toCheck(dialogBinding: ConfigDialogBinding): Boolean {
+    private fun toCheck(dialogBinding: ConfigDialogBinding, hookMode: Int): Boolean {
         val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
         val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.fieldNameEdit.text.toString()
         val fieldType = tranParams(dialogBinding.fieldTypeEdit.text.toString())
-        var stateCheck = getCheckStateMode(hookMode)
+        var stateCheck = getCheckStateMode(this.hookMode)
         if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
         if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
         if (params.isNotEmpty()) stateCheck = stateCheck and PARAMS_STATE.inv()
@@ -310,8 +310,23 @@ class ConfigActivity : BaseActivity() {
         if (fieldType.isNotEmpty()) stateCheck = stateCheck and FIELD_TYPE_STATE.inv()
         val canCancel = stateCheck == 0
         if (canCancel) {
-            val configBean =
-                ConfigBean(hookMode, className, methodName, params, fieldName, fieldType, results)
+            val tempMethodName = if (getClassSimpleName(className) == methodName) {
+                if (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK || methodName == "<init>") {
+                    getString(R.string.config_hook_constructor_tip).toast(this)
+                }
+                "<init>"
+            } else {
+                methodName
+            }
+            val configBean = ConfigBean(
+                this.hookMode,
+                className,
+                tempMethodName,
+                params,
+                fieldName,
+                fieldType,
+                results
+            )
             addConfig(configBean)
         } else {
             getString(R.string.config_info_not_match_mode).toast(this)
@@ -588,6 +603,15 @@ class ConfigActivity : BaseActivity() {
             Constant.HOOK_BREAK
         } else {
             Constant.HOOK_RETURN
+        }
+    }
+
+    private fun getClassSimpleName(classStr: String): String {
+        return if (classStr.contains(".")) {
+            val classStrNames = classStr.split(".")
+            classStrNames[classStrNames.size - 1]
+        } else {
+            classStr
         }
     }
 }
