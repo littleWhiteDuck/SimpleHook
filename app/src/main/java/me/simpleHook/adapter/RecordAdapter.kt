@@ -10,6 +10,7 @@ import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.ui.view.record.RecordItemView
+import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
 import me.simpleHook.util.dp
@@ -50,11 +51,7 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
                 R.string.record_item_status_unread
             )
             if (isType) {
-                icon.setImageDrawable(
-                    IconHelper.getAppIcon(
-                        holder.itemView.context, logBean.packageName
-                    )
-                )
+                GlideApp.with(icon).load(logBean.packageName).into(icon)
             } else {
                 val showText = RecordType.getShowText(printLog.type)
                 icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))

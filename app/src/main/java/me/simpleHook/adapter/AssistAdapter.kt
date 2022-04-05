@@ -8,18 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.ui.custom.CircleTextDrawable
 import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
-import me.simpleHook.util.IconHelper
-import me.simpleHook.util.dp
+import me.simpleHook.util.GlideApp
 import me.simpleHook.util.marquee
 
 class AssistAdapter(
-    private val onClick: (AssistConfig) -> Unit,
-    private val onLongClick: (AssistConfig) -> Unit
-) :
-    ListAdapter<AssistConfig, ViewHolder>(AssistDiff) {
+    private val onClick: (AssistConfig) -> Unit, private val onLongClick: (AssistConfig) -> Unit
+) : ListAdapter<AssistConfig, ViewHolder>(AssistDiff) {
 
     inner class ViewHolder(assistItemView: AssistItemView) :
         RecyclerView.ViewHolder(assistItemView) {
@@ -34,9 +30,7 @@ class AssistAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: AssistConfig, newItem: AssistConfig) =
-            oldItem.allSwitch == newItem.allSwitch
-                    && oldItem.appName == newItem.appName
-                    && oldItem.config == newItem.config
+            oldItem.allSwitch == newItem.allSwitch && oldItem.appName == newItem.appName && oldItem.config == newItem.config
 
     }
 
@@ -63,12 +57,7 @@ class AssistAdapter(
         holder.itemView.setTag(R.id.item_assist_config, assistConfig)
         holder.apply {
             tvAppName.text = assistConfig.appName
-            ivAppIcon.setImageDrawable(
-                IconHelper.getAppIcon(
-                    holder.itemView.context,
-                    assistConfig.packageName
-                )
-            )
+            GlideApp.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
             tvVersionName.text =
                 AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
         }

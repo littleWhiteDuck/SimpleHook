@@ -10,6 +10,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.main.AppConfigView
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
 
@@ -64,12 +65,7 @@ class HomeAdapter(
                 tvConfigDesc.text = if (description.trim().isEmpty()) packageName else description
                 tvConfigDesc.marquee()
                 ableSwitch.isChecked = enable
-                ivAppIcon.setImageDrawable(
-                    IconHelper.getAppIcon(
-                        holder.itemView.context,
-                        packageName
-                    )
-                )
+                GlideApp.with(ivAppIcon).load(packageName).into(ivAppIcon)
             }
         }
     }

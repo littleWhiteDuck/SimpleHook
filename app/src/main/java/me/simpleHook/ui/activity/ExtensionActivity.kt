@@ -56,6 +56,8 @@ private const val VPN_CHECK_STATUS = 1 shl 12
 private const val HOT_FIX_STATUS = 1 shl 13
 private const val JSON_OBJECT_STATUS = 1 shl 14
 private const val JSON_ARRAY_STATUS = 1 shl 15
+private const val WEB_LOAD_URL_STATUS = 1 shl 16
+private const val WEB_DEBUG_STATUS = 1 shl 17
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
@@ -259,6 +261,17 @@ class AssistActivity : BaseActivity() {
                         jsonArray,
                         JSON_ARRAY_STATUS,
                         getString(R.string.extension_item_desc_json_array)
+                    )
+                )
+                add(AssistTitle("WebView"))
+                add(
+                    AssistItem(
+                        title = "loadUrl", webLoadUrl, WEB_LOAD_URL_STATUS, "记录加载链接"
+                    )
+                )
+                add(
+                    AssistItem(
+                        title = "Debug", webDebug, WEB_DEBUG_STATUS, "webView可调式"
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_others)))
@@ -483,6 +496,12 @@ class AssistActivity : BaseActivity() {
         }
         if (isContains(JSON_ARRAY_STATUS)) {
             configBean.jsonArray = isChecked(JSON_ARRAY_STATUS)
+        }
+        if (isContains(WEB_LOAD_URL_STATUS)) {
+            configBean.webLoadUrl = isChecked(WEB_LOAD_URL_STATUS)
+        }
+        if (isContains(WEB_DEBUG_STATUS)) {
+            configBean.webDebug = isChecked(WEB_DEBUG_STATUS)
         }
         val config = Gson().toJson(configBean)
         assistConfig.config = config

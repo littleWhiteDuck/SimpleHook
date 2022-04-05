@@ -126,4 +126,9 @@ dependencies {
     implementation("androidx.paging:paging-runtime:$paging_version")
 
     implementation("androidx.room:room-paging:2.5.0-alpha01")
+
+    //glide
+
+    implementation 'com.github.bumptech.glide:glide:4.13.1'
+    kapt 'com.github.bumptech.glide:compiler:4.13.1'
 }

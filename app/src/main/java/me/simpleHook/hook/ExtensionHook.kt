@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -750,6 +751,41 @@ object ExtensionHook {
                 LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
             }
         })
+    }
+
+    fun hookWebLoadUrl(context: Context, packageName: String) {
+        XposedBridge.hookAllMethods(WebView::class.java, "loadUrl", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val type = "WEB"
+                val url = param.args[0] as String
+                val list = mutableListOf<String>()
+                list.add("Url: $url")
+                if (param.args.size == 2) {
+                    val headers = Gson().toJson(param.args[1])
+                    list.add("Header: $headers")
+                }
+                val logBean = LogBean(type, list, packageName)
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+    }
+
+    fun hookWebDebug(context: Context, packageName: String) {
+        val webClass = XposedHelpers.findClass("android.webkit.WebView", context.classLoader)
+        XposedBridge.hookAllConstructors(webClass, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                XposedHelpers.callStaticMethod(webClass, "setWebContentsDebuggingEnabled", true)
+            }
+        })
+        XposedHelpers.findAndHookMethod(
+            webClass,
+            "setWebContentsDebuggingEnabled",
+            Boolean::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    param.args[0] = true
+                }
+            })
     }
 
     private fun getObjectString(value: Any): String {

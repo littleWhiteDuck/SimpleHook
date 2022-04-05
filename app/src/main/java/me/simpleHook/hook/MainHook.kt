@@ -28,6 +28,8 @@ import me.simpleHook.hook.ExtensionHook.hookOnClick
 import me.simpleHook.hook.ExtensionHook.hookPopupWindow
 import me.simpleHook.hook.ExtensionHook.hookToast
 import me.simpleHook.hook.ExtensionHook.hookVpnCheck
+import me.simpleHook.hook.ExtensionHook.hookWebDebug
+import me.simpleHook.hook.ExtensionHook.hookWebLoadUrl
 import me.simpleHook.hook.ExtensionHook.init
 import me.simpleHook.hook.ExtensionHook.mac
 import me.simpleHook.hook.ExtensionHook.shaAndMD5
@@ -516,6 +518,8 @@ class Hook {
             if (crypt) aes(context, packageName)
             if (jsonObject) hookJSONObject(context, packageName)
             if (jsonArray) hookJSONArray(context, packageName)
+            if (webLoadUrl) hookWebLoadUrl(context, packageName)
+            if (webDebug) hookWebDebug(context, packageName)
         }
     }
 }

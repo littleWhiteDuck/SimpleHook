@@ -7,7 +7,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
-import me.simpleHook.R
 
 
 object AppUtils {
@@ -21,12 +20,11 @@ object AppUtils {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon(context: Context, packageName: String): Drawable {
-        try {
-            return context.packageManager.getApplicationIcon(packageName)
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
         } catch (e: PackageManager.NameNotFoundException) {
-
+            context.packageManager.defaultActivityIcon
         }
-        return context.resources.getDrawable(R.drawable.ic_launcher_foreground, null)
     }
 
     @SuppressLint("QueryPermissionsNeeded")

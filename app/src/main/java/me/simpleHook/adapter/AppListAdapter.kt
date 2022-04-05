@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
+import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
 import kotlin.concurrent.thread
@@ -43,18 +44,19 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         holder.itemView.setTag(R.id.item_select_position, appItem)
         holder.apply {
             appItem.apply {
-                thread {
-                    // only test , need fix
-                    try {
-                        ivIcon.setImageDrawable(
-                            IconHelper.getAppIcon(
-                                holder.itemView.context, packageName
-                            )
-                        )
-                    } catch (e: Exception) {
+                /*  thread {
+                      // only test , need fix
+                      try {
+                          ivIcon.setImageDrawable(
+                              IconHelper.getAppIcon(
+                                  holder.itemView.context, packageName
+                              )
+                          )
+                      } catch (e: Exception) {
 
-                    }
-                }
+                      }
+                  }*/
+                GlideApp.with(ivIcon).load(packageName).into(ivIcon)
                 tvAppName.text = name
                 tvAppName.marquee()
                 tvPackageName.text = packageName

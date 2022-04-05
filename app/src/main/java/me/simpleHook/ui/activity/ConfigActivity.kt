@@ -18,7 +18,9 @@ import androidx.activity.viewModels
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -310,22 +312,11 @@ class ConfigActivity : BaseActivity() {
         if (fieldType.isNotEmpty()) stateCheck = stateCheck and FIELD_TYPE_STATE.inv()
         val canCancel = stateCheck == 0
         if (canCancel) {
-            val tempMethodName = if (getClassSimpleName(className) == methodName) {
-                if (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK || methodName == "<init>") {
-                    getString(R.string.config_hook_constructor_tip).toast(this)
-                }
-                "<init>"
-            } else {
-                methodName
+            if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
+                getString(R.string.config_hook_constructor_tip).toast(this)
             }
             val configBean = ConfigBean(
-                this.hookMode,
-                className,
-                tempMethodName,
-                params,
-                fieldName,
-                fieldType,
-                results
+                this.hookMode, className, methodName, params, fieldName, fieldType, results
             )
             addConfig(configBean)
         } else {

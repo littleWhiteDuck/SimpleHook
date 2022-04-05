@@ -7,12 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.RecordSummary
-import me.simpleHook.constant.Constant
 import me.simpleHook.ui.view.record.RecordItemView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.IconHelper
-import me.simpleHook.util.RecordType
-import me.simpleHook.util.dp
+import me.simpleHook.util.*
 
 class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
     ListAdapter<RecordSummary, RecordSummaryAdapter.ViewHolder>(RecordDiffCallback) {
@@ -47,11 +43,7 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
                         )
                     desc.text = packageName
                     tvCount.text = count.toString()
-                    icon.setImageDrawable(
-                        IconHelper.getAppIcon(
-                            holder.itemView.context, packageName
-                        )
-                    )
+                    GlideApp.with(icon).load(packageName).into(icon)
                 } else {
                     title.text = if (type.startsWith("Error")) "Hook Error" else type
                     tvCount.text = count.toString()

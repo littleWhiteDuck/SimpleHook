@@ -19,5 +19,7 @@ data class AssistConfigBean(
     var crypt: Boolean = false,
     var base64: Boolean = false,
     var jsonObject: Boolean = false,
-    var jsonArray: Boolean = false
+    var jsonArray: Boolean = false,
+    var webLoadUrl: Boolean = false,
+    var webDebug: Boolean = false
 )

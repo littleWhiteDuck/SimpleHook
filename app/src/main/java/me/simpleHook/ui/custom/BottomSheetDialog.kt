@@ -9,6 +9,7 @@ import me.simpleHook.R
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.CustomBottomPopupBinding
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.GlideApp
 import me.simpleHook.util.toast
 
 
@@ -25,7 +26,7 @@ class BottomSheetDialog(
                 appNameText.text = appName
                 packageNameText.text = packageName
                 configDescription.text = description
-                appIcon.setImageDrawable(AppUtils.getIcon(context, packageName))
+                GlideApp.with(appIcon).load(packageName).into(appIcon)
                 versionInfo.text = context.getString(
                     R.string.main_bottom_version_info,
                     AppUtils.getAppVersionName(context, packageName),

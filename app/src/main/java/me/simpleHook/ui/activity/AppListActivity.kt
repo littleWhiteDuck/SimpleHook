@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.webkit.WebView
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
