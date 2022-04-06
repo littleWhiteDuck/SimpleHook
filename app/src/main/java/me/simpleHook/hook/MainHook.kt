@@ -37,10 +37,7 @@ import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.log
-import me.simpleHook.util.tip
+import me.simpleHook.util.*
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -213,8 +210,20 @@ class Hook {
                 }
             }
         } catch (e: Exception) {
+            val configTemp = try {
+                val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+                JsonUtil.formatJson(appConfig.configs)
+            } catch (e: java.lang.Exception) {
+                strConfig
+            }
+            ErrorTool.toLog(
+                mContext!!, arrayListOf(
+                    getTip("errorType") + getTip("unknownError"),
+                    "config: $configTemp",
+                    getTip("detailReason") + e.stackTraceToString()
+                ), packageName, "Error Unknown Error"
+            )
             "config error".log(packageName)
-            strConfig.log(packageName)
             XposedBridge.log(e.stackTraceToString())
         }
     }
@@ -265,7 +274,6 @@ class Hook {
             Constant.HOOK_RECORD_PARAMS -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.args.isEmpty()) return
                         recordParamsValue(className, methodName, param, packageName)
                     }
                 }
@@ -280,7 +288,6 @@ class Hook {
             Constant.HOOK_RECORD_PARAMS_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.args.isEmpty()) return
                         recordParamsAndReturn(className, methodName, param, packageName)
                     }
                 }
@@ -369,8 +376,12 @@ class Hook {
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
         val paramLen = param.args.size
-        for (i in 0 until paramLen) {
-            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        if (paramLen == 0) {
+            list.add(getTip("notHaveParams"))
+        } else {
+            for (i in 0 until paramLen) {
+                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+            }
         }
         val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
         val logBean = LogBean(
@@ -409,8 +420,12 @@ class Hook {
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
         val paramLen = param.args.size
-        for (i in 0 until paramLen) {
-            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        if (paramLen == 0) {
+            list.add(getTip("notHaveParams"))
+        } else {
+            for (i in 0 until paramLen) {
+                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+            }
         }
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)

@@ -126,6 +126,14 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_source_license_2)
                 )
             )
+
+            add(
+                OpenSource(
+                    "Glide - Sam sjudd",
+                    "https://github.com/bumptech/glide",
+                    "BSD, MIT and Apache 2.0"
+                )
+            )
         }
     }
 
