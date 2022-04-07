@@ -62,7 +62,7 @@ Floating window
 
 ## Custom Hook writing rules
 
-The following is the writing rule: (You can download *[HookTest.apk](https://littlewhiteduck.lanzoui.com/b0eqxvvbc)(password: simple)*, this App applies all the situations and includes configuration)
+The following is the writing rule: (You can download *[HookTest.apk](/HookTest.apk)*, this App applies all the situations and includes configuration)
 
 > Please understand the setting page smali to config before use, it can simplify your operation (with reverse analysis software such as MT manager)
 
@@ -234,12 +234,11 @@ public class Example{
 // Hook mode, choose according to your own needs
 /*
   Method name filling rules
-       java syntax: shorthand name of the class name, such as the above code example, the method name should be filled in Example
-       smali syntax: fill in <init> for the method name
+       fill in <init> for the method name
   */
 ````
 
-#### static variables
+#### static field
 
 ````java
 import simple.example;
@@ -247,19 +246,19 @@ public class Example{
   public static boolean isTest = false;
 }
 // Concrete values only support primitive types, and strings
-// There is no need to fill in the variable type; it must comply with the rules for filling in the result value
+// There is no need to fill in the field type; it must comply with the rules for filling in the result value
 /*
-  Mode selection Hook static variable
+  Mode selection Hook static field
   The class name should be filled in: simple.example.Example
-  The variable name should be filled in: isTest
-  Variable type does not need to be filled in
+  The field name should be filled in: isTest
+  Field type does not need to be filled in
   The modified value should be filled in: true/false
 */
 ````
 
-#### variables
+#### instance field
 
-> Fill in the same as static variables
+> Fill in the same as static field
 
 #### print parameter value
 
@@ -346,3 +345,13 @@ public class Example{
 > You may not have turned on Enable storage permissions to write to configuration (switch configuration settings at the top of the page)
 >
 > Remember to manually refresh the configuration after opening (re-save or switch the configuration)
+
+### 6. About the configuration page transfer parameter/variable type
+
+> On by default, if you turn it off, there may be many problems
+>
+> When there is an unexpected situation (very low probability): If the parameter type is org.json.JSON, it will be recognized as org.json.J,S,ON. In this case, you need to close it and manually enter the class name/or variable name that meets the java syntax. After the manual input is completed, remember to open it. If you re-save, you still need to close it first, then modify and save it.
+>
+> JSON has been excluded by me and can be automatically converted normally.
+> 
+> 
