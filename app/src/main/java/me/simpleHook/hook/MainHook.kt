@@ -513,28 +513,38 @@ class Hook {
     private fun readyAssistHook(
         strConfig: String, packageName: String
     ) {
-        if (strConfig.trim().isEmpty()) return
-        getTip("startExtensionHook").log(packageName)
-        val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
-        configBean.apply {
-            if (!all) return
-            val context: Context = mContext!!
-            init()
-            hookDialog(context, dialog, diaCancel, packageName)
-            if (toast) hookToast(context, packageName)
-            hookPopupWindow(context, popup, popCancel, packageName)
-            if (hotFix) HotFix.startFix(context, packageName)
-            if (intent) hookIntent(context, packageName)
-            if (click) hookOnClick(context, packageName)
-            if (vpn) hookVpnCheck(context)
-            if (base64) base64(context, packageName)
-            if (digest) shaAndMD5(context, packageName)
-            if (hmac) mac(context, packageName)
-            if (crypt) aes(context, packageName)
-            if (jsonObject) hookJSONObject(context, packageName)
-            if (jsonArray) hookJSONArray(context, packageName)
-            if (webLoadUrl) hookWebLoadUrl(context, packageName)
-            if (webDebug) hookWebDebug(context, packageName)
+        try {
+            if (strConfig.trim().isEmpty()) return
+            getTip("startExtensionHook").log(packageName)
+            val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
+            configBean.apply {
+                if (!all) return
+                val context: Context = mContext!!
+                init()
+                hookDialog(context, dialog, diaCancel, packageName)
+                if (toast) hookToast(context, packageName)
+                hookPopupWindow(context, popup, popCancel, packageName)
+                if (hotFix) HotFix.startFix(context, packageName)
+                if (intent) hookIntent(context, packageName)
+                if (click) hookOnClick(context, packageName)
+                if (vpn) hookVpnCheck(context)
+                if (base64) base64(context, packageName)
+                if (digest) shaAndMD5(context, packageName)
+                if (hmac) mac(context, packageName)
+                if (crypt) aes(context, packageName)
+                if (jsonObject) hookJSONObject(context, packageName)
+                if (jsonArray) hookJSONArray(context, packageName)
+                if (webLoadUrl) hookWebLoadUrl(context, packageName)
+                if (webDebug) hookWebDebug(context, packageName)
+            }
+        } catch (e: java.lang.Exception) {
+            ErrorTool.toLog(
+                mContext!!, arrayListOf(
+                    getTip("errorType") + getTip("unknownError"),
+                    "config: ${JsonUtil.formatJson(strConfig)}",
+                    getTip("detailReason") + e.stackTraceToString()
+                ), packageName, "Error Unknown Error"
+            )
         }
     }
 }

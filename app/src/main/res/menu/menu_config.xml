@@ -3,6 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/xParams"
+        android:checkable="true"
+        android:title="@string/config_auto_transfer_param_field"
+        android:checked="true"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/config_smali_to_config"
         android:title="@string/config_config_smali_to_config"
         android:icon="@drawable/ic_paste"

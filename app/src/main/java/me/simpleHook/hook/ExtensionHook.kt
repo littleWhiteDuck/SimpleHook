@@ -480,16 +480,16 @@ object ExtensionHook {
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(
-                            getTip("Encrypt/Decrypt: ${map["cryptType"]}"),
+                            getTip("encryptOrDecrypt") + map["cryptType"],
                             getTip("key") + map["key"],
                             "iv：${map["iv"]}",
                             getTip("rawData") + map["rawData"],
-                            getTip("${map["cryptType"] ?: "error"}Result") + map["result"]
+                            getTip(map["cryptType"] ?: "error") + getTip("Result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
                         val items = LogHook.toStackTrace(context, stackTrace).toList()
                         val logBean = LogBean(
-                            map["algorithmType"]!!, list + items, packageName
+                            map["algorithmType"] ?: "null", list + items, packageName
                         )
                         LogHook.toLogMsg(
                             context, Gson().toJson(logBean), packageName, logBean.type
@@ -568,7 +568,7 @@ object ExtensionHook {
                 val stackTrace = Throwable().stackTrace
                 val items = LogHook.toStackTrace(context, stackTrace).toList()
                 val logBean = LogBean(
-                    hasMap["algorithmType"]!!, list + items, packageName
+                    hasMap["algorithmType"] ?: "null", list + items, packageName
                 )
                 LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 hasMap.clear()

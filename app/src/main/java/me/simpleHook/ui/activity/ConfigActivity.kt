@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,9 +19,7 @@ import androidx.activity.viewModels
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -383,6 +382,7 @@ class ConfigActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_config, menu)
         if (!sp.smali2Config) menu.removeItem(R.id.config_smali_to_config)
+        menu.findItem(R.id.xParams).isChecked = sp.xParams
         return true
     }
 
@@ -393,6 +393,13 @@ class ConfigActivity : BaseActivity() {
             R.id.select_app -> packageInfo.launch(Intent(this, AppListActivity::class.java))
             R.id.config_smali_to_config -> {
                 ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
+            }
+            R.id.xParams -> {
+                item.isChecked = !item.isChecked
+                sp.xParams = item.isChecked
+                if (!item.isChecked) {
+                    getString(R.string.config_xparams_tip).toast(this)
+                }
             }
         }
         return true
@@ -553,7 +560,12 @@ class ConfigActivity : BaseActivity() {
 
     private fun tranParams(params: String): String {
         if (params.isEmpty()) return ""
+        if (!sp.xParams) return params
         var paramStr = params
+        val json = "<ON>"
+        if (params.contains("JSON")) {
+            paramStr = paramStr.replace("JSON", json)
+        }
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
@@ -565,6 +577,9 @@ class ConfigActivity : BaseActivity() {
             sb.append(tranParam(paramArray[i])).append(",")
         }
         var temp = sb.toString()
+        if (params.contains("JSON")) {
+            temp = paramStr.replace(json, "JSON")
+        }
         if (temp[temp.length - 1] == ',') {
             temp = temp.substring(0, temp.length - 1)
         }

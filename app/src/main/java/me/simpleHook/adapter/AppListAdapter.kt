@@ -9,9 +9,7 @@ import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.GlideApp
-import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
-import kotlin.concurrent.thread
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
     private lateinit var listener: OnItemClickListener

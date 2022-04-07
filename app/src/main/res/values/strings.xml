@@ -265,6 +265,8 @@
     <string name="config_dialog_button_invert_selection">反选</string>
     <string name="config_dialog_button_select_all">全选</string>
     <string name="config_hook_constructor_tip">此模式hook构造方法可能导致目标应用出问题</string>
+    <string name="config_auto_transfer_param_field">自动转参数|变量类型</string>
+    <string name="config_xparams_tip">记得开启此项功能，来简化你的操作</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>
