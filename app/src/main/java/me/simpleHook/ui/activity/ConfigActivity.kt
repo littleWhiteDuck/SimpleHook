@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,6 +19,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -37,9 +37,13 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
+import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+import java.io.File
+import java.io.FileNotFoundException
 import java.lang.reflect.Field
 import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
@@ -71,8 +75,10 @@ private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
 
 
 class ConfigActivity : BaseActivity() {
+
     private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<ConfigBean>()
+    private var collectConfigList = mutableListOf<ConfigBean>()
     private var hookMode = Constant.HOOK_RETURN
     private var modify = false
     private var modifyConfig = false
@@ -87,6 +93,19 @@ class ConfigActivity : BaseActivity() {
         ConfigAdapter({ position -> onClick(position) },
             { position -> onLongClick(position) },
             { position, isChecked -> onCheckedChange(position, isChecked) })
+    }
+    private val collectAdapter by lazy {
+        ConfigAdapter({ position -> onCollectClick(position) },
+            onLongClick = {},
+            onCheckedChange = { position, isChecked ->
+                onCollectCheckedChange(
+                    position, isChecked
+                )
+            })
+    }
+    private var isCollection = false
+    private val collectionFilePath by lazy {
+        getExternalFilesDir(null)!!.path + "/collection_config.json"
     }
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -129,7 +148,10 @@ class ConfigActivity : BaseActivity() {
     private fun initView() {
         binding.apply {
             packageNameInputLayout.isEnabled = false
-            addMethodConfig.setOnClickListener { showDialog() }
+            addMethodConfig.setOnClickListener {
+                isCollection = false
+                showDialog()
+            }
             addMethodConfig.setOnLongClickListener {
                 visibleFab = false
                 addMethodConfig.hide()
@@ -178,27 +200,51 @@ class ConfigActivity : BaseActivity() {
         })
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     private fun onLongClick(position: Int) {
         val methodConfig = configList[position]
-        addRemoveItem(methodConfig)
-        Snackbar.make(
-            binding.addMethodConfig,
-            getString(R.string.config_add_repeat_config_tip),
-            Snackbar.LENGTH_LONG
-        ).apply {
-            anchorView = binding.addMethodConfig
-        }.setAction(getString(R.string.config_undo_repeat_config)) {
-            configList.removeAt(configList.size - 1)
-            mAdapter.submitList(configList)
-            mAdapter.notifyDataSetChanged()
+        val arrayList = resources.getStringArray(R.array.config_select_item)
+        val popupWindowList =
+            PopupWindowList.Builder(this).setItemList(arrayList).setOutsideTouchable(true).build()
+        popupWindowList.setOnItemClickListener { _, _, pos, _ ->
+            popupWindowList.dismiss()
+            when (pos) {
+                0 -> {
+                    try {
+                        val tempList = getAllCollection(true)
+                        tempList.add(methodConfig)
+                        writeCollection(Gson().toJson(tempList))
+                        getString(R.string.config_collect_success_tip).toast(this)
+                    } catch (e: Exception) {
+                        getString(R.string.config_collect_failed_tip).toast(this)
+                    }
+                }
+                1 -> {
+                    ToolUtils.toClip(this, Gson().toJson(methodConfig))
+                    getString(R.string.main_home_export_configs_tip).toast(this)
+                }
+                2 -> {
+                    addRemoveItem(methodConfig)
+                    Snackbar.make(
+                        binding.addMethodConfig,
+                        getString(R.string.config_add_repeat_config_tip),
+                        Snackbar.LENGTH_LONG
+                    ).apply {
+                        anchorView = binding.addMethodConfig
+                    }.setAction(getString(R.string.config_undo_repeat_config)) {
+                        configList.removeAt(configList.size - 1)
+                        mAdapter.submitList(configList)
+                        mAdapter.notifyDataSetChanged()
+                    }.show()
+                }
+            }
         }.show()
     }
 
     private fun onClick(position: Int) {
         modifyConfigPosition = position
         val methodConfig = configList[position]
+        isCollection = false
         showDialog(methodConfig)
     }
 
@@ -246,7 +292,7 @@ class ConfigActivity : BaseActivity() {
             okText = okText,
             okClick = { dialog ->
                 dialogDismiss(
-                    dialog, toCheck(dialogBinding, hookMode)
+                    dialog, toCheck(dialogBinding, hookMode, configBean.enable)
                 )
             },
             cancelText = getString(R.string.config_dialog_cancel),
@@ -295,7 +341,9 @@ class ConfigActivity : BaseActivity() {
         if (!isShow) edit.setText("")
     }
 
-    private fun toCheck(dialogBinding: ConfigDialogBinding, hookMode: Int): Boolean {
+    private fun toCheck(
+        dialogBinding: ConfigDialogBinding, hookMode: Int, enable: Boolean
+    ): Boolean {
         val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
         val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
@@ -315,7 +363,7 @@ class ConfigActivity : BaseActivity() {
                 getString(R.string.config_hook_constructor_tip).toast(this)
             }
             val configBean = ConfigBean(
-                this.hookMode, className, methodName, params, fieldName, fieldType, results
+                this.hookMode, className, methodName, params, fieldName, fieldType, results, enable
             )
             addConfig(configBean)
         } else {
@@ -357,9 +405,19 @@ class ConfigActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun addConfig(configBean: ConfigBean) {
         if (modifyConfig) {
-            configList[modifyConfigPosition] = configBean
-            mAdapter.submitList(configList)
-            mAdapter.notifyDataSetChanged()
+            if (isCollection) {
+                collectConfigList[modifyConfigPosition] = configBean
+                collectAdapter.submitList(collectConfigList)
+                collectAdapter.notifyItemChanged(modifyConfigPosition)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val tempConfig = Gson().toJson(collectConfigList)
+                    writeCollection(tempConfig)
+                }
+            } else {
+                configList[modifyConfigPosition] = configBean
+                mAdapter.submitList(configList)
+                mAdapter.notifyDataSetChanged()
+            }
         } else {
             addRemoveItem(configBean)
         }
@@ -372,11 +430,43 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun addRemoveItem(configBean: ConfigBean, isAdd: Boolean = true) {
-        configList.apply {
-            if (isAdd) add(configBean) else remove(configBean)
+        if (isCollection) {
+            collectConfigList.apply {
+                if (isAdd) add(configBean) else remove(configBean)
+            }
+            collectAdapter.submitList(collectConfigList)
+            collectAdapter.notifyDataSetChanged()
+            lifecycleScope.launch(Dispatchers.IO) {
+                val tempConfig = Gson().toJson(collectConfigList)
+                writeCollection(tempConfig)
+            }
+        } else {
+            configList.apply {
+                if (isAdd) add(configBean) else remove(configBean)
+            }
+            mAdapter.submitList(configList)
+            mAdapter.notifyDataSetChanged()
         }
-        mAdapter.submitList(configList)
-        mAdapter.notifyDataSetChanged()
+    }
+
+    private fun writeCollection(content: String) {
+        FileUtils.writeTextToFile(
+            content, getExternalFilesDir(null)!!.path + "/", "collection_config.json"
+        )
+    }
+
+    private fun getAllCollection(isWrite: Boolean = false): MutableList<ConfigBean> {
+        var tempList = mutableListOf<ConfigBean>()
+        try {
+            val strCollection = File(collectionFilePath).reader().use { it.readText() }
+            val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
+            tempList = Gson().fromJson<ArrayList<ConfigBean>>(strCollection, listType)
+        } catch (e: FileNotFoundException) {
+            if (!isWrite) getString(R.string.config_no_collection_tip).toast(this)
+        } catch (e: Exception) {
+            getString(R.string.config_get_collection_error).toast(this)
+        }
+        return tempList
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -398,11 +488,71 @@ class ConfigActivity : BaseActivity() {
                 item.isChecked = !item.isChecked
                 sp.xParams = item.isChecked
                 if (!item.isChecked) {
-                    getString(R.string.config_xparams_tip).toast(this)
+                    warningDialog(
+                        this,
+                        title = getString(R.string.config_auto_transfer_smali_title),
+                        message = getString(
+                            R.string.config_auto_transfer_smali_message
+                        )
+                    )
                 }
+            }
+            R.id.collect -> {
+                showCollectConfigDialog()
             }
         }
         return true
+    }
+
+    private fun showCollectConfigDialog() {
+        collectConfigList.clear()
+        getAllCollection().forEach {
+            collectConfigList.add(it.copy(enable = false))
+        }
+        if (collectConfigList.isEmpty()) {
+            getString(R.string.config_no_collection_tip).toast(this)
+            return
+        }
+        val recyclerView = RecyclerView(this)
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@ConfigActivity)
+            addItemDecoration(
+                DividerItemDecoration(
+                    this@ConfigActivity, DividerItemDecoration.VERTICAL
+                )
+            )
+            adapter = collectAdapter
+        }
+        collectAdapter.submitList(collectConfigList)
+        customDialog(this,
+            title = getString(R.string.config_collection_dialog_title),
+            contentView = recyclerView,
+            okClick = {
+                collectConfigList.forEach {
+                    if (it.enable) {
+                        addRemoveItem(it, true)
+                    }
+                }
+            },
+            okText = getString(R.string.config_collection_confirm),
+            cancelAble = false,
+            cancelText = getString(
+                R.string.config_collection_cancel
+            ),
+            cancelClick = {
+                it.dismiss()
+            }).show()
+
+    }
+
+    private fun onCollectClick(position: Int) {
+        modifyConfigPosition = position
+        isCollection = true
+        showDialog(collectConfigList[position])
+    }
+
+    private fun onCollectCheckedChange(position: Int, checked: Boolean) {
+        collectConfigList[position].enable = checked
     }
 
     private fun saveConfig() {
@@ -456,7 +606,6 @@ class ConfigActivity : BaseActivity() {
             onBackPressed()
         }, 2000)
     }
-
 
     private fun getAppConfig(): AppConfig {
         val appName = binding.appNameEdit.text.toString()
@@ -533,6 +682,14 @@ class ConfigActivity : BaseActivity() {
                 }
                 configBean
             }
+            JsonUtil.isJsonObject(string) -> {
+                try {
+                    configBean = Gson().fromJson(string, ConfigBean::class.java)
+                } catch (e: java.lang.Exception) {
+                    "识别到为json格式，但不符合复制出配置的格式".toast(this)
+                }
+                configBean
+            }
             else -> configBean
         }
         config?.also {
@@ -559,13 +716,14 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun tranParams(params: String): String {
-        if (params.isEmpty()) return ""
-        if (!sp.xParams) return params
+        val isSmali = params.contains(Regex("[/;]")) || isPrimitiveType(params)
+        if (!isSmali || params.isEmpty() || !sp.xParams) return params
         var paramStr = params
         val json = "<ON>"
         if (params.contains("JSON")) {
             paramStr = paramStr.replace("JSON", json)
         }
+        paramStr = paramStr.replace("[", ",[")
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
@@ -578,7 +736,7 @@ class ConfigActivity : BaseActivity() {
         }
         var temp = sb.toString()
         if (params.contains("JSON")) {
-            temp = paramStr.replace(json, "JSON")
+            temp = temp.replace(json, "JSON")
         }
         if (temp[temp.length - 1] == ',') {
             temp = temp.substring(0, temp.length - 1)
@@ -586,6 +744,25 @@ class ConfigActivity : BaseActivity() {
         return temp
     }
 
+    private fun isPrimitiveType(params: String): Boolean {
+        var isSmali = true
+        var paramStr = params
+        paramStr = paramStr.replace("[", ",[")
+        while (paramStr.contains(Regex(pattern_basic))) {
+            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
+        }
+        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
+        val paramArray = paramStr.split(",")
+        for (i in paramArray.indices) {
+            if (paramArray[i].trim().isEmpty()) continue
+            isSmali = paramArray[i].contains(Regex(pattern_basic)) || paramArray[i].contains(
+                Regex(
+                    pattern_basic_array
+                )
+            ) || paramArray[i].isEmpty()
+        }
+        return isSmali
+    }
 
     private fun getReturnValue(returnType: String): String {
         return when (returnType) {

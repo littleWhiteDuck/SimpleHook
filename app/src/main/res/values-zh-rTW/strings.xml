@@ -90,6 +90,7 @@
         <item>清空Hook配置</item>
         <item>清空擴展配置</item>
         <item>清空所有記錄</item>
+        <item>清空所有收藏</item>
     </string-array>
     <string-array name="main_settings_ui_mode_item_entries">
         <item>總是關閉</item>
@@ -184,6 +185,7 @@
     <string name="settings_clear_hook_config">清空Hook配置</string>
     <string name="setting_clear_extension_config">清空擴展配置</string>
     <string name="settings_clear_all_record">清空所有記錄</string>
+    <string name="settings_clear_all_favorites">清空所有收藏</string>
     <string name="settings_clear_warning_dialog_title">警告</string>
     <string name="settings_clear_warning_dialog_message">是否確定要刪除？</string>
     <string name="settings_clear_warning_dialog_confirm">確認</string>
@@ -263,6 +265,22 @@
     <string name="config_hook_constructor_tip">此模式hook構造方法可能導致目標應用出問題</string>
     <string name="config_auto_transfer_param_field">自動轉參數|變量類型</string>
     <string name="config_xparams_tip">記得開啟此項功能，來簡化你的操作</string>
-
+    <string name="about_menu_feedback">反饋</string>
+    <string name="about_clip_email_tip">郵箱地址已復製到剪切板</string>
+    <string name="config_no_collection_tip">還沒有收藏任何配置</string>
+    <string name="config_menu_collect_config">收藏的配置</string>
+    <string name="config_collect_success_tip">收藏成功</string>
+    <string name="config_collect_failed_tip">收藏失敗</string>
+    <string name="config_get_collection_error">出現錯誤，請清空收藏</string>
+    <string name="config_collection_dialog_title">收藏</string>
+    <string name="config_collection_confirm">確認導入</string>
+    <string name="config_collection_cancel">取消</string>
+    <string name="config_auto_transfer_smali_title">說明</string>
+    <string name="config_auto_transfer_smali_message">關閉後，你需要將參數類型/類名/變量名等填寫為符合java語法的格式，可以查看使用說明（有關於java格式、smali格式的介紹）</string>
+    <string-array name="config_select_item">
+        <item>收藏</item>
+        <item>複製到剪切板</item>
+        <item>重複新增一個</item>
+    </string-array>
 
 </resources>

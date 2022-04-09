@@ -66,6 +66,7 @@ class ConfigItemView(context: Context) : CustomViewGroup(context) {
         val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
         background = typedArray.getDrawable(0)
         setPadding(5.dp, 5.dp, 5.dp, 5.dp)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

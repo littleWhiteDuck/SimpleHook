@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!--assist-->
     <string name="assist_start_float_window">开启悬浮窗</string>
     <string name="assist_float_print_log">打印输出</string>
@@ -49,6 +49,12 @@
     <string name="config_save_empty_config_tip">配置为空</string>
     <string name="config_module_can_not_use_xsp" translatable="false">模块未激活，将将无法使用New XSharedPreferences获取配置</string>
     <string name="config_add_config_tip">已添加配置</string>
+    <string-array name="config_select_item">
+        <item>收藏</item>
+        <item>复制到剪切板</item>
+        <item>重复新增一个</item>
+    </string-array>
+
     <!--main-->
     <string name="app_name">SimpleHook</string>
     <string name="main_home_name">首页</string>
@@ -98,6 +104,7 @@
         <item>清空Hook配置</item>
         <item>清空扩展配置</item>
         <item>清空所有记录</item>
+        <item>清空所有收藏</item>
     </string-array>
     <string-array name="main_settings_ui_mode_item_entries">
         <item>总是关闭</item>
@@ -198,6 +205,7 @@
     <string name="settings_clear_hook_config">清空Hook配置</string>
     <string name="setting_clear_extension_config">清空扩展配置</string>
     <string name="settings_clear_all_record">清空所有记录</string>
+    <string name="settings_clear_all_favorites">清空所有收藏</string>
     <string name="settings_clear_warning_dialog_title">警告</string>
     <string name="settings_clear_warning_dialog_message">是否确定要删除？</string>
     <string name="settings_clear_warning_dialog_confirm">确认</string>
@@ -267,6 +275,17 @@
     <string name="config_hook_constructor_tip">此模式hook构造方法可能导致目标应用出问题</string>
     <string name="config_auto_transfer_param_field">自动转参数|变量类型</string>
     <string name="config_xparams_tip">记得开启此项功能，来简化你的操作</string>
+    <string name="about_menu_feedback">反馈</string>
+    <string name="about_clip_email_tip">邮箱地址已复制到剪切板</string>
+    <string name="config_collect_success_tip">收藏成功</string>
+    <string name="config_collect_failed_tip">收藏失败</string>
+    <string name="config_menu_collect_config">收藏的配置</string>
+    <string name="config_no_collection_tip">还没有收藏任何配置</string>
+    <string name="config_get_collection_error">出现错误，请清空收藏</string>
+    <string name="config_collection_dialog_title">收藏</string>
+    <string name="config_collection_confirm">确认导入</string>
+    <string name="config_collection_cancel">取消</string>
+    <string name="config_auto_transfer_smali_title">说明</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook参数值</item>
@@ -280,6 +299,7 @@
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
     </string-array>
+    <string name="config_auto_transfer_smali_message">关闭后，你需要将参数类型/类名/变量名等填写为符合java语法的格式，可以查看使用说明（有关于java格式、smali格式的介绍）</string>
 
 
 </resources>

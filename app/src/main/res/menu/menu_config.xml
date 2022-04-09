@@ -3,6 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/collect"
+        android:title="@string/config_menu_collect_config"
+        android:icon="@drawable/ic_collect_24"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/xParams"
         android:checkable="true"
         android:title="@string/config_auto_transfer_param_field"

@@ -148,6 +148,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             getString(R.string.settings_clear_hook_config) -> clearHookConfig(0)
                             getString(R.string.setting_clear_extension_config) -> clearHookConfig(1)
                             getString(R.string.settings_clear_all_record) -> clearHookConfig(2)
+                            getString(R.string.settings_clear_all_favorites) -> {
+                                FileUtils.deleteFile(requireActivity().getExternalFilesDir(null)!!.path + "/collection_config.json")
+                            }
                         }
                     })
                 true

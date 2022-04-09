@@ -9,20 +9,16 @@ import me.simpleHook.R
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.main.AppConfigView
-import me.simpleHook.util.AppUtils
 import me.simpleHook.util.GlideApp
-import me.simpleHook.util.IconHelper
 import me.simpleHook.util.marquee
 
 class HomeAdapter(
     private val onClick: (AppConfig) -> Unit,
     private val onChange: (AppConfig, Boolean) -> Unit,
     private val onLongClick: (AppConfig) -> Unit
-) :
-    ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
+) : ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
-    inner class ViewHolder(appConfigView: AppConfigView) :
-        RecyclerView.ViewHolder(appConfigView) {
+    inner class ViewHolder(appConfigView: AppConfigView) : RecyclerView.ViewHolder(appConfigView) {
         private val containerView = appConfigView.container
         val tvAppName = containerView.appName
         val tvConfigDesc = containerView.desc
@@ -37,13 +33,11 @@ class HomeAdapter(
         appConfigView.apply {
             PopupWindowList.Builder(parent.context).watchView(this)
             setOnClickListener {
-                val appConfig =
-                    viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 onClick(appConfig)
             }
             setOnLongClickListener {
-                val appConfig =
-                    viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 onLongClick(appConfig)
                 true
             }
@@ -75,14 +69,9 @@ class HomeAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldItem: AppConfig,
-            newItem: AppConfig
+            oldItem: AppConfig, newItem: AppConfig
         ): Boolean {
-            return oldItem.appName == newItem.appName &&
-                    oldItem.packageName == newItem.packageName &&
-                    oldItem.versionName == newItem.versionName &&
-                    oldItem.description == newItem.description &&
-                    oldItem.configs == newItem.configs
+            return oldItem.appName == newItem.appName && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.description == newItem.description && oldItem.configs == newItem.configs
         }
     }
 }

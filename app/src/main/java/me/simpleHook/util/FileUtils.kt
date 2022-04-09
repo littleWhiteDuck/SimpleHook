@@ -306,7 +306,7 @@ object FileUtils {
 
     }
 
-    private fun deleteFile(filePath: String) {
+    fun deleteFile(filePath: String) {
         val file = File(filePath)
         if (file.exists()) file.delete()
     }

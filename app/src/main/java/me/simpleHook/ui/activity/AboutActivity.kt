@@ -21,6 +21,7 @@ import me.simpleHook.databinding.ActivityAboutBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.about.AuthorView
 import me.simpleHook.ui.view.about.OpenSourceView
+import me.simpleHook.util.ToolUtils
 import me.simpleHook.util.dp
 import me.simpleHook.util.toast
 
@@ -248,6 +249,10 @@ class AboutActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.add_group -> addQQGroup()
+            R.id.feedback -> {
+                ToolUtils.toClip(this, "484303285@qq.com")
+                getString(R.string.about_clip_email_tip).toast(this)
+            }
         }
         return true
     }

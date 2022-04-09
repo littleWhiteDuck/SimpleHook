@@ -120,7 +120,11 @@
     <string name="app_select_app">Select App</string>
     <string name="app_config">Config</string>
     <string name="main_settings_ui_mode_summary_follow_system">Follow system</string>
-
+    <string-array name="main_home_item_select_item">
+        <item>Share</item>
+        <item>Delete</item>
+        <item>Edit</item>
+    </string-array>
     <string-array name="main_settings_ui_mode_item_entries">
         <item>Always off</item>
         <item>Always on</item>
@@ -169,11 +173,13 @@
         <item>Clear hook configs</item>
         <item>Clear extension configs</item>
         <item>Clear all records</item>
+        <item>Clear all favorites</item>
     </string-array>
 
     <string name="settings_clear_hook_config">Clear hook configs</string>
     <string name="setting_clear_extension_config">Clear extension configs</string>
     <string name="settings_clear_all_record">Clear all records</string>
+    <string name="settings_clear_all_favorites">Clear all favorites</string>
     <string name="settings_clear_warning_dialog_title">Warn</string>
     <string name="settings_clear_warning_dialog_message">Are you sure you want to delete?</string>
     <string name="settings_clear_warning_dialog_confirm">OK</string>
@@ -248,4 +254,22 @@
     <string name="config_hook_constructor_tip">This modal hook constructor may cause problems for the target application</string>
     <string name="config_auto_transfer_param_field">Auto transfer param|field type</string>
     <string name="config_xparams_tip">Remember to enable this feature to simplify your operation</string>
+    <string name="about_menu_feedback">feedback</string>
+    <string name="about_clip_email_tip">Email address copied to clipboard</string>
+    <string name="config_no_collection_tip">No favorite configuration yet</string>
+    <string name="config_menu_collect_config">Favorite configuration</string>
+    <string name="config_collect_success_tip">Collection success</string>
+    <string name="config_collect_failed_tip">Favorite failed</string>
+    <string name="config_get_collection_error">An error occurred, please clear the collection</string>
+    <string name="config_collection_dialog_title">Favorites</string>
+    <string name="config_collection_confirm">IMPORT</string>
+    <string name="config_collection_cancel">CANCEL</string>
+    <string name="config_auto_transfer_smali_title">About</string>
+    <string name="config_auto_transfer_smali_message">After closing, you need to fill in the parameter type/class name/field name in a format that conforms to java syntax, you can view the instructions for use (there are introductions about java format and smali format)</string>
+
+    <string-array name="config_select_item">
+        <item>Favorite</item>
+        <item>Copy to clipboard</item>
+        <item>Repeat a new one</item>
+    </string-array>
 </resources>
