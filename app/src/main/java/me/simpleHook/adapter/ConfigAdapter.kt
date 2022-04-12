@@ -17,26 +17,47 @@ import me.simpleHook.hook.Type
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
+import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class ConfigAdapter(
     private val onClick: (position: Int) -> Unit,
     private val onLongClick: (position: Int) -> Unit,
-    private val onCheckedChange: (position: Int, isChecked: Boolean) -> Unit
+    private val onCheckedChange: (position: Int, isChecked: Boolean) -> Unit,
+    private val isCollect: Boolean = false
 ) : ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
 
 
-    inner class ViewHolder(itemView: ConfigItemView) : RecyclerView.ViewHolder(itemView) {
-        val tvClassName = itemView.className
-        val tvOtherName = itemView.otherName
-        val tvNumber = itemView.num
-        val tip = itemView.tip
-        val enable = itemView.enable
+    inner class ViewHolder(configItemView: ConfigItemView) :
+        RecyclerView.ViewHolder(configItemView) {
+        val containerView = configItemView.containerView
+        val tvClassName = containerView.className
+        val tvOtherName = containerView.otherName
+        val tvNumber = containerView.num
+        val tip = containerView.tip
+        val enable = containerView.enable
     }
 
     @SuppressLint("ResourceType")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val configView = ConfigItemView(parent.context)
+        val configView = if (isCollect) {
+            ConfigItemView(parent.context).apply {
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                radius = 0f
+            }
+        } else {
+            ConfigItemView(parent.context).apply {
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                ).also {
+                    it.setMargins(5.dp, 5.dp, 5.dp, 0)
+                }
+                cardElevation = 2f.dp
+                radius = 5f.dp
+            }
+        }
         val viewHolder = ViewHolder(configView)
         viewHolder.apply {
             tvClassName.marquee()
@@ -67,7 +88,11 @@ class ConfigAdapter(
         val methodConfig = getItem(position)
         val context = holder.itemView.context
         holder.apply {
-            tvClassName.text = methodConfig.className
+            if (methodConfig.className.length >= 30) {
+                tvClassName.text = getClassSimpleName(methodConfig.className)
+            } else {
+                tvClassName.text = methodConfig.className
+            }
             when (methodConfig.mode) {
                 Constant.HOOK_BREAK -> {
                     val showText = "${methodConfig.methodName}(${methodConfig.params})"
@@ -170,6 +195,15 @@ class ConfigAdapter(
             "\"$value\""
         } else {
             value.toString()
+        }
+    }
+
+    private fun getClassSimpleName(classStr: String): String {
+        return if (classStr.contains(".")) {
+            val classStrNames = classStr.split(".")
+            classStrNames[classStrNames.size - 1]
+        } else {
+            classStr
         }
     }
 

@@ -9,6 +9,7 @@ import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.GlideApp
+import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -27,7 +28,10 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val appItemView = AppItemView(parent.context)
+        val appItemView = AppItemView(parent.context).apply {
+            cardElevation = 1f.dp
+            radius = 5f
+        }
         val holder = ViewHolder(appItemView)
         holder.itemView.setOnClickListener {
             val appItem: AppItem = holder.itemView.getTag(R.id.item_select_position) as AppItem
@@ -42,18 +46,6 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         holder.itemView.setTag(R.id.item_select_position, appItem)
         holder.apply {
             appItem.apply {
-                /*  thread {
-                      // only test , need fix
-                      try {
-                          ivIcon.setImageDrawable(
-                              IconHelper.getAppIcon(
-                                  holder.itemView.context, packageName
-                              )
-                          )
-                      } catch (e: Exception) {
-
-                      }
-                  }*/
                 GlideApp.with(ivIcon).load(packageName).into(ivIcon)
                 tvAppName.text = name
                 tvAppName.marquee()

@@ -282,5 +282,11 @@
         <item>複製到剪切板</item>
         <item>重複新增一個</item>
     </string-array>
+    <string name="extension_item_desc_web_load_url">記錄加載鏈接</string>
+    <string name="extension_item_desc_web_debug">webView可調試</string>
+    <string name="config_app_info_is_empty_tip">請選擇應用後再保存配置</string>
+    <string name="config_no_app_info">請點擊此處選擇應用</string>
+    <string name="desc_input_place_holder_text">可以是空的</string>
+    <string name="main_loading">正在保存中</string>
 
 </resources>

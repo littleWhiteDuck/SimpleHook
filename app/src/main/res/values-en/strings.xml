@@ -272,4 +272,10 @@
         <item>Copy to clipboard</item>
         <item>Repeat a new one</item>
     </string-array>
+    <string name="extension_item_desc_web_load_url">record loading link</string>
+    <string name="extension_item_desc_web_debug">webView is debuggable</string>
+    <string name="config_app_info_is_empty_tip">Please select App and then save the configuration</string>
+    <string name="config_no_app_info">Please click here to select an App</string>
+    <string name="desc_input_place_holder_text">can be empty</string>
+    <string name="main_loading">Saving</string>
 </resources>

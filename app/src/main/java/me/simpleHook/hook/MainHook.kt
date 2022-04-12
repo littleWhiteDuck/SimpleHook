@@ -437,9 +437,11 @@ class Hook {
     }
 
     private fun getObjectString(value: Any): String {
-        return if (value is List<*> || value is Array<*>) {
+        return if (value is String) value else try {
             Gson().toJson(value)
-        } else value.toString()
+        } catch (e: java.lang.Exception) {
+            value.javaClass.name
+        }
     }
 
     @SuppressLint("Range")

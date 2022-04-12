@@ -7,7 +7,7 @@ import me.simpleHook.util.LanguageUtils
 import java.lang.reflect.Method
 
 open class BaseActivity : AppCompatActivity() {
-
+    var isSaving = false
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
         if (menu.javaClass.simpleName.equals("MenuBuilder", true)) {
             try {

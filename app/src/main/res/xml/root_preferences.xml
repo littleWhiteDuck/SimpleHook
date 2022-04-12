@@ -16,7 +16,7 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_experiment">
         <CheckBoxPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:key="smali2Config"
             app:summary="@string/main_settings_summary_to_config"
             app:title="@string/main_settings_title_to_config" />

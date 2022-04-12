@@ -1,14 +1,15 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.os.Handler
+import android.os.Looper
+import android.view.*
+import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
@@ -35,6 +36,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.custom.ProgressBar
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
@@ -80,6 +82,7 @@ class AssistActivity : BaseActivity() {
     private var statusChecked = 0
     private var statusUnChecked = 0
     private lateinit var configBean: AssistConfigBean
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExtensionBinding.inflate(layoutInflater)
@@ -266,12 +269,18 @@ class AssistActivity : BaseActivity() {
                 add(AssistTitle("WebView"))
                 add(
                     AssistItem(
-                        title = "loadUrl", webLoadUrl, WEB_LOAD_URL_STATUS, "记录加载链接"
+                        title = "loadUrl",
+                        webLoadUrl,
+                        WEB_LOAD_URL_STATUS,
+                        getString(R.string.extension_item_desc_web_load_url)
                     )
                 )
                 add(
                     AssistItem(
-                        title = "Debug", webDebug, WEB_DEBUG_STATUS, "webView可调式"
+                        title = "Debug",
+                        webDebug,
+                        WEB_DEBUG_STATUS,
+                        getString(R.string.extension_item_desc_web_debug)
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_others)))
@@ -444,8 +453,26 @@ class AssistActivity : BaseActivity() {
         statusChecked isContainState state || statusUnChecked isContainState state
 
     private fun isChecked(state: Int) = statusChecked isContainState state
-    private fun saveConfig() {
 
+    @SuppressLint("Range")
+    private fun saveConfig() {
+        isSaving = true
+        val progressBar = ProgressBar(this, null)
+        progressBar.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
+            ), View.MeasureSpec.makeMeasureSpec(
+                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
+            )
+        )
+        val popupWindow =
+            PopupWindow(progressBar, progressBar.measuredWidth, progressBar.measuredHeight)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+        popupWindow.isOutsideTouchable = false
+        popupWindow.showAtLocation(progressBar, Gravity.CENTER, 0, 0)
         if (isContains(ALL_STATUS)) {
             configBean.all = isChecked(ALL_STATUS)
         }
@@ -513,8 +540,17 @@ class AssistActivity : BaseActivity() {
         if (assistConfig.packageName != "模板配置") {
             saveToText(assistConfig.packageName, config)
         }
-        Thread.sleep(150)
-        "已保存".toast(this)
+        Handler(Looper.getMainLooper()).postDelayed({
+            popupWindow.dismiss()
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            isSaving = false
+            "已保存".toast(this)
+        }, 500)
+
+    }
+
+    override fun onBackPressed() {
+        if (!isSaving) super.onBackPressed()
     }
 
     private fun saveToText(packageName: String, config: String) {

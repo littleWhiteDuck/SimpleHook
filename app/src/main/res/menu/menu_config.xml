@@ -8,6 +8,7 @@
         android:icon="@drawable/ic_collect_24"
         app:showAsAction="always" />
     <item
+        android:visible="false"
         android:id="@+id/xParams"
         android:checkable="true"
         android:title="@string/config_auto_transfer_param_field"
@@ -19,12 +20,7 @@
         android:icon="@drawable/ic_paste"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
-    <item
-        android:id="@+id/select_app"
-        android:title="@string/config_menu_select_app"
-        android:icon="@drawable/ic_select"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
+
     <item
         android:id="@+id/save_config"
         android:title="@string/config_menu_save_config"

@@ -8,14 +8,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.PopupWindow
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +25,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
@@ -37,10 +36,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.custom.PopupWindowList
-import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.ui.custom.*
 import me.simpleHook.util.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -85,6 +81,7 @@ class ConfigActivity : BaseActivity() {
     private var modifyConfigPosition = 0
     private var configId = 0
     private var visibleFab = true
+    private var scrollDistance = 0
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
     private val sp by lazy { SPUtils(this) }
@@ -95,13 +92,16 @@ class ConfigActivity : BaseActivity() {
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
     private val collectAdapter by lazy {
-        ConfigAdapter({ position -> onCollectClick(position) },
+        ConfigAdapter(
+            { position -> onCollectClick(position) },
             onLongClick = {},
             onCheckedChange = { position, isChecked ->
                 onCollectCheckedChange(
                     position, isChecked
                 )
-            })
+            },
+            isCollect = true
+        )
     }
     private var isCollection = false
     private val collectionFilePath by lazy {
@@ -113,13 +113,11 @@ class ConfigActivity : BaseActivity() {
                 val appName = it.data?.getStringExtra("appName")
                 val versionName = it.data?.getStringExtra("versionName")
                 val packageName = it.data?.getStringExtra("packageName")
-                /* lifecycleScope.launch(Dispatchers.IO) {
-                     preprocessCreateFile(appItem.packageName)
-                 }*/
-                binding.apply {
-                    appNameEdit.setText(appName)
-                    appVersionNameEdit.setText(versionName)
-                    packageNameEdit.setText(packageName)
+                binding.appInfo.apply {
+                    containerView.appName.text = appName
+                    containerView.packageName.text = packageName
+                    containerView.otherInfo.text = versionName
+                    GlideApp.with(containerView.icon).load(packageName).into(containerView.icon)
                 }
             }
         }
@@ -147,7 +145,9 @@ class ConfigActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         binding.apply {
-            packageNameInputLayout.isEnabled = false
+            appInfo.setOnClickListener {
+                packageInfo.launch(Intent(this@ConfigActivity, AppListActivity::class.java))
+            }
             addMethodConfig.setOnClickListener {
                 isCollection = false
                 showDialog()
@@ -168,36 +168,52 @@ class ConfigActivity : BaseActivity() {
             modify = true
             configId = it.id
             binding.apply {
-                appNameEdit.setText(it.appName)
-                appVersionNameEdit.setText(it.versionName)
-                packageNameEdit.setText(it.packageName)
-                appVersionNameEdit.setText(it.versionName)
+                if (it.appName.isEmpty() || it.packageName.isEmpty()) {
+                    appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
+                    GlideApp.with(appInfo.containerView.icon).load(BuildConfig.APPLICATION_ID)
+                        .into(appInfo.containerView.icon)
+                } else {
+                    appInfo.containerView.appName.text = it.appName
+                    appInfo.containerView.packageName.text = it.packageName
+                    appInfo.containerView.otherInfo.text = it.versionName
+                    GlideApp.with(appInfo.containerView.icon).load(packageName)
+                        .into(appInfo.containerView.icon)
+                }
                 descStringEdit.setText(it.description)
                 val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
                 configList = Gson().fromJson(it.configs, listType)
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
             }
+        } ?: kotlin.run {
+            binding.appInfo.containerView.apply {
+                appName.text = getString(R.string.config_no_app_info)
+                GlideApp.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
+            }
+
         }
         binding.configRV.apply {
             this.adapter = mAdapter
             layoutManager = LinearLayoutManager(this@ConfigActivity)
-            addItemDecoration(
-                DividerItemDecoration(
-                    this@ConfigActivity, DividerItemDecoration.VERTICAL
-                )
-            )
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (scrollDistance > 20 && visibleFab) {
+                        visibleFab = false
+                        binding.addMethodConfig.hide()
+                        scrollDistance = 0
+                    } else if (scrollDistance < -20 && !visibleFab) {
+                        visibleFab = true
+                        binding.addMethodConfig.show()
+                        scrollDistance = 0
+                    }
+                    if (visibleFab && dy > 0 || !visibleFab && dy < 0) {
+                        scrollDistance += dy
+                    }
+                }
+            })
         }
-        binding.nsv.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            val distance = scrollY - oldScrollY
-            if (distance > 20 && visibleFab) {
-                visibleFab = false
-                binding.addMethodConfig.hide()
-            } else if (distance < -20 && !visibleFab) {
-                visibleFab = true
-                binding.addMethodConfig.show()
-            }
-        })
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -480,7 +496,6 @@ class ConfigActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
-            R.id.select_app -> packageInfo.launch(Intent(this, AppListActivity::class.java))
             R.id.config_smali_to_config -> {
                 ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
             }
@@ -515,6 +530,7 @@ class ConfigActivity : BaseActivity() {
         }
         val recyclerView = RecyclerView(this)
         recyclerView.apply {
+            setPadding(0, 0, 0, 10.dp)
             layoutManager = LinearLayoutManager(this@ConfigActivity)
             addItemDecoration(
                 DividerItemDecoration(
@@ -555,12 +571,33 @@ class ConfigActivity : BaseActivity() {
         collectConfigList[position].enable = checked
     }
 
+    @SuppressLint("Range")
     private fun saveConfig() {
         if (configList.size == 0) {
             getString(R.string.config_save_empty_config_tip).toast(this)
             return
         }
-        binding.progressBar.visibility = View.VISIBLE
+        if (binding.appInfo.containerView.packageName.text.toString().isEmpty()) {
+            getString(R.string.config_app_info_is_empty_tip).toast(this)
+            return
+        }
+        isSaving = true
+        val progressBar = ProgressBar(this, null)
+        progressBar.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
+            ), View.MeasureSpec.makeMeasureSpec(
+                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
+            )
+        )
+        val popupWindow =
+            PopupWindow(progressBar, progressBar.measuredWidth, progressBar.measuredHeight)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+        popupWindow.isOutsideTouchable = false
+        popupWindow.showAtLocation(progressBar, Gravity.CENTER, 0, 0)
         lifecycleScope.launch(Dispatchers.IO) {
             val appConfig = getAppConfig()
             if (modify) {
@@ -602,16 +639,20 @@ class ConfigActivity : BaseActivity() {
 
     private fun fakeWaitForSave() {
         Handler(Looper.getMainLooper()).postDelayed({
-            binding.progressBar.visibility = View.GONE
+            isSaving = false
             onBackPressed()
         }, 2000)
     }
 
+    override fun onBackPressed() {
+        if (!isSaving) super.onBackPressed()
+    }
+
     private fun getAppConfig(): AppConfig {
-        val appName = binding.appNameEdit.text.toString()
-        val packageName = binding.packageNameEdit.text.toString()
+        val appName = binding.appInfo.containerView.appName.text.toString()
+        val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
-        val versionName = binding.appVersionNameEdit.text.toString()
+        val versionName = binding.appInfo.containerView.otherInfo.text.toString()
         val configs = Gson().toJson(configList)
         return AppConfig(
             appName = appName,

@@ -300,6 +300,12 @@
         <item>me.duck.hooktest</item>
     </string-array>
     <string name="config_auto_transfer_smali_message">关闭后，你需要将参数类型/类名/变量名等填写为符合java语法的格式，可以查看使用说明（有关于java格式、smali格式的介绍）</string>
+    <string name="extension_item_desc_web_load_url">记录加载链接</string>
+    <string name="extension_item_desc_web_debug">webView可调试</string>
+    <string name="config_app_info_is_empty_tip">请选择应用后再保存配置</string>
+    <string name="config_no_app_info">请点击此处选择应用</string>
+    <string name="desc_input_place_holder_text">可以是空的</string>
+    <string name="main_loading">正在保存中</string>
 
 
 </resources>

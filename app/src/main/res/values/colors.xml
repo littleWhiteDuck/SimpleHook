@@ -15,4 +15,5 @@
     <color name="paint_color">#FF000000</color>
     <color name="config_tag_background">@color/black</color>
     <color name="config_tag_text_color">@color/white</color>
+    <color name="background_gray">#FFFBFBFB</color>
 </resources>

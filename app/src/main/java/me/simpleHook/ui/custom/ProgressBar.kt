@@ -23,6 +23,11 @@ class ProgressBar(context: Context, attrs: AttributeSet?) : ProgressBar(context,
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawText("正在保存中", HORIZONTAL_OFFSET, VERTICAL_OFFSET, paint)
+        canvas.drawText(
+            context.getString(R.string.main_loading),
+            HORIZONTAL_OFFSET,
+            VERTICAL_OFFSET,
+            paint
+        )
     }
 }

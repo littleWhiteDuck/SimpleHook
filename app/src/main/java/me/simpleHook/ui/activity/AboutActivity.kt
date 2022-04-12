@@ -248,7 +248,6 @@ class AboutActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
-            R.id.add_group -> addQQGroup()
             R.id.feedback -> {
                 ToolUtils.toClip(this, "484303285@qq.com")
                 getString(R.string.about_clip_email_tip).toast(this)
