@@ -1,6 +1,7 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -21,9 +22,11 @@ import me.simpleHook.databinding.ActivityAboutBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.about.AuthorView
 import me.simpleHook.ui.view.about.OpenSourceView
+import me.simpleHook.util.AppUtils
 import me.simpleHook.util.ToolUtils
 import me.simpleHook.util.dp
 import me.simpleHook.util.toast
+import kotlin.random.Random
 
 class AboutActivity : BaseActivity() {
     private lateinit var binding: ActivityAboutBinding
@@ -242,6 +245,9 @@ class AboutActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_about, menu)
+        if (AppUtils.isAppInstalled(this, "org.telegram.messenger") && Random.nextBoolean()) {
+            menu.findItem(R.id.add_group).isVisible = true
+        }
         return true
     }
 
@@ -251,6 +257,12 @@ class AboutActivity : BaseActivity() {
             R.id.feedback -> {
                 ToolUtils.toClip(this, "484303285@qq.com")
                 getString(R.string.about_clip_email_tip).toast(this)
+            }
+            R.id.add_group -> {
+                val intent = Intent(ACTION_VIEW).also {
+                    it.data = Uri.parse("https://t.me/simpleHook")
+                }
+                startActivity(intent)
             }
         }
         return true

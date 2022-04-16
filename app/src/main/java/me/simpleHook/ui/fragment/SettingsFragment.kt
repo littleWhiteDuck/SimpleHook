@@ -329,7 +329,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun backupConfigs() {
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "yyMMdd")
-        backupConfigs.launch("backup_$time.json")
+        backupConfigs.launch("simpleHook_backup_$time.json")
     }
 
     override fun onCreateRecyclerView(

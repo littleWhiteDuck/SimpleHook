@@ -360,7 +360,9 @@ class AssistActivity : BaseActivity() {
         if (tag == startAppTag) {
             if (assistConfig.packageName == MODEL_EXTENSION_CONFIG) return
             saveConfig()
-            startAppAndFloat()
+            Handler(Looper.getMainLooper()).postDelayed({
+                startAppAndFloat()
+            }, 500)
             return
         } else {
             if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {

@@ -171,17 +171,14 @@ object FileUtils {
         }
     }
 
+    @Synchronized
     fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
         try {
             if (!AppUtils.isAppInstalled(context, packageName)) return
             if (FlavorUtils.isNormal()) {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                     writeDocumentFile(
-                        context,
-                        "/$packageName/simpleHook/config/",
-                        fileName,
-                        content,
-                        "application/json"
+                        context, "/$packageName/simpleHook/config/", fileName, content, "application/json"
                     )
                 } else {
                     writeConfigFile(packageName, fileName = fileName, config = content)

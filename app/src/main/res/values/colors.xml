@@ -16,4 +16,6 @@
     <color name="config_tag_background">@color/black</color>
     <color name="config_tag_text_color">@color/white</color>
     <color name="background_gray">#FFFBFBFB</color>
+    <color name="background_record_item">#404F9BFA</color>
+    <color name="background_record">@color/white</color>
 </resources>

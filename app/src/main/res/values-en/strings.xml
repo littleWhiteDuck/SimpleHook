@@ -44,7 +44,7 @@
     <string name="error_tip">An error occurred</string>
     <string name="search_hint">app/package name</string>
     <string name="search">Search</string>
-    <string name="about_menu_add_group">Join qq group</string>
+    <string name="about_menu_add_group">Join TG group</string>
     <string name="about_title_open_sources">Open Source License</string>
     <string name="about_introduce_test_bug">Test Bug</string>
     <string name="about_title_author">Developers</string>

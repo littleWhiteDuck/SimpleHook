@@ -155,7 +155,7 @@
     <string name="about_tester_j" translatable="false">简</string>
     <string name="about_title_open_sources">开源相关</string>
     <string name="about_source_license_2" translatable="false">Apache software license 2.0</string>
-    <string name="about_menu_add_group">加入Q群</string>
+    <string name="about_menu_add_group">加入TG群</string>
     <!--others-->
     <string name="search">搜索</string>
     <string name="search_hint">输入应用名或包名</string>

@@ -1,9 +1,15 @@
+v1.2.1
+    1.修复一些问题
+    2.配置页UI调整
+
+    1.Fix bugs
+    2.Change configuration page UI
 v1.2.0
     1.修复一些问题
     2.支持收藏配置，在配置页面长按配置，选择收藏即可收藏，点击配置页面‘心形❤️’图标可选择导入收藏
 
-    1. Fix bugs
-    2. Support favorite configuration, press and hold the configuration on the configuration page, select Favorites to favorite, click the '❤️' icon on the configuration page to choose to import favorites
+    1.Fix bugs
+    2.Support favorite configuration, press and hold the configuration on the configuration page, select Favorites to favorite, click the '❤️' icon on the configuration page to choose to import favorites
 
 v1.1.9
     1.hook构造函数：方法名现仅支持填写 <init>，不再支持类名的简名(混淆后命名不符合开发规则)

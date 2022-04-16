@@ -136,7 +136,7 @@
     <string name="about_title_tester">測試人員</string>
     <string name="about_introduce_test_bug">測試bug</string>
     <string name="about_title_open_sources">開源相關</string>
-    <string name="about_menu_add_group">加入Q群</string>
+    <string name="about_menu_add_group">加入TG群</string>
     <!--others-->
     <string name="search">搜索</string>
     <string name="search_hint">輸入應用名或包名</string>

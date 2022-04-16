@@ -47,9 +47,15 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
             id = printLog.id
             title.text = logBean.type
             time.text = printLog.time
-            readState.text = if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
-                R.string.record_item_status_unread
-            )
+            readState.text =
+                if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
+                    R.string.record_item_status_unread
+                )
+            if (printLog.read) {
+                holder.itemView.setBackgroundResource(R.drawable.bg_record_read)
+            } else {
+                holder.itemView.setBackgroundResource(R.drawable.bg_record)
+            }
             if (isType) {
                 GlideApp.with(icon).load(logBean.packageName).into(icon)
             } else {
