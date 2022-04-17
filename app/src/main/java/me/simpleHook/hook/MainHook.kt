@@ -182,18 +182,21 @@ class Hook {
                         Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(
                             className,
                             mClassLoader,
+                            methodName,
+                            params,
                             fieldName,
                             resultValues,
-                            fieldType,
+                            fieldClassName,
                             mContext!!,
                             packageName
                         )
                         Constant.HOOK_FIELD -> FieldHook.hookField(
                             className,
                             mClassLoader,
+                            methodName,
+                            params,
                             fieldName,
                             resultValues,
-                            fieldType,
                             mContext!!,
                             packageName
                         )

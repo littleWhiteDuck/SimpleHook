@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupWindow
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -54,18 +55,23 @@ private const val METHOD_NAME_STATE = 1 shl 1
 private const val PARAMS_STATE = 1 shl 2
 private const val RESULT_VALUE_STATE = 1 shl 3
 private const val FIELD_NAME_STATE = 1 shl 4
-private const val FIELD_TYPE_STATE = 1 shl 5
+private const val FIELD_CLASS_NAME_STATE = 1 shl 5
 private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
 private const val HOOK_PARAM_CHECK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
 private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-private const val HOOK_FIELD_CHECK = CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE
+private const val HOOK_STATIC_FIELD_CHECK =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE
+private const val HOOK_FIELD_CHECK =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
 private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RETURN_PARAMS =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+private const val SHOW_STATIC_FIELD =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_FIELD =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_TYPE_STATE
+    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
@@ -268,7 +274,10 @@ class ConfigActivity : BaseActivity() {
         configList[position] = configList[position].copy(enable = checked)
     }
 
-    private fun showDialog(configBean: ConfigBean = ConfigBean(0, "", "", "", "", "", "")) {
+    private fun showDialog(
+        configBean: ConfigBean = ConfigBean(0, "", "", "", "", "", ""),
+        isSmali2Config: Boolean = false
+    ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
             configBean.apply {
@@ -276,7 +285,7 @@ class ConfigActivity : BaseActivity() {
                 methodNameEdit.setText(methodName)
                 paramsTypeEdit.setText(params)
                 fieldNameEdit.setText(fieldName)
-                fieldTypeEdit.setText(fieldType)
+                fieldClassNameEdit.setText(fieldClassName)
                 resultValueEdit.setText(resultValues)
                 help.setOnClickListener { showHelpDialog() }
                 hookMode = mode
@@ -299,7 +308,7 @@ class ConfigActivity : BaseActivity() {
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-        modifyConfig = configBean.className.isNotEmpty()
+        modifyConfig = if (isSmali2Config) false else configBean.className.isNotEmpty()
         val okText = if (modifyConfig) getString(R.string.config_dialog_alter_this) else getString(
             R.string.config_dialog_add_a_new
         )
@@ -345,7 +354,11 @@ class ConfigActivity : BaseActivity() {
             )
             showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
             showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
-            showView(checkStateMode isContainState FIELD_TYPE_STATE, fieldTypeInput, fieldTypeEdit)
+            showView(
+                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+                fieldClassNameInput,
+                fieldClassNameEdit
+            )
             showView(
                 checkStateMode isContainState RESULT_VALUE_STATE, resultValueInput, resultValueEdit
             )
@@ -365,21 +378,28 @@ class ConfigActivity : BaseActivity() {
         val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
         val fieldName = dialogBinding.fieldNameEdit.text.toString()
-        val fieldType = tranParams(dialogBinding.fieldTypeEdit.text.toString())
+        val fieldClassName = tranParams(dialogBinding.fieldClassNameEdit.text.toString())
         var stateCheck = getCheckStateMode(this.hookMode)
         if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
         if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
         if (params.isNotEmpty()) stateCheck = stateCheck and PARAMS_STATE.inv()
         if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
         if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
-        if (fieldType.isNotEmpty()) stateCheck = stateCheck and FIELD_TYPE_STATE.inv()
+        if (fieldClassName.isNotEmpty()) stateCheck = stateCheck and FIELD_CLASS_NAME_STATE.inv()
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
                 getString(R.string.config_hook_constructor_tip).toast(this)
             }
             val configBean = ConfigBean(
-                this.hookMode, className, methodName, params, fieldName, fieldType, results, enable
+                this.hookMode,
+                className,
+                methodName,
+                params,
+                fieldName,
+                fieldClassName,
+                results,
+                enable
             )
             addConfig(configBean)
         } else {
@@ -392,7 +412,8 @@ class ConfigActivity : BaseActivity() {
         Constant.HOOK_RETURN -> HOOK_RETURN_CHECK
         Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
         Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
-        Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> HOOK_FIELD_CHECK
+        Constant.HOOK_FIELD -> HOOK_FIELD_CHECK
+        Constant.HOOK_STATIC_FIELD -> HOOK_STATIC_FIELD_CHECK
         Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
         Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
         else -> 0
@@ -400,7 +421,8 @@ class ConfigActivity : BaseActivity() {
 
     private fun getShowStateMode(mode: Int) = when (mode) {
         Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
-        Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> SHOW_FIELD
+        Constant.HOOK_FIELD -> SHOW_FIELD
+        Constant.HOOK_STATIC_FIELD -> SHOW_STATIC_FIELD
         Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
         else -> 0
     }
@@ -582,22 +604,8 @@ class ConfigActivity : BaseActivity() {
             return
         }
         isSaving = true
-        val progressBar = ProgressBar(this, null)
-        progressBar.measure(
-            View.MeasureSpec.makeMeasureSpec(
-                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
-            ), View.MeasureSpec.makeMeasureSpec(
-                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
-            )
-        )
-        val popupWindow =
-            PopupWindow(progressBar, progressBar.measuredWidth, progressBar.measuredHeight)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-        popupWindow.isOutsideTouchable = false
-        popupWindow.showAtLocation(progressBar, Gravity.CENTER, 0, 0)
+        val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
+        loadingDialog.show()
         lifecycleScope.launch(Dispatchers.IO) {
             val appConfig = getAppConfig()
             if (modify) {
@@ -621,7 +629,12 @@ class ConfigActivity : BaseActivity() {
                 } else {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                         requestPermissionDialog(this) {
-                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                            val document = DocumentFile.fromTreeUri(
+                                this, Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
+                            startActivityForData.launch(
+                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
                         }
                     } else {
                         requestPermissionDialog(this) {
@@ -734,16 +747,7 @@ class ConfigActivity : BaseActivity() {
             else -> configBean
         }
         config?.also {
-            configList.add(it)
-            mAdapter.submitList(configList)
-            mAdapter.notifyDataSetChanged()
-            Snackbar.make(
-                binding.addMethodConfig,
-                getString(R.string.config_add_config_tip),
-                Snackbar.LENGTH_LONG
-            ).apply {
-                anchorView = binding.addMethodConfig
-            }.show()
+            showDialog(it, isSmali2Config = true)
         } ?: getString(R.string.config_smali_to_config_error).toast(this)
     }
 
@@ -796,7 +800,7 @@ class ConfigActivity : BaseActivity() {
         val paramArray = paramStr.split(",")
         for (i in paramArray.indices) {
             if (paramArray[i].trim().isEmpty()) continue
-            isSmali = paramArray[i].contains(Regex(pattern_basic)) || paramArray[i].contains(
+            isSmali = paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
                 Regex(
                     pattern_basic_array
                 )

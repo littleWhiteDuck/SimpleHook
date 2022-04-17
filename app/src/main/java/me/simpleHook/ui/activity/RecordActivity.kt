@@ -10,11 +10,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -24,6 +26,8 @@ import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FastScrollerUtil
@@ -78,18 +82,6 @@ class RecordActivity : BaseActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initView() {
-        binding.apply {
-            upFab.hide()
-            downFab.hide()
-            upFab.setOnClickListener {
-                recyclerView.scrollToPosition(0)
-                upFab.hide()
-            }
-            downFab.setOnClickListener {
-                recyclerView.scrollToPosition(recordAdapter.itemCount - 1)
-                downFab.hide()
-            }
-        }
         binding.recyclerView.apply {
             adapter = recordAdapter
             layoutManager = LinearLayoutManager(this@RecordActivity)
@@ -126,48 +118,26 @@ class RecordActivity : BaseActivity() {
                 }
 
             }).attachToRecyclerView(binding.recyclerView)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                private var distance = 0
-                private var visible = true
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (distance > 20 && visible) {
-                        visible = false
-                        //*showDownFab()
-                        distance = 0
-                    } else if (distance < -20 && !visible) {
-                        visible = true
-                        distance = 0
-                        showUpFab()
-                    }
-                    if (visible && dy > 0 || !visible && dy < 0) {
-                        distance += dy
-                    }
-                }
-            })
         }
+        binding.swipeRefreshLayout.isRefreshing = true
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
         FastScrollerUtil.bind(binding.recyclerView)
+        binding.search.setOnClickListener { showSearchDialog() }
     }
 
-    private fun showDownFab() {
-        binding.downFab.show()
-        binding.upFab.hide()
-    }
-
-    private fun showUpFab() {
-        binding.upFab.show()
-        binding.downFab.hide()
-    }
 
     private fun initData() {
         lifecycleScope.launch {
             appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                recordAdapter.addOnPagesUpdatedListener {
+                    binding.progressBar.isVisible = false
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }, 500)
+                }
                 recordAdapter.submitData(it)
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }
@@ -201,20 +171,6 @@ class RecordActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_record, menu)
-        val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.apply {
-            queryHint = context.getString(R.string.main_home_toolbar_search_hint)
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?) = false
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    currentPattern = newText?.trim() ?: ""
-                    appViewModel.queryInit.value = currentPattern
-                    return true
-                }
-
-            })
-        }
         return true
     }
 
@@ -245,8 +201,57 @@ class RecordActivity : BaseActivity() {
         return true
     }
 
+    private fun showSearchDialog() {
+        val textInputLayout = TextInputLayout(this)
+        val textInput = TextInputEditText(this)
+        textInput.background = null
+        textInputLayout.addView(textInput)
+        customDialog(
+            this,
+            title = "查询",
+            contentView = textInputLayout,
+            okText = "确认",
+            okClick = { dialogInterface ->
+                appViewModel.queryPattern.value = textInput.text.toString().trim()
+                val loadingDialog = LoadingDialog(this, "正在搜索中")
+                loadingDialog.show()
+                lifecycleScope.launch {
+                    appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                        recordAdapter.addOnPagesUpdatedListener {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                            loadingDialog.dismiss()
+                        }
+                        recordAdapter.submitData(it)
+
+                    }
+                }
+                dialogInterface.dismiss()
+            },
+            cancelText = "取消"
+        ).show()
+    }
+
     override fun onResume() {
         super.onResume()
         refreshData()
+    }
+
+    override fun onBackPressed() {
+        if (appViewModel.queryPattern.value.isNullOrEmpty()) {
+            super.onBackPressed()
+        } else {
+            binding.swipeRefreshLayout.isRefreshing = true
+            appViewModel.queryPattern.value = ""
+            lifecycleScope.launch {
+                appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                    recordAdapter.addOnPagesUpdatedListener {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            binding.swipeRefreshLayout.isRefreshing = false
+                        }, 800)
+                    }
+                    recordAdapter.submitData(it)
+                }
+            }
+        }
     }
 }

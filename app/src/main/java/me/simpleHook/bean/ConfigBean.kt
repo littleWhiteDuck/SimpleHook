@@ -9,7 +9,7 @@ import androidx.annotation.Keep
  * @param methodName 方法名
  * @param params 参数
  * @param fieldName 变量名
- * @param fieldType 变量类型
+ * @param fieldClassName 变量所在类
  * @param resultValues 返回值/参数值
  */
 @Keep
@@ -19,7 +19,7 @@ data class ConfigBean(
     val methodName: String = "",
     val params: String = "",
     val fieldName: String = "",
-    val fieldType: String = "",
+    val fieldClassName: String = "",
     val resultValues: String = "",
     var enable: Boolean = true
 )

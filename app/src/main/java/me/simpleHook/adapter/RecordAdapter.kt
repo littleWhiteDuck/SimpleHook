@@ -56,7 +56,7 @@ class RecordAdapter(val isType: Boolean = false, val onItemClick: (PrintLog) -> 
             } else {
                 holder.itemView.setBackgroundResource(R.drawable.bg_record)
             }
-            if (isType) {
+            if (isType && !printLog.type.startsWith("Error")) {
                 GlideApp.with(icon).load(logBean.packageName).into(icon)
             } else {
                 val showText = RecordType.getShowText(printLog.type)

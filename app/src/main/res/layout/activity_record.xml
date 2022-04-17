@@ -7,30 +7,16 @@
     tools:context=".ui.activity.RecordActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-
-        android:id="@+id/upFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:contentDescription="@string/record_scroll_to_top"
-        app:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar"
-        app:srcCompat="@drawable/ic_arrow_upward_24"
-        app:tint="@color/white" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/downFab"
+        android:id="@+id/search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:contentDescription="@string/record_fab_scroll_to_bottom"
         app:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_arrow_downward_24"
+        app:srcCompat="@drawable/ic_search_24"
         app:tint="@color/white" />
 
     <com.google.android.material.appbar.AppBarLayout

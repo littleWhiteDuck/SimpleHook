@@ -9,7 +9,7 @@ import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.database.entity.AppConfig
@@ -54,23 +54,25 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     // Record
     val queryInit = MutableStateFlow("")
-
+    val queryPattern = MutableLiveData("")
     private val pagingConfig = PagingConfig(
         pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200
     )
 
-    fun getRecord(typeOrPack: String, isType: Boolean): Flow<PagingData<PrintLog>> {
+    fun getRecord(
+        typeOrPack: String, isType: Boolean
+    ): Flow<PagingData<PrintLog>> {
         return Pager(
             config = pagingConfig
         ) {
             if (isType) {
-                appRepository.getPrintLogDao().getRecordByType("%$typeOrPack%")
+                appRepository.getPrintLogDao()
+                    .getRecordByType("%$typeOrPack%", "%${queryPattern.value}%")
             } else {
-                appRepository.getPrintLogDao().getRecordByPack(typeOrPack)
+                appRepository.getPrintLogDao()
+                    .getRecordByPack(typeOrPack, "%${queryPattern.value}%")
             }
-        }.flow.cachedIn(viewModelScope).combine(queryInit, transform = { printLog, query ->
-                printLog.filter { it.log.contains(query, true) }
-            })
+        }.flow.cachedIn(viewModelScope)
     }
 
     fun getAllLogs() = appRepository.getAllLogs()

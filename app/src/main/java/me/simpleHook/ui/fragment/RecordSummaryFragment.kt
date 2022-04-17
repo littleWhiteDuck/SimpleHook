@@ -21,16 +21,16 @@ import me.simpleHook.R
 import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
-import me.simpleHook.databinding.FragmentRecordBinding
+import me.simpleHook.databinding.FragmentRecordSummaryBinding
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 
 
-class RecordFragment : Fragment() {
+class RecordSummaryFragment : Fragment() {
 
 
-    private var _binding: FragmentRecordBinding? = null
+    private var _binding: FragmentRecordSummaryBinding? = null
     private val binding get() = _binding!!
     private val appViewModel: AppViewModel by activityViewModels()
     private val bottomNavigationView by lazy {
@@ -57,7 +57,7 @@ class RecordFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRecordBinding.inflate(inflater, container, false)
+        _binding = FragmentRecordSummaryBinding.inflate(inflater, container, false)
         initView()
         return binding.root
     }

@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -81,7 +82,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         if (!FileUtils.isGrant(requireContext())) {
                             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                                 requestPermissionDialog(requireContext()) {
-                                    startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                                    val document = DocumentFile.fromTreeUri(
+                                        requireContext(), Uri.parse(Constant.ANDROID_DATA_URI)
+                                    )
+                                    startActivityForData.launch(
+                                        document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                                    )
                                 }
                             } else {
                                 requestPermissionDialog(requireContext()) {

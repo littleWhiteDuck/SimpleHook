@@ -68,8 +68,8 @@
     <string name="config_dialog_return_value_input_tip">Result value</string>
     <string name="config_dialog_field_name_edit_hint">Field name</string>
     <string name="config_dialog_field_name_input_tip">Example: isPro</string>
-    <string name="config_dialog_field_type_edit_hint">Field type</string>
-    <string name="config_dialog_field_type_input_tip">Example: boolean,int (optional)</string>
+    <string name="config_dialog_field_class_name_edit_hint">The class name of the field</string>
+    <string name="config_dialog_field_class_name_input_tip">Example: com.example.example</string>
     <string name="config_dialog_title">Method Config</string>
     <string name="config_dialog_mode_select">Select mode:</string>
     <string name="config_package_name_input_tip">Package name</string>

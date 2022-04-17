@@ -54,8 +54,14 @@ interface PrintLogDao {
     @Query("SELECT * FROM PrintLog WHERE packageName = :packageName ORDER BY time DESC")
     fun getRecordByPack(packageName: String): PagingSource<Int, PrintLog>
 
+    @Query("SELECT * FROM PrintLog WHERE packageName = :packageName and log like :pattern ORDER BY time DESC")
+    fun getRecordByPack(packageName: String, pattern: String): PagingSource<Int, PrintLog>
+
     @Query("SELECT * FROM PrintLog WHERE type like :type ORDER BY time DESC")
     fun getRecordByType(type: String): PagingSource<Int, PrintLog>
+
+    @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY time DESC")
+    fun getRecordByType(type: String, pattern: String): PagingSource<Int, PrintLog>
 
     @Update
     suspend fun updateRecord(printLog: PrintLog)

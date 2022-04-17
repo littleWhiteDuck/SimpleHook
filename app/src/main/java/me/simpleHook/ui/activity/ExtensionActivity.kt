@@ -8,13 +8,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
-import android.widget.PopupWindow
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,7 +39,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.custom.ProgressBar
+import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
@@ -362,7 +365,7 @@ class AssistActivity : BaseActivity() {
             saveConfig()
             Handler(Looper.getMainLooper()).postDelayed({
                 startAppAndFloat()
-            }, 500)
+            }, 100)
             return
         } else {
             if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
@@ -416,7 +419,12 @@ class AssistActivity : BaseActivity() {
                 } else {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                         requestPermissionDialog(this) {
-                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                            val document = DocumentFile.fromTreeUri(
+                                this, Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
+                            startActivityForData.launch(
+                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
                         }
                     } else {
                         requestPermissionDialog(this) {
@@ -459,22 +467,8 @@ class AssistActivity : BaseActivity() {
     @SuppressLint("Range")
     private fun saveConfig() {
         isSaving = true
-        val progressBar = ProgressBar(this, null)
-        progressBar.measure(
-            View.MeasureSpec.makeMeasureSpec(
-                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
-            ), View.MeasureSpec.makeMeasureSpec(
-                ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.AT_MOST
-            )
-        )
-        val popupWindow =
-            PopupWindow(progressBar, progressBar.measuredWidth, progressBar.measuredHeight)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-        popupWindow.isOutsideTouchable = false
-        popupWindow.showAtLocation(progressBar, Gravity.CENTER, 0, 0)
+        val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
+        loadingDialog.show()
         if (isContains(ALL_STATUS)) {
             configBean.all = isChecked(ALL_STATUS)
         }
@@ -543,8 +537,7 @@ class AssistActivity : BaseActivity() {
             saveToText(assistConfig.packageName, config)
         }
         Handler(Looper.getMainLooper()).postDelayed({
-            popupWindow.dismiss()
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            loadingDialog.dismiss()
             isSaving = false
             "已保存".toast(this)
         }, 500)

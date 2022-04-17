@@ -23,8 +23,8 @@
     <string name="config_dialog_return_value_input_tip">输入修改值</string>
     <string name="config_dialog_field_name_edit_hint">输入变量名</string>
     <string name="config_dialog_field_name_input_tip">例如：isPro</string>
-    <string name="config_dialog_field_type_input_tip">例如：boolean、int(可不填)</string>
-    <string name="config_dialog_field_type_edit_hint">请输入变量类型</string>
+    <string name="config_dialog_field_class_name_input_tip">例如：com.example.example</string>
+    <string name="config_dialog_field_class_name_edit_hint">请输入变量所在类名</string>
     <string name="config_dialog_title">方法配置</string>
     <string name="config_dialog_mode_select">选择模式：</string>
     <string name="config_application_input_tip" translatable="false">输入入口名</string>
@@ -306,6 +306,8 @@
     <string name="config_no_app_info">请点击此处选择应用</string>
     <string name="desc_input_place_holder_text">可以是空的</string>
     <string name="main_loading">正在保存中</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

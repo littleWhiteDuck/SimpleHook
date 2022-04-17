@@ -13,7 +13,7 @@ private val HORIZONTAL_OFFSET = 50.dp.toFloat()
 private val VERTICAL_OFFSET = 30.dp.toFloat()
 class ProgressBar(context: Context, attrs: AttributeSet?) : ProgressBar(context, attrs) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-
+    var showText = ""
     init {
         paint.textSize = TEXT_SIZE
         paint.color = context.resources.getColor(R.color.paint_color)
@@ -24,7 +24,7 @@ class ProgressBar(context: Context, attrs: AttributeSet?) : ProgressBar(context,
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawText(
-            context.getString(R.string.main_loading),
+            showText.ifEmpty { context.getString(R.string.main_loading) },
             HORIZONTAL_OFFSET,
             VERTICAL_OFFSET,
             paint

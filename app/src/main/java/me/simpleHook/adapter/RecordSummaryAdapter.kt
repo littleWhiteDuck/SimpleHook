@@ -43,7 +43,11 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
                         )
                     desc.text = packageName
                     tvCount.text = count.toString()
-                    GlideApp.with(icon).load(packageName).into(icon)
+                    if (packageName.startsWith("error.")) {
+                        icon.setImageDrawable(IconHelper.getTextIcon(text = "Error"))
+                    } else {
+                        GlideApp.with(icon).load(packageName).into(icon)
+                    }
                 } else {
                     title.text = if (type.startsWith("Error")) "Hook Error" else type
                     tvCount.text = count.toString()

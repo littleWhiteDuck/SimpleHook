@@ -209,11 +209,11 @@ class ConfigAdapter(
 
     object MethodConfigDiffCallback : DiffUtil.ItemCallback<ConfigBean>() {
         override fun areItemsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
-            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldType == newItem.fieldType && oldItem.fieldName == newItem.fieldName
+            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldClassName == newItem.fieldClassName && oldItem.fieldName == newItem.fieldName
         }
 
         override fun areContentsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
-            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldType == newItem.fieldType && oldItem.fieldName == newItem.fieldName
+            return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldClassName == newItem.fieldClassName && oldItem.fieldName == newItem.fieldName
         }
     }
 

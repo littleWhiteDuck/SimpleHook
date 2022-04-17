@@ -3,13 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <item
-        android:id="@+id/search"
-        android:icon="@drawable/ic_search_24"
-        android:title="@string/search"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="always|collapseActionView"
-        tools:ignore="AlwaysShowAction" />
-    <item
         android:icon="@drawable/ic_delete_24"
         android:title="@string/record_menu_delete"
         app:showAsAction="never">

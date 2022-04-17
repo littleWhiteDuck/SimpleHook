@@ -12,7 +12,11 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
@@ -43,48 +47,56 @@ class RecordDetailActivity : BaseActivity() {
         } else {
             false
         }
-        val bundle = intent.getBundleExtra("bundle")
-        val printLog: PrintLog = bundle!!.getParcelable("printLog")!!
-        jsonText = printLog.log
-        val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
-        supportActionBar?.title =
-            if (printLog.packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                this@RecordDetailActivity, logBean.packageName
-            )
-        supportActionBar?.subtitle = logBean.packageName
-        val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
-        if (logBean.type.equals("intent", ignoreCase = true)) {
-            val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
-            val intentBean = logBean2.other[0]
-            val sb = StringBuilder()
-            sb.append("${foreStr + logBean.type}\n")
-                .append("packageName：${intentBean.packageName}\n")
-                .append("className：${intentBean.className}\n")
-                .append("action：${intentBean.action}\n").append("data：${intentBean.data}\n")
-                .append("extras：\n")
-            intentBean.extras.forEach {
-                sb.append("   type：${it.type}，key：${it.key}，value：${it.value}\n")
-            }
-            currentText = sb.toString()
-        } else {
-            val logList: List<String> = logBean.other as List<String>
-            val sb = StringBuilder()
-            logList.forEach {
-                sb.append(it).append("\n")
-            }
-            val nLine: Int = -1
-            currentText = StringBuilder().lineFeesItem(
-                logList, "${foreStr + logBean.type}\n", nLine = nLine, nLineString = ""
-            ).replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
-                .replace("Method : ", "")
-        }
         initView()
+        initData()
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     private fun initView() {
-        binding.record.text = currentText
+        binding.progressBar.isVisible = true
     }
+
+    private fun initData() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val bundle = intent.getBundleExtra("bundle")
+            val printLog: PrintLog = bundle!!.getParcelable("printLog")!!
+            jsonText = printLog.log
+            val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
+            supportActionBar?.title =
+                if (printLog.packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
+                    this@RecordDetailActivity, logBean.packageName
+                )
+            supportActionBar?.subtitle = logBean.packageName
+            val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
+            if (logBean.type.equals("intent", ignoreCase = true)) {
+                val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
+                val intentBean = logBean2.other[0]
+                val sb = StringBuilder()
+                sb.append("${foreStr + logBean.type}\n")
+                    .append("packageName：${intentBean.packageName}\n")
+                    .append("className：${intentBean.className}\n")
+                    .append("action：${intentBean.action}\n").append("data：${intentBean.data}\n")
+                    .append("extras：\n")
+                intentBean.extras.forEach {
+                    sb.append("   type：${it.type}，key：${it.key}，value：${it.value}\n")
+                }
+                currentText = sb.toString()
+            } else {
+                val logList: List<String> = logBean.other as List<String>
+                val sb = StringBuilder()
+                logList.forEach {
+                    sb.append(it).append("\n")
+                }
+                val nLine: Int = -1
+                currentText = StringBuilder().lineFeesItem(
+                    logList, "${foreStr + logBean.type}\n", nLine = nLine, nLineString = ""
+                ).replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
+                    .replace("Method : ", "")
+            }
+            binding.record.text = currentText
+            binding.progressBar.isVisible = false
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_record_detail, menu)

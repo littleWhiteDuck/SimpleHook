@@ -11,6 +11,7 @@ import android.os.Process
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
@@ -27,7 +28,7 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
-import me.simpleHook.ui.fragment.RecordFragment
+import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
 import org.json.JSONObject
@@ -62,7 +63,12 @@ class MainActivity : BaseActivity() {
                 if (!FileUtils.isGrant(this)) {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                         requestPermissionDialog(this) {
-                            startActivityForData.launch(Uri.parse(Constant.ANDROID_DATA_URI))
+                            val document = DocumentFile.fromTreeUri(
+                                this, Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
+                            startActivityForData.launch(
+                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
                         }
                     } else {
                         requestPermissionDialog(this) {
@@ -174,7 +180,7 @@ class MainActivity : BaseActivity() {
                     override fun createFragment(position: Int) = when (position) {
                         0 -> HomeFragment()
                         1 -> ExtensionFragment()
-                        2 -> RecordFragment()
+                        2 -> RecordSummaryFragment()
                         else -> SettingsFragment()
                     }
                 }
