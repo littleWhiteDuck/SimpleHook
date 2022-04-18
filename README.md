@@ -10,6 +10,8 @@
 
 > tg:@simpleHook
 
+> Emali: 484303285@qq.com
+
 > 本软件主打简单，如名字一样，如果你追求更复杂的hook操作，推荐使用 JShook（frida）、曲境（电脑端浏览器操作）；如果你追求更多的扩展功能，推荐使用算法助手
 
 > 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow、JSONObject创建增加等
@@ -81,7 +83,6 @@
 
   ```java
   // 类型 主要用于填写参数类型和变量类型
-  // 请注意！！！ 暂不支持数组，如：int[]
   // 基本类型你可以使用java语法这样填
   boolean int long short char byte float double
   // 基本类型你也可以使用smali语法这样填
@@ -245,20 +246,102 @@ import simple.example;
 public class Example{
   public static boolean isTest = false;
 }
+
+import simple.example;
+public class MainActivity extends Acitvity {
+  @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        initData();
+        initView();
+    }
+
+    private void initData(){
+      Example.isTest = false;
+    }
+
+    private void initView() {
+      //你想要修改 isTest为true,所以你应当再这个变量被赋值后再去hook
+      System.out.println(Example.isTest); 
+    }
+}
 // 具体的值只支持基本类型，和字符串
-// 无需填写变量类型；要符合 结果值填写规则
+// 无需填写变量类型；要符合[结果值]填写规则
 /*
   模式选择 Hook静态变量
-  类名应填：simple.example.Example
+  类名应填：simple.example.MainActivity;
+  方法名应填: initData
+  参数类型应填：（什么都是不填，因为这个方法没有参数）
+  变量所在类名：simple.example.Example
   变量名应填：isTest
-  变量类型无需填写
   修改值应填：true/false
 */
 ```
 
 #### 变量
 
-> 填写同静态变量
+```java
+import simple.example;
+public class UseBean {
+    private boolean isHook;
+    private int level;
+
+    public UseBean(boolean isHook, int level) {
+        this.isHook = isHook;
+        this.level = level;
+    }
+
+    public boolean isHook() {
+        return isHook;
+    }
+
+    public void setHook(boolean hook) {
+        isHook = hook;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+}
+
+import simple.example;
+public class MainActivity extends Acitvity {
+  private User user;
+  @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        initData();
+        initView();
+    }
+
+    private void initData(){
+      user = new User(true, 100);
+    }
+
+    private void initView() {
+      //你想要修改isHook、level,所以你应当再这个变量被赋值后再去hook
+      System.out.println(user.isHook()); 
+      System.out.println(user.getLevel()); 
+    }
+}
+// 具体的值只支持基本类型，和字符串
+// 无需填写变量类型；要符合[结果值]填写规则
+/*
+  模式选择 Hook变量
+  类名应填：simple.example.UseBean;
+  方法名应填: <init>   // <init>  表示构造方法
+  参数类型应填：boolean,int
+  变量名应填：isHook
+  修改值应填：true/false
+
+  实例变量/成员变量：不支持像静态变量一样跨类hook，只能在本类的某个方法执行后，再去hook变量值
+*/
 
 #### 打印参数值
 
@@ -314,7 +397,7 @@ public class Example{
 
 ### 3.root版和普通版有什么区别
 
-> 两者功能上没有任何区别，仅仅在写入本地配置目录上有所区别
+> 两者功能上没有任何区别，仅仅在写入本地配置目录上有所区别。如果你使用root版，但是你的机型又不适合使用root版，xposed框架日志中会提示你。
 >
 > root配置存储目录有：
 >
@@ -345,11 +428,3 @@ public class Example{
 > 你可能没有打开 开启储存权限写入配置（开关配置设置页顶）
 >
 > 打开后记得手动刷新配置（重新保存或开关配置）
-
-### 6.关于配置页自动转参数/变量类型
-
-> 默认开启，你如果你将其关闭，可能会出现诸多问题
->
-> 当出现意外情况时（概率极低）: 如参数类型为org.json.JSON,会被识别为org.json.J,S,ON。这种情况需要你关闭它，手动输入满足java语法的类名/或者变量名，手动输入完成后，记得开启，如果你重新保存依然需要先关闭，再修改和保。
-> 
-> JSON已被我排除，可以正常的自动转换。

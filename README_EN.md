@@ -238,27 +238,109 @@ public class Example{
   */
 ````
 
-#### static field
+#### static variables
 
 ````java
 import simple.example;
 public class Example{
   public static boolean isTest = false;
 }
-// Concrete values only support primitive types, and strings
-// There is no need to fill in the field type; it must comply with the rules for filling in the result value
+
+import simple.example;
+public class MainActivity extends Acitvity {
+  @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        initData();
+        initView();
+    }
+
+    private void initData(){
+      Example.isTest = false;
+    }
+
+    private void initView() {
+      //You want to change isTest to true, so you should hook this field after assigning a value
+      System.out.println(Example.isTest);
+    }
+}
+// Concrete values ​​only support primitive types, and strings
+// There is no need to fill in the field type; it must comply with the [result value] filling rules
 /*
   Mode selection Hook static field
-  The class name should be filled in: simple.example.Example
+  The class name should be filled in: simple.example.MainActivity;
+  The method name should be filled in: initData
+  The parameter type should be filled in: (nothing is filled in, because this method has no parameters)
+  The class name where the field is located: simple.example.Example
   The field name should be filled in: isTest
-  Field type does not need to be filled in
   The modified value should be filled in: true/false
 */
 ````
 
-#### instance field
+#### variables
 
-> Fill in the same as static field
+````java
+import simple.example;
+public class UseBean {
+    private boolean isHook;
+    private int level;
+
+    public UseBean(boolean isHook, int level) {
+        this.isHook = isHook;
+        this.level = level;
+    }
+
+    public boolean isHook() {
+        return isHook;
+    }
+
+    public void setHook(boolean hook) {
+        isHook = hook;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+}
+
+import simple.example;
+public class MainActivity extends Acitvity {
+  private User user;
+  @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        initData();
+        initView();
+    }
+
+    private void initData(){
+      user = new User(true, 100);
+    }
+
+    private void initView() {
+      //You want to modify isHook, level, so you should go to hook after this field is assigned
+      System.out.println(user.isHook());
+      System.out.println(user.getLevel());
+    }
+}
+// Concrete values ​​only support primitive types, and strings
+// There is no need to fill in the variable type; it must comply with the [result value] filling rules
+/*
+  Mode Selection Hook instance field
+  The class name should be filled in: simple.example.UseBean;
+  The method name should be filled in: <init>   // <init> represents the constructor
+  The parameter type should be filled in: boolean, int
+  The field name should be filled in: isHook
+  The modified value should be filled in: true/false
+
+  Instance field/member field: cross-class hooks like static variables are not supported. You can only hook the variable value after a method of this class is executed.
+*/
 
 #### print parameter value
 
@@ -312,9 +394,9 @@ public class Example{
    The above can be selected by long-pressing a field or method in the MT Manager navigation to select Copy Signature or Find Call
 ```
 
-### What is the difference between 3.root version and normal version
+### What is the difference between root version and normal version
 
-> There is no difference in function between the two, only the difference in writing to the local configuration directory
+> There is no difference in function between the two, only the difference in writing to the local configuration directory. If you use the root version, but your model is not suitable for the root version, you will be prompted in the xposed framework log.
 >
 > The root configuration storage directory is:
 >
@@ -345,13 +427,3 @@ public class Example{
 > You may not have turned on Enable storage permissions to write to configuration (switch configuration settings at the top of the page)
 >
 > Remember to manually refresh the configuration after opening (re-save or switch the configuration)
-
-### 6. About the configuration page transfer parameter/variable type
-
-> On by default, if you turn it off, there may be many problems
->
-> When there is an unexpected situation (very low probability): If the parameter type is org.json.JSON, it will be recognized as org.json.J,S,ON. In this case, you need to close it and manually enter the class name/or variable name that meets the java syntax. After the manual input is completed, remember to open it. If you re-save, you still need to close it first, then modify and save it.
->
-> JSON has been excluded by me and can be automatically converted normally.
-> 
-> 

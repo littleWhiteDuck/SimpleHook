@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -16,6 +17,7 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ExtensionItemConfig
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
@@ -38,14 +40,13 @@ private const val START_ACTIVITY = "startActivity"
 private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
 object ExtensionHook {
-    private var isEnglish = false
 
-    fun init() {
-        isEnglish = LanguageUtils.isNotChinese()
-    }
+    // 判断应用是否处在中文环境
+    private val isShowEnglish = LanguageUtils.isNotChinese()
 
     fun hookVpnCheck(context: Context) {
-        XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
+        XposedHelpers.findAndHookMethod(
+            "java.net.NetworkInterface",
             context.classLoader,
             "getName",
             object : XC_MethodHook() {
@@ -95,33 +96,43 @@ object ExtensionHook {
     }
 
     fun hookPopupWindow(
-        context: Context, popupStack: Boolean, cancel: Boolean, packageName: String
+        context: Context,
+        popupStack: Boolean,
+        cancel: Boolean,
+        stopDialog: ExtensionItemConfig,
+        packageName: String
     ) {
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
+        XposedBridge.hookAllMethods(PopupWindow::class.java,
             "showAtLocation",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
-                    hookPopupWindowDetail(context, param, popupStack, cancel, packageName)
+                    hookPopupWindowDetail(
+                        context, param, popupStack, cancel, stopDialog, packageName
+                    )
                 }
             })
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
+        XposedBridge.hookAllMethods(PopupWindow::class.java,
             "showAsDropDown",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
                     super.beforeHookedMethod(param)
-                    hookPopupWindowDetail(context, param, popupStack, cancel, packageName)
+                    hookPopupWindowDetail(
+                        context, param, popupStack, cancel, stopDialog, packageName
+                    )
                 }
             })
     }
 
+    /**
+     * @param stopDialog 数据类，enable记录是否开启，info获取相应信息
+     */
     fun hookPopupWindowDetail(
         context: Context,
         param: XC_MethodHook.MethodHookParam?,
         popupStack: Boolean,
         cancel: Boolean,
+        stopDialog: ExtensionItemConfig,
         packageName: String
     ) {
         val popupWindow = param?.thisObject as PopupWindow
@@ -129,16 +140,35 @@ object ExtensionHook {
             popupWindow.isFocusable = true
             popupWindow.isOutsideTouchable = true
         }
-        if (popupStack) {
-            val list = mutableListOf<String>()
-            val contentView = popupWindow.contentView
-            if (contentView is ViewGroup) {
-                list += getAllTextView(contentView)
-            } else if (contentView is TextView) {
-                list.add(getTip("text") + contentView.text.toString())
+        val list = mutableListOf<String>()
+        val contentView = popupWindow.contentView
+        if (contentView is ViewGroup) {
+            list += getAllTextView(contentView)
+        } else if (contentView is TextView) {
+            list.add(getTip("text") + contentView.text.toString())
+        }
+
+        val stackTrace = Throwable().stackTrace
+
+        if (stopDialog.enable) {
+            val showText = list.toString()
+            val keyWords = stopDialog.info.split(",")
+            keyWords.forEach {
+                if (it.isNotEmpty() && showText.contains(it)) {
+                    val type =
+                        if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
+                    val log = Gson().toJson(
+                        LogBean(
+                            type, list + LogHook.toStackTrace(context, stackTrace), packageName
+                        )
+                    )
+                    LogHook.toLogMsg(context, log, packageName, type)
+                    param.result = null
+                    return
+                }
             }
+        } else if (popupStack) {
             val type = "PopupWindow"
-            val stackTrace = Throwable().stackTrace
             val log = Gson().toJson(
                 LogBean(
                     type, list + LogHook.toStackTrace(context, stackTrace), packageName
@@ -148,25 +178,49 @@ object ExtensionHook {
         }
     }
 
-    fun hookDialog(context: Context, isSwitch: Boolean, cancel: Boolean, packageName: String) {
+    fun hookDialog(
+        context: Context,
+        stackSwitch: Boolean,
+        cancel: Boolean,
+        stopDialog: ExtensionItemConfig,
+        packageName: String
+    ) {
         XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam?) {
                 val dialog = param?.thisObject as Dialog
+                val list = mutableListOf<String>()
+                val dialogView: View? = dialog.window?.decorView
+                dialogView?.also {
+                    if (it is ViewGroup) {
+                        list += getAllTextView(it)
+                    } else if (it is TextView) {
+                        list.add(getTip("text") + it.text.toString())
+                    }
+                }
                 if (cancel) {
                     dialog.setCancelable(true)
                 }
-                if (isSwitch) {
-                    val list = mutableListOf<String>()
-                    val type = if (isEnglish) "Dialog" else "弹窗"
-                    val dialogView: View? = dialog.window?.decorView
-                    dialogView?.also {
-                        if (it is ViewGroup) {
-                            list += getAllTextView(it)
-                        } else if (it is TextView) {
-                            list.add(getTip("text") + it.text.toString())
+                val stackTrace = Throwable().stackTrace
+                if (stopDialog.enable) {
+                    val showText = list.toString()
+                    val keyWords = stopDialog.info.split(",")
+                    keyWords.forEach {
+                        if (it.isNotEmpty() && showText.contains(it)) {
+                            dialog.dismiss()
+                            val type = if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
+                            val log = Gson().toJson(
+                                LogBean(
+                                    type,
+                                    list + LogHook.toStackTrace(context, stackTrace),
+                                    packageName
+                                )
+                            )
+                            LogHook.toLogMsg(context, log, packageName, type)
+                            return
                         }
                     }
-                    val stackTrace = Throwable().stackTrace
+                } else if (stackSwitch) {
+                    val type = if (isShowEnglish) "Dialog" else "弹窗"
                     val log = Gson().toJson(
                         LogBean(
                             type, list + LogHook.toStackTrace(context, stackTrace), packageName
@@ -205,7 +259,7 @@ object ExtensionHook {
             override fun afterHookedMethod(param: MethodHookParam) {
                 try {
                     val list = mutableListOf<String>()
-                    val type = if (isEnglish) "Click Event" else "点击事件"
+                    val type = if (isShowEnglish) "Click Event" else "点击事件"
                     val view = param.thisObject as View
                     val viewType = view.javaClass.name ?: "未获取到"
                     val listenerInfoObject = XposedHelpers.getObjectField(view, "mListenerInfo")
@@ -477,16 +531,16 @@ object ExtensionHook {
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(
-                            getTip("Encrypt/Decrypt: ${map["cryptType"]}"),
+                            getTip("encryptOrDecrypt") + map["cryptType"],
                             getTip("key") + map["key"],
                             "iv：${map["iv"]}",
                             getTip("rawData") + map["rawData"],
-                            getTip("${map["cryptType"] ?: "error"}Result") + map["result"]
+                            getTip(map["cryptType"] ?: "error") + getTip("Result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
                         val items = LogHook.toStackTrace(context, stackTrace).toList()
                         val logBean = LogBean(
-                            map["algorithmType"]!!, list + items, packageName
+                            map["algorithmType"] ?: "null", list + items, packageName
                         )
                         LogHook.toLogMsg(
                             context, Gson().toJson(logBean), packageName, logBean.type
@@ -565,7 +619,7 @@ object ExtensionHook {
                 val stackTrace = Throwable().stackTrace
                 val items = LogHook.toStackTrace(context, stackTrace).toList()
                 val logBean = LogBean(
-                    hasMap["algorithmType"]!!, list + items, packageName
+                    hasMap["algorithmType"] ?: "null", list + items, packageName
                 )
                 LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, logBean.type)
                 hasMap.clear()
@@ -580,7 +634,8 @@ object ExtensionHook {
 
     fun hookIntent(context: Context, packageName: String) {
         val classLoader = context.classLoader
-        XposedHelpers.findAndHookMethod(ACTIVITY,
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY,
             classLoader,
             START_ACTIVITY,
             Intent::class.java,
@@ -680,7 +735,7 @@ object ExtensionHook {
     fun hookJSONObject(context: Context, packageName: String) {
         XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val type = if (isEnglish) "JSON put" else "JSON 增加"
+                val type = if (isShowEnglish) "JSON put" else "JSON 增加"
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
@@ -695,7 +750,7 @@ object ExtensionHook {
 
         XposedBridge.hookAllConstructors(JSONObject::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val type = if (isEnglish) "JSON creation" else "JSON 创建"
+                val type = if (isShowEnglish) "JSON creation" else "JSON 创建"
                 val jsonObject = param.thisObject
                 val map: LinkedHashMap<String, Any> = XposedHelpers.getObjectField(
                     jsonObject, "nameValuePairs"
@@ -717,7 +772,7 @@ object ExtensionHook {
 
         XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val type = if (isEnglish) "JSONArray put" else "JSONArray 增加"
+                val type = if (isShowEnglish) "JSONArray put" else "JSONArray 增加"
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
@@ -732,7 +787,7 @@ object ExtensionHook {
 
         XposedBridge.hookAllConstructors(JSONArray::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val type = if (isEnglish) "JSONArray creation" else "JSONArray 创建"
+                val type = if (isShowEnglish) "JSONArray creation" else "JSONArray 创建"
                 val jsonObject = param.thisObject
                 val map: List<Any> = XposedHelpers.getObjectField(
                     jsonObject, "values"
@@ -750,9 +805,45 @@ object ExtensionHook {
         })
     }
 
+    fun hookWebLoadUrl(context: Context, packageName: String) {
+        XposedBridge.hookAllMethods(WebView::class.java, "loadUrl", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val type = "WEB"
+                val url = param.args[0] as String
+                val list = mutableListOf<String>()
+                list.add("Url: $url")
+                if (param.args.size == 2) {
+                    val headers = Gson().toJson(param.args[1])
+                    list.add("Header: $headers")
+                }
+                val logBean = LogBean(type, list, packageName)
+                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+            }
+        })
+    }
+
+    fun hookWebDebug(context: Context, packageName: String) {
+        val webClass = XposedHelpers.findClass("android.webkit.WebView", context.classLoader)
+        XposedBridge.hookAllConstructors(webClass, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                XposedHelpers.callStaticMethod(webClass, "setWebContentsDebuggingEnabled", true)
+            }
+        })
+        XposedHelpers.findAndHookMethod(webClass,
+            "setWebContentsDebuggingEnabled",
+            Boolean::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    param.args[0] = true
+                }
+            })
+    }
+
     private fun getObjectString(value: Any): String {
-        return if (value is List<*> || value is Array<*>) {
+        return if (value is String) value else try {
             Gson().toJson(value)
-        } else value.toString()
+        } catch (e: java.lang.Exception) {
+            value.javaClass.name
+        }
     }
 }
