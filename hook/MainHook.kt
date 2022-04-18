@@ -28,17 +28,15 @@ import me.simpleHook.hook.ExtensionHook.hookOnClick
 import me.simpleHook.hook.ExtensionHook.hookPopupWindow
 import me.simpleHook.hook.ExtensionHook.hookToast
 import me.simpleHook.hook.ExtensionHook.hookVpnCheck
-import me.simpleHook.hook.ExtensionHook.init
+import me.simpleHook.hook.ExtensionHook.hookWebDebug
+import me.simpleHook.hook.ExtensionHook.hookWebLoadUrl
 import me.simpleHook.hook.ExtensionHook.mac
 import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.log
-import me.simpleHook.util.tip
+import me.simpleHook.util.*
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -58,10 +56,8 @@ class Hook {
     fun initHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
         val packageName = loadPackageParam!!.packageName
         val classLoader = loadPackageParam.classLoader
-        XposedHelpers.findAndHookMethod(Application::class.java,
-            "attach",
-            Context::class.java,
-            object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(
+            Application::class.java, "attach", Context::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     mContext = param.args[0] as Context
                     mClassLoader = mContext?.classLoader ?: classLoader
@@ -185,18 +181,21 @@ class Hook {
                         Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(
                             className,
                             mClassLoader,
+                            methodName,
+                            params,
                             fieldName,
                             resultValues,
-                            fieldType,
+                            fieldClassName,
                             mContext!!,
                             packageName
                         )
                         Constant.HOOK_FIELD -> FieldHook.hookField(
                             className,
                             mClassLoader,
+                            methodName,
+                            params,
                             fieldName,
                             resultValues,
-                            fieldType,
                             mContext!!,
                             packageName
                         )
@@ -213,8 +212,20 @@ class Hook {
                 }
             }
         } catch (e: Exception) {
+            val configTemp = try {
+                val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+                JsonUtil.formatJson(appConfig.configs)
+            } catch (e: java.lang.Exception) {
+                strConfig
+            }
+            ErrorTool.toLog(
+                mContext!!, arrayListOf(
+                    getTip("errorType") + getTip("unknownError"),
+                    "config: $configTemp",
+                    getTip("detailReason") + e.stackTraceToString()
+                ), packageName, "Error Unknown Error"
+            )
             "config error".log(packageName)
-            strConfig.log(packageName)
             XposedBridge.log(e.stackTraceToString())
         }
     }
@@ -265,7 +276,6 @@ class Hook {
             Constant.HOOK_RECORD_PARAMS -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.args.isEmpty()) return
                         recordParamsValue(className, methodName, param, packageName)
                     }
                 }
@@ -280,7 +290,6 @@ class Hook {
             Constant.HOOK_RECORD_PARAMS_RETURN -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.args.isEmpty()) return
                         recordParamsAndReturn(className, methodName, param, packageName)
                     }
                 }
@@ -369,8 +378,12 @@ class Hook {
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
         val paramLen = param.args.size
-        for (i in 0 until paramLen) {
-            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        if (paramLen == 0) {
+            list.add(getTip("notHaveParams"))
+        } else {
+            for (i in 0 until paramLen) {
+                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+            }
         }
         val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
         val logBean = LogBean(
@@ -409,8 +422,12 @@ class Hook {
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
         val paramLen = param.args.size
-        for (i in 0 until paramLen) {
-            list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+        if (paramLen == 0) {
+            list.add(getTip("notHaveParams"))
+        } else {
+            for (i in 0 until paramLen) {
+                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
+            }
         }
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
@@ -422,9 +439,11 @@ class Hook {
     }
 
     private fun getObjectString(value: Any): String {
-        return if (value is List<*> || value is Array<*>) {
+        return if (value is String) value else try {
             Gson().toJson(value)
-        } else value.toString()
+        } catch (e: java.lang.Exception) {
+            value.javaClass.name
+        }
     }
 
     @SuppressLint("Range")
@@ -498,26 +517,37 @@ class Hook {
     private fun readyAssistHook(
         strConfig: String, packageName: String
     ) {
-        if (strConfig.trim().isEmpty()) return
-        getTip("startExtensionHook").log(packageName)
-        val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
-        configBean.apply {
-            if (!all) return
-            val context: Context = mContext!!
-            init()
-            hookDialog(context, dialog, diaCancel, packageName)
-            if (toast) hookToast(context, packageName)
-            hookPopupWindow(context, popup, popCancel, packageName)
-            if (hotFix) HotFix.startFix(context, packageName)
-            if (intent) hookIntent(context, packageName)
-            if (click) hookOnClick(context, packageName)
-            if (vpn) hookVpnCheck(context)
-            if (base64) base64(context, packageName)
-            if (digest) shaAndMD5(context, packageName)
-            if (hmac) mac(context, packageName)
-            if (crypt) aes(context, packageName)
-            if (jsonObject) hookJSONObject(context, packageName)
-            if (jsonArray) hookJSONArray(context, packageName)
+        try {
+            if (strConfig.trim().isEmpty()) return
+            getTip("startExtensionHook").log(packageName)
+            val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
+            configBean.apply {
+                if (!all) return
+                val context: Context = mContext!!
+                hookDialog(context, dialog, diaCancel, stopDialog, packageName)
+                if (toast) hookToast(context, packageName)
+                hookPopupWindow(context, popup, popCancel, stopDialog, packageName)
+                if (hotFix) HotFix.startFix(context, packageName)
+                if (intent) hookIntent(context, packageName)
+                if (click) hookOnClick(context, packageName)
+                if (vpn) hookVpnCheck(context)
+                if (base64) base64(context, packageName)
+                if (digest) shaAndMD5(context, packageName)
+                if (hmac) mac(context, packageName)
+                if (crypt) aes(context, packageName)
+                if (jsonObject) hookJSONObject(context, packageName)
+                if (jsonArray) hookJSONArray(context, packageName)
+                if (webLoadUrl) hookWebLoadUrl(context, packageName)
+                if (webDebug) hookWebDebug(context, packageName)
+            }
+        } catch (e: java.lang.Exception) {
+            ErrorTool.toLog(
+                mContext!!, arrayListOf(
+                    getTip("errorType") + getTip("unknownError"),
+                    "config: ${JsonUtil.formatJson(strConfig)}",
+                    getTip("detailReason") + e.stackTraceToString()
+                ), packageName, "Error Unknown Error"
+            )
         }
     }
 }
