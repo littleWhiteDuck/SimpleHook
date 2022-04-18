@@ -21,5 +21,11 @@ data class AssistConfigBean(
     var jsonObject: Boolean = false,
     var jsonArray: Boolean = false,
     var webLoadUrl: Boolean = false,
-    var webDebug: Boolean = false
+    var webDebug: Boolean = false,
+    val stopDialog: ExtensionItemConfig = ExtensionItemConfig(info = "加强版")
+)
+
+@Keep
+data class ExtensionItemConfig(
+    var enable: Boolean = false, var info: String = ""
 )

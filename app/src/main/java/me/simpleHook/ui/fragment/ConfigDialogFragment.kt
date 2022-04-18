@@ -201,20 +201,20 @@ class ConfigDialogFragment(
             it.apply {
                 val temp = when (mode) {
                     Constant.HOOK_STATIC_FIELD -> {
-                        "/*\n${
+                        "\n${
                             staticField.replace("类名", className).replace("变量名", fieldName).replace(
                                 "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
                             )
-                        }\n*/"
+                        }\n"
                     }
                     Constant.HOOK_FIELD -> {
                         val instanceFieldStr = instanceField.replace("变量名", fieldName).replace(
                             "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
                         )
-                        "/*\n${
+                        "\n${
                             constructor.replace("类名", className).replace("具体后行为", instanceFieldStr)
                                 .replace("具体前行为", "")
-                        }\n*/"
+                        }\n"
                     }
                     Constant.HOOK_RETURN -> {
                         val resultValue =

@@ -17,10 +17,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +43,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
@@ -63,6 +67,7 @@ private const val JSON_OBJECT_STATUS = 1 shl 14
 private const val JSON_ARRAY_STATUS = 1 shl 15
 private const val WEB_LOAD_URL_STATUS = 1 shl 16
 private const val WEB_DEBUG_STATUS = 1 shl 17
+private const val STOP_DIALOG_STATUS = 1 shl 18
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
@@ -252,6 +257,11 @@ class AssistActivity : BaseActivity() {
                         )
                     )
                 )
+                add(
+                    AssistItem(
+                        "拦截关键词弹窗", stopDialog.enable, STOP_DIALOG_STATUS, "指定关键词拦截"
+                    )
+                )
                 add(AssistTitle("JSON"))
                 add(
                     AssistItem(
@@ -337,11 +347,13 @@ class AssistActivity : BaseActivity() {
             ): BasicViewHolder<*> {
                 return when (itemView) {
                     is AppCompatTextView -> TitleHolder(itemView)
-                    is ExtensionItemView -> ItemHolder(itemView) { checked, tag ->
-                        onClick(
+                    is ExtensionItemView -> ItemHolder(itemView, onChangeChecked = { checked, tag ->
+                        onChangeChecked(
                             checked, tag
                         )
-                    }
+                    }, onClick = {
+                        onItemClick(it)
+                    })
                     else -> throw IllegalArgumentException("unknown view: $itemView")
                 }
             }
@@ -359,7 +371,13 @@ class AssistActivity : BaseActivity() {
         }
     }
 
-    private fun onClick(checked: Boolean, tag: Int) {
+    private fun onItemClick(tag: Int) {
+        if (tag == STOP_DIALOG_STATUS) {
+            showEditStopDialogKeyWord()
+        }
+    }
+
+    private fun onChangeChecked(checked: Boolean, tag: Int) {
         if (tag == startAppTag) {
             if (assistConfig.packageName == MODEL_EXTENSION_CONFIG) return
             saveConfig()
@@ -370,7 +388,6 @@ class AssistActivity : BaseActivity() {
         } else {
             if (tag == HOT_FIX_STATUS && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
                 createDexDirectory()
-
             }
             if (checked) {
                 if (statusUnChecked isContainState tag) {
@@ -383,7 +400,32 @@ class AssistActivity : BaseActivity() {
                 }
                 statusUnChecked = if (statusUnChecked == 0) tag else statusUnChecked or tag
             }
+
         }
+    }
+
+    private fun showEditStopDialogKeyWord() {
+        val textInputLayout = TextInputLayout(this).apply {
+            helperText = "多个关键词使用逗号(,)分隔开"
+            endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
+        }
+        val textInput = TextInputEditText(this).apply {
+            background = null
+            setText(configBean.stopDialog.info)
+        }
+        textInputLayout.addView(textInput)
+        customDialog(
+            this,
+            title = "拦截关键词弹窗",
+            contentView = textInputLayout,
+            okText = "确认",
+            okClick = { dialogInterface ->
+                val keyWords = textInput.text.toString().replace("，", ",").trim()
+                configBean.stopDialog.info = keyWords
+                dialogInterface.dismiss()
+            },
+            cancelText = "取消"
+        ).show()
     }
 
     private fun createDexDirectory(tipToast: Boolean = true) {
@@ -526,6 +568,9 @@ class AssistActivity : BaseActivity() {
         if (isContains(WEB_DEBUG_STATUS)) {
             configBean.webDebug = isChecked(WEB_DEBUG_STATUS)
         }
+        if (isContains(STOP_DIALOG_STATUS)) {
+            configBean.stopDialog.enable = isChecked(STOP_DIALOG_STATUS)
+        }
         val config = Gson().toJson(configBean)
         assistConfig.config = config
         if (editMode) {
@@ -579,14 +624,17 @@ class AssistActivity : BaseActivity() {
         }
     }
 
-    class ItemHolder(itemView: View, val onClick: (Boolean, Int) -> Unit) :
-        BasicViewHolder<AssistItem>(itemView) {
+    class ItemHolder(
+        itemView: View,
+        val onChangeChecked: (Boolean, Int) -> Unit,
+        val onClick: (Int) -> Unit
+    ) : BasicViewHolder<AssistItem>(itemView) {
         private val assistItemView = itemView as ExtensionItemView
         private val tvTitle: TextView = assistItemView.title
         private val tvDesc: TextView = assistItemView.desc
         private val tvControl: TextView = assistItemView.control
         override fun onBindData(position: Int, data: AssistItem) {
-            if (data.desc == "") tvDesc.visibility = View.GONE
+            tvDesc.isVisible = data.desc.isNotEmpty()
             tvTitle.text = data.title
             tvDesc.text = data.desc
             when {
@@ -601,25 +649,55 @@ class AssistActivity : BaseActivity() {
                     tvControl.setTextColor(Color.parseColor("#aaaaaa"))
                 }
             }
-            itemView.setOnClickListener {
-                data.isChecked = !data.isChecked
-                tvControl.apply {
-                    data.apply {
-                        when {
-                            tag == startAppTag -> {
-                                onClick(false, tag)
+            if (data.tag == STOP_DIALOG_STATUS) {
+                tvControl.setOnClickListener {
+                    data.isChecked = !data.isChecked
+                    tvControl.apply {
+                        data.apply {
+                            when {
+                                tag == startAppTag -> {
+                                    onChangeChecked(false, tag)
+                                }
+                                isChecked -> {
+                                    text =
+                                        itemView.context.getString(R.string.extension_item_status_open)
+                                    setTextColor(Color.parseColor("#4F9BFA"))
+                                    onChangeChecked(true, tag)
+                                }
+                                else -> {
+                                    text =
+                                        itemView.context.getString(R.string.extension_item_status_close)
+                                    setTextColor(Color.parseColor("#aaaaaa"))
+                                    onChangeChecked(false, tag)
+                                }
                             }
-                            isChecked -> {
-                                text =
-                                    itemView.context.getString(R.string.extension_item_status_open)
-                                setTextColor(Color.parseColor("#4F9BFA"))
-                                onClick(true, tag)
-                            }
-                            else -> {
-                                text =
-                                    itemView.context.getString(R.string.extension_item_status_close)
-                                setTextColor(Color.parseColor("#aaaaaa"))
-                                onClick(false, tag)
+                        }
+                    }
+                }
+                itemView.setOnClickListener {
+                    onClick(STOP_DIALOG_STATUS)
+                }
+            } else {
+                itemView.setOnClickListener {
+                    data.isChecked = !data.isChecked
+                    tvControl.apply {
+                        data.apply {
+                            when {
+                                tag == startAppTag -> {
+                                    onChangeChecked(false, tag)
+                                }
+                                isChecked -> {
+                                    text =
+                                        itemView.context.getString(R.string.extension_item_status_open)
+                                    setTextColor(Color.parseColor("#4F9BFA"))
+                                    onChangeChecked(true, tag)
+                                }
+                                else -> {
+                                    text =
+                                        itemView.context.getString(R.string.extension_item_status_close)
+                                    setTextColor(Color.parseColor("#aaaaaa"))
+                                    onChangeChecked(false, tag)
+                                }
                             }
                         }
                     }

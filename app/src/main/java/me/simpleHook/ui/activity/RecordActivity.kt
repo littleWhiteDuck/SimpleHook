@@ -6,11 +6,16 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,10 +34,8 @@ import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.*
+import kotlin.math.min
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -82,6 +85,18 @@ class RecordActivity : BaseActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initView() {
+        val layoutParams = binding.search.layoutParams as ViewGroup.MarginLayoutParams
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            var maybeABug = 0
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val isGesture = navigationInsets.bottom <= 20 * resources.displayMetrics.density
+            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            maybeABug += if (navigationInsets.bottom == 0) 20.dp else 10.dp
+            layoutParams.bottomMargin =
+                if (isGesture) maybeABug + navigationInsets.bottom else maybeABug + navigationInsets.bottom
+            binding.search.layoutParams = layoutParams
+            windowInsets
+        }
         binding.recyclerView.apply {
             adapter = recordAdapter
             layoutManager = LinearLayoutManager(this@RecordActivity)

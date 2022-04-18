@@ -38,6 +38,7 @@ class ExtensionItemView(context: Context) : CustomViewGroup(context) {
         layoutParams =
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                 it.marginStart = 5.dp
+                setPadding(5.dp, 10.dp, 5.dp, 10.dp)
             }
         addView(this)
     }

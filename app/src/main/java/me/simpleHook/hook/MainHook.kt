@@ -30,7 +30,6 @@ import me.simpleHook.hook.ExtensionHook.hookToast
 import me.simpleHook.hook.ExtensionHook.hookVpnCheck
 import me.simpleHook.hook.ExtensionHook.hookWebDebug
 import me.simpleHook.hook.ExtensionHook.hookWebLoadUrl
-import me.simpleHook.hook.ExtensionHook.init
 import me.simpleHook.hook.ExtensionHook.mac
 import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
@@ -525,10 +524,9 @@ class Hook {
             configBean.apply {
                 if (!all) return
                 val context: Context = mContext!!
-                init()
-                hookDialog(context, dialog, diaCancel, packageName)
+                hookDialog(context, dialog, diaCancel, stopDialog, packageName)
                 if (toast) hookToast(context, packageName)
-                hookPopupWindow(context, popup, popCancel, packageName)
+                hookPopupWindow(context, popup, popCancel, stopDialog, packageName)
                 if (hotFix) HotFix.startFix(context, packageName)
                 if (intent) hookIntent(context, packageName)
                 if (click) hookOnClick(context, packageName)

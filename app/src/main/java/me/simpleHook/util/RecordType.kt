@@ -19,6 +19,9 @@ object RecordType {
         type == "Param value" -> "Param"
         type == "Param&Return Value" -> "PR"
         type.startsWith("Error") -> "Error"
+        type.startsWith("弹窗") -> "弹窗"
+        type.startsWith("Dialog") -> "Dialog"
+        type.startsWith("PopupWindow") -> "PopupWindow"
         else -> type
     }
 
@@ -30,6 +33,9 @@ object RecordType {
         type.startsWith("Hmac", true) -> "Hmac"
         type.startsWith("md5", true) -> "MD5"
         type.startsWith("Error") -> "Error"
+        type.startsWith("弹窗") -> "弹窗"
+        type.startsWith("Dialog") -> "Dialog"
+        type.startsWith("PopupWindow") -> "PopupWindow"
         else -> type
     }
 }

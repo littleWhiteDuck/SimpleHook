@@ -1,6 +1,5 @@
 package me.simpleHook.ui.activity
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -20,7 +19,6 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
-import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.ui.WindowPreferencesManager
@@ -109,8 +107,13 @@ class RecordDetailActivity : BaseActivity() {
                 override fun onQueryTextChange(newText: String?): Boolean {
                     val keyword = newText?.trim() ?: ""
                     val color = if (darkMode) "#9C786C".toColorInt() else Color.RED
-                    val result = findSearch(currentText, keyword, color)
-                    binding.record.text = result
+                    if (keyword.isEmpty()) {
+                        binding.record.text = currentText
+                    } else {
+                        val result = findSearch(currentText, keyword, color)
+                        binding.record.text = result
+                    }
+
                     return true
                 }
 
