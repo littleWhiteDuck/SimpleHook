@@ -7,6 +7,18 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.util.log
 
 object FieldHook {
+    /**
+     * @author littleWhiteDuck
+     * @param className Hook变量之前hook的方法所在的类的类名
+     * @param classLoader
+     * @param methodName Hook变量之前hook的方法的方法名
+     * @param fieldName 变量名
+     * @param values 要修改的变量值
+     * @param fieldClassName 变量所在的类的类名
+     * @param context
+     * @param packageName 应用包名
+     */
+    @JvmStatic
     fun hookStaticField(
         className: String,
         classLoader: ClassLoader,
@@ -85,6 +97,7 @@ object FieldHook {
         }
     }
 
+    @JvmStatic
     fun hookField(
         className: String,
         classLoader: ClassLoader,

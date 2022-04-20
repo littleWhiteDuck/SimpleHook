@@ -278,4 +278,6 @@
     <string name="config_no_app_info">Please click here to select an App</string>
     <string name="desc_input_place_holder_text">can be empty</string>
     <string name="main_loading">Saving</string>
+    <string name="config_dialog_save">SAVE</string>
+    <string name="config_dialog_delete">DELETE</string>
 </resources>

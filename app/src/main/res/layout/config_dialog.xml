@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textView"
@@ -41,16 +45,14 @@
             app:helperText="@string/config_dialog_class_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner"
-            >
+            app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/classNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="@string/config_dialog_class_edit_tip"
-                android:maxLines="3" />
+                android:hint="@string/config_dialog_class_edit_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.Guideline
@@ -102,40 +104,52 @@
 
 
         <Button
-            android:id="@+id/help"
-            android:textSize="16sp"
+            android:id="@+id/save_config"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/config_dialog_help"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:text="@string/config_dialog_save"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintTop_toTopOf="@+id/textView" />
+
+        <Button
+            android:id="@+id/delete_config"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/config_dialog_delete"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView"
+            app:layout_constraintEnd_toStartOf="@+id/save_config"
             app:layout_constraintTop_toTopOf="@+id/textView" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/field_class_name_input"
             style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_field_class_name_input_tip"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/params_type_input"
-            app:helperText="@string/config_dialog_field_class_name_input_tip">
+            app:layout_constraintTop_toBottomOf="@+id/params_type_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/field_class_name_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/config_dialog_field_class_name_edit_hint"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:hint="@string/config_dialog_field_class_name_edit_hint" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/field_name_input"
             style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_field_name_input_tip"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/field_class_name_input"
-            app:helperText="@string/config_dialog_field_name_input_tip">
+            app:layout_constraintTop_toBottomOf="@+id/field_class_name_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fieldNameEdit"
@@ -163,4 +177,5 @@
                 android:hint="@string/config_dialog_return_value_input_tip" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+
+</androidx.core.widget.NestedScrollView>

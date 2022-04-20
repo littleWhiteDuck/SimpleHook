@@ -15,6 +15,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -157,7 +158,12 @@ class ConfigActivity : BaseActivity() {
             }
             addMethodConfig.setOnClickListener {
                 isCollection = false
-                showDialog()
+                modifyConfig = false
+                ConfigBottomSheetFragment(saveConfig = {
+                    addConfig(it)
+                }, deleteConfig = {
+
+                }, configBean = ConfigBean()).show(supportFragmentManager, "ADD")
             }
             addMethodConfig.setOnLongClickListener {
                 visibleFab = false
@@ -268,7 +274,12 @@ class ConfigActivity : BaseActivity() {
         modifyConfigPosition = position
         val methodConfig = configList[position]
         isCollection = false
-        showDialog(methodConfig)
+        modifyConfig = true
+        ConfigBottomSheetFragment(methodConfig, saveConfig = {
+            addConfig(it)
+        }, deleteConfig = {
+            addRemoveItem(methodConfig, isAdd = false)
+        }).show(supportFragmentManager, "config")
     }
 
     private fun onCheckedChange(position: Int, checked: Boolean) {
@@ -281,6 +292,8 @@ class ConfigActivity : BaseActivity() {
     ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
+            saveConfig.isVisible = false
+            deleteConfig.isVisible = false
             configBean.apply {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
@@ -288,7 +301,6 @@ class ConfigActivity : BaseActivity() {
                 fieldNameEdit.setText(fieldName)
                 fieldClassNameEdit.setText(fieldClassName)
                 resultValueEdit.setText(resultValues)
-                help.setOnClickListener { showHelpDialog() }
                 hookMode = mode
                 onModeChange(dialogBinding)
             }
@@ -314,7 +326,8 @@ class ConfigActivity : BaseActivity() {
             R.string.config_dialog_add_a_new
         )
         val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
-        customDialog(this,
+        customDialog(
+            this,
             okText = okText,
             okClick = { dialog ->
                 dialogDismiss(
@@ -322,13 +335,17 @@ class ConfigActivity : BaseActivity() {
                 )
             },
             cancelText = getString(R.string.config_dialog_cancel),
-            cancelClick = { dialogInterface -> dialogDismiss(dialogInterface, true) },
+            cancelClick = { dialogInterface ->
+                dialogDismiss(dialogInterface, true)
+                isCollection = false
+            },
             neutralText = neutralText,
             neutralClick = { dialogInterface ->
                 deleteConfig(configBean)
                 dialogDismiss(
                     dialogInterface, true
                 )
+                isCollection = false
             },
             cancelAble = false,
             contentView = dialogBinding.root
@@ -587,7 +604,14 @@ class ConfigActivity : BaseActivity() {
     private fun onCollectClick(position: Int) {
         modifyConfigPosition = position
         isCollection = true
-        showDialog(collectConfigList[position])
+        modifyConfig = true
+        val methodConfig = collectConfigList[position]
+        ConfigBottomSheetFragment(saveConfig = {
+            addConfig(it)
+        }, deleteConfig = {
+            deleteConfig(methodConfig)
+        }, configBean = methodConfig).show(supportFragmentManager, "MODIFY")
+        // showDialog(collectConfigList[position])
     }
 
     private fun onCollectCheckedChange(position: Int, checked: Boolean) {
@@ -617,7 +641,11 @@ class ConfigActivity : BaseActivity() {
             val configStr = Gson().toJson(appConfig)
             saveToText(appConfig.packageName, configStr)
         }
-        fakeWaitForSave()
+        Handler(Looper.getMainLooper()).postDelayed({
+            loadingDialog.dismiss()
+            isSaving = false
+            onBackPressed()
+        }, 1500)
     }
 
     private fun saveToText(packageName: String, configStr: String) {
@@ -649,13 +677,6 @@ class ConfigActivity : BaseActivity() {
                 )
             }
         }
-    }
-
-    private fun fakeWaitForSave() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            isSaving = false
-            onBackPressed()
-        }, 2000)
     }
 
     override fun onBackPressed() {
@@ -748,7 +769,12 @@ class ConfigActivity : BaseActivity() {
             else -> configBean
         }
         config?.also {
-            showDialog(it, isSmali2Config = true)
+            modifyConfig = false
+            ConfigBottomSheetFragment(saveConfig = { save ->
+                addConfig(save)
+            }, deleteConfig = {
+
+            }, configBean = it).show(supportFragmentManager, "ADD")
         } ?: getString(R.string.config_smali_to_config_error).toast(this)
     }
 

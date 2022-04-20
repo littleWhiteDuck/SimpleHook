@@ -41,6 +41,7 @@ private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
 object ExtensionHook {
 
+    // 判断应用是否处在中文环境
     private val isShowEnglish = LanguageUtils.isNotChinese()
 
     fun hookVpnCheck(context: Context) {
@@ -124,6 +125,9 @@ object ExtensionHook {
             })
     }
 
+    /**
+     * @param stopDialog 数据类，enable记录是否开启，info获取相应信息
+     */
     fun hookPopupWindowDetail(
         context: Context,
         param: XC_MethodHook.MethodHookParam?,
@@ -152,8 +156,7 @@ object ExtensionHook {
             val keyWords = stopDialog.info.split(",")
             keyWords.forEach {
                 if (it.isNotEmpty() && showText.contains(it)) {
-                    val type =
-                        if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
+                    val type = if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
                             type, list + LogHook.toStackTrace(context, stackTrace), packageName

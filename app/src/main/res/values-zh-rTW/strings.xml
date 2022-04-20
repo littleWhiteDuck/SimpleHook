@@ -288,5 +288,7 @@
     <string name="config_no_app_info">請點擊此處選擇應用</string>
     <string name="desc_input_place_holder_text">可以是空的</string>
     <string name="main_loading">正在保存中</string>
+    <string name="config_dialog_save">保存</string>
+    <string name="config_dialog_delete">刪除</string>
 
 </resources>

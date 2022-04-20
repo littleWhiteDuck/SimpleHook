@@ -307,7 +307,8 @@
     <string name="desc_input_place_holder_text">可以是空的</string>
     <string name="main_loading">正在保存中</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="config_dialog_save">保存</string>
+    <string name="config_dialog_delete">删除</string>
 
 
 </resources>

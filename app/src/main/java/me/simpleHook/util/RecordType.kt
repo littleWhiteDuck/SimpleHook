@@ -1,7 +1,5 @@
 package me.simpleHook.util
 
-import me.simpleHook.constant.Constant
-
 object RecordType {
     fun getShowText(type: String) = when {
         type.startsWith("sha", true) -> "SHA"
