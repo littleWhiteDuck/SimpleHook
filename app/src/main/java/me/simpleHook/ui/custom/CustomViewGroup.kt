@@ -77,4 +77,8 @@ abstract class CustomViewGroup(context: Context, attrs: AttributeSet?) : ViewGro
     protected fun View.toVerticalCenter(parent: ViewGroup): Int {
         return (parent.measuredHeight - measuredHeight) / 2
     }
+
+    protected fun View.toHorizontalCenter(parent: ViewGroup): Int {
+        return (parent.measuredWidth - measuredWidth) / 2
+    }
 }

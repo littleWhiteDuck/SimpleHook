@@ -16,13 +16,13 @@ import me.simpleHook.util.dp
 import kotlin.math.max
 
 
-class RecordItemView(context: Context) : MaterialCardView(context) {
+class RecordItemView(context: Context) :
+    MaterialCardView(ContextThemeWrapper(context, R.style.card)) {
     val container = ContainerView(context)
 
     init {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }

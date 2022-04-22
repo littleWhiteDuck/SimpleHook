@@ -582,7 +582,7 @@ class AssistActivity : BaseActivity() {
             saveToText(assistConfig.packageName, config)
         }
         Handler(Looper.getMainLooper()).postDelayed({
-            loadingDialog.dismiss()
+            loadingDialog.quickDismiss()
             isSaving = false
             "已保存".toast(this)
         }, 500)

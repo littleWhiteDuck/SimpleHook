@@ -64,8 +64,7 @@ class AboutActivity : BaseActivity() {
             add(
                 Author(
                     getString(R.string.about_tester_zj),
-                    getString(R.string.about_introduce_test_bug),
-                    R.drawable.zhengji
+                    getString(R.string.about_introduce_test_bug), R.drawable.zhengji
                 )
             )
             add(
@@ -73,6 +72,14 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_tester_j),
                     getString(R.string.about_introduce_test_bug),
                     R.drawable.jian
+                )
+            )
+            add(Title("其他推荐"))
+            add(
+                OpenSource(
+                    name = "JsHook",
+                    link = "https://github.com/Xposed-Modules-Repo/me.jsonet.jshook",
+                    License = "用js写Hook,更加强大"
                 )
             )
             add(Title(getString(R.string.about_title_open_sources)))
@@ -136,6 +143,14 @@ class AboutActivity : BaseActivity() {
                     "Glide - Sam sjudd",
                     "https://github.com/bumptech/glide",
                     "BSD, MIT and Apache 2.0"
+                )
+            )
+
+            add(
+                OpenSource(
+                    "SwipeDelMenuLayout - mcxtzhang",
+                    "https://github.com/mcxtzhang/SwipeDelMenuLayout",
+                    getString(R.string.about_source_license_2)
                 )
             )
         }

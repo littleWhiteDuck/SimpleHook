@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">SimpleHook</string>
     <string name="record_detail_menu_copy">Copy</string>
     <string name="assist_start_float_window">start float window</string>
@@ -263,7 +263,7 @@
     <string name="config_get_collection_error">An error occurred, please clear the collection</string>
     <string name="config_collection_dialog_title">Favorites</string>
     <string name="config_collection_confirm">IMPORT</string>
-    <string name="config_collection_cancel">CANCEL</string>
+    <string name="config_collection_cancel" tools:ignore="ButtonCase">CANCEL</string>
     <string name="config_auto_transfer_smali_title">About</string>
     <string name="config_auto_transfer_smali_message">After closing, you need to fill in the parameter type/class name/field name in a format that conforms to java syntax, you can view the instructions for use (there are introductions about java format and smali format)</string>
 
@@ -277,7 +277,7 @@
     <string name="config_app_info_is_empty_tip">Please select App and then save the configuration</string>
     <string name="config_no_app_info">Please click here to select an App</string>
     <string name="desc_input_place_holder_text">can be empty</string>
-    <string name="main_loading">Saving</string>
+    <string name="main_loading">Saving…</string>
     <string name="config_dialog_save">SAVE</string>
     <string name="config_dialog_delete">DELETE</string>
 </resources>

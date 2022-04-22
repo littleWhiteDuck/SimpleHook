@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:icon="@drawable/ic_delete_24"
         android:title="@string/record_menu_delete"
@@ -15,6 +14,14 @@
                 android:id="@+id/delete_read"
                 android:icon="@drawable/ic_delete_24"
                 android:title="@string/record_menu_delete_read" />
+            <item
+                android:id="@+id/delete_mark"
+                android:icon="@drawable/ic_delete_24"
+                android:title="@string/record_menu_delete_mark" />
+            <item
+                android:id="@+id/delete_not_mark"
+                android:icon="@drawable/ic_delete_24"
+                android:title="@string/record_menu_delete_not_mark" />
         </menu>
     </item>
 

@@ -309,6 +309,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="config_dialog_save">保存</string>
     <string name="config_dialog_delete">删除</string>
+    <string name="record_menu_delete_mark">删除标记</string>
+    <string name="record_menu_delete_not_mark">删除未标记</string>
 
 
 </resources>

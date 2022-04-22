@@ -73,6 +73,14 @@ class AppRepository(context: Context) {
         printLogDao.deleteReadRecordByType(read, type)
     }
 
+    suspend fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String) {
+        printLogDao.deleteMarkedRecordByPack(isMark, packageName)
+    }
+
+    suspend fun deleteMarkedRecordByType(isMark: Boolean, type: String) {
+        printLogDao.deleteMarkedRecordByType(isMark, type)
+    }
+
     suspend fun updateRecord(printLog: PrintLog) {
         printLogDao.updateRecord(printLog)
     }

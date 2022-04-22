@@ -33,6 +33,12 @@ interface PrintLogDao {
     @Query("DELETE FROM PrintLog WHERE read = :read and packageName = :packageName")
     suspend fun deleteReadRecordByPack(read: Int, packageName: String)
 
+    @Query("DELETE FROM PrintLog WHERE isMark = :isMark and type like :type")
+    suspend fun deleteMarkedRecordByType(isMark: Boolean, type: String)
+
+    @Query("DELETE FROM PrintLog WHERE isMark = :isMark and packageName = :packageName")
+    suspend fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String)
+
     @Query("SELECT * FROM PrintLog ORDER BY ID DESC")
     fun queryAllLogs(): LiveData<List<PrintLog>>
 

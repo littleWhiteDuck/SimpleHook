@@ -15,7 +15,7 @@ import me.simpleHook.database.entity.PrintLog
 
 @Database(
     entities = [AppConfig::class, PrintLog::class, AssistConfig::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -42,13 +42,21 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("alter table PrintLog add column time TEXT NOT NULL DEFAULT 'update'")
             }
         }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("alter table PrintLog add column isMark INTEGER NOT NULL DEFAULT 0")
+            }
+        }
         private var instance: AppDatabase? = null
 
         @Synchronized
         fun getDatabase(context: Context) = instance ?: Room.databaseBuilder(
             context.applicationContext, AppDatabase::class.java, "app_configs.db"
         ).addMigrations(MIGRATION_1_2).addMigrations(MIGRATION_2_3).addMigrations(MIGRATION_3_4)
-            .build().also {
+            .addMigrations(
+                MIGRATION_4_5
+            ).build().also {
                 instance = it
             }
     }

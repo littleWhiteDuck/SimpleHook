@@ -16,5 +16,6 @@ data class PrintLog(
     @ColumnInfo(name = "packageName") var packageName: String,
     @ColumnInfo(name = "read") var read: Boolean = false,
     @ColumnInfo(name = "type") var type: String = "need_update",
+    var isMark: Boolean = false,
     var time: String = "need_update"
 ) : Parcelable

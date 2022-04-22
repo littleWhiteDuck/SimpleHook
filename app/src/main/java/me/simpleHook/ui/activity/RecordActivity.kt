@@ -15,7 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
@@ -37,7 +36,6 @@ import me.simpleHook.util.*
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
     private lateinit var binding: ActivityRecordBinding
-    private var currentPattern = ""
     private var isType = false
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
@@ -48,6 +46,11 @@ class RecordActivity : BaseActivity() {
             val intent = Intent(this, RecordDetailActivity::class.java)
             intent.putExtra("bundle", bundle)
             startActivity(intent)
+        }, deleteRecord = { printLog ->
+            appViewModel.deleteRecordById(printLog.id)
+        }, markRecord = { printLog ->
+            val tempIsMark = !printLog.isMark
+            appViewModel.updateRecord(printLog.copy(isMark = tempIsMark))
         })
     }
     private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
@@ -113,7 +116,7 @@ class RecordActivity : BaseActivity() {
                     }
                 }
             })
-            ItemTouchHelper(object :
+            /*ItemTouchHelper(object :
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
                 override fun onMove(
                     recyclerView: RecyclerView,
@@ -129,7 +132,7 @@ class RecordActivity : BaseActivity() {
                     }
                 }
 
-            }).attachToRecyclerView(binding.recyclerView)
+            }).attachToRecyclerView(binding.recyclerView)*/
         }
         binding.swipeRefreshLayout.isRefreshing = true
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -205,6 +208,26 @@ class RecordActivity : BaseActivity() {
                         appViewModel.deleteReadRecordByType(type = typeOrPackageName)
                     } else {
                         appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName)
+                    }
+                    refreshData()
+                })
+            }
+            R.id.delete_mark -> {
+                warningDialog(this, title = "警告", message = "你是否确定删除所有标记过的记录？", okClick = {
+                    if (isType) {
+                        appViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
+                    } else {
+                        appViewModel.deleteMarkedRecordByPack(isMark = true, typeOrPackageName)
+                    }
+                    refreshData()
+                })
+            }
+            R.id.delete_not_mark -> {
+                warningDialog(this, title = "警告", message = "你是否确定删除所有未标记的记录？", okClick = {
+                    if (isType) {
+                        appViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
+                    } else {
+                        appViewModel.deleteMarkedRecordByPack(isMark = false, typeOrPackageName)
                     }
                     refreshData()
                 })

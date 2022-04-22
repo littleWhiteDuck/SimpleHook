@@ -189,8 +189,14 @@ class ConfigActivity : BaseActivity() {
                     appInfo.containerView.appName.text = it.appName
                     appInfo.containerView.packageName.text = it.packageName
                     appInfo.containerView.otherInfo.text = it.versionName
-                    GlideApp.with(appInfo.containerView.icon).load(packageName)
-                        .into(appInfo.containerView.icon)
+                    appInfo.containerView.icon.setImageDrawable(
+                        AppUtils.getIcon(
+                            this@ConfigActivity,
+                            it.packageName
+                        )
+                    )
+                    /* GlideApp.with(appInfo.containerView.icon).load(packageName)
+                         .into(appInfo.containerView.icon)*/
                 }
                 descStringEdit.setText(it.description)
                 val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type

@@ -5,11 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.database.entity.AppConfig
@@ -127,6 +129,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteReadRecordByType(read: Int = 1, type: String) = viewModelScope.launch {
         appRepository.deleteReadRecordByType(read, "%$type%")
+    }
+
+    fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String) = viewModelScope.launch {
+        appRepository.deleteMarkedRecordByPack(isMark, packageName)
+    }
+
+    fun deleteMarkedRecordByType(isMark: Boolean, type: String) = viewModelScope.launch {
+        appRepository.deleteMarkedRecordByType(isMark, type)
     }
 
 
