@@ -28,8 +28,7 @@ class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
         ).also {
             setPadding(0, 0, 0, 0)
         }
-        text = "编辑"
-        tag = "editConfig"
+        text = context.getString(R.string.edit)
         setTextColor(Color.WHITE)
         setBackgroundColor("#4F9BFA".toColorInt())
         addView(this)
@@ -40,8 +39,7 @@ class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
         ).also {
             setPadding(0, 0, 0, 0)
         }
-        text = "分享"
-        tag = "shareConfig"
+        text = context.getString(R.string.share)
         setTextColor(Color.WHITE)
         setBackgroundColor("#DAFFB946".toColorInt())
         addView(this)
@@ -52,8 +50,7 @@ class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
         ).also {
             setPadding(0, 0, 0, 0)
         }
-        tag = "delete"
-        text = "删除"
+        text = context.getString(R.string.delete)
         setTextColor(Color.WHITE)
         setBackgroundColor("#FF80AB".toColorInt())
         addView(this)

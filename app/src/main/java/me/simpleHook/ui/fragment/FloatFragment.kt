@@ -49,6 +49,7 @@ class FloatFragment : Fragment() {
     private val configs by lazy { viewModel.getConfigs() }
     private val refresh = object : Runnable {
         override fun run() {
+            if (!isAdded) return
             readFileLogInsert()
             updateData()
             handler.postDelayed(this, 500)

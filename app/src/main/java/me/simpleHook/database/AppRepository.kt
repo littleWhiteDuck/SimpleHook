@@ -39,6 +39,10 @@ class AppRepository(context: Context) {
 
     suspend fun getAllRecord() = printLogDao.getAllRecord()
 
+    fun getMarkedByType(type: String) = printLogDao.getMarkedRecordByType(type)
+
+    fun getMarkedByPack(packageName: String) = printLogDao.getMarkedRecordByPack(packageName)
+
     suspend fun filterRecordByPack(packageName: String, pattern: String) =
         printLogDao.filterRecordByPack(packageName, pattern)
 
@@ -53,7 +57,7 @@ class AppRepository(context: Context) {
         printLogDao.deleteRecordById(id)
     }
 
-    suspend fun deleteRecordByRead(read: Int) {
+    suspend fun deleteRecordByRead(read: Boolean) {
         printLogDao.deleteReadRecord(read)
     }
 
@@ -65,11 +69,11 @@ class AppRepository(context: Context) {
         printLogDao.deleteRecordByPack(packageName)
     }
 
-    suspend fun deleteReadRecordByPack(read: Int, packageName: String) {
+    suspend fun deleteReadRecordByPack(read: Boolean, packageName: String) {
         printLogDao.deleteReadRecordByPack(read, packageName)
     }
 
-    suspend fun deleteReadRecordByType(read: Int, type: String) {
+    suspend fun deleteReadRecordByType(read: Boolean, type: String) {
         printLogDao.deleteReadRecordByType(read, type)
     }
 
@@ -114,6 +118,5 @@ class AppRepository(context: Context) {
     fun getAssistConfigs() = assistConfigDao.getConfigs()
     fun getFilterAssistConfigs(pattern: String) = assistConfigDao.getFilterConfigs(pattern)
 
-    suspend fun queryDefaultExConfig(): List<AssistConfig> =
-        assistConfigDao.queryDefaultExConfig()
+    suspend fun queryDefaultExConfig(): List<AssistConfig> = assistConfigDao.queryDefaultExConfig()
 }

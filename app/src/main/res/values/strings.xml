@@ -306,11 +306,38 @@
     <string name="config_no_app_info">请点击此处选择应用</string>
     <string name="desc_input_place_holder_text">可以是空的</string>
     <string name="main_loading">正在保存中</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="config_dialog_save">保存</string>
     <string name="config_dialog_delete">删除</string>
-    <string name="record_menu_delete_mark">删除标记</string>
-    <string name="record_menu_delete_not_mark">删除未标记</string>
+    <string name="record_menu_delete_mark">删除标记记录</string>
+    <string name="record_menu_delete_not_mark">删除未标记记录</string>
+    <string name="record_menu_delete_un_read">删除未读记录</string>
+    <string name="record_menu_save_marked_record">保存标记记录</string>
+    <string name="record_loading_tip_searching">正在搜索中</string>
+    <string name="record_search_dialog_title">搜索</string>
+    <string name="record_loading_saving_marked_record">正在保存中</string>
+    <string name="record_warning_dialog_title">警告</string>
+    <string name="record_waring_dialog_message_delete_all">你是否确定删除所有记录？</string>
+    <string name="record_waring_dialog_message_read">你是否确定删除所有已读记录？</string>
+    <string name="record_waring_dialog_message_unread">你是否确定删除所有未读记录？</string>
+    <string name="record_waring_dialog_message_marked">你是否确定删除所有标记过的记录？</string>
+    <string name="record_warning_dialog_message_unmarked">你是否确定删除所有未标记的记录？</string>
+    <string name="extension_item_title_block_dialog">拦截关键词弹窗</string>
+    <string name="extension_item_desc_block_dialog">指定关键词拦截</string>
+    <string name="extension_block_dialog_helper_tip">多个关键词使用逗号(,)分隔开</string>
+    <string name="extension_block_dialog_title">拦截关键词弹窗</string>
+    <string name="extension_config_save_success_tip">已保存</string>
+    <string name="mark">标记</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="share">分享</string>
+    <string name="record_save_marked_record_tip">已保存</string>
+    <string name="cancel_mark">取消标记</string>
+    <string name="extension_dex_position">dex放在</string>
+    <string name="config_select_hook_mode">选择Hook模式</string>
+    <string name="read_introduction_title">提示</string>
+    <string name="read_introduction_message">推荐你看看配置的编写规则，不要想当然的随意填写</string>
+    <string name="read_introduction_not_remind">不再提示</string>
+    <string name="record_introduction_ok">去看看</string>
 
 
 </resources>

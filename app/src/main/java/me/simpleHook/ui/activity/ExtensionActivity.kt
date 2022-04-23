@@ -122,7 +122,7 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun initData() {
-        val dexPosition = if (LanguageUtils.isNotChinese()) "dex on " else "dex放在"
+        val dexPosition = getString(R.string.extension_dex_position)
         val dexPath = if (FlavorUtils.isNormal()) {
             dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
         } else {
@@ -259,7 +259,12 @@ class AssistActivity : BaseActivity() {
                 )
                 add(
                     AssistItem(
-                        "拦截关键词弹窗", stopDialog.enable, STOP_DIALOG_STATUS, "指定关键词拦截"
+                        getString(R.string.extension_item_title_block_dialog),
+                        stopDialog.enable,
+                        STOP_DIALOG_STATUS,
+                        getString(
+                            R.string.extension_item_desc_block_dialog
+                        )
                     )
                 )
                 add(AssistTitle("JSON"))
@@ -406,7 +411,7 @@ class AssistActivity : BaseActivity() {
 
     private fun showEditStopDialogKeyWord() {
         val textInputLayout = TextInputLayout(this).apply {
-            helperText = "多个关键词使用逗号(,)分隔开"
+            helperText = getString(R.string.extension_block_dialog_helper_tip)
             endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
         }
         val textInput = TextInputEditText(this).apply {
@@ -416,15 +421,15 @@ class AssistActivity : BaseActivity() {
         textInputLayout.addView(textInput)
         customDialog(
             this,
-            title = "拦截关键词弹窗",
+            title = getString(R.string.extension_block_dialog_title),
             contentView = textInputLayout,
-            okText = "确认",
+            okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 val keyWords = textInput.text.toString().replace("，", ",").trim()
                 configBean.stopDialog.info = keyWords
                 dialogInterface.dismiss()
             },
-            cancelText = "取消"
+            cancelText = getString(R.string.dialog_cancel)
         ).show()
     }
 
@@ -584,7 +589,7 @@ class AssistActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.quickDismiss()
             isSaving = false
-            "已保存".toast(this)
+            getString(R.string.extension_config_save_success_tip).toast(this)
         }, 500)
 
     }

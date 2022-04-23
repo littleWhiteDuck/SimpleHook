@@ -3,6 +3,7 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -33,6 +35,9 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 class RecordActivity : BaseActivity() {
@@ -55,6 +60,12 @@ class RecordActivity : BaseActivity() {
             appViewModel.updateRecord(printLog.copy(isMark = tempIsMark))
         })
     }
+    private val saveMarkedRecord =
+        registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
+            resultUri?.apply {
+                saveMarkedRecord(this)
+            }
+        }
     private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
     private val configs by lazy { appViewModel.getConfigs() }
 
@@ -202,47 +213,123 @@ class RecordActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> onBackPressed()
             R.id.delete_all -> {
-                warningDialog(this, title = "警告", message = "你是否确定删除所有记录？", okClick = {
-                    if (isType) {
-                        appViewModel.deleteRecordByType(typeOrPackageName)
-                    } else {
-                        appViewModel.deleteRecordByPack(typeOrPackageName)
-                    }
-                    refreshData()
-                })
+                warningDialog(this,
+                    title = getString(R.string.record_warning_dialog_title),
+                    message = getString(
+                        R.string.record_waring_dialog_message_delete_all
+                    ),
+                    okClick = {
+                        if (isType) {
+                            appViewModel.deleteRecordByType(typeOrPackageName)
+                        } else {
+                            appViewModel.deleteRecordByPack(typeOrPackageName)
+                        }
+                        refreshData()
+                    })
             }
             R.id.delete_read -> {
-                warningDialog(this, title = "警告", message = "你是否确定删除所有已读记录？", okClick = {
-                    if (isType) {
-                        appViewModel.deleteReadRecordByType(type = typeOrPackageName)
-                    } else {
-                        appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName)
-                    }
-                    refreshData()
-                })
+                warningDialog(this,
+                    title = getString(R.string.record_warning_dialog_title),
+                    message = getString(
+                        R.string.record_waring_dialog_message_read
+                    ),
+                    okClick = {
+                        if (isType) {
+                            appViewModel.deleteReadRecordByType(
+                                type = typeOrPackageName, read = true
+                            )
+                        } else {
+                            appViewModel.deleteReadRecordByPack(
+                                packageName = typeOrPackageName, read = true
+                            )
+                        }
+                        refreshData()
+                    })
+            }
+            R.id.delete_un_read -> {
+                warningDialog(this,
+                    title = getString(R.string.record_warning_dialog_title),
+                    message = getString(
+                        R.string.record_waring_dialog_message_unread
+                    ),
+                    okClick = {
+                        if (isType) {
+                            appViewModel.deleteReadRecordByType(
+                                type = typeOrPackageName, read = false
+                            )
+                        } else {
+                            appViewModel.deleteReadRecordByPack(
+                                packageName = typeOrPackageName, read = false
+                            )
+                        }
+                        refreshData()
+                    })
             }
             R.id.delete_mark -> {
-                warningDialog(this, title = "警告", message = "你是否确定删除所有标记过的记录？", okClick = {
-                    if (isType) {
-                        appViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
-                    } else {
-                        appViewModel.deleteMarkedRecordByPack(isMark = true, typeOrPackageName)
-                    }
-                    refreshData()
-                })
+                warningDialog(this,
+                    title = getString(R.string.record_warning_dialog_title),
+                    message = getString(
+                        R.string.record_waring_dialog_message_marked
+                    ),
+                    okClick = {
+                        if (isType) {
+                            appViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
+                        } else {
+                            appViewModel.deleteMarkedRecordByPack(isMark = true, typeOrPackageName)
+                        }
+                        refreshData()
+                    })
             }
             R.id.delete_not_mark -> {
-                warningDialog(this, title = "警告", message = "你是否确定删除所有未标记的记录？", okClick = {
-                    if (isType) {
-                        appViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
-                    } else {
-                        appViewModel.deleteMarkedRecordByPack(isMark = false, typeOrPackageName)
-                    }
-                    refreshData()
-                })
+                warningDialog(this,
+                    title = getString(R.string.record_warning_dialog_title),
+                    message = getString(
+                        R.string.record_warning_dialog_message_unmarked
+                    ),
+                    okClick = {
+                        if (isType) {
+                            appViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
+                        } else {
+                            appViewModel.deleteMarkedRecordByPack(isMark = false, typeOrPackageName)
+                        }
+                        refreshData()
+                    })
+            }
+            R.id.save_marked_record -> {
+                val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "ddHHmmss")
+                saveMarkedRecord.launch("simpleHook_record_$time.json")
             }
         }
         return true
+    }
+
+    private fun saveMarkedRecord(uri: Uri) {
+        val loadingDialog =
+            LoadingDialog(this, getString(R.string.record_loading_saving_marked_record))
+        loadingDialog.show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
+                    val list =
+                        if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
+                            typeOrPackageName
+                        )
+                    list.forEach {
+                        val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
+                        FileOutputStream(parcel.fileDescriptor).use { output ->
+                            output.write(content.toByteArray())
+                        }
+                    }
+                }
+                getString(R.string.record_save_marked_record_tip).toast(this@RecordActivity)
+                loadingDialog.dismiss()
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
     }
 
     private fun showSearchDialog() {
@@ -252,12 +339,13 @@ class RecordActivity : BaseActivity() {
         textInputLayout.addView(textInput)
         customDialog(
             this,
-            title = "查询",
+            title = getString(R.string.record_search_dialog_title),
             contentView = textInputLayout,
-            okText = "确认",
+            okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 appViewModel.queryPattern.value = textInput.text.toString().trim()
-                val loadingDialog = LoadingDialog(this, "正在搜索中")
+                val loadingDialog =
+                    LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
                 lifecycleScope.launch {
                     appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
@@ -271,7 +359,7 @@ class RecordActivity : BaseActivity() {
                 }
                 dialogInterface.dismiss()
             },
-            cancelText = "取消"
+            cancelText = getString(R.string.dialog_cancel)
         ).show()
     }
 

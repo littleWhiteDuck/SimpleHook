@@ -57,7 +57,7 @@ class AboutActivity : BaseActivity() {
             )
             add(
                 Author(
-                    "Source Code", "https://github.com/littleWhiteDuck/SimpleHook", null
+                    "Source Code(Hook)", "https://github.com/littleWhiteDuck/SimpleHook", null
                 )
             )
             add(Title(getString(R.string.about_title_tester)))

@@ -21,13 +21,6 @@ import me.simpleHook.database.entity.PrintLog
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
     private val _filterAppConfig = MutableLiveData<List<AppConfig>>()
-    val filterAppConfig: LiveData<List<AppConfig>>
-        get() = _filterAppConfig
-    private var _filterRecord = MutableLiveData<List<PrintLog>>()
-    val filterRecord: LiveData<List<PrintLog>> get() = _filterRecord
-
-    private var _filterRecord2 = MutableLiveData<List<PrintLog>>()
-    val filterRecord2: LiveData<List<PrintLog>> get() = _filterRecord2
     private var _filterRecordPT = MutableLiveData<List<RecordBean>>()
     val filterRecordPT: LiveData<List<RecordBean>> get() = _filterRecordPT
 
@@ -79,21 +72,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getAllLogs() = appRepository.getAllLogs()
 
-    fun filterRecord(pattern: String) = viewModelScope.launch {
-        _filterRecord.value = appRepository.filterRecord("%$pattern%")
-    }
+    fun getMarkedRecordByType(type: String) = appRepository.getMarkedByType("%$type%")
+
+    fun getMarkedRecordByPack(packageName: String) = appRepository.getMarkedByPack(packageName)
 
     fun getAllRecord() = viewModelScope.launch {
         _filterRecordPT.value = appRepository.getAllRecord()
     }
 
-    fun filterRecordByPack(packageName: String, pattern: String) = viewModelScope.launch {
-        _filterRecord2.value = appRepository.filterRecordByPack(packageName, "%$pattern%")
-    }
-
-    fun filterRecordByType(type: String, pattern: String) = viewModelScope.launch {
-        _filterRecord2.value = appRepository.filterRecordByType("%$type%", "%$pattern%")
-    }
 
     fun updateRecord(printLog: PrintLog) = viewModelScope.launch {
         appRepository.updateRecord(printLog)
@@ -119,15 +105,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteRecordByPack(packageName)
     }
 
-    fun deleteRecordByRead(read: Int = 1) = viewModelScope.launch {
+    fun deleteRecordByRead(read: Boolean) = viewModelScope.launch {
         appRepository.deleteRecordByRead(read)
     }
 
-    fun deleteReadRecordByPack(read: Int = 1, packageName: String) = viewModelScope.launch {
+    fun deleteReadRecordByPack(read: Boolean, packageName: String) = viewModelScope.launch {
         appRepository.deleteReadRecordByPack(read, packageName)
     }
 
-    fun deleteReadRecordByType(read: Int = 1, type: String) = viewModelScope.launch {
+    fun deleteReadRecordByType(read: Boolean, type: String) = viewModelScope.launch {
         appRepository.deleteReadRecordByType(read, "%$type%")
     }
 
@@ -136,7 +122,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteMarkedRecordByType(isMark: Boolean, type: String) = viewModelScope.launch {
-        appRepository.deleteMarkedRecordByType(isMark, type)
+        appRepository.deleteMarkedRecordByType(isMark, "%$type%")
     }
 
 

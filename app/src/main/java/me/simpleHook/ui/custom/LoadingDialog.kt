@@ -35,6 +35,10 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
 
     fun show() {
         tempTime = System.currentTimeMillis()
+        val lp = activity.window.attributes
+        lp.alpha = 0.7f
+        activity.window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        //  activity.window.attributes = lp
         activity.window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -47,13 +51,16 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
         val currentTime = System.currentTimeMillis()
         val delayTime = if (currentTime - tempTime < 1000) 1000 - (currentTime - tempTime) else 0
         Handler(Looper.getMainLooper()).postDelayed({
-            popupWindow.dismiss()
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            quickDismiss()
         }, delayTime)
     }
 
     fun quickDismiss() {
         popupWindow.dismiss()
+        val lp = activity.window.attributes
+        lp.alpha = 1f
+        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        //activity.window.attributes = lp
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }

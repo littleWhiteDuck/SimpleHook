@@ -25,13 +25,13 @@ interface PrintLogDao {
     suspend fun deleteRecordByPack(packageName: String)
 
     @Query("DELETE FROM PrintLog WHERE read = :read")
-    suspend fun deleteReadRecord(read: Int)
+    suspend fun deleteReadRecord(read: Boolean)
 
     @Query("DELETE FROM PrintLog WHERE read = :read and type like :type")
-    suspend fun deleteReadRecordByType(read: Int, type: String)
+    suspend fun deleteReadRecordByType(read: Boolean, type: String)
 
     @Query("DELETE FROM PrintLog WHERE read = :read and packageName = :packageName")
-    suspend fun deleteReadRecordByPack(read: Int, packageName: String)
+    suspend fun deleteReadRecordByPack(read: Boolean, packageName: String)
 
     @Query("DELETE FROM PrintLog WHERE isMark = :isMark and type like :type")
     suspend fun deleteMarkedRecordByType(isMark: Boolean, type: String)
@@ -68,6 +68,12 @@ interface PrintLogDao {
 
     @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY time DESC")
     fun getRecordByType(type: String, pattern: String): PagingSource<Int, PrintLog>
+
+    @Query("SELECT log FROM PrintLog WHERE type like :type ORDER BY time DESC")
+    fun getMarkedRecordByType(type: String): List<String>
+
+    @Query("SELECT log FROM PrintLog WHERE packageName = :packageName ORDER BY time DESC")
+    fun getMarkedRecordByPack(packageName: String): List<String>
 
     @Update
     suspend fun updateRecord(printLog: PrintLog)

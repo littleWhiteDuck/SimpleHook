@@ -20,7 +20,7 @@ class RecordSummaryItemView(context: Context) :
         ).also {
             setPadding(0, 0, 0, 0)
         }
-        text = "删除"
+        text = context.getString(R.string.delete)
         setTextColor(Color.WHITE)
         setBackgroundColor("#FF80AB".toColorInt())
         addView(this)

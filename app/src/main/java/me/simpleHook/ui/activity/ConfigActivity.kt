@@ -3,6 +3,7 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -232,7 +233,31 @@ class ConfigActivity : BaseActivity() {
                 }
             })
         }
+        showIntroductionDialog()
+    }
 
+    private fun showIntroductionDialog() {
+        if (sp.readIntroduction) {
+            customDialog(title = getString(R.string.read_introduction_title),
+                message = getString(R.string.read_introduction_message),
+                okText = getString(
+                    R.string.record_introduction_ok
+                ),
+                okClick = {
+                    val intent = Intent(ACTION_VIEW).also {
+                        it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHook")
+                    }
+                    startActivity(intent)
+                },
+                context = this,
+                cancelText = getString(R.string.read_introduction_not_remind),
+                cancelClick = {
+                    sp.readIntroduction = false
+                    it.dismiss()
+                },
+                neutralText = getString(R.string.dialog_cancel)
+            ).show()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -457,12 +482,6 @@ class ConfigActivity : BaseActivity() {
         strSmali
     }
 
-    private fun showHelpDialog() {
-        val intent = Intent(Intent.ACTION_VIEW).also {
-            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHook")
-        }
-        startActivity(intent)
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun addConfig(configBean: ConfigBean) {

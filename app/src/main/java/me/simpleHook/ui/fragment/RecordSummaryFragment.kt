@@ -187,7 +187,7 @@ class RecordSummaryFragment : Fragment() {
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_delete_read),
                     okClick = {
-                        appViewModel.deleteRecordByRead()
+                        appViewModel.deleteRecordByRead(read = true)
                         refreshData()
                     })
             }

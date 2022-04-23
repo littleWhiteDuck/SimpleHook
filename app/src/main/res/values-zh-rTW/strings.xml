@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!--assist-->
     <string name="assist_start_float_window">開啟懸浮窗</string>
     <string name="assist_float_print_log">打印輸出</string>
@@ -290,5 +290,35 @@
     <string name="main_loading">正在保存中</string>
     <string name="config_dialog_save">保存</string>
     <string name="config_dialog_delete">刪除</string>
+    <string name="record_menu_delete_not_mark">刪除未標記記錄</string>
+    <string name="record_menu_delete_mark">刪除標記記錄</string>
+    <string name="record_menu_delete_un_read">刪除未讀記錄</string>
+    <string name="record_menu_save_marked_record">保存標記記錄</string>
+    <string name="record_loading_tip_searching">正在搜索中</string>
+    <string name="record_search_dialog_title">搜索</string>
+    <string name="record_loading_saving_marked_record">正在保存中</string>
+    <string name="record_warning_dialog_title">警告</string>
+    <string name="record_waring_dialog_message_delete_all">你是否確定刪除所有記錄？</string>
+    <string name="record_waring_dialog_message_read">你是否確定刪除所有已讀記錄？</string>
+    <string name="record_waring_dialog_message_unread">你是否確定刪除所有未讀記錄？</string>
+    <string name="record_waring_dialog_message_marked">你是否確定刪除所有標記過的記錄？</string>
+    <string name="record_warning_dialog_message_unmarked">你是否確定刪除所有未標記的記錄？</string>
+    <string name="extension_item_title_block_dialog">攔截關鍵詞彈窗</string>
+    <string name="extension_item_desc_block_dialog">指定關鍵詞攔截</string>
+    <string name="extension_block_dialog_helper_tip">多個關鍵詞使用逗號(,)分隔開</string>
+    <string name="extension_block_dialog_title">攔截關鍵詞彈窗</string>
+    <string name="extension_config_save_success_tip">已保存</string>
+    <string name="mark">標記</string>
+    <string name="delete">刪除</string>
+    <string name="edit">編輯</string>
+    <string name="share">分享</string>
+    <string name="record_save_marked_record_tip">已保存</string>
+    <string name="cancel_mark">取消標記</string>
+    <string name="extension_dex_position">dex放在</string>
+    <string name="config_select_hook_mode">選擇Hook模式</string>
+    <string name="read_introduction_title">提示</string>
+    <string name="read_introduction_message">推薦你看看配置的編寫規則，不要想當然的隨意填寫</string>
+    <string name="read_introduction_not_remind">不再提示</string>
+    <string name="record_introduction_ok">去看看</string>
 
 </resources>

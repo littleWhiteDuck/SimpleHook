@@ -75,7 +75,10 @@ class RecordAdapter(
                 val showText = RecordType.getShowText(printLog.type)
                 icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))
             }
-            markRecord.text = if (printLog.isMark) "取消标记" else "标记"
+            markRecord.text =
+                if (printLog.isMark) context.getString(R.string.cancel_mark) else context.getString(
+                    R.string.mark
+                )
         }
     }
 
