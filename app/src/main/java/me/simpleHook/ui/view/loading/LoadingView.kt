@@ -13,7 +13,7 @@ class LoadingView(context: Context) : CustomViewGroup(context) {
     private val loadingViewSize = 120.dp
     private val progressBarSize = 60.dp
 
-    val progressBar = ProgressBar(context).apply {
+    private val progressBar = ProgressBar(context).apply {
         layoutParams = MarginLayoutParams(progressBarSize, progressBarSize)
         addView(this)
     }

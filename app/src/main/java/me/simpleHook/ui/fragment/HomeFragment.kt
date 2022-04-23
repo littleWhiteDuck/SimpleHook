@@ -13,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -55,15 +54,26 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private lateinit var mContext: Context
     private var currentPattern = ""
     private val mAdapter: HomeAdapter by lazy {
-        HomeAdapter({ appConfigEntity -> adapterOnClick(appConfigEntity) },
-            { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
-            { appConfigEntity -> itemOnLongClick(appConfigEntity) })
+        HomeAdapter(onClick = { appConfig, mode ->
+            onItemClick(mode, appConfig)
+        }, onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) })
     }
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private val sp by lazy { SPUtils(requireContext()) }
     private var isFabShow = true
+
+    private fun onItemClick(mode: Int, appConfig: AppConfig) {
+        when (mode) {
+            Constant.HOME_ITEM_CLICK_NORMAL -> adapterOnClick(appConfig)
+            Constant.HOME_ITEM_CLICK_LONG -> itemOnLongClick(appConfig)
+            Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
+            Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
+            Constant.HOME_ITEM_CLICK_DELETE -> deleteConfig(appConfig)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -124,26 +134,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                 }
             }
         })
-        ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val configDelete = filterConfigs[viewHolder.absoluteAdapterPosition]
-                deleteConfig(configDelete)
-            }
-
-        }).attachToRecyclerView(binding.mainRecycler)
         FastScrollerUtil.bind(binding.mainRecycler)
     }
 
-    fun deleteConfig(appConfig: AppConfig) {
+    private fun deleteConfig(appConfig: AppConfig) {
         viewModel.deleteConfigs(appConfig)
         FileUtils.realDeleteConfig(
             requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
@@ -318,8 +312,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                     return
                 } else {
                     ConfigDialogFragment(
-                        dataList as ArrayList<ConfigItem>,
-                        Constant.CONFIG_IMPORT_MODE
+                        dataList as ArrayList<ConfigItem>, Constant.CONFIG_IMPORT_MODE
                     ).show(
                         requireActivity().supportFragmentManager, "import"
                     )

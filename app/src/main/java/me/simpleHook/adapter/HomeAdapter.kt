@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.main.AppConfigView
@@ -13,9 +14,8 @@ import me.simpleHook.util.GlideApp
 import me.simpleHook.util.marquee
 
 class HomeAdapter(
-    private val onClick: (AppConfig) -> Unit,
+    private val onClick: (AppConfig, mode: Int) -> Unit,
     private val onChange: (AppConfig, Boolean) -> Unit,
-    private val onLongClick: (AppConfig) -> Unit
 ) : ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
     inner class ViewHolder(appConfigView: AppConfigView) : RecyclerView.ViewHolder(appConfigView) {
@@ -30,17 +30,31 @@ class HomeAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val appConfigView = AppConfigView(parent.context)
         val viewHolder = ViewHolder(appConfigView)
-        appConfigView.apply {
+        appConfigView.container.apply {
             PopupWindowList.Builder(parent.context).watchView(this)
             setOnClickListener {
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
-                onClick(appConfig)
+                onClick(appConfig, Constant.HOME_ITEM_CLICK_NORMAL)
             }
             setOnLongClickListener {
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
-                onLongClick(appConfig)
+                onClick(appConfig, Constant.HOME_ITEM_CLICK_LONG)
                 true
             }
+        }
+        appConfigView.editConfig.setOnClickListener {
+            val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+            onClick(appConfig, Constant.HOME_ITEM_CLICK_EDIT)
+            appConfigView.smoothClose(delayMills = 500)
+        }
+        appConfigView.shareConfig.setOnClickListener {
+            val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+            onClick(appConfig, Constant.HOME_ITEM_CLICK_COPY)
+            appConfigView.smoothClose()
+        }
+        appConfigView.deleteConfig.setOnClickListener {
+            val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+            onClick(appConfig, Constant.HOME_ITEM_CLICK_DELETE)
         }
         viewHolder.ableSwitch.setOnCheckedChangeListener { _, isChecked ->
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig

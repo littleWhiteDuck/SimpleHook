@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
@@ -32,6 +33,7 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+
 
 class RecordActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
@@ -116,7 +118,7 @@ class RecordActivity : BaseActivity() {
                     }
                 }
             })
-            /*ItemTouchHelper(object :
+            ItemTouchHelper(object :
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
                 override fun onMove(
                     recyclerView: RecyclerView,
@@ -126,13 +128,20 @@ class RecordActivity : BaseActivity() {
                     return false
                 }
 
+                override fun getMovementFlags(
+                    recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder
+                ): Int {
+                    val swipeFlags = ItemTouchHelper.RIGHT
+                    return makeMovementFlags(0, swipeFlags)
+                }
+
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     (viewHolder as RecordAdapter.ViewHolder).id?.let {
                         appViewModel.deleteRecordById(it)
                     }
                 }
 
-            }).attachToRecyclerView(binding.recyclerView)*/
+            }).attachToRecyclerView(binding.recyclerView)
         }
         binding.swipeRefreshLayout.isRefreshing = true
         binding.swipeRefreshLayout.setOnRefreshListener {

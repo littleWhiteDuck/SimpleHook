@@ -56,4 +56,11 @@ object Constant {
 
     //
     const val SIMPLE_HOOK_ERROR = "SimpleHook Error"
+
+    //HomeFragment  item click type
+    const val HOME_ITEM_CLICK_NORMAL = 0
+    const val HOME_ITEM_CLICK_LONG = 1
+    const val HOME_ITEM_CLICK_EDIT = 2
+    const val HOME_ITEM_CLICK_COPY = 3
+    const val HOME_ITEM_CLICK_DELETE = 4
 }

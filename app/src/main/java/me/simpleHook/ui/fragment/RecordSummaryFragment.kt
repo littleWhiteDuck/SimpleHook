@@ -10,7 +10,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
@@ -37,13 +36,15 @@ class RecordSummaryFragment : Fragment() {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private val recorderSummaryAdapter by lazy {
-        RecordSummaryAdapter {
+        RecordSummaryAdapter(onClick = {
             val bundle = Bundle()
             bundle.putParcelable("recordSummary", it)
             val intent = Intent(requireContext(), RecordActivity::class.java)
             intent.putExtra("bundle", bundle)
             startActivity(intent)
-        }
+        }, onDeleteClick = {
+            deleteRecord(it)
+        })
     }
     private val sp by lazy { SPUtils(requireContext()) }
     private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
@@ -135,23 +136,6 @@ class RecordSummaryFragment : Fragment() {
                 }
             })
         }
-        ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val recordSummary =
-                    recorderSummaryAdapter.currentList[viewHolder.absoluteAdapterPosition]
-                deleteRecord(recordSummary)
-            }
-
-        }).attachToRecyclerView(binding.recyclerView)
         FastScrollerUtil.bind(binding.recyclerView)
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)

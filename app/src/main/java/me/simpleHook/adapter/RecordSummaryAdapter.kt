@@ -7,13 +7,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.RecordSummary
-import me.simpleHook.ui.view.record.RecordItemView
+import me.simpleHook.ui.view.record.RecordSummaryItemView
 import me.simpleHook.util.*
 
-class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
-    ListAdapter<RecordSummary, RecordSummaryAdapter.ViewHolder>(RecordDiffCallback) {
+class RecordSummaryAdapter(
+    val onClick: (RecordSummary) -> Unit, val onDeleteClick: (RecordSummary) -> Unit
+) : ListAdapter<RecordSummary, RecordSummaryAdapter.ViewHolder>(RecordDiffCallback) {
 
-    inner class ViewHolder(itemView: RecordItemView) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: RecordSummaryItemView) : RecyclerView.ViewHolder(itemView) {
         val container = itemView.container
         val title = container.title
         val desc = container.desc
@@ -22,10 +23,14 @@ class RecordSummaryAdapter(val onClick: (RecordSummary) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val recordSummaryView = RecordItemView(parent.context)
-        recordSummaryView.setOnClickListener {
-            val recordSummary = it.getTag(R.id.item_record_summary) as RecordSummary
+        val recordSummaryView = RecordSummaryItemView(parent.context)
+        recordSummaryView.container.setOnClickListener {
+            val recordSummary = recordSummaryView.getTag(R.id.item_record_summary) as RecordSummary
             onClick(recordSummary)
+        }
+        recordSummaryView.delete.setOnClickListener {
+            val recordSummary = recordSummaryView.getTag(R.id.item_record_summary) as RecordSummary
+            onDeleteClick(recordSummary)
         }
         return ViewHolder(recordSummaryView)
     }
