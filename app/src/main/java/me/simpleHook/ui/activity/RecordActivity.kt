@@ -321,8 +321,10 @@ class RecordActivity : BaseActivity() {
                         }
                     }
                 }
-                getString(R.string.record_save_marked_record_tip).toast(this@RecordActivity)
                 loadingDialog.dismiss()
+                Looper.prepare()
+                getString(R.string.record_save_marked_record_tip).toast(this@RecordActivity)
+                Looper.loop()
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             } catch (e: IOException) {

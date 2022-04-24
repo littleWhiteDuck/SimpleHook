@@ -18,14 +18,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.lzf.easyfloat.EasyFloat
-import com.lzf.easyfloat.anim.DefaultAnimator
-import com.lzf.easyfloat.enums.ShowPattern
-import com.lzf.easyfloat.enums.SidePattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -37,6 +31,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.AssistActivity
+import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
@@ -58,15 +53,16 @@ class ExtensionFragment : Fragment() {
         AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
     }
-  /*  private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val contentResolver = requireActivity().contentResolver
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }*/
+
+    /*  private val startActivityForData =
+          registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+              uri?.also {
+                  val contentResolver = requireActivity().contentResolver
+                  val takeFlags: Int =
+                      Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                  contentResolver.takePersistableUriPermission(it, takeFlags)
+              }
+          }*/
     private val startActivityForModelCreate =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -76,8 +72,7 @@ class ExtensionFragment : Fragment() {
                 if (currentModel == -1) {
                     appViewModel.insertAssistConfigs(
                         AssistConfig(
-                            appName = appName,
-                            packageName = packageName
+                            appName = appName, packageName = packageName
                         )
                     )
                 } else {
@@ -102,8 +97,7 @@ class ExtensionFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAssistBinding.inflate(inflater, container, false)
         initView()
@@ -192,8 +186,7 @@ class ExtensionFragment : Fragment() {
     }
 
     private fun showFab() {
-        binding.addConfig.animate().translationY(0f).interpolator =
-            DecelerateInterpolator(1.5f)
+        binding.addConfig.animate().translationY(0f).interpolator = DecelerateInterpolator(1.5f)
         isFabShow = true
     }
 
@@ -211,9 +204,7 @@ class ExtensionFragment : Fragment() {
     private fun itemOnLongClick(assistConfig: AssistConfig) {
         appViewModel.deleteAssistConfigs(assistConfig)
         FileUtils.realDeleteConfig(
-            requireContext(),
-            assistConfig.packageName,
-            Constant.EXTENSION_CONFIG_NAME
+            requireContext(), assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
         )
 
         Snackbar.make(
@@ -273,10 +264,8 @@ class ExtensionFragment : Fragment() {
     }
 
     private fun createModel(
-        editMode: Boolean = false,
-        assistConfig: AssistConfig = AssistConfig(
-            appName = "",
-            packageName = MODEL_EXTENSION_CONFIG
+        editMode: Boolean = false, assistConfig: AssistConfig = AssistConfig(
+            appName = "", packageName = MODEL_EXTENSION_CONFIG
         )
     ) {
         val editText = AppCompatEditText(mContext)
@@ -381,8 +370,8 @@ class ExtensionFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.assistFragment_startFloat -> {
-                initPrintFloat()
+            R.id.startFloat -> {
+                (requireActivity() as MainActivity).initPrintFloat()
             }
             R.id.create_model -> createModel()
             R.id.show_model -> showModelDialog()
@@ -403,29 +392,11 @@ class ExtensionFragment : Fragment() {
         )
     }
 
-    private fun initPrintFloat() {
-        EasyFloat.with(requireActivity())
-            .setLayout(R.layout.float_window_layout) {
-                val viewPager = it.findViewById<ViewPager2>(R.id.float_viewpager2)
-                viewPager.adapter = object : FragmentStateAdapter(this) {
-                    override fun getItemCount() = 1
-
-                    override fun createFragment(position: Int) = FloatFragment()
-                }
-            }
-            .setTag("floatPrint")
-            .setShowPattern(ShowPattern.ALL_TIME)
-            .setSidePattern(SidePattern.RESULT_HORIZONTAL)
-            .setDragEnable(false)
-            .setLocation(0, 0)
-            .setMatchParent(widthMatch = true, heightMatch = false)
-            .setAnimator(DefaultAnimator())
-            .show()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 
 }

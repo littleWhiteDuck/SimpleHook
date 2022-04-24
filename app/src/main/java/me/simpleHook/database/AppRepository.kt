@@ -1,6 +1,8 @@
 package me.simpleHook.database
 
 import android.content.Context
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
@@ -51,6 +53,10 @@ class AppRepository(context: Context) {
 
     suspend fun deleteAllLogs() {
         printLogDao.deleteAllLogs()
+    }
+
+    suspend fun deleteRecordByTimeRange(start: String, end: String) {
+        printLogDao.deleteRecordByTimeRange(start, end)
     }
 
     suspend fun deleteRecordById(id: Int) {

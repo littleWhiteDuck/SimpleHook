@@ -290,10 +290,10 @@
     <string name="main_loading">正在保存中</string>
     <string name="config_dialog_save">保存</string>
     <string name="config_dialog_delete">刪除</string>
-    <string name="record_menu_delete_not_mark">刪除未標記記錄</string>
-    <string name="record_menu_delete_mark">刪除標記記錄</string>
-    <string name="record_menu_delete_un_read">刪除未讀記錄</string>
-    <string name="record_menu_save_marked_record">保存標記記錄</string>
+    <string name="record_menu_delete_not_mark">未標記記錄</string>
+    <string name="record_menu_delete_mark">標記記錄</string>
+    <string name="record_menu_delete_un_read">未讀記錄</string>
+    <string name="record_menu_save_marked_record">导出標記記錄</string>
     <string name="record_loading_tip_searching">正在搜索中</string>
     <string name="record_search_dialog_title">搜索</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
@@ -320,5 +320,10 @@
     <string name="read_introduction_message">推薦你看看配置的編寫規則，不要想當然的隨意填寫</string>
     <string name="read_introduction_not_remind">不再提示</string>
     <string name="record_introduction_ok">去看看</string>
+    <string name="about_js_hook">用js寫Hook,更加強大</string>
+    <string name="float_window_title">记录</string>
+    <string name="float_window_drag_text">拖拽</string>
+    <string name="float_window_require_permission">請授予懸浮窗權限</string>
+    <string name="float_window_require_permission_failed">獲取懸浮窗權限失敗</string>
 
 </resources>

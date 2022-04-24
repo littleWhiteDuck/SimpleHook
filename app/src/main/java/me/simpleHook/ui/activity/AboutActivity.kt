@@ -79,7 +79,7 @@ class AboutActivity : BaseActivity() {
                 OpenSource(
                     name = "JsHook",
                     link = "https://github.com/Xposed-Modules-Repo/me.jsonet.jshook",
-                    License = "用js写Hook,更加强大"
+                    License = getString(R.string.about_js_hook)
                 )
             )
             add(Title(getString(R.string.about_title_open_sources)))

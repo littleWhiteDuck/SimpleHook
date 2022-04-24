@@ -15,6 +15,9 @@ interface PrintLogDao {
     @Query("DELETE FROM PrintLog")
     suspend fun deleteAllLogs()
 
+    @Query("DELETE FROM PrintLog WHERE time BETWEEN :start and :end")
+    suspend fun deleteRecordByTimeRange(start: String, end: String)
+
     @Query("DELETE FROM PrintLog WHERE id = :id")
     suspend fun deleteRecordById(id: Int)
 
@@ -69,10 +72,10 @@ interface PrintLogDao {
     @Query("SELECT * FROM PrintLog WHERE type like :type and log like :pattern ORDER BY time DESC")
     fun getRecordByType(type: String, pattern: String): PagingSource<Int, PrintLog>
 
-    @Query("SELECT log FROM PrintLog WHERE type like :type ORDER BY time DESC")
+    @Query("SELECT log FROM PrintLog WHERE type like :type and isMark = 1 ORDER BY time DESC")
     fun getMarkedRecordByType(type: String): List<String>
 
-    @Query("SELECT log FROM PrintLog WHERE packageName = :packageName ORDER BY time DESC")
+    @Query("SELECT log FROM PrintLog WHERE packageName = :packageName and isMark = 1 ORDER BY time DESC")
     fun getMarkedRecordByPack(packageName: String): List<String>
 
     @Update

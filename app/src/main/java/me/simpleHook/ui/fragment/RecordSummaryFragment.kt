@@ -21,6 +21,7 @@ import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
+import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
@@ -204,6 +205,9 @@ class RecordSummaryFragment : Fragment() {
                     sp.showByType = true
                 }
                 item.isChecked = !item.isChecked
+            }
+            R.id.startFloat -> {
+                (requireActivity() as MainActivity).initPrintFloat()
             }
         }
         return true

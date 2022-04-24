@@ -2,7 +2,11 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <item
+        android:id="@+id/startFloat"
+        android:icon="@drawable/ic_start_float_24"
+        android:title="@string/assist_start_float_window"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/toShow"
         android:title="@string/record_menu_show_method">

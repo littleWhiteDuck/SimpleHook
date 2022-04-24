@@ -93,6 +93,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteAllLogs()
     }
 
+    fun deleteRecordByTimeRange(start: String, end: String) = viewModelScope.launch {
+        appRepository.deleteRecordByTimeRange(start, end)
+    }
+
     fun deleteRecordById(id: Int) = viewModelScope.launch {
         appRepository.deleteRecordById(id)
     }
