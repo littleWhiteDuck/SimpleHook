@@ -64,6 +64,7 @@ android {
     productFlavors {
         beta {
             versionName = rootProject.ext.config.versionName+"_beta"
+           // applicationId = "me.simpleHook.beta"
         }
         public_release {
             versionName = rootProject.ext.config.versionName

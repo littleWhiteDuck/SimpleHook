@@ -315,4 +315,7 @@
     <string name="float_window_drag_text">Drag</string>
     <string name="float_window_require_permission">Please grant the floating window permission</string>
     <string name="float_window_require_permission_failed">Failed to obtain the permission of the floating window</string>
+    <string name="main_settings_title_custom">Custom settings</string>
+    <string name="main_settings_summary_start_float">Open the floating window at the same time when launching the application on the extension page</string>
+    <string name="main_settings_title_start_float">Floating window</string>
 </resources>

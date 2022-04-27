@@ -63,4 +63,11 @@ object Constant {
     const val HOME_ITEM_CLICK_EDIT = 2
     const val HOME_ITEM_CLICK_COPY = 3
     const val HOME_ITEM_CLICK_DELETE = 4
+
+    //RecordActivity Search Mode
+
+    const val RECORD_SEARCH_GLOBAL = 0
+    const val RECORD_SEARCH_RAW_DATA = 1
+    const val RECORD_SEARCH_RESULT = 2
+
 }

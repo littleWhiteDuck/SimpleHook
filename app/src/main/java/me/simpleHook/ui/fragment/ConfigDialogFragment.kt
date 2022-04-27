@@ -42,19 +42,40 @@ class ConfigDialogFragment(
     }
     private val staticField = "common.setStaticObjectField('类名', '变量名', 变量值);"
     private val instanceField = "common.setObjectField(param.thisObject, '变量名', 变量值);"
-    private val constructor = """
+    private val hookAllConstructor = """
         common.hookAllConstructors('类名', function (param) {
-            具体前行为
+            beforeHook
         }, function (param) {
-            具体后行为
+            afterHook
         });
     """.trimIndent()
-    private val commonMethod = """
-        common.hookAllMethods('类名', '方法名', function (param) {
-           具体前行为
+    private val hookConstructor = """
+        common.hookConstructor('类名', params function (param) {
+            beforeHook
         }, function (param) {
-           具体后行为
+            afterHook
         });
+    """.trimIndent()
+    private val hookMethod = """
+        common.hookMethod('类名', '方法名', params function (param) {
+            beforeHook
+        }, function (param) {
+            afterHook
+        });
+    """.trimIndent()
+    private val hookAllMethods = """
+        common.hookAllMethods('类名', '方法名',function (param) {
+            beforeHook
+        }, function (param) {
+            afterHook
+        });
+    """.trimIndent()
+    private val getPackageName = "var currentPackageName = common.getlpparam().packageName;"
+    private val ifFormat = """
+        if (currentPackageName == 'packageName') {
+            //description
+        implement
+        } 
     """.trimIndent()
     private var isAnti = false
     private val sp by lazy { SPUtils(requireContext()) }
@@ -182,13 +203,13 @@ class ConfigDialogFragment(
     } ?: ""
 
     private fun getStringJSConfig(list: List<ConfigItem>?) = list?.let {
-        var result = ""
-        if (list.size != 1) result += "//请自行将各应用所属配置分开，否则可能会出错\n\n\n"
+        var result = "$getPackageName\n//请手动将同方法的hook移至同一个hook代码内，否则后面的不会生效\n"
         list.forEach { configItem ->
             val appConfig = configItem.appConfig
-            val name = appConfig.appName
             val configStr = toJSConfig(appConfig.configs)
-            result += "//$name\n\n$configStr"
+            result += ifFormat.replace("packageName", appConfig.packageName)
+                .replace("description", appConfig.description)
+                .replace("implement", configStr) + "\n"
         }
         result
     } ?: ""
@@ -199,59 +220,71 @@ class ConfigDialogFragment(
         var result = ""
         configs.forEach {
             it.apply {
+                val hookMode = getHookMode(methodName, params)
                 val temp = when (mode) {
                     Constant.HOOK_STATIC_FIELD -> {
-                        "\n${
-                            staticField.replace("类名", className).replace("变量名", fieldName).replace(
-                                "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
-                            )
-                        }\n"
+                        val staticFieldStr =
+                            staticField.replace("类名", fieldClassName).replace("变量名", fieldName)
+                                .replace(
+                                    "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
+                                )
+                        val thisResult =
+                            hookMode.replace("afterHook", staticFieldStr).replace("beforeHook", "")
+                                .replace("类名", className).replace("方法名", methodName)
+                                .replace("params", transParams(params))
+                        "\n${thisResult}\n"
                     }
                     Constant.HOOK_FIELD -> {
                         val instanceFieldStr = instanceField.replace("变量名", fieldName).replace(
                             "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
                         )
-                        "\n${
-                            constructor.replace("类名", className).replace("具体后行为", instanceFieldStr)
-                                .replace("具体前行为", "")
-                        }\n"
+                        val thisResult = hookMode.replace("afterHook", instanceFieldStr)
+                            .replace("beforeHook", "").replace("类名", className)
+                            .replace("方法名", methodName).replace("params", transParams(params))
+                        "\n${thisResult}\n"
                     }
                     Constant.HOOK_RETURN -> {
                         val resultValue =
                             " param.setResult(${getValue(Type.getDataTypeValue(resultValues))});"
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", resultValue).replace("具体后行为", "")
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", resultValue).replace("afterHook", "")
+                            .replace("params", transParams(params))
                     }
                     Constant.HOOK_PARAM -> {
                         val paramValue = transParamValues(params, resultValues)
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", paramValue).replace("具体后行为", "")
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", paramValue).replace("afterHook", "")
+                            .replace("params", transParams(params))
                     }
                     Constant.HOOK_BREAK -> {
                         val resultValue = " param.setResult(null);"
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", resultValue).replace("具体后行为", "")
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", resultValue).replace("afterHook", "")
+                            .replace("params", transParams(params))
                     }
                     Constant.HOOK_RECORD_RETURN -> {
                         val resultValue = "common.log('返回值: ' + param.getResult());"
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", "").replace("具体后行为", resultValue)
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", "").replace("afterHook", resultValue)
+                            .replace("params", transParams(params))
                     }
                     Constant.HOOK_RECORD_PARAMS -> {
                         var resultValue = ""
                         for (i in params.split(",").indices) {
-                            resultValue += "common.log('参数$i: ' + param.args[$i]);\n"
+                            resultValue += "common.log('参数$i: ' + param.args[$i]);\n\t"
                         }
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", "").replace("具体后行为", resultValue)
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", "").replace("afterHook", resultValue)
+                            .replace("params", transParams(params))
                     }
                     Constant.HOOK_RECORD_PARAMS_RETURN -> {
-                        var resultValue = "common.log('返回值: ' + param.getResult());\n"
+                        var resultValue = "common.log('返回值: ' + param.getResult());\n\t"
                         for (i in params.split(",").indices) {
-                            resultValue += "common.log('参数$i: ' + param.args[$i]);\n"
+                            resultValue += "common.log('参数$i: ' + param.args[$i]);\n\t"
                         }
-                        commonMethod.replace("类名", className).replace("方法名", methodName)
-                            .replace("具体前行为", "").replace("具体后行为", resultValue)
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("beforeHook", "").replace("afterHook", resultValue)
+                            .replace("params", transParams(params))
                     }
                     else -> "//error"
                 }
@@ -261,13 +294,27 @@ class ConfigDialogFragment(
         return result
     }
 
-    private fun getValue(value: Any?): Any? {
+    private fun getValue(value: Any?): Any {
         return when (value) {
             is String -> "'$value'"
-            is Int -> "java.lang.Integer('$value')"
-            is Long -> "java.lang.Long('$value')"
-            is Short -> "java.lang.Short('$value')"
-            else -> value
+            null -> "null"
+            else -> "${value.javaClass.name}.valueOf('$value')"
+        }
+    }
+
+    private fun getHookMode(methodName: String, params: String): String {
+        return if (methodName == "<init>") {
+            if (params == "*") {
+                hookAllConstructor
+            } else {
+                hookConstructor
+            }
+        } else {
+            if (params == "*") {
+                hookAllMethods
+            } else {
+                hookMethod
+            }
         }
     }
 
@@ -278,14 +325,14 @@ class ConfigDialogFragment(
             if (resultValues.split(",")[i] == "") continue
             val targetValue = getValue(Type.getDataTypeValue(resultValues.split(",")[i]))
             result += "param.args[$i] = $targetValue;"
-            if (i != methodParams.size - 1) result += "\n"
+            if (i != methodParams.size - 1) result += "\n\t"
         }
         return result
     }
 
     private fun transParams(params: String): String {
         var value = ""
-        if (params == "") return value
+        if (params == "") return "[],"
         val methodParams = params.split(",")
         methodParams.forEachIndexed { index, param ->
             val classType = Type.getClassType(param)

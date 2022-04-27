@@ -346,6 +346,9 @@
     <string name="float_window_drag_text">拖拽</string>
     <string name="float_window_require_permission">请授予悬浮窗权限</string>
     <string name="float_window_require_permission_failed">获取悬浮窗权限失败</string>
+    <string name="main_settings_title_custom">习惯设置</string>
+    <string name="main_settings_summary_start_float">在扩展页面启动应用时同时打开悬浮窗</string>
+    <string name="main_settings_title_start_float">悬浮窗</string>
 
 
 </resources>

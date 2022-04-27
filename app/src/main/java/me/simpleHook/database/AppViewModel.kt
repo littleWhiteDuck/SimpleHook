@@ -5,15 +5,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
+import androidx.paging.*
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.RecordBean
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
@@ -55,7 +56,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     fun getRecord(
-        typeOrPack: String, isType: Boolean
+        typeOrPack: String, isType: Boolean, searchMode: Int
     ): Flow<PagingData<PrintLog>> {
         return Pager(
             config = pagingConfig
@@ -67,9 +68,47 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 appRepository.getPrintLogDao()
                     .getRecordByPack(typeOrPack, "%${queryPattern.value}%")
             }
-        }.flow.cachedIn(viewModelScope)
+        }.flow.cachedIn(viewModelScope).map { pagingData ->
+            when (searchMode) {
+                Constant.RECORD_SEARCH_RESULT -> {
+                    pagingData.filter {
+                        val logBean = Gson().fromJson(it.log, LogBean::class.java)
+                        val list: List<String> = logBean.other as List<String>
+                        var result = ""
+                        list.forEach { item ->
+                            if (item.startsWith("加密结果") || item.startsWith("解密结果") || item.startsWith(
+                                    "Encrypt result"
+                                ) || item.startsWith("Decrypt result")
+                            ) {
+                                result = item
+                                return@forEach
+                            }
+                        }
+                        result.contains(queryPattern.value ?: "")
+                    }
+                }
+                Constant.RECORD_SEARCH_RAW_DATA -> {
+                    pagingData.filter {
+                        val logBean = Gson().fromJson(it.log, LogBean::class.java)
+                        val list: List<String> = logBean.other as List<String>
+                        var rawData = ""
+                        list.forEach { item ->
+                            if (item.startsWith("原始数据") || item.startsWith("Raw Data")) {
+                                rawData = item
+                                return@forEach
+                            }
+                        }
+                        rawData.contains(queryPattern.value ?: "")
+                    }
+                }
+                else -> pagingData
+            }
+        }
     }
 
+    //combine(queryInit, transform = { printLog, query ->
+//                printLog.filter { it.log.contains(query, true) }
+//            })
     fun getAllLogs() = appRepository.getAllLogs()
 
     fun getMarkedRecordByType(type: String) = appRepository.getMarkedByType("%$type%")

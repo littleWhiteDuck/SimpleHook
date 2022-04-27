@@ -19,6 +19,8 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var appListSortSelected by SharedPreferenceDelegates.int(0)
     var appListReverse by SharedPreferenceDelegates.boolean(false)
     var readIntroduction by SharedPreferenceDelegates.boolean(true)
+    var startFloat by SharedPreferenceDelegates.boolean(false)
+    var bottomConfigDialog by SharedPreferenceDelegates.boolean(true)
     var uiMode by SharedPreferenceDelegates.int(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var xParams by SharedPreferenceDelegates.boolean(true)
     fun remove(key: String) {

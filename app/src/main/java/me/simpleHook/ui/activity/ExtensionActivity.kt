@@ -497,12 +497,7 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun startAppAndFloat() {
-       /* val intent = Intent()
-        intent.apply {
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_HOME)
-        }
-        startActivity(intent)*/
+        if (sp.startFloat) initPrintFloat()
         AppUtils.startApp(assistConfig.packageName, this)
     }
 

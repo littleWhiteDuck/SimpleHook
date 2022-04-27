@@ -14,6 +14,7 @@ import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ConfigDialogBinding
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.util.isContainState
 import me.simpleHook.util.toast
 import java.util.regex.Pattern
@@ -66,6 +67,7 @@ class ConfigBottomSheetFragment(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = ConfigDialogBinding.inflate(inflater, container, false)
+        WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(requireActivity().window)
         initView()
         return binding.root
     }

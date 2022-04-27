@@ -160,11 +160,15 @@ class ConfigActivity : BaseActivity() {
             addMethodConfig.setOnClickListener {
                 isCollection = false
                 modifyConfig = false
-                ConfigBottomSheetFragment(saveConfig = {
-                    addConfig(it)
-                }, deleteConfig = {
+                if (sp.bottomConfigDialog) {
+                    ConfigBottomSheetFragment(saveConfig = {
+                        addConfig(it)
+                    }, deleteConfig = {
 
-                }, configBean = ConfigBean()).show(supportFragmentManager, "ADD")
+                    }, configBean = ConfigBean()).show(supportFragmentManager, "ADD")
+                } else {
+                    showDialog()
+                }
             }
             addMethodConfig.setOnLongClickListener {
                 visibleFab = false
@@ -306,11 +310,15 @@ class ConfigActivity : BaseActivity() {
         val methodConfig = configList[position]
         isCollection = false
         modifyConfig = true
-        ConfigBottomSheetFragment(methodConfig, saveConfig = {
-            addConfig(it)
-        }, deleteConfig = {
-            addRemoveItem(methodConfig, isAdd = false)
-        }).show(supportFragmentManager, "config")
+        if (sp.bottomConfigDialog) {
+            ConfigBottomSheetFragment(methodConfig, saveConfig = {
+                addConfig(it)
+            }, deleteConfig = {
+                addRemoveItem(methodConfig, isAdd = false)
+            }).show(supportFragmentManager, "config")
+        } else {
+            showDialog(methodConfig)
+        }
     }
 
     private fun onCheckedChange(position: Int, checked: Boolean) {
@@ -631,12 +639,15 @@ class ConfigActivity : BaseActivity() {
         isCollection = true
         modifyConfig = true
         val methodConfig = collectConfigList[position]
-        ConfigBottomSheetFragment(saveConfig = {
-            addConfig(it)
-        }, deleteConfig = {
-            deleteConfig(methodConfig)
-        }, configBean = methodConfig).show(supportFragmentManager, "MODIFY")
-        // showDialog(collectConfigList[position])
+        if (sp.bottomConfigDialog) {
+            ConfigBottomSheetFragment(saveConfig = {
+                addConfig(it)
+            }, deleteConfig = {
+                deleteConfig(methodConfig)
+            }, configBean = methodConfig).show(supportFragmentManager, "MODIFY")
+        } else {
+            showDialog(collectConfigList[position])
+        }
     }
 
     private fun onCollectCheckedChange(position: Int, checked: Boolean) {
@@ -795,11 +806,15 @@ class ConfigActivity : BaseActivity() {
         }
         config?.also {
             modifyConfig = false
-            ConfigBottomSheetFragment(saveConfig = { save ->
-                addConfig(save)
-            }, deleteConfig = {
+            if (sp.bottomConfigDialog) {
+                ConfigBottomSheetFragment(saveConfig = { save ->
+                    addConfig(save)
+                }, deleteConfig = {
 
-            }, configBean = it).show(supportFragmentManager, "ADD")
+                }, configBean = it).show(supportFragmentManager, "ADD")
+            } else {
+                showDialog(it, isSmali2Config = true)
+            }
         } ?: getString(R.string.config_smali_to_config_error).toast(this)
     }
 

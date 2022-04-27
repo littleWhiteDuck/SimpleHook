@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.ui.WindowPreferencesManager
@@ -165,7 +166,11 @@ class RecordActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch {
-            appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+            appViewModel.getRecord(
+                typeOrPackageName,
+                isType,
+                searchMode = Constant.RECORD_SEARCH_GLOBAL
+            ).collectLatest {
                 recordAdapter.addOnPagesUpdatedListener {
                     binding.progressBar.isVisible = false
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -299,6 +304,12 @@ class RecordActivity : BaseActivity() {
                 val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "ddHHmmss")
                 saveMarkedRecord.launch("simpleHook_record_$time.json")
             }
+            R.id.search_by_raw_data -> {
+                showSearchDialog(searchMode = Constant.RECORD_SEARCH_RAW_DATA)
+            }
+            R.id.search_by_result -> {
+                showSearchDialog(searchMode = Constant.RECORD_SEARCH_RESULT)
+            }
         }
         return true
     }
@@ -334,7 +345,7 @@ class RecordActivity : BaseActivity() {
 
     }
 
-    private fun showSearchDialog() {
+    private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
         val textInputLayout = TextInputLayout(this)
         val textInput = TextInputEditText(this)
         textInput.background = null
@@ -350,7 +361,7 @@ class RecordActivity : BaseActivity() {
                     LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
                 lifecycleScope.launch {
-                    appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                    appViewModel.getRecord(typeOrPackageName, isType, searchMode).collectLatest {
                         recordAdapter.addOnPagesUpdatedListener {
                             binding.swipeRefreshLayout.isRefreshing = false
                             loadingDialog.dismiss()
@@ -377,7 +388,11 @@ class RecordActivity : BaseActivity() {
             binding.swipeRefreshLayout.isRefreshing = true
             appViewModel.queryPattern.value = ""
             lifecycleScope.launch {
-                appViewModel.getRecord(typeOrPackageName, isType).collectLatest {
+                appViewModel.getRecord(
+                    typeOrPackageName,
+                    isType,
+                    searchMode = Constant.RECORD_SEARCH_GLOBAL
+                ).collectLatest {
                     recordAdapter.addOnPagesUpdatedListener {
                         Handler(Looper.getMainLooper()).postDelayed({
                             binding.swipeRefreshLayout.isRefreshing = false
