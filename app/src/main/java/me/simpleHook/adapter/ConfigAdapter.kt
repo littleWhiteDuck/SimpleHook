@@ -30,7 +30,7 @@ class ConfigAdapter(
 
     inner class ViewHolder(configItemView: ConfigItemView) :
         RecyclerView.ViewHolder(configItemView) {
-        val containerView = configItemView.containerView
+        private val containerView = configItemView.containerView
         val tvClassName = containerView.className
         val tvOtherName = containerView.otherName
         val tvNumber = containerView.num

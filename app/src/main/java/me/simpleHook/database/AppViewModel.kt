@@ -9,7 +9,6 @@ import androidx.paging.*
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.simpleHook.bean.LogBean
@@ -49,7 +48,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }
 
     // Record
-    val queryInit = MutableStateFlow("")
     val queryPattern = MutableLiveData("")
     private val pagingConfig = PagingConfig(
         pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200

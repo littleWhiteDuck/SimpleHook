@@ -1,3 +1,22 @@
+v1.2.2
+    1.多个问题修复、多处细节调整
+    2.扩展hook支持拦截关键词弹窗，多个关键词使用‘,’分隔开
+    3.支持标记记录（记录页面向左滑动），并可导出标记的记录
+    4.部分页面的item添加滑动菜单，向左滑动item即可
+    5.对导出的JsHook配置进行调整
+    6.悬浮窗UI更改（参考JsHook）
+    7.hook变量调整（不兼容旧版），具体填写请看使用说明（关于页面 -> 帮助）
+    8.支持在原始数据、加密结果、解密结果中搜索记录（记录页面 -> 右上角）
+
+    1. Multiple bug fixes, multiple detail adjustments
+    2. The extension hook supports intercepting keyword pop-ups, and multiple keywords are separated by ','
+    3. Support marked records (swipe left on the record page), and can export marked records
+    4. Add a swipe menu to the items on some pages, just slide the item to the left
+    5. Adjust the exported JsHook configuration
+    6. Floating window UI changes (refer to JsHook)
+    7. Hook field adjustment (incompatible with the old version), please refer to the instruction manual for details (About page -> Help)
+    8. Support searching records in raw data, encrypted results, decrypted results (record page -> upper right corner)
+
 v1.2.1
     1.修复一些问题
     2.配置页UI调整

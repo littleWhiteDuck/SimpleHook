@@ -23,9 +23,9 @@
             app:title="@string/main_settings_title_start_float" />
         <CheckBoxPreference
             android:key="bottomConfigDialog"
-            android:title="配置弹窗"
-            app:defaultValue="true"
-            app:summary="配置弹窗在底部" />
+            android:title="@string/main_settings_summary_bottom_config_dialog"
+            app:defaultValue="false"
+            app:summary="@string/main_settings_title_bottom_config_dialog" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_experiment">
         <CheckBoxPreference

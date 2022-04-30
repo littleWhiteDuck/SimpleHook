@@ -349,6 +349,10 @@
     <string name="main_settings_title_custom">习惯设置</string>
     <string name="main_settings_summary_start_float">在扩展页面启动应用时同时打开悬浮窗</string>
     <string name="main_settings_title_start_float">悬浮窗</string>
+    <string name="main_settings_summary_bottom_config_dialog">配置弹窗</string>
+    <string name="main_settings_title_bottom_config_dialog">配置弹窗在底部</string>
+    <string name="record_menu_search_by_raw_data">从原始数据中搜索</string>
+    <string name="record_menu_search_by_result">从加密/解密结果中搜索</string>
 
 
 </resources>

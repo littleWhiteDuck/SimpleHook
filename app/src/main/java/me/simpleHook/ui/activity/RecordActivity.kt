@@ -3,10 +3,14 @@ package me.simpleHook.ui.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View

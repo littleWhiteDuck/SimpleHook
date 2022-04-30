@@ -93,6 +93,7 @@ class ConfigActivity : BaseActivity() {
     private var scrollDistance = 0
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
+    private var tempPackageName = ""
     private val sp by lazy { SPUtils(this) }
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter by lazy {
@@ -148,6 +149,7 @@ class ConfigActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val bundle = intent.getBundleExtra("bundle")
         appConfig = bundle?.getParcelable("appConfig")
+        tempPackageName = appConfig?.packageName ?: ""
         initView()
     }
 
@@ -196,8 +198,7 @@ class ConfigActivity : BaseActivity() {
                     appInfo.containerView.otherInfo.text = it.versionName
                     appInfo.containerView.icon.setImageDrawable(
                         AppUtils.getIcon(
-                            this@ConfigActivity,
-                            it.packageName
+                            this@ConfigActivity, it.packageName
                         )
                     )
                     /* GlideApp.with(appInfo.containerView.icon).load(packageName)
@@ -242,7 +243,8 @@ class ConfigActivity : BaseActivity() {
 
     private fun showIntroductionDialog() {
         if (sp.readIntroduction) {
-            customDialog(title = getString(R.string.read_introduction_title),
+            customDialog(
+                title = getString(R.string.read_introduction_title),
                 message = getString(R.string.read_introduction_message),
                 okText = getString(
                     R.string.record_introduction_ok
@@ -676,6 +678,11 @@ class ConfigActivity : BaseActivity() {
             }
             val configStr = Gson().toJson(appConfig)
             saveToText(appConfig.packageName, configStr)
+            if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
+                FileUtils.realDeleteConfig(
+                    this@ConfigActivity, tempPackageName, Constant.APP_CONFIG_NAME
+                )
+            }
         }
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.dismiss()

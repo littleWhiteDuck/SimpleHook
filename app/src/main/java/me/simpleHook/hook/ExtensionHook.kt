@@ -537,7 +537,7 @@ object ExtensionHook {
                             getTip("key") + map["key"],
                             "iv：${map["iv"]}",
                             getTip("rawData") + map["rawData"],
-                            getTip(map["cryptType"] ?: "error") + getTip("Result") + map["result"]
+                            getTip(map["cryptType"] ?: "error") + getTip("result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
                         val items = LogHook.toStackTrace(context, stackTrace).toList()

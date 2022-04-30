@@ -39,6 +39,7 @@ android {
             buildConfigField("Boolean", "normal", "${normal}")
         }
         debug {
+            minifyEnabled true
             buildConfigField("Boolean", "normal", "${normal}")
         }
     }
@@ -124,7 +125,7 @@ dependencies {
     implementation 'com.github.d4rken:rxshell:3.0.0'
 
     //paging3
-    def paging_version = "3.1.0"
+    def paging_version = "3.1.1"
     implementation("androidx.paging:paging-runtime:$paging_version")
 
     implementation("androidx.room:room-paging:2.5.0-alpha01")

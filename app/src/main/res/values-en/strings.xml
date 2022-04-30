@@ -318,4 +318,8 @@
     <string name="main_settings_title_custom">Custom settings</string>
     <string name="main_settings_summary_start_float">Open the floating window at the same time when launching the application on the extension page</string>
     <string name="main_settings_title_start_float">Floating window</string>
+    <string name="main_settings_summary_bottom_config_dialog">Configure dialog</string>
+    <string name="main_settings_title_bottom_config_dialog">Show at bottom</string>
+    <string name="record_menu_search_by_raw_data">from raw data</string>
+    <string name="record_menu_search_by_result">from encryption/decryption results</string>
 </resources>

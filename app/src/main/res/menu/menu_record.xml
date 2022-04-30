@@ -38,11 +38,11 @@
     <item
         android:id="@+id/search_by_raw_data"
         android:icon="@drawable/ic_search_24"
-        android:title="从原始数据中搜索" />
+        android:title="@string/record_menu_search_by_raw_data" />
 
     <item
         android:id="@+id/search_by_result"
         android:icon="@drawable/ic_search_24"
-        android:title="从加密/解密结果中搜索" />
+        android:title="@string/record_menu_search_by_result" />
 
 </menu>

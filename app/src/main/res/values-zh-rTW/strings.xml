@@ -328,5 +328,9 @@
     <string name="main_settings_title_custom">習慣設置</string>
     <string name="main_settings_summary_start_float">在擴展頁面啟動應用時同時打開懸浮窗</string>
     <string name="main_settings_title_start_float">懸浮窗</string>
+    <string name="main_settings_summary_bottom_config_dialog">配置彈窗</string>
+    <string name="main_settings_title_bottom_config_dialog">顯示在底部</string>
+    <string name="record_menu_search_by_result">從加密/解密結果中搜索</string>
+    <string name="record_menu_search_by_raw_data">從原始數據中搜索</string>
 
 </resources>

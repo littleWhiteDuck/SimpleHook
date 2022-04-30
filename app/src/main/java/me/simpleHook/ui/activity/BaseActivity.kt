@@ -9,7 +9,9 @@ import android.view.Menu
 import android.widget.CheckBox
 import android.widget.ImageButton
 import androidx.activity.viewModels
+import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,8 +30,8 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.*
-import java.lang.reflect.Method
 
+@Keep
 open class BaseActivity : AppCompatActivity() {
     protected var isSaving = false
 
@@ -54,18 +56,19 @@ open class BaseActivity : AppCompatActivity() {
     private var startTime = ""
     private var tempCount = 0
 
+    @SuppressLint("RestrictedApi")
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
-        if (menu.javaClass.simpleName.equals("MenuBuilder", true)) {
+        return if (menu is MenuBuilder) {
             try {
-                val method: Method =
-                    menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
-                method.isAccessible = true
-                method.invoke(menu, true)
+                menu.setOptionalIconsVisible(true)
+                super.onMenuOpened(featureId, menu)
+                /*   val method: Method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
+                            method.isAccessible = true
+                            method.invoke(menu, true)*/
             } catch (e: Exception) {
-
+                super.onMenuOpened(featureId, menu)
             }
-        }
-        return super.onMenuOpened(featureId, menu)
+        } else super.onMenuOpened(featureId, menu)
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -181,8 +184,7 @@ open class BaseActivity : AppCompatActivity() {
             val pausePrintRecord = it.findViewById<ImageButton>(R.id.pause_print_record)
             pausePrintRecord.setOnClickListener {
                 stopPrint = !stopPrint
-                val bgId =
-                    if (stopPrint) R.drawable.ic_start_float_24 else R.drawable.ic_outline_pause_24
+                val bgId = if (stopPrint) R.drawable.ic_start_float_24 else R.drawable.ic_outline_pause_24
                 pausePrintRecord.setImageResource(bgId)
             }
             mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -193,10 +195,8 @@ open class BaseActivity : AppCompatActivity() {
                 }
             })
             handler.postDelayed(refresh, 500)
-        }.setTag("floatPrint").setShowPattern(ShowPattern.ALL_TIME).setDragEnable(false)
-            .setSidePattern(SidePattern.DEFAULT).setLocation(100, 100)
-            .setMatchParent(widthMatch = false, heightMatch = false).setAnimator(DefaultAnimator())
-            .registerCallback {
+        }.setTag("floatPrint").setShowPattern(ShowPattern.ALL_TIME).setDragEnable(false).setSidePattern(SidePattern.DEFAULT).setLocation(100, 100)
+            .setMatchParent(widthMatch = false, heightMatch = false).setAnimator(DefaultAnimator()).registerCallback {
                 dismiss {
                     dismissFloat = true
                     list.clear()
@@ -210,8 +210,7 @@ open class BaseActivity : AppCompatActivity() {
                 EasyFloat.show("floatPrint")
                 EasyFloat.hide("floatControl")
             }
-        }.setTag("floatControl").setShowPattern(ShowPattern.ALL_TIME)
-            .setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
+        }.setTag("floatControl").setShowPattern(ShowPattern.ALL_TIME).setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
             .setAnimator(DefaultAnimator()).show()
     }
 }
