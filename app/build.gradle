@@ -39,7 +39,7 @@ android {
             buildConfigField("Boolean", "normal", "${normal}")
         }
         debug {
-            minifyEnabled true
+           // minifyEnabled true
             buildConfigField("Boolean", "normal", "${normal}")
         }
     }

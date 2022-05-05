@@ -332,5 +332,7 @@
     <string name="main_settings_title_bottom_config_dialog">顯示在底部</string>
     <string name="record_menu_search_by_result">從加密/解密結果中搜索</string>
     <string name="record_menu_search_by_raw_data">從原始數據中搜索</string>
+    <string name="record_detail_menu_copy_raw_data">原始數據</string>
+    <string name="record_detail_menu_copy_crypt_result">加密/解密結果</string>
 
 </resources>

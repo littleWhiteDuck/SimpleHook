@@ -30,6 +30,11 @@ object FieldHook {
         context: Context,
         packageName: String
     ) {
+        if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+            // 直接hook
+            hookStaticField(fieldClassName, classLoader, values, fieldName)
+            return
+        }
         val methodParams = params.split(",")
         val realSize = if (params == "" || params == "*") 0 else methodParams.size
         val obj = arrayOfNulls<Any>(realSize + 1)
@@ -43,19 +48,7 @@ object FieldHook {
         }
         obj[realSize] = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam?) {
-                val clazz: Class<*> = XposedHelpers.findClass(fieldClassName, classLoader)
-                when (val value = Type.getDataTypeValue(values)) {
-                    is Byte -> XposedHelpers.setStaticByteField(clazz, fieldName, value)
-                    is Char -> XposedHelpers.setStaticCharField(clazz, fieldName, value)
-                    is Short -> XposedHelpers.setStaticShortField(clazz, fieldName, value)
-                    is Int -> XposedHelpers.setStaticIntField(clazz, fieldName, value)
-                    is Long -> XposedHelpers.setStaticLongField(clazz, fieldName, value)
-                    is Float -> XposedHelpers.setStaticFloatField(clazz, fieldName, value)
-                    is Double -> XposedHelpers.setStaticDoubleField(clazz, fieldName, value)
-                    is Boolean -> XposedHelpers.setStaticBooleanField(clazz, fieldName, value)
-                    is String -> XposedHelpers.setStaticObjectField(clazz, fieldName, value)
-                    else -> XposedHelpers.setStaticObjectField(clazz, fieldName, null)
-                }
+                hookStaticField(fieldClassName, classLoader, values, fieldName)
             }
         }
 
@@ -94,6 +87,24 @@ object FieldHook {
             )
             Tip.getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
+        }
+    }
+
+    private fun hookStaticField(
+        fieldClassName: String, classLoader: ClassLoader, values: String, fieldName: String
+    ) {
+        val clazz: Class<*> = XposedHelpers.findClass(fieldClassName, classLoader)
+        when (val value = Type.getDataTypeValue(values)) {
+            is Byte -> XposedHelpers.setStaticByteField(clazz, fieldName, value)
+            is Char -> XposedHelpers.setStaticCharField(clazz, fieldName, value)
+            is Short -> XposedHelpers.setStaticShortField(clazz, fieldName, value)
+            is Int -> XposedHelpers.setStaticIntField(clazz, fieldName, value)
+            is Long -> XposedHelpers.setStaticLongField(clazz, fieldName, value)
+            is Float -> XposedHelpers.setStaticFloatField(clazz, fieldName, value)
+            is Double -> XposedHelpers.setStaticDoubleField(clazz, fieldName, value)
+            is Boolean -> XposedHelpers.setStaticBooleanField(clazz, fieldName, value)
+            is String -> XposedHelpers.setStaticObjectField(clazz, fieldName, value)
+            else -> XposedHelpers.setStaticObjectField(clazz, fieldName, null)
         }
     }
 

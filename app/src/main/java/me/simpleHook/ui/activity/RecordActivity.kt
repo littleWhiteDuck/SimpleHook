@@ -11,6 +11,7 @@ import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View

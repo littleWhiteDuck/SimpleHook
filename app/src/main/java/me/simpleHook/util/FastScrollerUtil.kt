@@ -1,7 +1,6 @@
 package me.simpleHook.util
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import androidx.recyclerview.widget.RecyclerView

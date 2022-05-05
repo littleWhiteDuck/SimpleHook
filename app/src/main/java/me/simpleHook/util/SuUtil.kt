@@ -16,6 +16,7 @@ object SuUtil {
             if (root.state == Root.State.ROOTED) {
                 Cmd.builder(
                     "su",
+                    "setenforce 0",
                     "mount -o remount /data",
                     "cd /data/",
                     "mkdir simpleHook",
@@ -50,9 +51,9 @@ object SuUtil {
     }
 
     fun deleteConfig(filePath: String) {
-        if (filePath.contains("simpleHook") && filePath.endsWith("Config.json", true)) {
+        if (filePath.contains("simpleHook")) {
             Cmd.builder(
-                "rm -f $filePath"
+                "rm -rf $filePath"
             ).execute(session)
         }
     }

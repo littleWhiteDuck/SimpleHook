@@ -353,6 +353,8 @@
     <string name="main_settings_title_bottom_config_dialog">配置弹窗在底部</string>
     <string name="record_menu_search_by_raw_data">从原始数据中搜索</string>
     <string name="record_menu_search_by_result">从加密/解密结果中搜索</string>
+    <string name="record_detail_menu_copy_raw_data">原始数据</string>
+    <string name="record_detail_menu_copy_crypt_result">加密/解密结果</string>
 
 
 </resources>

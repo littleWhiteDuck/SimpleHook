@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
+import kotlin.math.roundToInt
 
 /*
 //toast
@@ -25,6 +26,14 @@ fun String.toast(context: Context,duration: Int = Toast.LENGTH_SHORT){
 //
 fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
     Snackbar.make(view, this, duration).show()
+}
+
+fun String.random(length: Int): String {
+    val temp = StringBuilder()
+    for (i in 0 until length) {
+        temp.append(this[(Math.random() * (this.length - 1)).roundToInt()])
+    }
+    return temp.toString()
 }
 
 //xposed log

@@ -13,6 +13,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
+import me.simpleHook.constant.Constant.CONFIG_MAIN_DIRECTORY
 import me.simpleHook.database.entity.PrintLog
 import java.io.*
 
@@ -96,10 +97,31 @@ object FileUtils {
     fun realDeleteConfig(context: Context, packageName: String, name: String) {
         if (FlavorUtils.isNormal()) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                val simpleHookUri =
+                    Uri.parse("/storage/emulated/0/Android/data/$packageName/simpleHook")
                 val configUri =
-                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/config/$name"))
+                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/config/${Constant.APP_CONFIG_NAME}"))
+                val extensionConfigUri =
+                    Uri.parse(changeToUri("/storage/emulated/0/Android/data/$packageName/simpleHook/config/${Constant.EXTENSION_CONFIG_NAME}"))
                 try {
-                    DocumentsContract.deleteDocument(context.contentResolver, configUri)
+                    if (name == Constant.APP_CONFIG_NAME) {
+                        if (DocumentFile.fromSingleUri(context, extensionConfigUri)
+                                ?.exists() == true
+                        ) {
+                            DocumentsContract.deleteDocument(context.contentResolver, configUri)
+                        } else {
+                            deleteDocumentDirection(context, "/$packageName/simpleHook/")
+                        }
+                    } else {
+                        if (DocumentFile.fromSingleUri(context, configUri)?.exists() == true) {
+                            DocumentsContract.deleteDocument(
+                                context.contentResolver, extensionConfigUri
+                            )
+                        } else {
+                            deleteDocumentDirection(context, "/$packageName/simpleHook/")
+                        }
+                    }
+
                 } catch (e: java.lang.Exception) {
 
                 }
@@ -159,7 +181,7 @@ object FileUtils {
                     ?: documentFile.createDirectory(paths[i])
             }
             val configFile = if (exists(documentFile!!, fileName)) {
-                documentFile.findFile(fileName);
+                documentFile.findFile(fileName)
             } else {
                 documentFile.createFile(mimiType, fileName)
             }
@@ -171,6 +193,29 @@ object FileUtils {
         }
     }
 
+    fun deleteDocumentDirection(
+        context: Context, path: String
+    ) {
+        try {
+            val paths = path.split("/")
+            val dataUri = Uri.parse(Constant.ANDROID_DATA_URI)
+            var documentFile = DocumentFile.fromTreeUri(context, dataUri)
+            for (i in paths.indices) {
+                if (paths[i].isEmpty()) continue
+                documentFile = getDocumentFile(documentFile!!, paths[i])
+                    ?: documentFile.createDirectory(paths[i])
+            }
+            documentFile?.let {
+                if (it.uri.toString().contains("simpleHook")) {
+                    it.delete()
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
     @Synchronized
     fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
         try {
@@ -178,7 +223,11 @@ object FileUtils {
             if (FlavorUtils.isNormal()) {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                     writeDocumentFile(
-                        context, "/$packageName/simpleHook/config/", fileName, content, "application/json"
+                        context,
+                        "/$packageName/simpleHook/config/",
+                        fileName,
+                        content,
+                        "application/json"
                     )
                 } else {
                     writeConfigFile(packageName, fileName = fileName, config = content)
@@ -291,14 +340,45 @@ object FileUtils {
     }
 
     private fun deleteConfigFile(packageName: String, fileName: String) {
-        val dataConfigPath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + fileName
+        val configPath =
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.APP_CONFIG_NAME
+        val extensionPath =
+            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME
         if (FlavorUtils.isNormal()) {
-            deleteFile(dataConfigPath)
+            if (fileName == Constant.APP_CONFIG_NAME) {
+                if (fileIsExists(extensionPath)) {
+                    deleteFile(configPath)
+                } else {
+                    deleteFile(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/")
+                }
+            } else {
+                if (fileIsExists(configPath)) {
+                    deleteFile(extensionPath)
+                } else {
+                    deleteFile(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/")
+                }
+            }
         } else {
-            val filePath = Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + fileName
-            deleteFile(filePath)
-            SuUtil.deleteConfig(dataConfigPath)
+            if (fileName == Constant.APP_CONFIG_NAME) {
+                if (fileIsExists(extensionPath)) {
+                    deleteFile(configPath)
+                    SuUtil.deleteConfig(configPath)
+                    SuUtil.deleteConfig(CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.APP_CONFIG_NAME}")
+                } else {
+                    SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook")
+                    SuUtil.deleteConfig("$CONFIG_MAIN_DIRECTORY$packageName")
+                }
+            } else {
+                if (fileIsExists(configPath)) {
+                    deleteFile(extensionPath)
+                    SuUtil.deleteConfig(extensionPath)
+                    SuUtil.deleteConfig(CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_NAME}")
+                } else {
+                    SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook")
+                    SuUtil.deleteConfig("$CONFIG_MAIN_DIRECTORY$packageName")
+                }
+            }
+
         }
 
     }
@@ -383,13 +463,13 @@ object FileUtils {
                 DocumentsContract.deleteDocument(context.contentResolver, fileUri)
             } else {
                 File(filePath).useLines {
-                        it.iterator().forEach { str ->
-                            try {
-                                list.add(Gson().fromJson(str, PrintLog::class.java))
-                            } catch (e: java.lang.Exception) {
+                    it.iterator().forEach { str ->
+                        try {
+                            list.add(Gson().fromJson(str, PrintLog::class.java))
+                        } catch (e: java.lang.Exception) {
 
-                            }
                         }
+                    }
                 }
                 deleteFile(filePath)
             }

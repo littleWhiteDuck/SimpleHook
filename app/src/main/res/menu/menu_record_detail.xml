@@ -14,11 +14,21 @@
         android:title="@string/record_detail_menu_copy">
         <menu>
             <item
+                android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_text"
                 android:title="@string/record_detail_menu_copy_text" />
             <item
+                android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_json"
                 android:title="@string/record_detail_menu_copy_json_format" />
+            <item
+                android:icon="@drawable/ic_copy"
+                android:id="@+id/copy_raw_data"
+                android:title="@string/record_detail_menu_copy_raw_data" />
+            <item
+                android:icon="@drawable/ic_copy"
+                android:id="@+id/copy_crypt_result"
+                android:title="@string/record_detail_menu_copy_crypt_result" />
         </menu>
 
     </item>

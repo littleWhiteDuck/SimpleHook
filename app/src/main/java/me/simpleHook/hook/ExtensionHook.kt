@@ -530,6 +530,7 @@ object ExtensionHook {
                         map["rawData"] = String(rawData)
                     }
                     param.result?.let {
+                        if (map["key"] == null && map["cryptType"] == null) return
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(

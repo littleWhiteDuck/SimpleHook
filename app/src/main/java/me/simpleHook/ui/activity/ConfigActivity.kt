@@ -64,7 +64,7 @@ private const val HOOK_PARAM_CHECK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
 private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val HOOK_STATIC_FIELD_CHECK =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE
+    FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
 private const val HOOK_FIELD_CHECK =
     CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
 private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
@@ -789,15 +789,28 @@ class ConfigActivity : BaseActivity() {
                     val fieldType = matcher.group(4)!!
                     val fieldMode =
                         if (string.startsWith("iget") || string.startsWith("iput")) Constant.HOOK_FIELD else Constant.HOOK_STATIC_FIELD
-                    configBean = ConfigBean(
-                        fieldMode,
-                        smali2Java(className),
-                        "",
-                        "",
-                        fieldName,
-                        smali2Java(fieldType),
-                        getReturnValue(fieldType)
-                    )
+                    configBean = if (fieldMode == Constant.HOOK_STATIC_FIELD) {
+                        ConfigBean(
+                            mode = Constant.HOOK_STATIC_FIELD,
+                            "",
+                            "",
+                            "",
+                            fieldName = fieldName,
+                            fieldClassName = smali2Java(className),
+                            resultValues = getReturnValue(fieldType)
+                        )
+                    } else {
+                        ConfigBean(
+                            fieldMode,
+                            className = smali2Java(className),
+                            "",
+                            "",
+                            fieldName = fieldName,
+                            "",
+                            getReturnValue(fieldType)
+                        )
+                    }
+
                 }
                 configBean
             }

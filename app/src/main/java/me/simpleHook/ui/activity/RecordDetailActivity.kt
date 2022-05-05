@@ -33,6 +33,8 @@ class RecordDetailActivity : BaseActivity() {
     private var currentText = ""
     private lateinit var jsonText: String
     private var darkMode = false
+    private var rawData = ""
+    private var cryptResult = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRecordDetailBinding.inflate(layoutInflater)
@@ -82,6 +84,14 @@ class RecordDetailActivity : BaseActivity() {
                 val logList: List<String> = logBean.other as List<String>
                 val sb = StringBuilder()
                 logList.forEach {
+                    if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {
+                        rawData = it
+                    } else if (it.startsWith("加密结果：") || it.startsWith("解密结果：") || it.startsWith("Decrypt result: ") || it.startsWith(
+                            "Encrypt result: "
+                        )
+                    ) {
+                        cryptResult = it
+                    }
                     sb.append(it).append("\n")
                 }
                 val nLine: Int = -1
@@ -138,6 +148,20 @@ class RecordDetailActivity : BaseActivity() {
             }
             R.id.copy_json -> {
                 ToolUtils.toClip(this, JsonUtil.formatJson(jsonText).replace("\\u003e", "-> "))
+                getString(R.string.main_home_export_configs_tip).toast(this)
+            }
+            R.id.copy_raw_data -> {
+                ToolUtils.toClip(this, rawData.replaceFirst(Regex("""原始数据：|Raw data: """), ""))
+                getString(R.string.main_home_export_configs_tip).toast(this)
+            }
+            R.id.copy_crypt_result -> {
+                ToolUtils.toClip(
+                    this,
+                    cryptResult.replaceFirst(
+                        Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """),
+                        ""
+                    )
+                )
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
         }

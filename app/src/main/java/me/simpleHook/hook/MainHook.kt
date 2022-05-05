@@ -1,6 +1,7 @@
 package me.simpleHook.hook
 
 import android.annotation.SuppressLint
+import android.app.AndroidAppHelper
 import android.app.Application
 import android.content.Context
 import android.net.Uri
@@ -37,8 +38,10 @@ import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.util.*
+import org.json.JSONObject
 import java.io.File
 import java.io.FileNotFoundException
+import kotlin.math.roundToInt
 
 
 private const val selfCheckConfig =
@@ -338,7 +341,40 @@ class Hook {
         values: String, param: XC_MethodHook.MethodHookParam
     ) {
         val targetValue = getDataTypeValue(values)
-        param.result = targetValue
+        if (targetValue is String) {
+            try {
+                val jsonObject = JSONObject(targetValue)
+                if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has("key")) {
+                    val randomSeed = jsonObject.optString("random", "abcdefgh123456789")
+                    val len = jsonObject.optInt("length", 10)
+                    val updateTime = jsonObject.optLong("updateTime", -1L)
+                    val key = jsonObject.getString("key")
+                    val defaultValue = jsonObject.optString("defaultValue")
+                    if (updateTime == -1L) {
+                        val result = randomSeed.random(len)
+                        param.result = result
+                    } else {
+                        val sp = AndroidAppHelper.currentApplication()
+                            .getSharedPreferences("me.simpleHook", Context.MODE_MULTI_PROCESS)
+                        val oldTime = sp.getLong("time_$key", 0L)
+                        val oldRandom = sp.getString("random_$key", defaultValue)
+                        val currentTime = System.currentTimeMillis() / 1000
+                        if (currentTime - updateTime >= oldTime) {
+                            val result = randomSeed.random(len)
+                            sp.edit().putString("random_$key", result).commit()
+                            sp.edit().putLong("time_$key", currentTime).commit()
+                            param.result = result
+                        } else {
+                            param.result = oldRandom
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                param.result = targetValue
+            }
+        } else {
+            param.result = targetValue
+        }
     }
 
     private fun hookParamsValue(
