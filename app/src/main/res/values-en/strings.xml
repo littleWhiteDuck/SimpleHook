@@ -295,7 +295,7 @@
     <string name="record_warning_dialog_message_unmarked">Are you sure to delete all unmarked records?</string>
     <string name="extension_item_title_block_dialog">Block keyword popups</string>
     <string name="extension_item_desc_block_dialog">Specify keyword blocking</string>
-    <string name="extension_block_dialog_helper_tip">Multiple keywords are separated by commas (,)</string>
+    <string name="extension_block_dialog_helper_tip">Please enter multiple keywords in a new line</string>
     <string name="extension_block_dialog_title">Block keyword popups</string>
     <string name="extension_config_save_success_tip">Saved</string>
     <string name="mark">MARK</string>
@@ -324,4 +324,8 @@
     <string name="record_menu_search_by_result">from encryption/decryption results</string>
     <string name="record_detail_menu_copy_raw_data">Raw data</string>
     <string name="record_detail_menu_copy_crypt_result">Encrypt/Decrypt result</string>
+    <string name="extension_filter_clipboard_helper">Please enter multiple keywords in a new line (support regex)</string>
+    <string name="extension_filter_clipboard_title">Filter clipboard</string>
+    <string name="extension_item_title_filter_clipboard">Filter clipboard</string>
+    <string name="extension_item_desc_filter_clipboard">Prevent text with keywords from being written to the clipboard</string>
 </resources>

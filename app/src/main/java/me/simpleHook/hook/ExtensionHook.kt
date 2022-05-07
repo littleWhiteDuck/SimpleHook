@@ -1,6 +1,8 @@
 package me.simpleHook.hook
 
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -153,10 +155,11 @@ object ExtensionHook {
 
         if (stopDialog.enable) {
             val showText = list.toString()
-            val keyWords = stopDialog.info.split(",")
+            val keyWords = stopDialog.info.split("\n")
             keyWords.forEach {
                 if (it.isNotEmpty() && showText.contains(it)) {
-                    val type = if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
+                    val type =
+                        if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
                             type, list + LogHook.toStackTrace(context, stackTrace), packageName
@@ -203,7 +206,7 @@ object ExtensionHook {
                 val stackTrace = Throwable().stackTrace
                 if (stopDialog.enable) {
                     val showText = list.toString()
-                    val keyWords = stopDialog.info.split(",")
+                    val keyWords = stopDialog.info.split("\n")
                     keyWords.forEach {
                         if (it.isNotEmpty() && showText.contains(it)) {
                             dialog.dismiss()
@@ -837,6 +840,35 @@ object ExtensionHook {
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     param.args[0] = true
+                }
+            })
+    }
+
+    fun hookClipboardInfo(context: Context, packageName: String, keyWord: String) {
+        XposedHelpers.findAndHookMethod(ClipboardManager::class.java,
+            "setPrimaryClip",
+            ClipData::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val info = (param.args[0] as ClipData).getItemAt(0).text.toString()
+                    val keyWords = keyWord.split("\n")
+                    keyWords.forEach {
+                        if (it.isNotEmpty() && info.isNotEmpty()) {
+                            if (info.contains(Regex(it))) {
+                                param.result = null
+                                val type = getTip("filterClipboard")
+                                val stackTrace = Throwable().stackTrace
+                                val items = LogHook.toStackTrace(context, stackTrace).toList()
+                                val logBean = LogBean(
+                                    type,
+                                    arrayListOf(getTip("clipboardInfo") + info) + items,
+                                    packageName
+                                )
+                                LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+                                return@forEach
+                            }
+                        }
+                    }
                 }
             })
     }

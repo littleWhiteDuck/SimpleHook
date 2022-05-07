@@ -20,6 +20,8 @@ object RecordType {
         type.startsWith("弹窗") -> "弹窗"
         type.startsWith("Dialog") -> "Dialog"
         type.startsWith("PopupWindow") -> "PopupWindow"
+        type == "过滤剪贴板" -> "剪贴板"
+        type == "Filter clipboard" -> "Clip"
         else -> type
     }
 

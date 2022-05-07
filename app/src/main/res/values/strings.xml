@@ -323,7 +323,7 @@
     <string name="record_warning_dialog_message_unmarked">你是否确定删除所有未标记的记录？</string>
     <string name="extension_item_title_block_dialog">拦截关键词弹窗</string>
     <string name="extension_item_desc_block_dialog">指定关键词拦截</string>
-    <string name="extension_block_dialog_helper_tip">多个关键词使用逗号(,)分隔开</string>
+    <string name="extension_block_dialog_helper_tip">多个关键词请换行输入</string>
     <string name="extension_block_dialog_title">拦截关键词弹窗</string>
     <string name="extension_config_save_success_tip">已保存</string>
     <string name="mark">标记</string>
@@ -355,6 +355,10 @@
     <string name="record_menu_search_by_result">从加密/解密结果中搜索</string>
     <string name="record_detail_menu_copy_raw_data">原始数据</string>
     <string name="record_detail_menu_copy_crypt_result">加密/解密结果</string>
+    <string name="extension_filter_clipboard_helper">多个关键词请换行输入（支持正则）</string>
+    <string name="extension_filter_clipboard_title">过滤剪贴板</string>
+    <string name="extension_item_title_filter_clipboard">过滤剪贴板</string>
+    <string name="extension_item_desc_filter_clipboard">阻止带有关键词的文本写入剪贴板</string>
 
 
 </resources>

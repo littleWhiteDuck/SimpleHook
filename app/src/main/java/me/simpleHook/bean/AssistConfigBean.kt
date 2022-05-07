@@ -22,7 +22,8 @@ data class AssistConfigBean(
     var jsonArray: Boolean = false,
     var webLoadUrl: Boolean = false,
     var webDebug: Boolean = false,
-    val stopDialog: ExtensionItemConfig = ExtensionItemConfig()
+    val stopDialog: ExtensionItemConfig = ExtensionItemConfig(),
+    val filterClipboard: ExtensionItemConfig = ExtensionItemConfig()
 )
 
 @Keep

@@ -305,7 +305,7 @@
     <string name="record_warning_dialog_message_unmarked">你是否確定刪除所有未標記的記錄？</string>
     <string name="extension_item_title_block_dialog">攔截關鍵詞彈窗</string>
     <string name="extension_item_desc_block_dialog">指定關鍵詞攔截</string>
-    <string name="extension_block_dialog_helper_tip">多個關鍵詞使用逗號(,)分隔開</string>
+    <string name="extension_block_dialog_helper_tip">多個關鍵詞請換行輸入</string>
     <string name="extension_block_dialog_title">攔截關鍵詞彈窗</string>
     <string name="extension_config_save_success_tip">已保存</string>
     <string name="mark">標記</string>
@@ -334,5 +334,9 @@
     <string name="record_menu_search_by_raw_data">從原始數據中搜索</string>
     <string name="record_detail_menu_copy_raw_data">原始數據</string>
     <string name="record_detail_menu_copy_crypt_result">加密/解密結果</string>
+    <string name="extension_filter_clipboard_helper">多個關鍵詞請換行輸入（支持正則）</string>
+    <string name="extension_filter_clipboard_title">過濾剪貼板</string>
+    <string name="extension_item_title_filter_clipboard">過濾剪貼板</string>
+    <string name="extension_item_desc_filter_clipboard">阻止帶有關鍵詞的文本寫入剪貼板</string>
 
 </resources>

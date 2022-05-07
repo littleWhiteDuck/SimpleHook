@@ -21,6 +21,7 @@ import me.simpleHook.hook.ErrorTool.noSuchMethod
 import me.simpleHook.hook.ErrorTool.notFoundClass
 import me.simpleHook.hook.ExtensionHook.aes
 import me.simpleHook.hook.ExtensionHook.base64
+import me.simpleHook.hook.ExtensionHook.hookClipboardInfo
 import me.simpleHook.hook.ExtensionHook.hookDialog
 import me.simpleHook.hook.ExtensionHook.hookIntent
 import me.simpleHook.hook.ExtensionHook.hookJSONArray
@@ -41,7 +42,6 @@ import me.simpleHook.util.*
 import org.json.JSONObject
 import java.io.File
 import java.io.FileNotFoundException
-import kotlin.math.roundToInt
 
 
 private const val selfCheckConfig =
@@ -575,6 +575,9 @@ class Hook {
                 if (jsonArray) hookJSONArray(context, packageName)
                 if (webLoadUrl) hookWebLoadUrl(context, packageName)
                 if (webDebug) hookWebDebug(context, packageName)
+                if (filterClipboard.enable) hookClipboardInfo(
+                    context, packageName, filterClipboard.info
+                )
             }
         } catch (e: java.lang.Exception) {
             ErrorTool.toLog(

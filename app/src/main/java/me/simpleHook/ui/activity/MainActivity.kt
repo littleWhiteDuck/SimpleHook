@@ -52,6 +52,24 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        /*   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+               splashScreen.setOnExitAnimationListener { splashScreenView ->
+                   val iconAlphaAnim = ObjectAnimator.ofFloat(splashScreenView.iconView, View.ALPHA, 1f, 0f)
+                   iconAlphaAnim.duration = 500
+                   iconAlphaAnim.interpolator = FastOutLinearInInterpolator()
+                   val iconRotateAnim = ObjectAnimator.ofFloat(
+                       splashScreenView.iconView,
+                       View.ROTATION, 270F
+                   )
+                   iconRotateAnim.interpolator = FastOutLinearInInterpolator()
+                   iconRotateAnim.duration = 500
+                   val animatorSet = AnimatorSet()
+                   animatorSet.playTogether(iconRotateAnim, iconAlphaAnim)
+                   animatorSet.doOnEnd { splashScreenView.remove() }
+                   animatorSet.start()
+               }
+           }
+   */
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)

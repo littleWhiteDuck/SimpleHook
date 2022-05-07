@@ -68,6 +68,7 @@ private const val JSON_ARRAY_STATUS = 1 shl 15
 private const val WEB_LOAD_URL_STATUS = 1 shl 16
 private const val WEB_DEBUG_STATUS = 1 shl 17
 private const val STOP_DIALOG_STATUS = 1 shl 18
+private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
@@ -312,6 +313,14 @@ class AssistActivity : BaseActivity() {
                         )
                     )
                 )
+                add(
+                    AssistItem(
+                        title = getString(R.string.extension_item_title_filter_clipboard),
+                        filterClipboard.enable,
+                        FILTER_CLIPBOARD_STATUS,
+                        getString(R.string.extension_item_desc_filter_clipboard)
+                    )
+                )
                 add(AssistTitle(getString(R.string.extension_item_title_network)))
                 add(
                     AssistItem(
@@ -379,8 +388,11 @@ class AssistActivity : BaseActivity() {
     private fun onItemClick(tag: Int) {
         if (tag == STOP_DIALOG_STATUS) {
             showEditStopDialogKeyWord()
+        } else if (tag == FILTER_CLIPBOARD_STATUS) {
+            showEditFilterClipboardKeyWord()
         }
     }
+
 
     private fun onChangeChecked(checked: Boolean, tag: Int) {
         if (tag == startAppTag) {
@@ -427,6 +439,30 @@ class AssistActivity : BaseActivity() {
             okClick = { dialogInterface ->
                 val keyWords = textInput.text.toString().replace("，", ",").trim()
                 configBean.stopDialog.info = keyWords
+                dialogInterface.dismiss()
+            },
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
+    }
+
+    private fun showEditFilterClipboardKeyWord() {
+        val textInputLayout = TextInputLayout(this).apply {
+            helperText = getString(R.string.extension_filter_clipboard_helper)
+            endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
+        }
+        val textInput = TextInputEditText(this).apply {
+            background = null
+            setText(configBean.filterClipboard.info)
+        }
+        textInputLayout.addView(textInput)
+        customDialog(
+            this,
+            title = getString(R.string.extension_filter_clipboard_title),
+            contentView = textInputLayout,
+            okText = getString(R.string.dialog_confirm),
+            okClick = { dialogInterface ->
+                val keyWords = textInput.text.toString().trim()
+                configBean.filterClipboard.info = keyWords
                 dialogInterface.dismiss()
             },
             cancelText = getString(R.string.dialog_cancel)
@@ -571,6 +607,10 @@ class AssistActivity : BaseActivity() {
         if (isContains(STOP_DIALOG_STATUS)) {
             configBean.stopDialog.enable = isChecked(STOP_DIALOG_STATUS)
         }
+
+        if (isContains(FILTER_CLIPBOARD_STATUS)) {
+            configBean.filterClipboard.enable = isChecked(FILTER_CLIPBOARD_STATUS)
+        }
         val config = Gson().toJson(configBean)
         assistConfig.config = config
         if (editMode) {
@@ -625,9 +665,7 @@ class AssistActivity : BaseActivity() {
     }
 
     class ItemHolder(
-        itemView: View,
-        val onChangeChecked: (Boolean, Int) -> Unit,
-        val onClick: (Int) -> Unit
+        itemView: View, val onChangeChecked: (Boolean, Int) -> Unit, val onClick: (Int) -> Unit
     ) : BasicViewHolder<AssistItem>(itemView) {
         private val assistItemView = itemView as ExtensionItemView
         private val tvTitle: TextView = assistItemView.title
@@ -649,15 +687,12 @@ class AssistActivity : BaseActivity() {
                     tvControl.setTextColor(Color.parseColor("#aaaaaa"))
                 }
             }
-            if (data.tag == STOP_DIALOG_STATUS) {
+            if (data.tag == STOP_DIALOG_STATUS || data.tag == FILTER_CLIPBOARD_STATUS) {
                 tvControl.setOnClickListener {
                     data.isChecked = !data.isChecked
                     tvControl.apply {
                         data.apply {
                             when {
-                                tag == startAppTag -> {
-                                    onChangeChecked(false, tag)
-                                }
                                 isChecked -> {
                                     text =
                                         itemView.context.getString(R.string.extension_item_status_open)
@@ -675,7 +710,7 @@ class AssistActivity : BaseActivity() {
                     }
                 }
                 itemView.setOnClickListener {
-                    onClick(STOP_DIALOG_STATUS)
+                    onClick(data.tag)
                 }
             } else {
                 itemView.setOnClickListener {

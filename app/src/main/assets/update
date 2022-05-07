@@ -1,3 +1,11 @@
+v1.2.3
+    1.hook返回值可以返回随机文本（请参考Github修改值中string部分）
+    2.可以阻止带有关键词的文本写入剪贴板（可以使用正则表达式，多个关键词需要换行输入）
+    3.【拦截关键词弹窗】多个关键词需要换行输入（已用逗号的需自行更改）
+
+    1. The return value of hook can return random text (please refer to the string section in the Github result value filling rule)
+    2. Can prevent text with keywords from being written to the clipboard (regular expressions can be used, multiple keywords need to be entered in newlines)
+    3. [Block keyword pop-up window] Multiple keywords need to be entered in a new line (the ones that have used commas need to be changed by yourself)
 v1.2.2
     1.多个问题修复、多处细节调整
     2.扩展hook支持拦截关键词弹窗，多个关键词使用‘,’分隔开
