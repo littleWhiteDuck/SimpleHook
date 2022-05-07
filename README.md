@@ -8,7 +8,7 @@
 
 > [simpleHook.apk](https://wwp.lanzoub.com/b0177tlri)(密码：simple)
 
-> tg:@simpleHook
+> TG交流群: @simpleHook
 
 > Emali: 484303285@qq.com
 
@@ -16,11 +16,8 @@
 
 > 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow、JSONObject创建增加等
 
-> 开发计划：
->
-> 由于忙于学业，暂无法加新功能
->
-> 未来会开发SimpleHookPlus（一年以后），可以解决大部分应用跨版本类名、方法名变化导致需要重新填写类名、方法名的问题。
+> 开发计划：由于忙于学业，暂无法加新功能
+
 
 ## 1. 功能说明
 
@@ -54,7 +51,6 @@
 
 <img src="images\extension_main_features_shot.png" width = "200" />
 
-
 点击“播放样式”按钮，可打开悬浮窗（需要授予悬浮窗权限），然后打开目标应用，可以显示一些信息（开启了打印参数值、返回值、扩展页面大部分功能）
 
 悬浮窗
@@ -70,7 +66,6 @@
 ### 简要的基本介绍
 
 - 请优先使用普通版，普通版无法使用时，再使用ROOT版！！！
-
 - 支持Java语法和Smali语法填写配置信息
 
   ```java
@@ -99,6 +94,8 @@
   >
 
   ```java
+
+
   布尔值(boolean、Z)：true、false
   整数(int、I)：1、2、3
   长整型(long、J)：1l、120000L、123456l  //要注意数字后面加 l/L
@@ -114,6 +111,20 @@
   	布尔：trues、falses // 常见于 "true" 、"false" 这种，但是本软件你需要在布尔值后面加入s，如果你不加s，会被转成布尔值，可能导致目标应用崩溃
   	null: nulls // 常见于 "null"这种，但是本软件你需要在null后面加入s，如果你不加s，会被转成null，可能导致目标应用空指针
     空字符串：英文单词'empty' 或者中文汉字'空' （如果你直接填空，将无法保存配置，这样做是为了预防你在使用时，不填修改值，导致无法正常Hook）
+    特殊格式(仅用于返回值，不可用于参数值)：
+    {
+	    "random": "abcdefgh123456789",
+	    "length": 9,
+	    "key": "key",
+	    "updateTime": 100,
+	    "defaultValue": ""
+    }
+    上述json格式代码介绍：
+      random：字符串，填写随机文本由哪些字符组成
+      length：整数，代表需要生成多长的随机文本
+      key：字符串，唯一识别码，可以随便填写，但是一个软件中用到多个随机返回值时需要填不一样的
+      updateTime：整数，代表着间隔多长时间更新一下随机文本，单位秒， -1代表每次都更新
+      defaultValue：非必填项
   ```
 
 ### 具体的hook模式
@@ -214,6 +225,7 @@ public void testBreakMethod() {
 ```
 
 #### Hook所有方法
+
 ```java
 
 /*
@@ -222,6 +234,7 @@ public void testBreakMethod() {
 ```
 
 #### 构造方法
+
 ```java
 import simple.example;
 public class Example{
@@ -401,18 +414,18 @@ public class MainActivity extends Acitvity {
 >
 > root配置存储目录有：
 >
-> /data/simpleHook/目标应用包名/config/    
-> 
+> /data/simpleHook/目标应用包名/config/
+>
 > hook.json是自定义hook配置，assist.json是扩展功能配置
 >
-> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
-> 
+> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/
+>
 > hook.json是自定义hook配置，assist.json是扩展功能配置
 >
 > 普通版配置存储目录有：
 >
-> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
-> 
+> /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/
+>
 > hook.json是自定义hook配置，assist.json是扩展功能配置
 >
 > 如何选用，首先使用普通版，若普通版无法使用，再去使用root版，两个版本在不同机型上都可能有一个版本没有效果
