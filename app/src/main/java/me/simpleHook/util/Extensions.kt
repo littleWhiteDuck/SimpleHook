@@ -5,6 +5,7 @@ import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
+import android.net.Uri
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
@@ -14,6 +15,10 @@ import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.URL
 import kotlin.math.roundToInt
 
 /*
@@ -141,4 +146,12 @@ fun StringBuilder.lineFeesItem(
 
 infix fun Int.isContainState(state: Int): Boolean {
     return (this and state) != 0
+}
+
+suspend fun fetchJson(url: String) = withContext(Dispatchers.IO) {
+    try {
+        JSONObject(URL(url).readText())
+    } catch (e: Exception) {
+        null
+    }
 }

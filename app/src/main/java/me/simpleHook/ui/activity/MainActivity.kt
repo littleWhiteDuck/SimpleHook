@@ -3,7 +3,6 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
 import androidx.annotation.Keep
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -21,14 +20,11 @@ import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
-import org.json.JSONObject
-import java.net.URL
 
 
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -50,41 +46,32 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkUpdate() {
-        if (BuildConfig.VERSION_NAME.contains("beta")) return
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val result =
-                    JSONObject(URL("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest").readText())
-                val versionName = result.optString("name")
-                if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME.replace(
-                        Regex("""_root|_beta"""), ""
-                    ) != versionName
-                ) {
-                    val body = result.optString("body").substringAfterLast("更新记录").trim()
-                    val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
-                    Looper.prepare()
-                    customDialog(
-                        this@MainActivity,
-                        title = getString(R.string.main_version_update) + versionName,
-                        message = message,
-                        okText = getString(R.string.main_go_upgrade),
-                        okClick = {
-                            val intent = Intent(Intent.ACTION_VIEW).also {
-                                it.data =
-                                    Uri.parse("https://github.com/littleWhiteDuck/SimpleHook/releases/latest")
-                            }
-                            startActivity(intent)
-                        },
-                        cancelText = getString(R.string.dialog_cancel),
-                        cancelClick = {
-                            it.dismiss()
-                        },
-                        cancelAble = false
-                    ).show()
-                    Looper.loop()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        lifecycleScope.launch(Dispatchers.Main) {
+            val result =
+                fetchJson("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest")
+                    ?: return@launch
+            val versionName = result.optString("name")
+            if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
+                val body = result.optString("body").substringAfterLast("更新记录").trim()
+                val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
+                customDialog(
+                    this@MainActivity,
+                    title = getString(R.string.main_version_update) + versionName,
+                    message = message,
+                    okText = getString(R.string.main_go_upgrade),
+                    okClick = {
+                        val intent = Intent(Intent.ACTION_VIEW).also {
+                            it.data =
+                                Uri.parse("https://github.com/littleWhiteDuck/SimpleHook/releases/latest")
+                        }
+                        startActivity(intent)
+                    },
+                    cancelText = getString(R.string.dialog_cancel),
+                    cancelClick = {
+                        it.dismiss()
+                    },
+                    cancelAble = false
+                ).show()
             }
         }
     }
