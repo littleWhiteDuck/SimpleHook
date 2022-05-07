@@ -10,17 +10,13 @@ English|[中文文档](README.md)
 
 > [simpleHook.apk](https://wwp.lanzoub.com/b0177tlri)(password: simple)
 
-> tg:@simpleHook
+> TG GROUP: @simpleHook
 
 > This software is mainly simple, just like the name. If you pursue more complex hook operation, it is recommended to use [JShook] (frida), [曲境] (computer browser operation); if you pursue more extended functions, it is recommended to use [算法助手]
 
 > Function overview: custom return value, parameter value, etc., record common encryption algorithms, toast, dialog, popupwindow, JSONObject creation and increase, etc.
 
-> Development plan:
->
-> Due to busy schoolwork, new functions cannot be added temporarily
->
-> In the future, SimpleHookPlus will be developed (one year later), which can solve the problem that most applications need to refill the class name and method name due to the change of class name and method name across versions.
+> Development plan: Due to busy schoolwork, new functions cannot be added temporarily
 
 ## 1. Function description
 
@@ -114,6 +110,20 @@ The following is the writing rule: (You can download *[HookTest.apk](/HookTest.a
     Boolean: trues, falses // Common in "true" and "false", but in this software, you need to add s after the boolean value. If you don't add s, it will be converted to a boolean value, which may cause the target application to crash
     null: nulls // Common in "null", but you need to add s after null in this software. If you don't add s, it will be converted to null, which may lead to a null pointer in the target application
     Empty string: the English word 'empty' or the Chinese character '空' (If you fill in the blanks directly, you will not be able to save the configuration. This is to prevent you from not filling in the modified value when you are using it, resulting in failure of normal Hook)
+    Special format (only for return values, not for parameter values):
+     {
+      "random": "abcdefgh123456789",
+      "length": 9,
+      "key": "key",
+      "updateTime": 100,
+      "defaultValue": ""
+     }
+     The above json format code introduction:
+       random: string, fill in which characters the random text consists of
+       length: an integer representing how long random text needs to be generated
+       key: string, unique identification code, can be filled in casually, but when multiple random return values are used in a software, different ones need to be filled in
+       updateTime: an integer representing how long to update the random text at intervals, in seconds, -1 means update every time
+       defaultValue: optional
   ````
 
 ### Specific hook mode
@@ -238,7 +248,7 @@ public class Example{
   */
 ````
 
-#### static variables
+#### static field
 
 ````java
 import simple.example;
@@ -278,7 +288,7 @@ public class MainActivity extends Acitvity {
 */
 ````
 
-#### variables
+#### instance field
 
 ````java
 import simple.example;
