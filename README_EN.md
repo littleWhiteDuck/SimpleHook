@@ -241,10 +241,14 @@ public class Example{
      this.b = b
    }
 }
-// Hook mode, choose according to your own needs
+// Hook mode, choose according to your own needs, generally the hook parameter value/record parameter value, other modes may cause the software to crash
 /*
-  Method name filling rules
-       fill in <init> for the method name
+   Fill in the method name: <init>
+   For example, modify two parameter values
+     Fill in the class name: simple.example.Example
+     Fill in the method name: <init>
+     Fill in the parameter type: int, int
+     Fill in the result value: 88,99
   */
 ````
 
