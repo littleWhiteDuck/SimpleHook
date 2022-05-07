@@ -67,13 +67,12 @@ class RecordActivity : BaseActivity() {
         })
     }
     private val saveMarkedRecord =
-        registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/json")) { resultUri ->
             resultUri?.apply {
                 saveMarkedRecord(this)
             }
         }
-    private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
-    private val configs by lazy { appViewModel.getConfigs() }
+
     private val swipeDeleteIcon by lazy {
         ContextCompat.getDrawable(
             this, R.drawable.ic_delete_black_24
@@ -259,22 +258,7 @@ class RecordActivity : BaseActivity() {
             recordAdapter.refresh()
         }, delayTime)
         readFileLogInsert()
-        readFileLogInsert()
     }
-
-    private fun readFileLogInsert() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach {
-                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
-                appViewModel.insertRecord(*list.toTypedArray())
-            }
-            configs.forEach {
-                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
-                appViewModel.insertRecord(*list.toTypedArray())
-            }
-        }
-    }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_record, menu)

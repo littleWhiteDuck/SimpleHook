@@ -583,6 +583,7 @@ class AssistActivity : BaseActivity() {
         }
         val config = Gson().toJson(configBean)
         assistConfig.config = config
+        assistConfig.allSwitch = configBean.all
         if (editMode) {
             appViewModel.updateAssistConfigs(assistConfig)
         } else {

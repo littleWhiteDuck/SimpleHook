@@ -21,6 +21,7 @@ import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
+import me.simpleHook.ui.activity.BaseActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
@@ -224,25 +225,7 @@ class RecordSummaryFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.getAllRecord()
         }, time)
-        readFileLogInsert()
-        readFileLogInsert()
-    }
-
-    private fun readFileLogInsert() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                assistConfigs.forEach {
-                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
-                    appViewModel.insertRecord(*list.toTypedArray())
-                }
-                configs.forEach {
-                    val list = FileUtils.readLogFile(requireContext(), it.packageName)
-                    appViewModel.insertRecord(*list.toTypedArray())
-                }
-            } catch (_: Exception) {
-
-            }
-        }
+        (requireActivity() as BaseActivity).readFileLogInsert()
     }
 
 

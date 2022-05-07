@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
@@ -27,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
@@ -45,12 +47,10 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-    private val viewModel by viewModels<AppViewModel>()
+    private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
     private val list = ArrayList<PrintLog>()
     private val handler = Handler(Looper.getMainLooper())
-    private val assistConfigs by lazy { viewModel.getAssistConfigs() }
-    private val configs by lazy { viewModel.getConfigs() }
     private var dismissFloat = false
     private val refresh = object : Runnable {
         override fun run() {
@@ -65,6 +65,7 @@ open class BaseActivity : AppCompatActivity() {
     private var currentTime = ""
     private var startTime = ""
     private var tempCount = 0
+    private var needRecordPacks = mutableSetOf<String>()
 
     @SuppressLint("RestrictedApi")
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
@@ -85,15 +86,30 @@ open class BaseActivity : AppCompatActivity() {
         super.attachBaseContext(LanguageUtils.attachBaseContext(newBase))
     }
 
-    private fun readFileLogInsert() {
+
+    fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            assistConfigs.forEach {
-                val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
-                viewModel.insertRecord(*list.toTypedArray())
+            appViewModel.getConfigs().forEach { appConfig ->
+                if (appConfig.enable && AppUtils.isAppInstalled(
+                        this@BaseActivity, appConfig.packageName
+                    )
+                ) {
+                    needRecordPacks.add(appConfig.packageName)
+                }
             }
-            configs.forEach {
-                val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
-                viewModel.insertRecord(*list.toTypedArray())
+            appViewModel.getAssistConfigs().forEach { assistConfig ->
+                val extensionConfigBean =
+                    Gson().fromJson(assistConfig.config, ExtensionConfigBean::class.java)
+                if (extensionConfigBean.all && AppUtils.isAppInstalled(
+                        this@BaseActivity, assistConfig.packageName
+                    )
+                ) {
+                    needRecordPacks.add(assistConfig.packageName)
+                }
+            }
+            needRecordPacks.forEach {
+                val list = FileUtils.readLogFile(this@BaseActivity, it)
+                appViewModel.insertRecord(*list.toTypedArray())
             }
         }
     }
@@ -176,7 +192,7 @@ open class BaseActivity : AppCompatActivity() {
             }
             val clearConfig = it.findViewById<ImageButton>(R.id.clear_record)
             clearConfig.setOnClickListener {
-                viewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
+                appViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
                 list.clear()
                 mAdapter.notifyDataSetChanged()
             }
