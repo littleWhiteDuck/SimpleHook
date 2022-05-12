@@ -170,7 +170,8 @@ object ExtensionHook {
                     return
                 }
             }
-        } else if (popupStack) {
+        }
+        if (popupStack) {
             val type = "PopupWindow"
             val log = Gson().toJson(
                 LogBean(
@@ -222,7 +223,8 @@ object ExtensionHook {
                             return
                         }
                     }
-                } else if (stackSwitch) {
+                }
+                if (stackSwitch) {
                     val type = if (isShowEnglish) "Dialog" else "弹窗"
                     val log = Gson().toJson(
                         LogBean(

@@ -10,7 +10,8 @@ import androidx.annotation.Keep
  * @param params 参数
  * @param fieldName 变量名
  * @param fieldClassName 变量所在类
- * @param resultValues 返回值/参数值
+ * @param resultValues 返回值/参数值/变量值
+ * @param hookPoint before/after
  */
 @Keep
 data class ConfigBean(
@@ -21,5 +22,7 @@ data class ConfigBean(
     val fieldName: String = "",
     val fieldClassName: String = "",
     val resultValues: String = "",
+    val hookPoint: String = "after",
+    val returnClassName: String = "",
     var enable: Boolean = true
 )

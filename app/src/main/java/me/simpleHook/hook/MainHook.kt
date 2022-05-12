@@ -181,26 +181,30 @@ class Hook {
                 if (!it.enable) return@forEach
                 it.apply {
                     when (it.mode) {
-                        Constant.HOOK_STATIC_FIELD -> FieldHook.hookStaticField(
+                        Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> FieldHook.hookStaticField(
                             className,
                             mClassLoader,
                             methodName,
                             params,
                             fieldName,
-                            resultValues,
-                            fieldClassName,
-                            mContext!!,
-                            packageName
+                            values = resultValues,
+                            fieldClassName = fieldClassName,
+                            context = mContext!!,
+                            packageName = packageName,
+                            hookPoint = hookPoint,
+                            isRecord = it.mode == Constant.HOOK_RECORD_STATIC_FIELD
                         )
-                        Constant.HOOK_FIELD -> FieldHook.hookField(
+                        Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> FieldHook.hookField(
                             className,
                             mClassLoader,
-                            methodName,
-                            params,
-                            fieldName,
-                            resultValues,
-                            mContext!!,
-                            packageName
+                            methodName = methodName,
+                            params = params,
+                            fieldName = fieldName,
+                            values = resultValues,
+                            context = mContext!!,
+                            packageName = packageName,
+                            hookPoint = hookPoint,
+                            isRecord = it.mode == Constant.HOOK_RECORD_INSTANCE_FIELD
                         )
                         else -> specificHook(
                             className,
@@ -209,7 +213,8 @@ class Hook {
                             resultValues,
                             params,
                             mode,
-                            packageName
+                            packageName,
+                            returnClassName
                         )
                     }
                 }
@@ -241,7 +246,8 @@ class Hook {
         values: String,
         params: String,
         mode: Int,
-        packageName: String
+        packageName: String,
+        returnClassName: String
     ) {
         val methodParams = params.split(",")
         val realSize = if (params == "" || params == "*") 0 else methodParams.size
@@ -259,6 +265,13 @@ class Hook {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         hookReturnValue(values, param)
+                    }
+                }
+            }
+            Constant.HOOK_RETURN2 -> {
+                obj[realSize] = object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        hookReturnValue2(values, param, returnClassName)
                     }
                 }
             }
@@ -335,6 +348,14 @@ class Hook {
             XposedBridge.log(e.stackTraceToString())
         }
 
+    }
+
+    private fun hookReturnValue2(
+        values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
+    ) {
+        val hookClass = XposedHelpers.findClass(returnClassName, mClassLoader)
+        val hookObject = Gson().fromJson(values, hookClass)
+        param.result = hookObject
     }
 
     private fun hookReturnValue(

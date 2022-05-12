@@ -15,14 +15,14 @@ android {
         }
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 32
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin-parcelize'
     defaultConfig {
         resConfigs 'zh_CN,en,zh_TW'
         applicationId "me.simpleHook"
         minSdkVersion 22
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode rootProject.ext.config.versionCode
         versionName rootProject.ext.config.versionName
         flavorDimensions "default"
@@ -39,7 +39,7 @@ android {
             buildConfigField("Boolean", "normal", "${normal}")
         }
         debug {
-           // minifyEnabled true
+            // minifyEnabled true
             buildConfigField("Boolean", "normal", "${normal}")
         }
     }
@@ -57,20 +57,17 @@ android {
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "simpleHook(${variant.versionCode})_${variant.versionName}.apk"
-           /* if (buildType.name == 'release') {
-                variant.getPackageApplication().outputDirectory = new File(rootDir.absolutePath + "/app/release")
-            }*/
         }
     }
     productFlavors {
         beta {
-            versionName = rootProject.ext.config.versionName+"_beta"
-           // applicationId = "me.simpleHook.beta"
+            versionName = rootProject.ext.config.versionName + "_beta"
         }
         public_release {
             versionName = rootProject.ext.config.versionName
         }
     }
+    namespace 'me.simpleHook'
 }
 
 dependencies {
@@ -81,7 +78,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -94,14 +91,14 @@ dependencies {
 
     // xposed
     compileOnly 'de.robv.android.xposed:api:82'
-    compileOnly 'de.robv.android.xposed:api:82:sources'
-   /* compileOnly 'com.virjar:ratel-api:1.3.5'*/
+    //compileOnly 'de.robv.android.xposed:api:82:sources'
+    /* compileOnly 'com.virjar:ratel-api:1.3.5'*/
 
     implementation('org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0-native-mt')
 
-   /* def nav_version = "2.4.2"
-    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")*/
+    /* def nav_version = "2.4.2"
+     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")*/
 
     //fab
 //    implementation 'com.github.clans:fab:1.6.4'

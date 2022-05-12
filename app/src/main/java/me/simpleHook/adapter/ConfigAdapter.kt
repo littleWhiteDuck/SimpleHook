@@ -19,6 +19,8 @@ import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
+import me.simpleHook.util.random
+import org.json.JSONObject
 
 class ConfigAdapter(
     private val onClick: (position: Int) -> Unit,
@@ -88,20 +90,19 @@ class ConfigAdapter(
         val methodConfig = getItem(position)
         val context = holder.itemView.context
         holder.apply {
+            val tempClassName =
+                if (methodConfig.mode == Constant.HOOK_STATIC_FIELD) methodConfig.fieldClassName else methodConfig.className
             if (methodConfig.className.length >= 30) {
-                tvClassName.text = getClassSimpleName(methodConfig.className)
+                tvClassName.text = getClassSimpleName(tempClassName)
             } else {
-                tvClassName.text = methodConfig.className
+                tvClassName.text = tempClassName
             }
             when (methodConfig.mode) {
                 Constant.HOOK_BREAK -> {
                     val showText = "${methodConfig.methodName}(${methodConfig.params})"
                     val spannableString = SpannableString(showText).also {
                         it.setSpan(
-                            StrikethroughSpan(),
-                            0,
-                            showText.length,
-                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                            StrikethroughSpan(), 0, showText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE
                         )
                     }
                     tvOtherName.text = spannableString
@@ -118,18 +119,14 @@ class ConfigAdapter(
                     val showText = "${methodConfig.methodName}(${methodConfig.params})"
                     val spannableString = SpannableString(showText).also {
                         it.setSpan(
-                            StyleSpan(Typeface.ITALIC),
-                            0,
-                            showText.length,
-                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                            StyleSpan(Typeface.ITALIC), 0, showText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE
                         )
                     }
                     tvOtherName.text = spannableString
                 }
                 Constant.HOOK_PARAM -> {
                     if (methodConfig.params == "*" || methodConfig.resultValues == "") {
-                        val showText =
-                            "${methodConfig.methodName}(${methodConfig.params}) -> ${methodConfig.resultValues}"
+                        val showText = "${methodConfig.methodName}(${methodConfig.params}) -> ${methodConfig.resultValues}"
                         tvOtherName.text = showText
                     } else {
                         val params = methodConfig.params.split(",")
@@ -153,11 +150,28 @@ class ConfigAdapter(
 
                 }
                 Constant.HOOK_RETURN -> {
-                    val showText = "${methodConfig.methodName}(${methodConfig.params}) -> ${
-                        transformValue(
-                            Type.getDataTypeValue(methodConfig.resultValues)
-                        )
-                    }"
+                    val returnValue = Type.getDataTypeValue(methodConfig.resultValues)
+                    val resultValue = if (returnValue is String) {
+                        try {
+                            val jsonObject = JSONObject(returnValue)
+                            if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has(
+                                    "key"
+                                )
+                            ) {
+                                val randomSeed = jsonObject.optString("random", "abcdefgh123456789")
+                                val len = jsonObject.optInt("length", 10)
+                                "\"${randomSeed.random(len)}\""
+                            } else {
+                                transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                            }
+                        } catch (e: Exception) {
+                            transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                        }
+                    } else {
+                        transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                    }
+                    val showText =
+                        "${methodConfig.methodName}(${methodConfig.params}) -> $resultValue"
                     tvOtherName.text = showText
                 }
                 else -> {
@@ -169,21 +183,22 @@ class ConfigAdapter(
             val tipText = when (methodConfig.mode) {
                 Constant.HOOK_RETURN -> context.getString(R.string.config_mode_tip_return_value)
                 Constant.HOOK_PARAM -> context.getString(R.string.config_mode_tip_param_value)
-                Constant.HOOK_STATIC_FIELD, Constant.HOOK_FIELD -> context.getString(R.string.config_mode_tip_field_value)
+                Constant.HOOK_STATIC_FIELD -> context.getString(R.string.config_mode_tip_static_field_value)
+                Constant.HOOK_FIELD -> context.getString(R.string.config_mode_tip_field_value)
                 Constant.HOOK_BREAK -> context.getString(R.string.config_mode_tip_break)
                 Constant.HOOK_RECORD_PARAMS -> context.getString(R.string.config_mode_tip_record_param_value)
                 Constant.HOOK_RECORD_RETURN -> context.getString(R.string.config_mode_tip_record_return_value)
                 Constant.HOOK_RECORD_PARAMS_RETURN -> context.getString(R.string.config_mode_tip_record_param_return_value)
+                Constant.HOOK_RECORD_STATIC_FIELD -> context.getString(R.string.config_mode_tip_record_static_field_value)
+                Constant.HOOK_RECORD_INSTANCE_FIELD -> context.getString(R.string.config_mode_tip_record_instance_field_value)
+                Constant.HOOK_RETURN2 -> context.getString(R.string.config_mode_tip_return2_value)
                 else -> "未知"
             }
             val span = SpannableString("$tipText ").also {
                 val bgColor = context.resources.getColor(R.color.config_tag_background)
                 val textColor = context.resources.getColor(R.color.config_tag_text_color)
                 it.setSpan(
-                    RoundBackgroundColorSpan(bgColor, textColor),
-                    0,
-                    tipText.length,
-                    SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                    RoundBackgroundColorSpan(bgColor, textColor), 0, tipText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE
                 )
             }
             tip.text = span

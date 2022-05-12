@@ -177,11 +177,11 @@
     <string name="home_fab_add_config">添加配置</string>
     <string name="config_mode_tip_return_value">返回值</string>
     <string name="config_mode_tip_param_value">參數值</string>
-    <string name="config_mode_tip_field_value">變量值</string>
+    <string name="config_mode_tip_field_value">實例變量</string>
     <string name="config_mode_tip_break">攔截</string>
-    <string name="config_mode_tip_record_param_value">打印參數</string>
-    <string name="config_mode_tip_record_return_value">打印返回</string>
-    <string name="config_mode_tip_record_param_return_value">打印參返</string>
+    <string name="config_mode_tip_record_param_value">記錄參數</string>
+    <string name="config_mode_tip_record_return_value">記錄返回</string>
+    <string name="config_mode_tip_record_param_return_value">記錄參返</string>
     <string name="settings_clear_hook_config">清空Hook配置</string>
     <string name="setting_clear_extension_config">清空擴展配置</string>
     <string name="settings_clear_all_record">清空所有記錄</string>
@@ -239,10 +239,13 @@
         <item>Hook參數值</item>
         <item>攔截執行</item>
         <item>Hook靜態變量</item>
-        <item>Hook變量</item>
-        <item>打印參數值</item>
-        <item>打印返回值</item>
-        <item>打印參返</item>
+        <item>Hook實例變量</item>
+        <item>記錄參數值</item>
+        <item>記錄返回值</item>
+        <item>記錄參返</item>
+        <item>記錄靜態變量</item>
+        <item>記錄實例變量</item>
+        <item>Hook返回值+</item>
     </string-array>
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
@@ -338,5 +341,9 @@
     <string name="extension_filter_clipboard_title">過濾剪貼板</string>
     <string name="extension_item_title_filter_clipboard">過濾剪貼板</string>
     <string name="extension_item_desc_filter_clipboard">阻止帶有關鍵詞的文本寫入剪貼板</string>
+    <string name="config_mode_tip_record_static_field_value">記錄靜態變量</string>
+    <string name="config_mode_tip_record_instance_field_value">記錄實例變量</string>
+    <string name="config_mode_tip_static_field_value">靜態變量</string>
+    <string name="config_mode_tip_return2_value">返回值+</string>
 
 </resources>

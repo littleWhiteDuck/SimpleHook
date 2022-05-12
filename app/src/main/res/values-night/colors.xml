@@ -6,4 +6,5 @@
     <color name="config_tag_text_color">@color/black</color>
     <color name="background_gray">@color/black</color>
     <color name="background_record">#FF1E1E1E</color>
+    <color name="windowSplashScreenBackground">@color/black</color>
 </resources>

@@ -29,24 +29,39 @@ private const val PARAMS_STATE = 1 shl 2
 private const val RESULT_VALUE_STATE = 1 shl 3
 private const val FIELD_NAME_STATE = 1 shl 4
 private const val FIELD_CLASS_NAME_STATE = 1 shl 5
+private const val HOOK_POINT_STATE = 1 shl 6
+private const val RETURN_CLASS_NAME = 1 shl 7
 private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
+private const val HOOK_RETURN2_CHECK =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
 private const val HOOK_PARAM_CHECK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
 private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val HOOK_STATIC_FIELD_CHECK =
     FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
+private const val HOOK_RECORD_STATIC_FIELD_CHECK = FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
 private const val HOOK_FIELD_CHECK =
     CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
+private const val HOOK_RECORD_FIELD_CHECK =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
 private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RETURN_PARAMS =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+private const val SHOW_RETURN2 =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
 private const val SHOW_STATIC_FIELD =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_FIELD =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
+private const val SHOW_RECORD_STATIC_FIELD =
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+private const val SHOW_RECORD_INSTANCE_FIELD =
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
 
 class ConfigBottomSheetFragment(
     private val configBean: ConfigBean,
@@ -67,7 +82,12 @@ class ConfigBottomSheetFragment(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = ConfigDialogBinding.inflate(inflater, container, false)
-        WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(requireActivity().window)
+
+        dialog?.window?.let {
+            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(
+                it
+            )
+        }
         initView()
         return binding.root
     }
@@ -98,6 +118,8 @@ class ConfigBottomSheetFragment(
                 fieldNameEdit.setText(fieldName)
                 fieldClassNameEdit.setText(fieldClassName)
                 resultValueEdit.setText(resultValues)
+                hookPointEdit.setText(hookPoint)
+                returnClassNameEdit.setText(returnClassName)
                 hookMode = mode
                 configEnable = enable
             }
@@ -126,8 +148,12 @@ class ConfigBottomSheetFragment(
         val methodName = binding.methodNameEdit.text.toString().trim()
         val params = tranParams(binding.paramsTypeEdit.text.toString().trim())
         val results = binding.resultValueEdit.text.toString().trim()
-        val fieldName = binding.fieldNameEdit.text.toString()
+        val fieldName = binding.fieldNameEdit.text.toString().trim()
         val fieldClassName = tranParams(binding.fieldClassNameEdit.text.toString())
+        val hookPoint = binding.hookPointEdit.text.toString().trim().let {
+            if (it == "before") it else "after"
+        }
+        val returnClassName = smali2Java(binding.returnClassNameEdit.text.toString().trim())
         var stateCheck = getCheckStateMode(this.hookMode)
         if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
         if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
@@ -135,6 +161,8 @@ class ConfigBottomSheetFragment(
         if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
         if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
         if (fieldClassName.isNotEmpty()) stateCheck = stateCheck and FIELD_CLASS_NAME_STATE.inv()
+        if (hookPoint.isNotEmpty()) stateCheck = stateCheck and HOOK_POINT_STATE.inv()
+        if (returnClassName.isNotEmpty()) stateCheck = stateCheck and RETURN_CLASS_NAME.inv()
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
@@ -148,7 +176,9 @@ class ConfigBottomSheetFragment(
                 fieldName,
                 fieldClassName,
                 results,
-                configEnable
+                hookPoint = hookPoint,
+                returnClassName = returnClassName,
+                enable = configEnable
             )
             saveConfig(configBean)
             dismiss()
@@ -235,6 +265,12 @@ class ConfigBottomSheetFragment(
             showView(
                 checkStateMode isContainState RESULT_VALUE_STATE, resultValueInput, resultValueEdit
             )
+            showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
+            showView(
+                checkStateMode isContainState RETURN_CLASS_NAME,
+                returnClassNameInput,
+                returnClassNameEdit
+            )
         }
     }
 
@@ -248,17 +284,24 @@ class ConfigBottomSheetFragment(
         Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
         Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
         Constant.HOOK_FIELD -> HOOK_FIELD_CHECK
+        Constant.HOOK_RECORD_INSTANCE_FIELD -> HOOK_RECORD_FIELD_CHECK
         Constant.HOOK_STATIC_FIELD -> HOOK_STATIC_FIELD_CHECK
+        Constant.HOOK_RECORD_STATIC_FIELD -> HOOK_RECORD_STATIC_FIELD_CHECK
         Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
         Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
+        Constant.HOOK_RETURN2 -> HOOK_RETURN2_CHECK
         else -> 0
     }
+
 
     private fun getShowStateMode(mode: Int) = when (mode) {
         Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
         Constant.HOOK_FIELD -> SHOW_FIELD
         Constant.HOOK_STATIC_FIELD -> SHOW_STATIC_FIELD
         Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
+        Constant.HOOK_RECORD_STATIC_FIELD -> SHOW_RECORD_STATIC_FIELD
+        Constant.HOOK_RECORD_INSTANCE_FIELD -> SHOW_RECORD_INSTANCE_FIELD
+        Constant.HOOK_RETURN2 -> SHOW_RETURN2
         else -> 0
     }
 

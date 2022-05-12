@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -36,6 +37,7 @@ class RecordSummaryFragment : Fragment() {
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
+    private var tempListSize = 0
     private val recorderSummaryAdapter by lazy {
         RecordSummaryAdapter(onClick = {
             val bundle = Bundle()
@@ -110,6 +112,12 @@ class RecordSummaryFragment : Fragment() {
                     list.add(RecordSummary(packageName = value, count = hasMap[value] ?: 0))
                 }
             }
+            Log.d("littleWhiteDuck", "initView: $tempListSize, ${list.size}")
+            if (tempListSize != list.size) {
+                Log.d("littleWhiteDuck", "initView: $tempListSize, ${list.size}")
+                recorderSummaryAdapter.submitList(emptyList())
+            }
+            tempListSize = list.size
             recorderSummaryAdapter.submitList(list)
             binding.progressBar.visibility = View.GONE
             binding.swipeRefreshLayout.isRefreshing = false

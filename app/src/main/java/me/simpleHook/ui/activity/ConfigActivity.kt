@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -41,6 +42,7 @@ import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.util.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -59,24 +61,38 @@ private const val PARAMS_STATE = 1 shl 2
 private const val RESULT_VALUE_STATE = 1 shl 3
 private const val FIELD_NAME_STATE = 1 shl 4
 private const val FIELD_CLASS_NAME_STATE = 1 shl 5
+private const val HOOK_POINT_STATE = 1 shl 6
+private const val RETURN_CLASS_NAME = 1 shl 7
 private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
+private const val HOOK_RETURN2_CHECK =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
 private const val HOOK_PARAM_CHECK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
 private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val HOOK_STATIC_FIELD_CHECK =
     FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
+private const val HOOK_RECORD_STATIC_FIELD_CHECK = FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
 private const val HOOK_FIELD_CHECK =
     CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
+private const val HOOK_RECORD_FIELD_CHECK =
+    CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
 private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
 private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RETURN_PARAMS =
     CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+private const val SHOW_RETURN2 =
+    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
 private const val SHOW_STATIC_FIELD =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_FIELD =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
 private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
     CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
+private const val SHOW_RECORD_STATIC_FIELD =
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+private const val SHOW_RECORD_INSTANCE_FIELD =
+    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
 
 class ConfigActivity : BaseActivity() {
@@ -90,7 +106,6 @@ class ConfigActivity : BaseActivity() {
     private var modifyConfigPosition = 0
     private var configId = 0
     private var visibleFab = true
-    private var scrollDistance = 0
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
     private var tempPackageName = ""
@@ -102,8 +117,7 @@ class ConfigActivity : BaseActivity() {
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
     private val collectAdapter by lazy {
-        ConfigAdapter(
-            { position -> onCollectClick(position) },
+        ConfigAdapter({ position -> onCollectClick(position) },
             onLongClick = {},
             onCheckedChange = { position, isChecked ->
                 onCollectCheckedChange(
@@ -156,6 +170,10 @@ class ConfigActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         binding.apply {
+            configRV.apply {
+                this.adapter = mAdapter
+                layoutManager = LinearLayoutManager(this@ConfigActivity)
+            }
             appInfo.setOnClickListener {
                 packageInfo.launch(Intent(this@ConfigActivity, AppListActivity::class.java))
             }
@@ -183,6 +201,16 @@ class ConfigActivity : BaseActivity() {
                     addMethodConfig.show()
                 }
             }
+            appBar.addOnOffsetChangedListener(object : AppBarStateChangeListener() {
+                override fun onStateChanged(appBarLayout: AppBarLayout, state: State) {
+                    if (state == State.EXPANDED) {
+                        binding.addMethodConfig.show()
+                    } else if (state == State.COLLAPSED) {
+                        binding.addMethodConfig.hide()
+                    }
+                    collapsing.isTitleEnabled = state == State.COLLAPSED
+                }
+            })
         }
         appConfig?.let {
             modify = true
@@ -190,8 +218,11 @@ class ConfigActivity : BaseActivity() {
             binding.apply {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
                     appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
-                    GlideApp.with(appInfo.containerView.icon).load(BuildConfig.APPLICATION_ID)
-                        .into(appInfo.containerView.icon)
+                    appInfo.containerView.icon.setImageDrawable(
+                        AppUtils.getIcon(
+                            this@ConfigActivity, it.packageName
+                        )
+                    )
                 } else {
                     appInfo.containerView.appName.text = it.appName
                     appInfo.containerView.packageName.text = it.packageName
@@ -201,14 +232,14 @@ class ConfigActivity : BaseActivity() {
                             this@ConfigActivity, it.packageName
                         )
                     )
-                    /* GlideApp.with(appInfo.containerView.icon).load(packageName)
-                         .into(appInfo.containerView.icon)*/
                 }
                 descStringEdit.setText(it.description)
                 val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
                 configList = Gson().fromJson(it.configs, listType)
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
+
+                collapsing.title = it.appName
             }
         } ?: kotlin.run {
             binding.appInfo.containerView.apply {
@@ -216,27 +247,6 @@ class ConfigActivity : BaseActivity() {
                 GlideApp.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
             }
 
-        }
-        binding.configRV.apply {
-            this.adapter = mAdapter
-            layoutManager = LinearLayoutManager(this@ConfigActivity)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (scrollDistance > 20 && visibleFab) {
-                        visibleFab = false
-                        binding.addMethodConfig.hide()
-                        scrollDistance = 0
-                    } else if (scrollDistance < -20 && !visibleFab) {
-                        visibleFab = true
-                        binding.addMethodConfig.show()
-                        scrollDistance = 0
-                    }
-                    if (visibleFab && dy > 0 || !visibleFab && dy < 0) {
-                        scrollDistance += dy
-                    }
-                }
-            })
         }
         showIntroductionDialog()
     }
@@ -342,6 +352,8 @@ class ConfigActivity : BaseActivity() {
                 fieldNameEdit.setText(fieldName)
                 fieldClassNameEdit.setText(fieldClassName)
                 resultValueEdit.setText(resultValues)
+                hookPointEdit.setText(hookPoint)
+                returnClassNameEdit.setText(returnClassName)
                 hookMode = mode
                 onModeChange(dialogBinding)
             }
@@ -367,8 +379,7 @@ class ConfigActivity : BaseActivity() {
             R.string.config_dialog_add_a_new
         )
         val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
-        customDialog(
-            this,
+        customDialog(this,
             okText = okText,
             okClick = { dialog ->
                 dialogDismiss(
@@ -421,6 +432,12 @@ class ConfigActivity : BaseActivity() {
             showView(
                 checkStateMode isContainState RESULT_VALUE_STATE, resultValueInput, resultValueEdit
             )
+            showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
+            showView(
+                checkStateMode isContainState RETURN_CLASS_NAME,
+                returnClassNameInput,
+                returnClassNameEdit
+            )
         }
     }
 
@@ -436,8 +453,13 @@ class ConfigActivity : BaseActivity() {
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
         val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
-        val fieldName = dialogBinding.fieldNameEdit.text.toString()
+        val fieldName = dialogBinding.fieldNameEdit.text.toString().trim()
         val fieldClassName = tranParams(dialogBinding.fieldClassNameEdit.text.toString())
+        val hookPoint = dialogBinding.hookPointEdit.text.toString().trim().let {
+            if (it == "before") it else "after"
+        }
+        val returnClassName =
+            this.smali2Java(dialogBinding.returnClassNameEdit.text.toString().trim())
         var stateCheck = getCheckStateMode(this.hookMode)
         if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
         if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
@@ -445,6 +467,8 @@ class ConfigActivity : BaseActivity() {
         if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
         if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
         if (fieldClassName.isNotEmpty()) stateCheck = stateCheck and FIELD_CLASS_NAME_STATE.inv()
+        if (hookPoint.isNotEmpty()) stateCheck = stateCheck and HOOK_POINT_STATE.inv()
+        if (returnClassName.isNotEmpty()) stateCheck = stateCheck and RETURN_CLASS_NAME.inv()
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
@@ -458,7 +482,9 @@ class ConfigActivity : BaseActivity() {
                 fieldName,
                 fieldClassName,
                 results,
-                enable
+                hookPoint = hookPoint,
+                returnClassName = returnClassName,
+                enable = enable
             )
             addConfig(configBean)
         } else {
@@ -472,17 +498,24 @@ class ConfigActivity : BaseActivity() {
         Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
         Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
         Constant.HOOK_FIELD -> HOOK_FIELD_CHECK
+        Constant.HOOK_RECORD_INSTANCE_FIELD -> HOOK_RECORD_FIELD_CHECK
         Constant.HOOK_STATIC_FIELD -> HOOK_STATIC_FIELD_CHECK
+        Constant.HOOK_RECORD_STATIC_FIELD -> HOOK_RECORD_STATIC_FIELD_CHECK
         Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
         Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
+        Constant.HOOK_RETURN2 -> HOOK_RETURN2_CHECK
         else -> 0
     }
+
 
     private fun getShowStateMode(mode: Int) = when (mode) {
         Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
         Constant.HOOK_FIELD -> SHOW_FIELD
         Constant.HOOK_STATIC_FIELD -> SHOW_STATIC_FIELD
         Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
+        Constant.HOOK_RECORD_STATIC_FIELD -> SHOW_RECORD_STATIC_FIELD
+        Constant.HOOK_RECORD_INSTANCE_FIELD -> SHOW_RECORD_INSTANCE_FIELD
+        Constant.HOOK_RETURN2 -> SHOW_RETURN2
         else -> 0
     }
 

@@ -7,7 +7,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -42,12 +41,29 @@
             app:layout_constraintTop_toTopOf="@+id/textView2" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/hook_point_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="输入：before或after"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/hookPointEdit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="输入hook点"
+                android:textColorHint="#757575" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout2"
             style="@style/config_dialog_input_layout_style"
             app:helperText="@string/config_dialog_class_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner">
+            app:layout_constraintTop_toBottomOf="@+id/hook_point_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/classNameEdit"
@@ -163,6 +179,21 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/return_class_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="例如：me.simpleHook.bean.ConfigBean"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/field_name_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/return_class_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="返回值的类名" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/result_value_input"
@@ -170,7 +201,7 @@
             app:helperText="@string/config_dialog_return_value_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/field_name_input">
+            app:layout_constraintTop_toBottomOf="@+id/return_class_name_input">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/resultValueEdit"

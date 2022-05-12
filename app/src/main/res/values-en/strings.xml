@@ -152,7 +152,7 @@
     <string name="home_fab_add_config">Add config</string>
     <string name="config_mode_tip_return_value">Return</string>
     <string name="config_mode_tip_param_value">Parameter</string>
-    <string name="config_mode_tip_field_value">Field</string>
+    <string name="config_mode_tip_field_value">Instance field</string>
     <string name="config_mode_tip_break">Break</string>
     <string name="config_mode_tip_record_param_value">Record param</string>
     <string name="config_mode_tip_record_return_value">Record return</string>
@@ -167,6 +167,9 @@
         <item>Record param value</item>
         <item>Record return value</item>
         <item>Record param&amp;return value</item>
+        <item>Print static variables</item>
+        <item>Print instance variables</item>
+        <item>Hook return value+</item>
     </string-array>
 
     <string-array name="main_settings_clear_item_entries">
@@ -328,4 +331,8 @@
     <string name="extension_filter_clipboard_title">Filter clipboard</string>
     <string name="extension_item_title_filter_clipboard">Filter clipboard</string>
     <string name="extension_item_desc_filter_clipboard">Prevent text with keywords from being written to the clipboard</string>
+    <string name="config_mode_tip_record_instance_field_value">Record instance field</string>
+    <string name="config_mode_tip_record_static_field_value">Record static field</string>
+    <string name="config_mode_tip_static_field_value">Static field</string>
+    <string name="config_mode_tip_return2_value">Return value2</string>
 </resources>
