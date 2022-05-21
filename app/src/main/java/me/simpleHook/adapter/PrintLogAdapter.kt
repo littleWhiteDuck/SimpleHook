@@ -48,11 +48,12 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
             val printLog = viewHolder.itemView.getTag(R.id.item_print_position) as PrintLog
             val message = JsonUtil.formatJson(printLog.log.replace("\\u003e", ">"))
             val dialog = MaterialAlertDialogBuilder(parent.context).setMessage(message)
-                .setPositiveButton("复制") { dialog, _ ->
+                .setPositiveButton(parent.context.getString(R.string.record_detail_menu_copy)) { dialog, _ ->
                     ToolUtils.toClip(parent.context, message)
-                    "已复制".toast(parent.context)
+                    parent.context.getString(R.string.copied).toast(parent.context)
                     dialog.dismiss()
-                }.setNegativeButton("取消", null).create()
+                }.setNegativeButton(itemView.context.getString(R.string.dialog_cancel), null)
+                .create()
             if (Build.VERSION.SDK_INT >= 26) {
                 dialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
             } else {

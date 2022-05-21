@@ -236,16 +236,16 @@
     <string name="record_item_status_unread">未讀</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
+        <item>Hook返回值+</item>
         <item>Hook參數值</item>
-        <item>攔截執行</item>
         <item>Hook靜態變量</item>
         <item>Hook實例變量</item>
+        <item>攔截執行</item>
         <item>記錄參數值</item>
         <item>記錄返回值</item>
         <item>記錄參返</item>
         <item>記錄靜態變量</item>
         <item>記錄實例變量</item>
-        <item>Hook返回值+</item>
     </string-array>
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
@@ -345,5 +345,18 @@
     <string name="config_mode_tip_record_instance_field_value">記錄實例變量</string>
     <string name="config_mode_tip_static_field_value">靜態變量</string>
     <string name="config_mode_tip_return2_value">返回值+</string>
-
+    <string name="record_detail_menu_copy_return_value">複製返回值</string>
+    <string name="main_settings_left_config_summary">詳細見常見問題7</string>
+    <string name="main_settings_left_config_title">刪除遺留配置</string>
+    <string name="main_delete_left_config_loading_tip">正在校驗中</string>
+    <string name="config_dialog_hook_point_edit_tip">輸入hook點</string>
+    <string name="config_dialog_hook_point_input_helper">輸入：before或after</string>
+    <string name="config_dialog_return_class_name_helper">例如：me.simpleHook.bean.ConfigBean</string>
+    <string name="config_dialog_return_class_name_tip">返回值的類名</string>
+    <string-array name="main_settings_left_config_select_item">
+        <item>校驗用戶應用(慢)</item>
+        <item>校驗系統應用(慢)</item>
+        <item>校驗全部應用(超慢)</item>
+    </string-array>
+    <string name="copied">已復制！</string>
 </resources>

@@ -42,6 +42,7 @@ import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.fragment.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.util.*
 import java.io.File
@@ -359,16 +360,18 @@ class ConfigActivity : BaseActivity() {
             }
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
+        val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
+        val realPosition = listValue.indexOf(configBean.mode)
         dialogBinding.modeSelectSpinner.adapter = ArrayAdapter(
             this@ConfigActivity, android.R.layout.simple_spinner_dropdown_item, list
         )
-        dialogBinding.modeSelectSpinner.setSelection(configBean.mode)
+        dialogBinding.modeSelectSpinner.setSelection(realPosition)
         dialogBinding.modeSelectSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    hookMode = position
+                    hookMode = listValue[position]
                     onModeChange(dialogBinding)
                 }
 

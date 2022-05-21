@@ -43,6 +43,37 @@ object AppUtils {
         }
     }
 
+    fun getUserPackageNames(context: Context): List<String> {
+        val packageManager = context.packageManager
+        val packs = mutableListOf<String>()
+        packageManager.getInstalledPackages(0).filter {
+            (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+        }.forEach {
+            packs.add(it.packageName)
+        }
+        return packs
+    }
+
+    fun getSystemPackageNames(context: Context): List<String> {
+        val packageManager = context.packageManager
+        val packs = mutableListOf<String>()
+        packageManager.getInstalledPackages(0).filter {
+            (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        }.forEach {
+            packs.add(it.packageName)
+        }
+        return packs
+    }
+
+    fun getPackageNames(context: Context): List<String> {
+        val packageManager = context.packageManager
+        val packs = mutableListOf<String>()
+        packageManager.getInstalledPackages(0).forEach {
+            packs.add(it.packageName)
+        }
+        return packs
+    }
+
 
     fun getAppIcon(context: Context, packageInfo: PackageInfo): Drawable {
         return packageInfo.applicationInfo.loadIcon(context.packageManager)

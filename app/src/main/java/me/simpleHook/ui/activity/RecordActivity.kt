@@ -2,22 +2,21 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ImageSpan
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -74,6 +73,13 @@ class RecordActivity : BaseActivity() {
         }
     private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
     private val configs by lazy { appViewModel.getConfigs() }
+    private val swipeDeleteIcon by lazy {
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.ic_delete_black_24
+        )
+    }
+    private val swipeBackground by lazy { ColorDrawable(Color.LTGRAY) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,6 +164,47 @@ class RecordActivity : BaseActivity() {
                     }
                 }
 
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    super.onChildDraw(
+                        c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive
+                    )
+                    val itemView = viewHolder.itemView
+                    val iconMargin = (itemView.height - swipeDeleteIcon!!.intrinsicHeight) / 2
+                    val iconLeft: Int
+                    val iconRight: Int
+                    val iconBottom: Int
+                    val backLeft: Int
+                    val backRight: Int
+                    val backTop: Int = itemView.top
+                    val backBottom: Int = itemView.bottom
+                    val iconTop: Int =
+                        itemView.top + (itemView.height - swipeDeleteIcon!!.intrinsicHeight) / 2
+                    iconBottom = iconTop + swipeDeleteIcon!!.intrinsicHeight
+                    if (dX > 0) {
+                        backLeft = itemView.left
+                        backRight = itemView.left + dX.toInt()
+                        swipeBackground.setBounds(backLeft, backTop, backRight, backBottom)
+                        iconLeft = itemView.left + iconMargin
+                        iconRight = iconLeft + swipeDeleteIcon!!.intrinsicWidth
+                        swipeDeleteIcon!!.setBounds(
+                            iconLeft, iconTop, iconRight, iconBottom
+                        )
+                    } else {
+                        swipeBackground.setBounds(0, 0, 0, 0)
+                        swipeDeleteIcon!!.setBounds(0, 0, 0, 0)
+                    }
+                    swipeBackground.draw(c)
+                    swipeDeleteIcon!!.draw(c)
+                }
+
             }).attachToRecyclerView(binding.recyclerView)
         }
         binding.swipeRefreshLayout.isRefreshing = true
@@ -172,9 +219,7 @@ class RecordActivity : BaseActivity() {
     private fun initData() {
         lifecycleScope.launch {
             appViewModel.getRecord(
-                typeOrPackageName,
-                isType,
-                searchMode = Constant.RECORD_SEARCH_GLOBAL
+                typeOrPackageName, isType, searchMode = Constant.RECORD_SEARCH_GLOBAL
             ).collectLatest {
                 recordAdapter.addOnPagesUpdatedListener {
                     binding.progressBar.isVisible = false
@@ -394,9 +439,7 @@ class RecordActivity : BaseActivity() {
             appViewModel.queryPattern.value = ""
             lifecycleScope.launch {
                 appViewModel.getRecord(
-                    typeOrPackageName,
-                    isType,
-                    searchMode = Constant.RECORD_SEARCH_GLOBAL
+                    typeOrPackageName, isType, searchMode = Constant.RECORD_SEARCH_GLOBAL
                 ).collectLatest {
                     recordAdapter.addOnPagesUpdatedListener {
                         Handler(Looper.getMainLooper()).postDelayed({

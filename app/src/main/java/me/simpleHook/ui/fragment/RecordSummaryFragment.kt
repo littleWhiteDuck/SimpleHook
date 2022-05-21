@@ -112,9 +112,7 @@ class RecordSummaryFragment : Fragment() {
                     list.add(RecordSummary(packageName = value, count = hasMap[value] ?: 0))
                 }
             }
-            Log.d("littleWhiteDuck", "initView: $tempListSize, ${list.size}")
             if (tempListSize != list.size) {
-                Log.d("littleWhiteDuck", "initView: $tempListSize, ${list.size}")
                 recorderSummaryAdapter.submitList(emptyList())
             }
             tempListSize = list.size

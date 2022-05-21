@@ -292,17 +292,31 @@
     <string name="config_auto_transfer_smali_title">说明</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
+        <item>Hook返回值+</item>
         <item>Hook参数值</item>
-        <item>拦截执行</item>
         <item>Hook静态变量</item>
         <item>Hook实例变量</item>
+        <item>拦截执行</item>
         <item>记录参数值</item>
         <item>记录返回值</item>
         <item>记录参返</item>
         <item>记录静态变量</item>
         <item>记录实例变量</item>
-        <item>Hook返回值+</item>
     </string-array>
+    <integer-array name="config_hook_mode_item_value">
+        <item>0</item>
+        <item>10</item>
+        <item>1</item>
+        <item>3</item>
+        <item>4</item>
+        <item>2</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+
+    </integer-array>
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
     </string-array>
@@ -366,6 +380,19 @@
     <string name="extension_filter_clipboard_title">过滤剪贴板</string>
     <string name="extension_item_title_filter_clipboard">过滤剪贴板</string>
     <string name="extension_item_desc_filter_clipboard">阻止带有关键词的文本写入剪贴板</string>
-
+    <string name="record_detail_menu_copy_return_value">复制返回值</string>
+    <string name="main_settings_left_config_summary">详细见常见问题7</string>
+    <string name="main_settings_left_config_title">删除遗留配置</string>
+    <string name="main_delete_left_config_loading_tip">正在校验中</string>
+    <string name="config_dialog_hook_point_edit_tip">输入hook点</string>
+    <string name="config_dialog_hook_point_input_helper">输入：before或after</string>
+    <string name="config_dialog_return_class_name_helper">例如：me.simpleHook.bean.ConfigBean</string>
+    <string name="config_dialog_return_class_name_tip">返回值的类名</string>
+    <string name="copied">已复制！</string>
+    <string-array name="main_settings_left_config_select_item">
+        <item>校验用户应用(慢)</item>
+        <item>校验系统应用(慢)</item>
+        <item>校验全部应用(超慢)</item>
+    </string-array>
 
 </resources>

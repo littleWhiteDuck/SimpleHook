@@ -109,10 +109,10 @@
     <string name="main_extension_menu_about_model">About templates</string>
     <string name="main_settings_summary_help">FAQ</string>
     <string name="main_settings_title_expand">Add read config</string>
-    <string name="main_settings_title_storage">Write config to file</string>
-    <string name="main_settings_summary_storage">Write the configuration to the local and read part of the Log (in most cases, it needs to be turned on)</string>
-    <string name="main_settings_title_storage_root">Write config to file</string>
-    <string name="main_settings_summary_storage_root">Write configuration and read part of Log through Root (need to be enabled in most cases)</string>
+    <string name="main_settings_title_storage">Save config to file</string>
+    <string name="main_settings_summary_storage">Save the configuration to the local and read part of the Log (in most cases, it needs to be turned on)</string>
+    <string name="main_settings_title_storage_root">Save config to file</string>
+    <string name="main_settings_summary_storage_root">Save configuration and read part of Log through Root (need to be enabled in most cases)</string>
     <string name="main_settings_summary_to_config">See FAQ 2 for details</string>
     <string name="app_record">Record</string>
     <string name="app_about">About</string>
@@ -157,19 +157,29 @@
     <string name="config_mode_tip_record_param_value">Record param</string>
     <string name="config_mode_tip_record_return_value">Record return</string>
     <string name="config_mode_tip_record_param_return_value">Record param and return</string>
-
+    <!--    <item>Hook返回值</item>
+        <item>Hook返回值+</item>
+        <item>Hook参数值</item>
+        <item>Hook静态变量</item>
+        <item>Hook实例变量</item>
+        <item>拦截执行</item>
+        <item>记录参数值</item>
+        <item>记录返回值</item>
+        <item>记录参返</item>
+        <item>记录静态变量</item>
+        <item>记录实例变量</item>-->
     <string-array name="config_hook_mode_item">
         <item>Hook return value</item>
+        <item>Hook return value+</item>
         <item>Hook param value</item>
-        <item>Break method execution</item>
         <item>Hook static field</item>
         <item>Hook instance field</item>
+        <item>Break method execution</item>
         <item>Record param value</item>
         <item>Record return value</item>
         <item>Record param&amp;return value</item>
-        <item>Print static variables</item>
-        <item>Print instance variables</item>
-        <item>Hook return value+</item>
+        <item>Record static field</item>
+        <item>Record instance field</item>
     </string-array>
 
     <string-array name="main_settings_clear_item_entries">
@@ -190,9 +200,9 @@
     <string name="extension_item_status_close">Close</string>
     <string name="extension_item_title_ui">UI</string>
     <string name="extension_item_title_dialog">Dialog</string>
-    <string name="extension_item_desc_dialog">Record popup call stack and info</string>
+    <string name="extension_item_desc_dialog">Record dialog call stack and info</string>
     <string name="extension_item_title_dialog_cancel">Dialog</string>
-    <string name="extension_item_desc_dialog_cancel">Force cancelable for general popups</string>
+    <string name="extension_item_desc_dialog_cancel">Force cancelable for general dialog</string>
     <string name="extension_item_desc_encrypt_algorithm">AES, DES, RSA, etc.</string>
     <string name="extension_item_title_encrypt_algorithm">Encryption Algorithm</string>
     <string name="extension_item_desc_hmac">Hmac</string>
@@ -205,10 +215,10 @@
     <string name="extension_item_title_application">Application</string>
     <string name="extension_item_title_basic">Basic</string>
     <string name="extension_item_title_toast">Toast</string>
-    <string name="extension_item_desc_toast">print toast call stack, information</string>
+    <string name="extension_item_desc_toast">Record toast call stack, information</string>
     <string name="extension_item_title_popup_window">PopupWindow</string>
     <string name="extension_item_title_popup_window_cancel">PopupWindow</string>
-    <string name="extension_item_desc_popup_window_cancel">Click outside the popup/back to cancel</string>
+    <string name="extension_item_desc_popup_window_cancel">Click outside the dialog/back to cancel</string>
     <string name="extension_item_title_click_event">Click event</string>
     <string name="extension_item_desc_popup_window">Record stack calls, display information</string>
     <string name="extension_item_desc_click_event">Record click stack call, display information</string>
@@ -251,8 +261,8 @@
     <string name="config_dialog_title_import_config">Import configuration</string>
     <string name="config_dialog_button_invert_selection">Invert selection</string>
     <string name="config_dialog_button_select_all">Select all</string>
-    <string name="extension_item_desc_json_object">Record the content of JSONObject when it is created and when it is added</string>
-    <string name="extension_item_desc_json_array">Record the content of JSONArray when it is created and when it is added</string>
+    <string name="extension_item_desc_json_object">Record the content of JSONObject when it is created and when it is put</string>
+    <string name="extension_item_desc_json_array">Record the content of JSONArray when it is created and when it is put</string>
     <string name="extension_item_title_hot_fix">"Hot fix "</string>
     <string name="config_hook_constructor_tip">This modal hook constructor may cause problems for the target application</string>
     <string name="config_auto_transfer_param_field">Auto transfer param|field type</string>
@@ -261,8 +271,8 @@
     <string name="about_clip_email_tip">Email address copied to clipboard</string>
     <string name="config_no_collection_tip">No favorite configuration yet</string>
     <string name="config_menu_collect_config">Favorite configuration</string>
-    <string name="config_collect_success_tip">Collection success</string>
-    <string name="config_collect_failed_tip">Favorite failed</string>
+    <string name="config_collect_success_tip">Collect success</string>
+    <string name="config_collect_failed_tip">Collect failed</string>
     <string name="config_get_collection_error">An error occurred, please clear the collection</string>
     <string name="config_collection_dialog_title">Favorites</string>
     <string name="config_collection_confirm">IMPORT</string>
@@ -296,10 +306,10 @@
     <string name="record_waring_dialog_message_unread">Are you sure to delete all unread records?</string>
     <string name="record_waring_dialog_message_marked">Are you sure to delete all marked records?</string>
     <string name="record_warning_dialog_message_unmarked">Are you sure to delete all unmarked records?</string>
-    <string name="extension_item_title_block_dialog">Block keyword popups</string>
+    <string name="extension_item_title_block_dialog">Block keyword dialog</string>
     <string name="extension_item_desc_block_dialog">Specify keyword blocking</string>
     <string name="extension_block_dialog_helper_tip">Please enter multiple keywords in a new line</string>
-    <string name="extension_block_dialog_title">Block keyword popups</string>
+    <string name="extension_block_dialog_title">Block keyword dialog</string>
     <string name="extension_config_save_success_tip">Saved</string>
     <string name="mark">MARK</string>
     <string name="delete">Delete</string>
@@ -335,4 +345,18 @@
     <string name="config_mode_tip_record_static_field_value">Record static field</string>
     <string name="config_mode_tip_static_field_value">Static field</string>
     <string name="config_mode_tip_return2_value">Return value2</string>
+    <string name="record_detail_menu_copy_return_value">Copy return value</string>
+    <string name="main_settings_left_config_summary">See FAQ7 for details</string>
+    <string name="main_delete_left_config_loading_tip">Checking</string>
+    <string name="main_settings_left_config_title">Remove interfering configuration</string>
+    <string name="config_dialog_hook_point_edit_tip">Hook point</string>
+    <string name="config_dialog_hook_point_input_helper">Input：before or after</string>
+    <string name="config_dialog_return_class_name_helper">Example: me.simpleHook.bean.ConfigBean</string>
+    <string name="config_dialog_return_class_name_tip">Class name of the return value</string>
+    <string-array name="main_settings_left_config_select_item">
+        <item>Check user application (slow)</item>
+        <item>Check system application (slow)</item>
+        <item>Check all applications (super slow)</item>
+    </string-array>
+    <string name="copied">copied!</string>
 </resources>

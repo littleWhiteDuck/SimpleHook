@@ -2,7 +2,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -43,7 +43,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/hook_point_input"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="输入：before或after"
+            app:helperText="@string/config_dialog_hook_point_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner">
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="输入hook点"
+                android:hint="@string/config_dialog_hook_point_edit_tip"
                 android:textColorHint="#757575" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -182,7 +182,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/return_class_name_input"
             style="@style/config_dialog_input_layout_style"
-            app:helperText="例如：me.simpleHook.bean.ConfigBean"
+            app:helperText="@string/config_dialog_return_class_name_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/field_name_input">
@@ -192,7 +192,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:hint="返回值的类名" />
+                android:hint="@string/config_dialog_return_class_name_tip" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

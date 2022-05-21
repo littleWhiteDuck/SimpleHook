@@ -1,4 +1,4 @@
-package me.simpleHook.ui.custom
+package me.simpleHook.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
@@ -18,6 +21,7 @@ import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.util.isContainState
 import me.simpleHook.util.toast
 import java.util.regex.Pattern
+
 
 private const val smaliPattern = """^L.*;"""
 private const val pattern_basic = """(B|S|I|J|F|D|Z|C)(B|S|I|J|F|D|Z|C|L)"""
@@ -71,13 +75,21 @@ class ConfigBottomSheetFragment(
 
     private var _binding: ConfigDialogBinding? = null
     private val binding get() = _binding!!
-
+    private val behavior by lazy { BottomSheetBehavior.from(binding.root.parent as View) }
     private var hookMode = Constant.HOOK_RETURN
     private var configEnable = true
+    private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            when (newState) {
+                BottomSheetBehavior.STATE_EXPANDED -> bottomSheet.background =
+                    createMaterialShapeDrawable(bottomSheet)
+                else -> {}
+            }
+        }
 
-    /* override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-         return BottomSheetDialog(requireContext(), R.style.translucent)
-     }*/
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -108,6 +120,16 @@ class ConfigBottomSheetFragment(
         /*modifyConfig = if (isSmali2Config) false else configBean.className.isNotEmpty()*/
     }
 
+    override fun onStart() {
+        super.onStart()
+        behavior.addBottomSheetCallback(bottomSheetCallback)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        behavior.removeBottomSheetCallback(bottomSheetCallback)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
@@ -126,16 +148,18 @@ class ConfigBottomSheetFragment(
             onModeChange()
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
+        val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
         binding.modeSelectSpinner.adapter = ArrayAdapter(
             requireContext(), android.R.layout.simple_spinner_dropdown_item, list
         )
-        binding.modeSelectSpinner.setSelection(configBean.mode)
+        val realPosition = listValue.indexOf(configBean.mode)
+        binding.modeSelectSpinner.setSelection(realPosition)
         binding.modeSelectSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    hookMode = position
+                    hookMode = listValue[position]
                     onModeChange()
                 }
 
@@ -166,7 +190,7 @@ class ConfigBottomSheetFragment(
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                getString(R.string.config_hook_constructor_tip).toast(requireContext())
+                getString(me.simpleHook.R.string.config_hook_constructor_tip).toast(requireContext())
             }
             val configBean = ConfigBean(
                 this.hookMode,
@@ -308,6 +332,26 @@ class ConfigBottomSheetFragment(
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun createMaterialShapeDrawable(bottomSheet: View): MaterialShapeDrawable {
+        //Create a ShapeAppearanceModel with the same shapeAppearanceOverlay used in the style
+        val shapeAppearanceModel =
+            ShapeAppearanceModel.builder(context, 0, R.style.CustomShapeAppearanceBottomSheetDialog)
+                .build()
+
+        //Create a new MaterialShapeDrawable (you can't use the original MaterialShapeDrawable in the BottoSheet)
+        val currentMaterialShapeDrawable = bottomSheet.background as MaterialShapeDrawable
+        val newMaterialShapeDrawable = MaterialShapeDrawable(shapeAppearanceModel)
+
+        //Copy the attributes in the new MaterialShapeDrawable
+        newMaterialShapeDrawable.initializeElevationOverlay(context)
+        newMaterialShapeDrawable.fillColor = currentMaterialShapeDrawable.fillColor
+        newMaterialShapeDrawable.tintList = currentMaterialShapeDrawable.tintList
+        newMaterialShapeDrawable.elevation = currentMaterialShapeDrawable.elevation
+        newMaterialShapeDrawable.strokeWidth = currentMaterialShapeDrawable.strokeWidth
+        newMaterialShapeDrawable.strokeColor = currentMaterialShapeDrawable.strokeColor
+        return newMaterialShapeDrawable
     }
 
 

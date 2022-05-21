@@ -57,6 +57,11 @@
             app:key="clearConfigData"
             app:summary="@string/main_settings_clear_data_summary"
             app:title="@string/main_settings_clear_data_title" />
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_left_config_select_item"
+            app:key="leftConfig"
+            app:summary="@string/main_settings_left_config_summary"
+            app:title="@string/main_settings_left_config_title" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference

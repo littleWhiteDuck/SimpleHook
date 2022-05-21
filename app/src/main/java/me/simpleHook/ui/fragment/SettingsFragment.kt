@@ -33,9 +33,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
-import me.simpleHook.ui.custom.MenuPreference
-import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.ui.custom.*
 import me.simpleHook.util.*
 import java.io.*
 import java.util.*
@@ -241,6 +239,44 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 toJSConfig()
                 true
             }
+        }
+        findPreference<Preference>("leftConfig")?.also {
+            it.setOnPreferenceChangeListener { _, newValue ->
+                val itemValue =
+                    requireActivity().resources.getStringArray(R.array.main_settings_left_config_select_item)
+                val position = itemValue.indexOf(newValue as String)
+                deleteLeftConfigs(position)
+                true
+            }
+        }
+    }
+
+
+    private fun deleteLeftConfigs(position: Int) {
+        val loadingDialog = LoadingDialog(
+            requireActivity(),
+            getString(R.string.main_delete_left_config_loading_tip)
+        )
+        loadingDialog.show()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val apps = when (position) {
+                0 -> AppUtils.getUserPackageNames(requireContext())
+                1 -> AppUtils.getSystemPackageNames(requireContext())
+                else -> AppUtils.getPackageNames(requireContext())
+            }
+            val appPackageNames = viewModel.getAllPackageNames()
+            val extensionPackageNames = viewModel.getAllPackageNames()
+            for (i in apps.indices) {
+                if (apps[i] !in appPackageNames) {
+                    FileUtils.realDeleteConfig(requireContext(), apps[i], Constant.APP_CONFIG_NAME)
+                }
+                if (apps[i] !in extensionPackageNames) {
+                    FileUtils.realDeleteConfig(
+                        requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
+                    )
+                }
+            }
+            loadingDialog.dismiss()
         }
     }
 

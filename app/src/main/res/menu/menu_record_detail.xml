@@ -22,13 +22,20 @@
                 android:id="@+id/copy_json"
                 android:title="@string/record_detail_menu_copy_json_format" />
             <item
+                android:visible="false"
                 android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_raw_data"
                 android:title="@string/record_detail_menu_copy_raw_data" />
             <item
+                android:visible="false"
                 android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_crypt_result"
                 android:title="@string/record_detail_menu_copy_crypt_result" />
+            <item
+                android:visible="false"
+                android:icon="@drawable/ic_copy"
+                android:id="@+id/copy_return_value"
+                android:title="@string/record_detail_menu_copy_return_value" />
         </menu>
 
     </item>

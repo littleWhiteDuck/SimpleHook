@@ -35,6 +35,9 @@ class RecordDetailActivity : BaseActivity() {
     private var darkMode = false
     private var rawData = ""
     private var cryptResult = ""
+    private var returnValue = ""
+
+    // private var showReturnValue = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRecordDetailBinding.inflate(layoutInflater)
@@ -60,6 +63,9 @@ class RecordDetailActivity : BaseActivity() {
             val bundle = intent.getBundleExtra("bundle")
             val printLog: PrintLog = bundle!!.getParcelable("printLog")!!
             jsonText = printLog.log
+            /*  if (printLog.log.contains(Regex("返回值|参返|Param&Return Value|Return value"))) {
+                  showReturnValue = true
+              }*/
             val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
             supportActionBar?.title =
                 if (printLog.packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
@@ -85,12 +91,17 @@ class RecordDetailActivity : BaseActivity() {
                 val sb = StringBuilder()
                 logList.forEach {
                     if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {
-                        rawData = it
+                        rawData = it.replaceFirst(Regex("""原始数据：|Raw data: """), "")
                     } else if (it.startsWith("加密结果：") || it.startsWith("解密结果：") || it.startsWith("Decrypt result: ") || it.startsWith(
                             "Encrypt result: "
                         )
                     ) {
-                        cryptResult = it
+                        cryptResult = it.replaceFirst(
+                            Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """), ""
+                        )
+                        //返回值|参返|Param&Return Value|Return value
+                    } else if (it.startsWith("返回值：") || it.startsWith("Return value: ")) {
+                        returnValue = it.replaceFirst(Regex("""返回值：|Return value: """), "")
                     }
                     sb.append(it).append("\n")
                 }
@@ -129,6 +140,9 @@ class RecordDetailActivity : BaseActivity() {
 
             })
         }
+        menu.findItem(R.id.copy_raw_data).isVisible = rawData.isNotEmpty()
+        menu.findItem(R.id.copy_crypt_result).isVisible = cryptResult.isNotEmpty()
+        menu.findItem(R.id.copy_return_value).isVisible = returnValue.isNotEmpty()
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -151,17 +165,15 @@ class RecordDetailActivity : BaseActivity() {
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.copy_raw_data -> {
-                ToolUtils.toClip(this, rawData.replaceFirst(Regex("""原始数据：|Raw data: """), ""))
+                ToolUtils.toClip(this, rawData)
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.copy_crypt_result -> {
-                ToolUtils.toClip(
-                    this,
-                    cryptResult.replaceFirst(
-                        Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """),
-                        ""
-                    )
-                )
+                ToolUtils.toClip(this, cryptResult)
+                getString(R.string.main_home_export_configs_tip).toast(this)
+            }
+            R.id.copy_return_value -> {
+                ToolUtils.toClip(this, returnValue)
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
         }

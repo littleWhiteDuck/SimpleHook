@@ -90,7 +90,9 @@ object JsonUtil {
         val dataList = ArrayList<ConfigItem>()
         appConfigs.forEach { appConfig ->
             appConfig.id = 0
-            dataList.add(ConfigItem(appConfig))
+            if (appConfig.configs != null) {
+                dataList.add(ConfigItem(appConfig))
+            }
         }
         dataList
     } catch (e: java.lang.Exception) {

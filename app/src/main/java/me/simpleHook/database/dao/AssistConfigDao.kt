@@ -12,6 +12,9 @@ interface AssistConfigDao {
     @Query("SELECT * FROM AssistConfig ORDER BY ID DESC")
     fun getConfigs(): List<AssistConfig>
 
+    @Query("SELECT packageName FROM AssistConfig ORDER BY ID DESC")
+    fun getAllExtensionPackageNames(): List<String>
+
     @Delete
     suspend fun deleteConfigs(vararg config: AssistConfig)
 
