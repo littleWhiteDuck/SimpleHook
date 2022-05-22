@@ -94,7 +94,7 @@ The following are the writing rules: (You can download *[HookTest.apk](/HookTest
 #### 2.1. Primitive type
 
 | Type (java, smali) | Examples of value ​​ | Note |
-| ------------------ | -------------------- | --------- ----------------------- |
+| ------------------ | -------------------- | ------------- |
 | boolean (boolean, Z) | true, false | |
 | int(int, I) | 1, 2, 3 | |
 | long(long, J) | 1l, 120000L, 123456l | Note: Number + 'L' |
@@ -117,7 +117,7 @@ The following are the writing rules: (You can download *[HookTest.apk](/HookTest
 ##### 2.3.2 Special cases
 
 | Special Strings | Examples of Values ​​| Notes |
-| ------------ | -------------------------------- | --- -------------------------------------------------- ------- |
+| ------------ | -------------------------------- | ------------------------------------------ |
 | Number | 111s, 2002s | Commonly seen in "111111", but in this software you need to add s after the number, if you don't add s, it will be converted into a number, which may cause the target application to crash |
 | Boolean | trues, falses | Common in "true" and "false", but in this software, you need to add s after the boolean value. If you do not add s, it will be converted to a boolean value, which may cause the target application to crash |
 | null | nulls | Commonly seen in "null", but in this software, you need to add s after null. If you do not add s, it will be converted to null, which may lead to a null pointer in the target application |
@@ -437,7 +437,7 @@ public class MainActivity extends Acitvity {
 
 #### record parameter value
 
-> The parameter values ​​of the method will be recorded, go to the record page to view,
+> The parameter values of the method will be recorded, go to the record page to view,
 > If the parameter is an array or list, it will be converted to json format
 
 #### record return value
