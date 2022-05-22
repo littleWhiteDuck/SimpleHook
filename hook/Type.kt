@@ -37,7 +37,8 @@ object Type {
         matches(SHORT_PATTERN, value) -> value.replace(Regex("short"), "").toShortValue
         matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "")[0]
         matches(STRING_PATTERN_NUMBER, value) -> value.replace(Regex("""[s|S]"""), "")
-        matches(STRING_PATTERN_BOOLEAN, value) -> value.replace(Regex("""[s|S]"""), "")
+        matches(STRING_PATTERN_BOOLEAN, value) -> value.removeRange(value.length - 1, value.length)
+            .lowercase()
         matches(STRING_PATTERN_NULL, value) -> value.replace(Regex("""[s|S]"""), "")
         else -> value
     }

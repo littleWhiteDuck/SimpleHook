@@ -11,6 +11,7 @@ import me.simpleHook.util.*
 object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
+        if (type == "null") return
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
         try {
@@ -19,7 +20,8 @@ object LogHook {
                 "log" to log,
                 "read" to 0,
                 "type" to type,
-                "time" to time
+                "time" to time,
+                "isMark" to 0
             )
             context?.let {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
@@ -52,9 +54,7 @@ object LogHook {
         }
     }
 
-    fun toStackTrace(
-        context: Context, stackTrace: Array<StackTraceElement>
-    ): List<String> {
+    fun toStackTrace(stackTrace: Array<StackTraceElement>): List<String> {
         val isNotChinese = LanguageUtils.isNotChinese()
         val items = mutableListOf<String>()
         var notBug = 0
