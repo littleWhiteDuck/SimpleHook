@@ -46,7 +46,9 @@
         <activity
             android:name=".ui.activity.ConfigActivity"
             android:label="@string/app_config"
-            android:theme="@style/Theme.SimpleHook" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.SimpleHook"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="true"

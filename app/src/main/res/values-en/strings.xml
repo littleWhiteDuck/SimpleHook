@@ -359,4 +359,5 @@
         <item>Check all applications (super slow)</item>
     </string-array>
     <string name="copied">copied!</string>
+    <string name="record_item_swipe_delete_tip">Swipe to delete</string>
 </resources>

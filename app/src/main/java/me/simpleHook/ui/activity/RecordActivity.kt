@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -75,11 +77,10 @@ class RecordActivity : BaseActivity() {
     private val configs by lazy { appViewModel.getConfigs() }
     private val swipeDeleteIcon by lazy {
         ContextCompat.getDrawable(
-            this,
-            R.drawable.ic_delete_black_24
+            this, R.drawable.ic_delete_black_24
         )
     }
-    private val swipeBackground by lazy { ColorDrawable(Color.LTGRAY) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,6 +165,14 @@ class RecordActivity : BaseActivity() {
                     }
                 }
 
+
+                private val fontMetrics = Paint.FontMetrics()
+                private val swipeBackground = ColorDrawable(Color.LTGRAY)
+                private val swipeText = getString(R.string.record_item_swipe_delete_tip)
+                private val swipeTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).also {
+                    it.color = Color.BLACK
+                }
+
                 override fun onChildDraw(
                     c: Canvas,
                     recyclerView: RecyclerView,
@@ -179,7 +188,7 @@ class RecordActivity : BaseActivity() {
                     val itemView = viewHolder.itemView
                     val iconMargin = (itemView.height - swipeDeleteIcon!!.intrinsicHeight) / 2
                     val iconLeft: Int
-                    val iconRight: Int
+                    var iconRight = 0
                     val iconBottom: Int
                     val backLeft: Int
                     val backRight: Int
@@ -197,12 +206,26 @@ class RecordActivity : BaseActivity() {
                         swipeDeleteIcon!!.setBounds(
                             iconLeft, iconTop, iconRight, iconBottom
                         )
+
                     } else {
                         swipeBackground.setBounds(0, 0, 0, 0)
                         swipeDeleteIcon!!.setBounds(0, 0, 0, 0)
                     }
                     swipeBackground.draw(c)
                     swipeDeleteIcon!!.draw(c)
+                    if (iconRight != 0) {
+                        swipeTextPaint.textSize = itemView.height / 3f
+                        swipeTextPaint.getFontMetrics(fontMetrics)
+                        val offsetFix =
+                            (fontMetrics.descent - fontMetrics.ascent - fontMetrics.bottom + fontMetrics.top) * 1.5f
+                        c.drawText(
+                            swipeText,
+                            iconRight.toFloat(),
+                            itemView.top.toFloat() + itemView.height / 2 + (fontMetrics.descent - fontMetrics.ascent) / 2 + offsetFix,
+                            swipeTextPaint
+                        )
+                    }
+
                 }
 
             }).attachToRecyclerView(binding.recyclerView)

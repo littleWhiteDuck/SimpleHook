@@ -3,7 +3,7 @@ package me.simpleHook.bean
 import androidx.annotation.Keep
 
 @Keep
-data class AssistConfigBean(
+data class ExtensionConfigBean(
     var all: Boolean = false,
     var dialog: Boolean = false,
     var diaCancel: Boolean = false,

@@ -1,3 +1,13 @@
+v1.2.4
+    1.支持记录变量值
+    2.加入【hook返回值+】，它可以返回一个对象通过json代码，详细说明见Github
+    3.hook变量增加【Hook点】，after/before表示在方法执行后/前hook变量，默认after
+    4.多个问题修复
+
+    1. Support record field value
+    2. Add [hook return value+], it can return an object through json code, see Github for details
+    3. The hook variable increases [Hook point], after/before means the Hook field after the method is executed or before the method is executed, the default 'after'
+    4. Multiple bug fixes
 v1.2.3
     1.hook返回值可以返回随机文本（请参考Github修改值中string部分）
     2.可以阻止带有关键词的文本写入剪贴板（可以使用正则表达式，多个关键词需要换行输入）

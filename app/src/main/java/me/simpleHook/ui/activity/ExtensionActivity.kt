@@ -31,7 +31,7 @@ import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
 import me.simpleHook.adapter.MultiTypeAdapter
-import me.simpleHook.bean.AssistConfigBean
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.constant.Constant
@@ -90,7 +90,7 @@ class AssistActivity : BaseActivity() {
         }
     private var statusChecked = 0
     private var statusUnChecked = 0
-    private lateinit var configBean: AssistConfigBean
+    private lateinit var configBean: ExtensionConfigBean
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,8 +131,8 @@ class AssistActivity : BaseActivity() {
         }
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
-            config, AssistConfigBean::class.java
-        ) else AssistConfigBean()
+            config, ExtensionConfigBean::class.java
+        ) else ExtensionConfigBean()
         itemList.apply {
             configBean.apply {
                 add(AssistTitle(getString(R.string.extension_item_title_basic)))

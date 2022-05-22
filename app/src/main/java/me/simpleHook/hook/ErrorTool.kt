@@ -1,11 +1,13 @@
 package me.simpleHook.hook
 
-import                                                                                       android.content.Context
+import android.content.Context
 import com.google.gson.Gson
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip.getTip
 
 object ErrorTool {
+
+    @JvmStatic
     fun toLog(
         context: Context, list: List<String>, packageName: String, type: String
     ) {
@@ -13,6 +15,7 @@ object ErrorTool {
         LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
     }
 
+    @JvmStatic
     fun notFoundClass(
         context: Context, packageName: String, className: String, methodName: String, error: String
     ) {
@@ -26,6 +29,7 @@ object ErrorTool {
         toLog(context, list, packageName, "Error ClassNotFoundError")
     }
 
+    @JvmStatic
     fun noSuchMethod(
         context: Context, packageName: String, className: String, methodName: String, error: String
     ) {

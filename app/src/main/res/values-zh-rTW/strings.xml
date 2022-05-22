@@ -346,7 +346,7 @@
     <string name="config_mode_tip_static_field_value">靜態變量</string>
     <string name="config_mode_tip_return2_value">返回值+</string>
     <string name="record_detail_menu_copy_return_value">複製返回值</string>
-    <string name="main_settings_left_config_summary">詳細見常見問題7</string>
+    <string name="main_settings_left_config_summary">詳細說明見常見問題第7條</string>
     <string name="main_settings_left_config_title">刪除遺留配置</string>
     <string name="main_delete_left_config_loading_tip">正在校驗中</string>
     <string name="config_dialog_hook_point_edit_tip">輸入hook點</string>
@@ -359,4 +359,5 @@
         <item>校驗全部應用(超慢)</item>
     </string-array>
     <string name="copied">已復制！</string>
+    <string name="record_item_swipe_delete_tip">右滑刪除</string>
 </resources>

@@ -2,7 +2,6 @@ package me.simpleHook.hook
 
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import com.google.gson.Gson
@@ -11,77 +10,38 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage
-import me.simpleHook.bean.AssistConfigBean
 import me.simpleHook.bean.ConfigBean
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.ErrorTool.noSuchMethod
 import me.simpleHook.hook.ErrorTool.notFoundClass
-import me.simpleHook.hook.ExtensionHook.aes
-import me.simpleHook.hook.ExtensionHook.base64
-import me.simpleHook.hook.ExtensionHook.hookClipboardInfo
-import me.simpleHook.hook.ExtensionHook.hookDialog
-import me.simpleHook.hook.ExtensionHook.hookIntent
-import me.simpleHook.hook.ExtensionHook.hookJSONArray
-import me.simpleHook.hook.ExtensionHook.hookJSONObject
-import me.simpleHook.hook.ExtensionHook.hookOnClick
-import me.simpleHook.hook.ExtensionHook.hookPopupWindow
-import me.simpleHook.hook.ExtensionHook.hookToast
-import me.simpleHook.hook.ExtensionHook.hookVpnCheck
-import me.simpleHook.hook.ExtensionHook.hookWebDebug
-import me.simpleHook.hook.ExtensionHook.hookWebLoadUrl
-import me.simpleHook.hook.ExtensionHook.mac
-import me.simpleHook.hook.ExtensionHook.shaAndMD5
 import me.simpleHook.hook.LogHook.toLogMsg
 import me.simpleHook.hook.LogHook.toStackTrace
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
+import me.simpleHook.hook.extension.*
 import me.simpleHook.util.*
 import org.json.JSONObject
 import java.io.File
 import java.io.FileNotFoundException
 
-
-private const val selfCheckConfig =
-    "{\"appName\":\"\",\"configs\":\"[{\\\"className\\\":\\\"me.simpleHook.ui.activity.MainActivity\\\",\\\"fieldName\\\":\\\"\\\",\\\"fieldType\\\":\\\"\\\",\\\"methodName\\\":\\\"isModuleLive\\\",\\\"mode\\\":0,\\\"params\\\":\\\"\\\",\\\"resultValues\\\":\\\"true\\\"}]\",\"description\":\"\",\"enable\":true,\"id\":0,\"packageName\":\"me.simpleHook\",\"versionName\":\"\"}"
-
-class Hook {
+class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
     private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
     private val assistUri = Uri.parse("content://littleWhiteDuck/assist_configs")
-
     /*    private val prefHookConfig by lazy { getHookConfigPref() }
         private val prefAssistConfig by lazy { getHookConfigPref("assistConfig") }*/
-    private var mContext: Context? = null
-    private lateinit var mClassLoader: ClassLoader
-    private var isNotChinese = false
-    fun initHook(loadPackageParam: XC_LoadPackage.LoadPackageParam?) {
-        val packageName = loadPackageParam!!.packageName
-        val classLoader = loadPackageParam.classLoader
-        XposedHelpers.findAndHookMethod(
-            Application::class.java, "attach", Context::class.java, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    mContext = param.args[0] as Context
-                    mClassLoader = mContext?.classLoader ?: classLoader
-                    isNotChinese = LanguageUtils.isNotChinese()
-                    if (packageName == "me.simpleHook") {
-                        startHook(selfCheckConfig, packageName)
-                    } else {
-                        //优先通过context扩展hook：dialog、toast等
-                        contextAssistHook(packageName)
-                        //优先读取文件配置准备hook
-                        if (FlavorUtils.isNormal()) {
-                            fileHook2(packageName)
-                        } else {
-                            fileHook(packageName)
-                        }
 
-                    }
-
-
-                }
-            })
+    override fun startHook(packageName: String, strConfig: String) {
+        if (FlavorUtils.isNormal()) {
+            // 普通版本
+            fileHook2(packageName)
+        } else {
+            // root版本
+            fileHook(packageName)
+        }
+        contextAssistHook(packageName)
     }
 
     private fun fileHook(
@@ -144,14 +104,14 @@ class Hook {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             if (appConfig.enable) {
                 getTip("startCustomHook").log(packageName)
-                startHook(strConfig, packageName)
+                readHook(strConfig, packageName)
             }
         }
     }
 
     @SuppressLint("Range")
     private fun contextHook(packageName: String) {
-        mContext?.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
+        mContext.contentResolver?.query(uri, null, "packageName = ?", arrayOf(packageName), null)
             ?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("enable")) == 1) {
@@ -164,7 +124,7 @@ class Hook {
                             description = ""
                         )
                         getTip("getConfigSuccessDB").log(packageName)
-                        startHook(Gson().toJson(appConfig), packageName)
+                        readHook(Gson().toJson(appConfig), packageName)
                         break
                     }
                 }
@@ -172,7 +132,7 @@ class Hook {
             } ?: getTip("failedGetConfigDB").log(packageName)
     }
 
-    private fun startHook(strConfig: String, packageName: String) {
+    private fun readHook(strConfig: String, packageName: String) {
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
@@ -182,39 +142,38 @@ class Hook {
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> FieldHook.hookStaticField(
-                            className,
-                            mClassLoader,
-                            methodName,
-                            params,
-                            fieldName,
+                            className = className,
+                            classLoader = mClassLoader,
+                            methodName = methodName,
+                            params = params,
+                            fieldName = fieldName,
                             values = resultValues,
                             fieldClassName = fieldClassName,
-                            context = mContext!!,
+                            context = mContext,
                             packageName = packageName,
                             hookPoint = hookPoint,
                             isRecord = it.mode == Constant.HOOK_RECORD_STATIC_FIELD
                         )
                         Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> FieldHook.hookField(
-                            className,
-                            mClassLoader,
+                            className = className,
+                            classLoader = mClassLoader,
                             methodName = methodName,
                             params = params,
                             fieldName = fieldName,
                             values = resultValues,
-                            context = mContext!!,
+                            context = mContext,
                             packageName = packageName,
                             hookPoint = hookPoint,
                             isRecord = it.mode == Constant.HOOK_RECORD_INSTANCE_FIELD
                         )
                         else -> specificHook(
-                            className,
-                            mClassLoader,
-                            methodName,
-                            resultValues,
-                            params,
-                            mode,
-                            packageName,
-                            returnClassName
+                            className = className,
+                            methodName = methodName,
+                            values = resultValues,
+                            params = params,
+                            mode = mode,
+                            packageName = packageName,
+                            returnClassName = returnClassName
                         )
                     }
                 }
@@ -227,7 +186,7 @@ class Hook {
                 strConfig
             }
             ErrorTool.toLog(
-                mContext!!, arrayListOf(
+                mContext, arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: $configTemp",
                     getTip("detailReason") + e.stackTraceToString()
@@ -241,7 +200,6 @@ class Hook {
 
     private fun specificHook(
         className: String,
-        classLoader: ClassLoader,
         methodName: String,
         values: String,
         params: String,
@@ -271,7 +229,7 @@ class Hook {
             Constant.HOOK_RETURN2 -> {
                 obj[realSize] = object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        hookReturnValue2(values, param, returnClassName)
+                        hookReturnValuePro(values, param, returnClassName)
                     }
                 }
             }
@@ -313,7 +271,7 @@ class Hook {
         }
         try {
             if (params == "*") {
-                val hookClass = classLoader.loadClass(className)
+                val hookClass = mClassLoader.loadClass(className)
                 if (methodName == "<init>") {
                     XposedBridge.hookAllConstructors(hookClass, obj[realSize] as XC_MethodHook?)
                 } else {
@@ -323,26 +281,26 @@ class Hook {
                 }
             } else {
                 if (methodName == "<init>") {
-                    XposedHelpers.findAndHookConstructor(className, classLoader, *obj)
+                    XposedHelpers.findAndHookConstructor(className, mClassLoader, *obj)
                 } else {
-                    XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+                    XposedHelpers.findAndHookMethod(className, mClassLoader, methodName, *obj)
                 }
             }
         } catch (e: NoSuchMethodError) {
             noSuchMethod(
-                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
+                mContext, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
             notFoundClass(
-                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
+                mContext, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
             notFoundClass(
-                mContext!!, packageName, className, "$methodName($params)", e.stackTraceToString()
+                mContext, packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -350,7 +308,7 @@ class Hook {
 
     }
 
-    private fun hookReturnValue2(
+    private fun hookReturnValuePro(
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
         val hookClass = XposedHelpers.findClass(returnClassName, mClassLoader)
@@ -358,6 +316,7 @@ class Hook {
         param.result = hookObject
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun hookReturnValue(
         values: String, param: XC_MethodHook.MethodHookParam
     ) {
@@ -366,7 +325,7 @@ class Hook {
             try {
                 val jsonObject = JSONObject(targetValue)
                 if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has("key")) {
-                    val randomSeed = jsonObject.optString("random", "abcdefgh123456789")
+                    val randomSeed = jsonObject.optString("random", "a1b2c3d4e5f6g7h8i9k0l")
                     val len = jsonObject.optInt("length", 10)
                     val updateTime = jsonObject.optLong("updateTime", -1L)
                     val key = jsonObject.getString("key")
@@ -420,7 +379,7 @@ class Hook {
                 getTip("filledMethodParams") + "$methodName($params)",
                 getTip("detailReason") + e.stackTraceToString()
             )
-            ErrorTool.toLog(mContext!!, list, packageName, "Error HookParamsError")
+            ErrorTool.toLog(mContext, list, packageName, "Error HookParamsError")
         }
     }
 
@@ -430,7 +389,7 @@ class Hook {
         param: XC_MethodHook.MethodHookParam,
         packageName: String
     ) {
-        val type = if (isNotChinese) "Param value" else "参数值"
+        val type = if (isShowEnglish) "Param value" else "参数值"
         val list = mutableListOf<String>()
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
@@ -442,7 +401,7 @@ class Hook {
                 list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
             }
         }
-        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val items = toStackTrace(Throwable().stackTrace).toList()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -456,12 +415,12 @@ class Hook {
         packageName: String
     ) {
         val list = mutableListOf<String>()
-        val type = if (isNotChinese) "Return value" else "返回值"
+        val type = if (isShowEnglish) "Return value" else "返回值"
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
-        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val items = toStackTrace(Throwable().stackTrace).toList()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -474,7 +433,7 @@ class Hook {
         param: XC_MethodHook.MethodHookParam,
         packageName: String
     ) {
-        val type = if (isNotChinese) "Param&Return Value" else "参返"
+        val type = if (isShowEnglish) "Param&Return Value" else "参返"
         val list = mutableListOf<String>()
         list.add(getTip("className") + className)
         list.add(getTip("methodName") + methodName)
@@ -488,7 +447,7 @@ class Hook {
         }
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
-        val items = toStackTrace(mContext!!, Throwable().stackTrace).toList()
+        val items = toStackTrace(Throwable().stackTrace).toList()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -506,7 +465,7 @@ class Hook {
     @SuppressLint("Range")
     private fun contextAssistHook(packageName: String) {
         var config = ""
-        mContext?.contentResolver?.query(
+        mContext.contentResolver?.query(
             assistUri, null, "packageName = ?", arrayOf(packageName), null
         )?.apply {
             while (moveToNext()) {
@@ -515,15 +474,13 @@ class Hook {
             close()
         } ?: run {
             getTip("failedGetExtensionConfigDB").log(packageName)
-            if (FlavorUtils.isNormal()) fileAssistHook2(packageName) else fileAssistHook(
+            if (FlavorUtils.isNormal()) fileExtensionHook2(packageName) else fileExtensionHook(
                 packageName
             )
         }
         if (config == "") return
-        mContext?.also {
-            getTip("getExtensionConfigSuccessDB").log(packageName)
-            readyAssistHook(config, packageName)
-        }
+        getTip("getExtensionConfigSuccessDB").log(packageName)
+        readyExtensionHook(config, packageName)
     }
 /*
     private fun xmlAssistHook(packageName: String) {
@@ -540,29 +497,29 @@ class Hook {
 
     }*/
 
-    private fun fileAssistHook(packageName: String) {
+    private fun fileExtensionHook(packageName: String) {
         try {
             val strConfig =
                 File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             getTip("getExtensionConfigSuccessRoot").log(packageName)
-            readyAssistHook(strConfig, packageName)
+            readyExtensionHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
             getTip("failedGetExtensionConfigRoot").log(packageName)
-            fileAssistHook2(packageName)
+            fileExtensionHook2(packageName)
             /* "准备从xml中获取扩展配置".log()
              xmlAssistHook(packageName)*/
         }
 
     }
 
-    private fun fileAssistHook2(packageName: String) {
+    private fun fileExtensionHook2(packageName: String) {
         try {
             val strConfig =
                 File(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             getTip("getExtensionConfigSuccessData").log(packageName)
-            readyAssistHook(strConfig, packageName)
+            readyExtensionHook(strConfig, packageName)
         } catch (e: FileNotFoundException) {
             getTip("getExtensionConfigSuccessData").log(packageName)
             /* "准备从xml中获取扩展配置".log()
@@ -571,38 +528,43 @@ class Hook {
 
     }
 
-    private fun readyAssistHook(
+    private fun readyExtensionHook(
         strConfig: String, packageName: String
     ) {
         try {
             if (strConfig.trim().isEmpty()) return
             getTip("startExtensionHook").log(packageName)
-            val configBean = Gson().fromJson(strConfig, AssistConfigBean::class.java)
+            val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
             configBean.apply {
                 if (!all) return
-                val context: Context = mContext!!
-                hookDialog(context, dialog, diaCancel, stopDialog, packageName)
-                if (toast) hookToast(context, packageName)
-                hookPopupWindow(context, popup, popCancel, stopDialog, packageName)
-                if (hotFix) HotFix.startFix(context, packageName)
-                if (intent) hookIntent(context, packageName)
-                if (click) hookOnClick(context, packageName)
-                if (vpn) hookVpnCheck(context)
-                if (base64) base64(context, packageName)
-                if (digest) shaAndMD5(context, packageName)
-                if (hmac) mac(context, packageName)
-                if (crypt) aes(context, packageName)
-                if (jsonObject) hookJSONObject(context, packageName)
-                if (jsonArray) hookJSONArray(context, packageName)
-                if (webLoadUrl) hookWebLoadUrl(context, packageName)
-                if (webDebug) hookWebDebug(context, packageName)
-                if (filterClipboard.enable) hookClipboardInfo(
-                    context, packageName, filterClipboard.info
+                if (dialog || diaCancel || stopDialog.enable) {
+                    DialogHook(mClassLoader, mContext).startHook(packageName, strConfig)
+                }
+                if (popup || popCancel || stopDialog.enable) {
+                    PopupWindowHook(mClassLoader, mContext).startHook(packageName, strConfig)
+                }
+                if (toast) ToastHook(mClassLoader, mContext).startHook(packageName, "")
+                if (hotFix) HotFixHook(mClassLoader, mContext).startHook(packageName, "")
+                if (intent) IntentHook(mClassLoader, mContext).startHook(packageName, "")
+                if (click) ClickEventHook(mClassLoader, mContext).startHook(packageName, "")
+                if (vpn) VpnCheckHook(mClassLoader, mContext).startHook(packageName, "")
+                if (base64) Base64Hook(mClassLoader, mContext).startHook(packageName, "")
+                if (digest) SHAHook(mClassLoader, mContext).startHook(packageName, "")
+                if (hmac) HMACHook(mClassLoader, mContext).startHook(packageName, "")
+                if (crypt) AESHook(mClassLoader, mContext).startHook(packageName, "")
+                if (jsonObject || jsonArray) JSONHook(mClassLoader, mContext).startHook(
+                    packageName, strConfig
+                )
+                if (webLoadUrl || webDebug) WebHook(mClassLoader, mContext).startHook(
+                    packageName, strConfig
+                )
+                if (filterClipboard.enable) ClipboardFilterHook(mClassLoader, mContext).startHook(
+                    packageName, strConfig
                 )
             }
         } catch (e: java.lang.Exception) {
             ErrorTool.toLog(
-                mContext!!, arrayListOf(
+                mContext, arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: ${JsonUtil.formatJson(strConfig)}",
                     getTip("detailReason") + e.stackTraceToString()
@@ -610,4 +572,6 @@ class Hook {
             )
         }
     }
+
+
 }
