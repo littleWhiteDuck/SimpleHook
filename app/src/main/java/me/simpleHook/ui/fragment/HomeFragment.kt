@@ -138,31 +138,33 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun deleteConfig(appConfig: AppConfig) {
-        viewModel.deleteConfigs(appConfig)
-        FileUtils.realDeleteConfig(
-            requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
-        )
-        Snackbar.make(
-            binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
-        ).apply {
-            anchorView = bottomNavigationView
-        }.addCallback(object : Snackbar.Callback() {
-            override fun onShown(sb: Snackbar?) {
-                super.onShown(sb)
-                if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
-                    DecelerateInterpolator(1.5f)
-            }
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.deleteConfigs(appConfig)
+            FileUtils.realDeleteConfig(
+                requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
+            )
+            Snackbar.make(
+                binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
+            ).apply {
+                anchorView = bottomNavigationView
+            }.addCallback(object : Snackbar.Callback() {
+                override fun onShown(sb: Snackbar?) {
+                    super.onShown(sb)
+                    if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
+                        DecelerateInterpolator(1.5f)
+                }
 
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                super.onDismissed(transientBottomBar, event)
-                if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
-                    DecelerateInterpolator(1.5f)
-            }
-        }).setAction(getString(R.string.main_home_undo_delete_config)) {
-            viewModel.insertConfigs(appConfig)
-            val configStr = Gson().toJson(appConfig)
-            saveToText(appConfig.packageName, configStr)
-        }.show()
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
+                        DecelerateInterpolator(1.5f)
+                }
+            }).setAction(getString(R.string.main_home_undo_delete_config)) {
+                viewModel.insertConfigs(appConfig)
+                val configStr = Gson().toJson(appConfig)
+                saveToText(appConfig.packageName, configStr)
+            }.show()
+        }
     }
 
     private fun itemOnLongClick(appConfig: AppConfig) {

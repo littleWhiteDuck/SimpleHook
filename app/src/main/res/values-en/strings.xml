@@ -360,4 +360,5 @@
     </string-array>
     <string name="copied">copied!</string>
     <string name="record_item_swipe_delete_tip">Swipe to delete</string>
+    <string name="extension_item_desc_application_name">Record Application name</string>
 </resources>

@@ -55,9 +55,6 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
         } else if (contentView is TextView) {
             list.add(Tip.getTip("text") + contentView.text.toString())
         }
-
-        val stackTrace = Throwable().stackTrace
-
         if (configBean.stopDialog.enable) {
             val showText = list.toString()
             val keyWords = configBean.stopDialog.info.split("\n")
@@ -67,7 +64,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
                         if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.getStackTrace(), packageName
                         )
                     )
                     LogHook.toLogMsg(mContext, log, packageName, type)
@@ -78,8 +75,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
         }
         if (configBean.popup) {
             val type = "PopupWindow"
-            val log =
-                Gson().toJson(LogBean(type, list + LogHook.toStackTrace(stackTrace), packageName))
+            val log = Gson().toJson(LogBean(type, list + LogHook.getStackTrace(), packageName))
             LogHook.toLogMsg(mContext, log, packageName, type)
         }
     }

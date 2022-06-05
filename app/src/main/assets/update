@@ -1,3 +1,9 @@
+v1.2.5
+    1. 增加扩展Hook：记录应用入口名
+    2. 修复删除配置界面卡顿的情况
+
+    1. Add extension: record application name
+    2. Fix: Deleting the config causes the UI to lag
 v1.2.4
     1.支持记录变量值
     2.加入【hook返回值+】，它可以返回一个对象通过json代码，详细说明见Github
@@ -6,7 +12,7 @@ v1.2.4
 
     1. Support record field value
     2. Add [hook return value+], it can return an object through json code, see Github for details
-    3. The hook variable increases [Hook point], after/before means the Hook field after the method is executed or before the method is executed, the default 'after'
+    3. The hook field increases [Hook point], after/before means the Hook field after the method is executed or before the method is executed, the default 'after'
     4. Multiple bug fixes
 v1.2.3
     1.hook返回值可以返回随机文本（请参考Github修改值中string部分）

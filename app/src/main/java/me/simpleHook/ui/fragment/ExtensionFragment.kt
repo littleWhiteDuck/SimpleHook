@@ -202,11 +202,12 @@ class ExtensionFragment : Fragment() {
     }
 
     private fun itemOnLongClick(assistConfig: AssistConfig) {
-        appViewModel.deleteAssistConfigs(assistConfig)
-        FileUtils.realDeleteConfig(
-            requireContext(), assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
-        )
-
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            appViewModel.deleteAssistConfigs(assistConfig)
+            FileUtils.realDeleteConfig(
+                requireContext(), assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
+            )
+        }
         Snackbar.make(
             binding.addConfig,
             getString(R.string.main_extension_delete_config_tip),

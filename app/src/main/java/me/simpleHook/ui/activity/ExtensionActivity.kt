@@ -31,9 +31,9 @@ import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
 import me.simpleHook.adapter.MultiTypeAdapter
-import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
@@ -69,6 +69,7 @@ private const val WEB_LOAD_URL_STATUS = 1 shl 16
 private const val WEB_DEBUG_STATUS = 1 shl 17
 private const val STOP_DIALOG_STATUS = 1 shl 18
 private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
+private const val APPLICATION_STATUS = 1 shl 20
 private const val startAppTag = 666
 
 class AssistActivity : BaseActivity() {
@@ -319,6 +320,14 @@ class AssistActivity : BaseActivity() {
                         filterClipboard.enable,
                         FILTER_CLIPBOARD_STATUS,
                         getString(R.string.extension_item_desc_filter_clipboard)
+                    )
+                )
+                add(
+                    AssistItem(
+                        title = "Application",
+                        application,
+                        APPLICATION_STATUS,
+                        getString(R.string.extension_item_desc_application_name)
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_network)))
@@ -610,6 +619,9 @@ class AssistActivity : BaseActivity() {
 
         if (isContains(FILTER_CLIPBOARD_STATUS)) {
             configBean.filterClipboard.enable = isChecked(FILTER_CLIPBOARD_STATUS)
+        }
+        if (isContains(APPLICATION_STATUS)) {
+            configBean.application = isChecked(APPLICATION_STATUS)
         }
         val config = Gson().toJson(configBean)
         assistConfig.config = config

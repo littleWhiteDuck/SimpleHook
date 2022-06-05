@@ -304,7 +304,7 @@
         <item>记录实例变量</item>
     </string-array>
     <integer-array name="config_hook_mode_item_value">
-        <item>0</item>
+        <item name="1">0</item>
         <item>10</item>
         <item>1</item>
         <item>3</item>
@@ -315,7 +315,6 @@
         <item>7</item>
         <item>8</item>
         <item>9</item>
-
     </integer-array>
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
@@ -390,6 +389,7 @@
     <string name="config_dialog_return_class_name_tip">返回值的类名</string>
     <string name="copied">已复制！</string>
     <string name="record_item_swipe_delete_tip">右滑删除</string>
+    <string name="extension_item_desc_application_name">记录Application(入口)名</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

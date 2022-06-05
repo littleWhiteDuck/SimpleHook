@@ -28,8 +28,7 @@ class ClipboardFilterHook(mClassLoader: ClassLoader, mContext: Context) :
                             if (info.contains(Regex(it))) {
                                 param.result = null
                                 val type = Tip.getTip("filterClipboard")
-                                val stackTrace = Throwable().stackTrace
-                                val items = LogHook.toStackTrace(stackTrace).toList()
+                                val items = LogHook.getStackTrace()
                                 val logBean = LogBean(
                                     type,
                                     arrayListOf(Tip.getTip("clipboardInfo") + info) + items,

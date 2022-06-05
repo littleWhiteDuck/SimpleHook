@@ -96,4 +96,10 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <style name="OutlinedButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:paddingLeft">@dimen/mtrl_btn_padding_left</item>
+        <item name="android:paddingRight">@dimen/mtrl_btn_padding_right</item>
+        <item name="strokeColor">@color/mtrl_btn_stroke_color_selector</item>
+        <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
+    </style>
 </resources>

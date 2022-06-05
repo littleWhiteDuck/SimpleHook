@@ -76,8 +76,7 @@ class HMACHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                     Tip.getTip("rawData") + hasMap["rawData"],
                     Tip.getTip("encryptResult") + hasMap["result"]
                 )
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace().toList()
                 val logBean = LogBean(
                     hasMap["algorithmType"] ?: "null", list + items, packageName
                 )

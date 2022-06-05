@@ -23,7 +23,8 @@ data class ExtensionConfigBean(
     var webLoadUrl: Boolean = false,
     var webDebug: Boolean = false,
     val stopDialog: ExtensionItemConfig = ExtensionItemConfig(),
-    val filterClipboard: ExtensionItemConfig = ExtensionItemConfig()
+    val filterClipboard: ExtensionItemConfig = ExtensionItemConfig(),
+    var application: Boolean = false
 )
 
 @Keep

@@ -36,8 +36,7 @@
                     app:cardCornerRadius="5dp"
                     app:cardElevation="3dp"
                     app:cardPreventCornerOverlap="true"
-                    app:cardUseCompatPadding="true"
-                    app:layout_collapseMode="parallax" />
+                    app:cardUseCompatPadding="true" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
 

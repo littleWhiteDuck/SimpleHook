@@ -360,4 +360,5 @@
     </string-array>
     <string name="copied">已復制！</string>
     <string name="record_item_swipe_delete_tip">右滑刪除</string>
+    <string name="extension_item_desc_application_name">記錄Application(入口)名</string>
 </resources>

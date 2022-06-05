@@ -106,7 +106,7 @@ class AESHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                             ) + Tip.getTip("result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
-                        val items = LogHook.toStackTrace(stackTrace).toList()
+                        val items = LogHook.getStackTrace()
                         val logBean = LogBean(
                             map["algorithmType"] ?: "null", list + items, packageName
                         )

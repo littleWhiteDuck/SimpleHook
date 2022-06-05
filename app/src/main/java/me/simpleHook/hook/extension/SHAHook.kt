@@ -49,8 +49,7 @@ class SHAHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                 val md = param.thisObject as MessageDigest
                 val type = md.algorithm ?: "unknown"
                 val result = byte2Sting(param.result as ByteArray)
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace().toList()
                 val logBean = LogBean(
                     type, listOf(
                         Tip.getTip("isEncrypt"),
