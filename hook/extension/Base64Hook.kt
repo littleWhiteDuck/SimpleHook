@@ -21,8 +21,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace)
+                    val items = LogHook.getStackTrace()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
@@ -44,8 +43,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.getStackTrace().toList()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
@@ -77,8 +75,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                     val len = param.args[2] as Int
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.getStackTrace()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
@@ -104,8 +101,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                     val len = param.args[2] as Int
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
-                    val stackTrace = Throwable().stackTrace
-                    val items = LogHook.toStackTrace(stackTrace).toList()
+                    val items = LogHook.getStackTrace()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(

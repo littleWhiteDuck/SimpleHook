@@ -118,7 +118,11 @@ object FieldHook {
         val type = if (LanguageUtils.isNotChinese()) "Static field" else "静态变量"
         val hookClass = XposedHelpers.findClass(fieldClassName, context.classLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, fieldName)
-        val list = listOf(getTip("className") + fieldClassName, getTip("fieldName") + fieldName, getTip("fieldValue") + result)
+        val list = listOf(
+            getTip("className") + fieldClassName,
+            getTip("fieldName") + fieldName,
+            getTip("fieldValue") + result
+        )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
         LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
     }
@@ -224,7 +228,11 @@ object FieldHook {
         val type = if (LanguageUtils.isNotChinese()) "Instance field" else "实例变量"
         val thisObj = param.thisObject
         val result = XposedHelpers.getObjectField(thisObj, fieldName)
-        val list = listOf(getTip("className") + className, getTip("fieldName") + fieldName, getTip("fieldValue") + result)
+        val list = listOf(
+            getTip("className") + className,
+            getTip("fieldName") + fieldName,
+            getTip("fieldValue") + result
+        )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
         LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
     }

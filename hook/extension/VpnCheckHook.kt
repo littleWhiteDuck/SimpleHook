@@ -9,7 +9,8 @@ class VpnCheckHook(classLoader: ClassLoader, context: Context) : BaseHook(classL
 
     override fun startHook(packageName: String, strConfig: String) {
         mContext.packageName
-        XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
+        XposedHelpers.findAndHookMethod(
+            "java.net.NetworkInterface",
             mClassLoader,
             "getName",
             object : XC_MethodHook() {

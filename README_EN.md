@@ -528,7 +528,7 @@ public class MainActivity extends Acitvity {
 
 > Some hooks support manually filling in the hook point. The hook point is the hook before the method is executed or the hook after the method is executed.
 >
-> before: hook before method execution
+> before: hook before method execution;
 > after: hook after the method is executed
 
 ### 7. What is [Remove interfering configuration]

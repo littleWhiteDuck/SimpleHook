@@ -34,7 +34,6 @@ class DialogHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
                 if (configBean.diaCancel) {
                     dialog.setCancelable(true)
                 }
-                val stackTrace = Throwable().stackTrace
                 if (configBean.stopDialog.enable) {
                     val showText = list.toString()
                     val keyWords = configBean.stopDialog.info.split("\n")
@@ -44,9 +43,7 @@ class DialogHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
                             val type = if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
                             val log = Gson().toJson(
                                 LogBean(
-                                    type,
-                                    list + LogHook.toStackTrace(stackTrace),
-                                    packageName
+                                    type, list + LogHook.getStackTrace(), packageName
                                 )
                             )
                             LogHook.toLogMsg(mContext, log, packageName, type)
@@ -58,7 +55,7 @@ class DialogHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
                     val type = if (isShowEnglish) "Dialog" else "弹窗"
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.getStackTrace(), packageName
                         )
                     )
                     LogHook.toLogMsg(mContext, log, packageName, type)

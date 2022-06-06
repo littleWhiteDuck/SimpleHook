@@ -43,12 +43,9 @@ class ToastHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassL
                     }
                 }
                 val type = "Toast"
-                val stackTrace = Throwable().stackTrace
                 val log = Gson().toJson(
                     LogBean(
-                        type,
-                        list + LogHook.toStackTrace(stackTrace),
-                        packageName
+                        type, list + LogHook.getStackTrace(), packageName
                     )
                 )
                 LogHook.toLogMsg(mContext, log, packageName, type)

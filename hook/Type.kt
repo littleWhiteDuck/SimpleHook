@@ -9,6 +9,7 @@ import me.simpleHook.util.toShortValue
 import java.util.regex.Pattern.matches
 
 object Type {
+    // 未考虑非法数字
     private const val BYTE_PATTERN = """^-?[0-9]\d*[b|B]$"""
     private const val SHORT_PATTERN = """^-?[0-9]\d*short$"""
     private const val INT_PATTERN = """^-?[0-9]\d*$"""
@@ -18,7 +19,7 @@ object Type {
     private const val BOOLEAN_PATTERN = """(?i)true|false"""
     private const val CHAR_PATTERN = """^.*[c|C]$"""
 
-    private const val STRING_PATTERN_NUMBER = """^-?0?[1-9]\d*[l|L]?[s|S]$"""
+    private const val STRING_PATTERN_NUMBER = """^-?[0-9]\d*[l|L]?[s|S]$"""
     private const val STRING_PATTERN_BOOLEAN = """^(?i)trues|falses$"""
     private const val STRING_PATTERN_NULL = """^(?i)null[s|S]$"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""

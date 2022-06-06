@@ -17,7 +17,8 @@ import me.simpleHook.hook.getAllTextView
 class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
     BaseHook(mClassLoader, mContext) {
     override fun startHook(packageName: String, strConfig: String) {
-        XposedBridge.hookAllMethods(PopupWindow::class.java,
+        XposedBridge.hookAllMethods(
+            PopupWindow::class.java,
             "showAtLocation",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
@@ -26,7 +27,8 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
                     )
                 }
             })
-        XposedBridge.hookAllMethods(PopupWindow::class.java,
+        XposedBridge.hookAllMethods(
+            PopupWindow::class.java,
             "showAsDropDown",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam?) {
@@ -38,9 +40,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
     }
 
     private fun hookPopupWindowDetail(
-        param: XC_MethodHook.MethodHookParam?,
-        packageName: String,
-        strConfig: String
+        param: XC_MethodHook.MethodHookParam?, packageName: String, strConfig: String
     ) {
         val popupWindow = param?.thisObject as PopupWindow
         val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
@@ -55,9 +55,6 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
         } else if (contentView is TextView) {
             list.add(Tip.getTip("text") + contentView.text.toString())
         }
-
-        val stackTrace = Throwable().stackTrace
-
         if (configBean.stopDialog.enable) {
             val showText = list.toString()
             val keyWords = configBean.stopDialog.info.split("\n")
@@ -67,7 +64,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
                         if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.getStackTrace(), packageName
                         )
                     )
                     LogHook.toLogMsg(mContext, log, packageName, type)
@@ -78,7 +75,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
         }
         if (configBean.popup) {
             val type = "PopupWindow"
-            val log = Gson().toJson(LogBean(type, list + LogHook.toStackTrace(stackTrace), packageName))
+            val log = Gson().toJson(LogBean(type, list + LogHook.getStackTrace(), packageName))
             LogHook.toLogMsg(mContext, log, packageName, type)
         }
     }

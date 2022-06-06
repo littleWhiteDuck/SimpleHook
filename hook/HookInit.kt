@@ -23,7 +23,8 @@ class HookInit : IXposedHookLoadPackage {
                     }
                 })
         } else {
-            XposedHelpers.findAndHookMethod(Application::class.java,
+            XposedHelpers.findAndHookMethod(
+                Application::class.java,
                 "attach",
                 Context::class.java,
                 object : XC_MethodHook() {

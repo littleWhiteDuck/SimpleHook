@@ -19,7 +19,8 @@ private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
 class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
     override fun startHook(packageName: String, strConfig: String) {
-        XposedHelpers.findAndHookMethod(ACTIVITY,
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY,
             mClassLoader,
             START_ACTIVITY,
             Intent::class.java,

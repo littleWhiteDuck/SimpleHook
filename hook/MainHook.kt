@@ -18,7 +18,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.ErrorTool.noSuchMethod
 import me.simpleHook.hook.ErrorTool.notFoundClass
 import me.simpleHook.hook.LogHook.toLogMsg
-import me.simpleHook.hook.LogHook.toStackTrace
+import me.simpleHook.hook.LogHook.getStackTrace
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.Type.getDataTypeValue
 import me.simpleHook.hook.extension.*
@@ -312,8 +312,12 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
         val hookClass = XposedHelpers.findClass(returnClassName, mClassLoader)
-        val hookObject = Gson().fromJson(values, hookClass)
-        param.result = hookObject
+        try {
+            val hookObject = Gson().fromJson(values, hookClass)
+            param.result = hookObject
+        } catch (e: Exception) {
+            hookReturnValue(values, param)
+        }
     }
 
     @SuppressLint("ApplySharedPref")
@@ -401,7 +405,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
             }
         }
-        val items = toStackTrace(Throwable().stackTrace).toList()
+        val items = getStackTrace()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -420,7 +424,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
         list.add(getTip("methodName") + methodName)
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
-        val items = toStackTrace(Throwable().stackTrace).toList()
+        val items = getStackTrace()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -447,7 +451,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
         }
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
-        val items = toStackTrace(Throwable().stackTrace).toList()
+        val items = getStackTrace()
         val logBean = LogBean(
             type, list + items, packageName
         )
@@ -561,6 +565,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 if (filterClipboard.enable) ClipboardFilterHook(mClassLoader, mContext).startHook(
                     packageName, strConfig
                 )
+                if (application) ApplicationHook(mClassLoader, mContext).startHook(packageName, "")
             }
         } catch (e: java.lang.Exception) {
             ErrorTool.toLog(
@@ -572,6 +577,5 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
             )
         }
     }
-
 
 }
