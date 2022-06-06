@@ -54,7 +54,8 @@ object LogHook {
         }
     }
 
-    fun toStackTrace(stackTrace: Array<StackTraceElement>): List<String> {
+    fun getStackTrace(): List<String> {
+        val stackTrace = Throwable().stackTrace
         val isNotChinese = LanguageUtils.isNotChinese()
         val items = mutableListOf<String>()
         var notBug = 0

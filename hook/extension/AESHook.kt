@@ -101,10 +101,12 @@ class AESHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                             Tip.getTip("key") + map["key"],
                             "iv：${map["iv"]}",
                             Tip.getTip("rawData") + map["rawData"],
-                            Tip.getTip(map["cryptType"] ?: "error") + Tip.getTip("result") + map["result"]
+                            Tip.getTip(
+                                map["cryptType"] ?: "error"
+                            ) + Tip.getTip("result") + map["result"]
                         )
                         val stackTrace = Throwable().stackTrace
-                        val items = LogHook.toStackTrace(stackTrace).toList()
+                        val items = LogHook.getStackTrace()
                         val logBean = LogBean(
                             map["algorithmType"] ?: "null", list + items, packageName
                         )

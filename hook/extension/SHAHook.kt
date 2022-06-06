@@ -11,8 +11,7 @@ import me.simpleHook.hook.Tip
 import me.simpleHook.hook.byte2Sting
 import java.security.MessageDigest
 
-class SHAHook(mClassLoader: ClassLoader, mContext: Context) :
-    BaseHook(mClassLoader, mContext) {
+class SHAHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
     override fun startHook(packageName: String, strConfig: String) {
         val hashMap = HashMap<String, String>()
         XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
@@ -50,8 +49,7 @@ class SHAHook(mClassLoader: ClassLoader, mContext: Context) :
                 val md = param.thisObject as MessageDigest
                 val type = md.algorithm ?: "unknown"
                 val result = byte2Sting(param.result as ByteArray)
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace().toList()
                 val logBean = LogBean(
                     type, listOf(
                         Tip.getTip("isEncrypt"),

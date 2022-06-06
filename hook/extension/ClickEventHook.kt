@@ -39,10 +39,9 @@ class ClickEventHook(mClassLoader: ClassLoader, mContext: Context) :
                     } else if (view is ViewGroup) {
                         list += getAllTextView(view)
                     }
-                    val stackTrace = Throwable().stackTrace
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.toStackTrace(stackTrace), packageName
+                            type, list + LogHook.getStackTrace(), packageName
                         )
                     )
                     LogHook.toLogMsg(mContext, log, packageName, type)

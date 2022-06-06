@@ -30,8 +30,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
@@ -49,8 +48,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
@@ -67,8 +65,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
@@ -86,8 +83,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
-                val stackTrace = Throwable().stackTrace
-                val items = LogHook.toStackTrace(stackTrace).toList()
+                val items = LogHook.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )

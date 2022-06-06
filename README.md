@@ -530,7 +530,7 @@ public class MainActivity extends Acitvity {
 
 > hook静态变量、实例变量支持手动填写hook点，hook点就是在方法执行前hook还是在方法执行后hook
 >
-> before：方法执行前hook
+> before：方法执行前hook;
 > after：方法执行后hook
 
 ### 7.什么是删除遗留配置
