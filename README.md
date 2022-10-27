@@ -82,7 +82,7 @@
   // 基本类型你也可以使用smali语法这样填
   Z I J S C B F D
   // 其他类型你可以使用java语法这样填
-  jave.lang.String android.content.Context 
+  java.lang.String android.content.Context 
   // 其他类型你也可以使用smali语法这样填
   Ljava/lang/String; Landroid/content/Context; //一定要有 --> ; <--
   ```
