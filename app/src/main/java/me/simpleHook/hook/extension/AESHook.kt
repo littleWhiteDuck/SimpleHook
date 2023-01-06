@@ -105,7 +105,6 @@ class AESHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                                 map["cryptType"] ?: "error"
                             ) + Tip.getTip("result") + map["result"]
                         )
-                        val stackTrace = Throwable().stackTrace
                         val items = LogHook.getStackTrace()
                         val logBean = LogBean(
                             map["algorithmType"] ?: "null", list + items, packageName

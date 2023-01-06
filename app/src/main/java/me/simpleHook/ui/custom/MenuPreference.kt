@@ -29,12 +29,10 @@ class MenuPreference(context: Context, attrs: AttributeSet?) : Preference(contex
     }
 
     @SuppressLint("RestrictedApi")
-    override fun performClick(view: View?) {
+    override fun performClick(view: View) {
         if (entries.isEmpty()) return
-        val popupWindowList = PopupWindowList.Builder(context)
-            .setItemList(entries)
-            .setOutsideTouchable(true)
-            .build()
+        val popupWindowList =
+            PopupWindowList.Builder(context).setItemList(entries).setOutsideTouchable(true).build()
         popupWindowList.setOnItemClickListener { _, _, position, _ ->
             callChangeListener(entries[position])
             popupWindowList.dismiss()

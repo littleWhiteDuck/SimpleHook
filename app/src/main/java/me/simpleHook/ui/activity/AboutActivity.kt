@@ -260,8 +260,8 @@ class AboutActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_about, menu)
-        if (AppUtils.isAppInstalled(this, "org.telegram.messenger") && Random.nextBoolean()) {
-            menu.findItem(R.id.add_group).isVisible = true
+        if (AppUtils.isAppInstalled(this, "org.telegram.messenger")) {
+            menu.findItem(R.id.add_group).isVisible = Random.nextBoolean()
         }
         return true
     }
@@ -283,15 +283,4 @@ class AboutActivity : BaseActivity() {
         return true
     }
 
-    private fun addQQGroup() {
-        val key = "ITwyYmRjcla4IN1N1_PIaHmxC6KvoUZj"
-        val intent = Intent()
-        intent.data =
-            Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D$key")
-        try {
-            startActivity(intent)
-        } catch (e: Exception) {
-            "QQ未安装".toast(this)
-        }
-    }
 }
