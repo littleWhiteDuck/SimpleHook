@@ -22,16 +22,17 @@ object Constant {
     const val HOOK_RETURN2 = 10
 
     //目录
-    const val CONFIG_MAIN_DIRECTORY = "/data/simpleHook/"
+    const val ROOT_CONFIG_MAIN_DIRECTORY = "/data/local/tmp/simpleHook/"
     const val RECORD_TEMP_DIRECTORY = "logTemp/log.txt"
-    const val CONFIG_DIRECTORY = "/storage/emulated/0/Download/simpleHook/data/"
-    const val PRINT_LOG__DIRECTORY = "/storage/emulated/0/Download/simpleHook/printLog/"
-    const val HOT_FIX_DIRECTORY = "/storage/emulated/0/Download/simpleHook/hotFix/"
+    const val CONFIG_DIRECTORY = "/simpleHook/config/"
+    const val RECORD_DIRECTORY = "simpleHook/printLog/"
+    const val HOT_FIX_DIRECTORY = "simpleHook/hotFix/"
 
     // Android/data
     const val ANDROID_DATA_URI =
         "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
     const val ANDROID_DATA_PATH = "/storage/emulated/0/Android/data/"
+
 
     //应用列表排序
     const val APP_LIST_BY_NAME = 0
@@ -72,5 +73,11 @@ object Constant {
     const val RECORD_SEARCH_GLOBAL = 0
     const val RECORD_SEARCH_RAW_DATA = 1
     const val RECORD_SEARCH_RESULT = 2
+
+    // permission
+    const val IS_GRANT = 0
+    const val NO_ROOT = 1
+    const val NO_STORAGE_1 = 2
+    const val NO_STORAGE_2 = 3
 
 }

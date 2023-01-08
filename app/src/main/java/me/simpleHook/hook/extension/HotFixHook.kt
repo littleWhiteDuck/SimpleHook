@@ -17,7 +17,7 @@ class HotFixHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
         val pathName = if (FlavorUtils.isNormal()) {
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/dex/"
         } else {
-            Constant.CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
+            Constant.ROOT_CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
         }
         val fileTree: FileTreeWalk = File(pathName).walk()
         fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {//循环处理符合条件的文件

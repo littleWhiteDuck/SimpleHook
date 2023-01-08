@@ -259,8 +259,8 @@ class RecordActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             recordAdapter.refresh()
         }, delayTime)
-        readFileLogInsert()
-        readFileLogInsert()
+        // readFileLogInsert()
+        // readFileLogInsert()
     }
 
     private fun readFileLogInsert() {

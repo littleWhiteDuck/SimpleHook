@@ -65,11 +65,14 @@
     <string name="main_settings_title_about">關於</string>
     <string name="main_settings_title_help">幫助</string>
     <string name="main_settings_summary_help">常見問題</string>
-    <string name="main_settings_title_expand">增加讀取配置方式</string>
+    <string name="main_settings_title_necessary_permission_status">必要權限狀態</string>
     <string name="main_settings_title_storage">開啟儲存權限寫入配置</string>
     <string name="main_settings_summary_storage">將配置寫入本地和讀取部分Log（大部分情況下需要開啟）</string>
-    <string name="main_settings_title_storage_root">開啟Root權限寫入配置</string>
-    <string name="main_settings_summary_storage_root">通過Root寫入配置和讀取部分Log（大部分情況下需要開啟）</string>
+    <string name="main_settings_title_storage_permission">已獲取必要權限</string>
+    <string name="main_settings_summary_storage_permission">正常運行中</string>
+    <string name="main_settings_title_storage_no_permission">缺少必要權限</string>
+    <string name="main_settings_summary_storage_no_root">點擊獲取ROOT權限</string>
+    <string name="main_settings_summary_storage_no">點擊獲取存儲權限</string>
     <string name="main_settings_title_experiment">實驗功能</string>
     <string name="main_settings_summary_to_config">詳細說明見常見問題第2條</string>
     <string name="main_settings_title_to_config">smali轉化為配置</string>
@@ -361,4 +364,5 @@
     <string name="copied">已復制！</string>
     <string name="record_item_swipe_delete_tip">右滑刪除</string>
     <string name="extension_item_desc_application_name">記錄Application(入口)名</string>
+    <string name="main_request_root_permission_message">由於你的系統版本在13或以上，需要申請root權限後才能使用</string>
 </resources>

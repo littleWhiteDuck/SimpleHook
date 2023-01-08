@@ -8,32 +8,40 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.os.Process
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.documentfile.provider.DocumentFile
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
+import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.database.AppViewModel
+import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.fragment.ExtensionFragment
-import me.simpleHook.ui.fragment.HomeFragment
-import me.simpleHook.ui.fragment.RecordSummaryFragment
-import me.simpleHook.ui.fragment.SettingsFragment
+import me.simpleHook.ui.fragment.*
 import me.simpleHook.util.*
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.lang.reflect.Field
 import java.net.URL
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 
@@ -52,51 +60,31 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        /*   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-               splashScreen.setOnExitAnimationListener { splashScreenView ->
-                   val iconAlphaAnim = ObjectAnimator.ofFloat(splashScreenView.iconView, View.ALPHA, 1f, 0f)
-                   iconAlphaAnim.duration = 500
-                   iconAlphaAnim.interpolator = FastOutLinearInInterpolator()
-                   val iconRotateAnim = ObjectAnimator.ofFloat(
-                       splashScreenView.iconView,
-                       View.ROTATION, 270F
-                   )
-                   iconRotateAnim.interpolator = FastOutLinearInInterpolator()
-                   iconRotateAnim.duration = 500
-                   val animatorSet = AnimatorSet()
-                   animatorSet.playTogether(iconRotateAnim, iconAlphaAnim)
-                   animatorSet.doOnEnd { splashScreenView.remove() }
-                   animatorSet.start()
-               }
-           }
-   */
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
-        if (sp.openStorage) {
-            if (FlavorUtils.isNormal()) {
-                if (!FileUtils.isGrant(this)) {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        requestPermissionDialog(this) {
-                            val document = DocumentFile.fromTreeUri(
-                                this, Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                            startActivityForData.launch(
-                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                        }
-                    } else {
-                        requestPermissionDialog(this) {
-                            FileUtils.verifyStoragePermissions(this)
-                        }
+        if (FlavorUtils.isNormal()) {
+            if (!FileUtils.isGrant(this)) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    requestPermissionDialog(this) {
+                        val document = DocumentFile.fromTreeUri(
+                            this, Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                        startActivityForData.launch(
+                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                    }
+                } else {
+                    requestPermissionDialog(this) {
+                        FileUtils.verifyStoragePermissions(this)
                     }
                 }
-            } else {
-                SuUtil.init(this)
             }
+        } else {
+            SuUtil.init(this)
         }
         initUseTip()
         checkUpdate()

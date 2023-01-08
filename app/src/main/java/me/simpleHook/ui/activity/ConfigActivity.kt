@@ -729,33 +729,31 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun saveToText(packageName: String, configStr: String) {
-        if (sp.openStorage) {
-            if (FlavorUtils.isNormal()) {
-                if (FileUtils.isGrant(this)) {
-                    FileUtils.saveConfig(
-                        this, packageName, Constant.APP_CONFIG_NAME, configStr
-                    )
-                } else {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        requestPermissionDialog(this) {
-                            val document = DocumentFile.fromTreeUri(
-                                this, Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                            startActivityForData.launch(
-                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                        }
-                    } else {
-                        requestPermissionDialog(this) {
-                            FileUtils.verifyStoragePermissions(this)
-                        }
-                    }
-                }
-            } else {
+        if (FlavorUtils.isNormal()) {
+            if (FileUtils.isGrant(this)) {
                 FileUtils.saveConfig(
                     this, packageName, Constant.APP_CONFIG_NAME, configStr
                 )
+            } else {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    requestPermissionDialog(this) {
+                        val document = DocumentFile.fromTreeUri(
+                            this, Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                        startActivityForData.launch(
+                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                    }
+                } else {
+                    requestPermissionDialog(this) {
+                        FileUtils.verifyStoragePermissions(this)
+                    }
+                }
             }
+        } else {
+            FileUtils.saveConfig(
+                this, packageName, Constant.APP_CONFIG_NAME, configStr
+            )
         }
     }
 

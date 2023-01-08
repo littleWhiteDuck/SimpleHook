@@ -479,65 +479,58 @@ class AssistActivity : BaseActivity() {
     }
 
     private fun createDexDirectory(tipToast: Boolean = true) {
-        if (sp.openStorage) {
-            val tip = """
+        val tip = """
                      若是root版：导入dex后，手动给可读权限（Root）或重新打开simpleHook软件（需有Root权限）
                      1. 无效，取消此应用作用域，再给此应用作用域
                      2. 无效，清除数据，重复1
                      3. 无效，卸载重装，重复1
                      4. 无效，与你无缘，用不了
                     """.trimIndent()
-            if (FlavorUtils.isNormal()) {
-                if (FileUtils.isGrant(this)) {
-                    val filePath = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        FileUtils.writeDocumentFile(
-                            content = tip,
-                            context = this,
-                            path = "/${assistConfig.packageName}/simpleHook/dex/",
-                            fileName = "说明.txt",
-                            mimiType = "text/plain"
-                        )
-                    } else {
-                        FileUtils.writeTextToFile(
-                            tip, filePath, "说明.txt"
-                        )
-                    }
-                    if (tipToast) {
-                        ToolUtils.toClip(this, filePath)
-                        "dex存放目录已复制到剪切板中".toast(this)
-                    }
-
+        if (FlavorUtils.isNormal()) {
+            if (FileUtils.isGrant(this)) {
+                val filePath = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    FileUtils.writeDocumentFile(
+                        content = tip,
+                        context = this,
+                        path = "/${assistConfig.packageName}/simpleHook/dex/",
+                        fileName = "说明.txt",
+                        mimiType = "text/plain"
+                    )
                 } else {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        requestPermissionDialog(this) {
-                            val document = DocumentFile.fromTreeUri(
-                                this, Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                            startActivityForData.launch(
-                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                        }
-                    } else {
-                        requestPermissionDialog(this) {
-                            FileUtils.verifyStoragePermissions(this)
-                        }
-                    }
+                    FileUtils.writeTextToFile(
+                        tip, filePath, "说明.txt"
+                    )
                 }
-
-            } else {
-                val filePath = Constant.CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
-                FileUtils.writeTextToFile(
-                    tip, filePath, "说明.txt"
-                )
                 if (tipToast) {
                     ToolUtils.toClip(this, filePath)
                     "dex存放目录已复制到剪切板中".toast(this)
                 }
+
+            } else {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    requestPermissionDialog(this) {
+                        val document = DocumentFile.fromTreeUri(
+                            this, Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                        startActivityForData.launch(
+                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                        )
+                    }
+                } else {
+                    requestPermissionDialog(this) {
+                        FileUtils.verifyStoragePermissions(this)
+                    }
+                }
             }
 
         } else {
-            "未开启增加读取配置：不可用".toast(this)
+            val filePath = Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
+            SuUtil.saveConfig(filePath = filePath, fileName = "说明.txt", content = tip)
+            if (tipToast) {
+                ToolUtils.toClip(this, filePath)
+                "dex存放目录已复制到剪切板中".toast(this)
+            }
         }
     }
 
@@ -647,13 +640,10 @@ class AssistActivity : BaseActivity() {
 
     private fun saveToText(packageName: String, config: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            if (sp.openStorage) {
-                FileUtils.saveConfig(
-                    this@AssistActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
-                )
-            }
+            FileUtils.saveConfig(
+                this@AssistActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
+            )
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

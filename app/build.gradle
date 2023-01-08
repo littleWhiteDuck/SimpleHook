@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    def normal = rootProject.ext.config.normal
+
     signingConfigs {
         mySign {
             storeFile file('D:\\littleWhiteDuck\\sign\\littleWhiteDuck.jks')
@@ -14,15 +14,14 @@ android {
             keyPassword 'littleWhite'
         }
     }
-
-    compileSdkVersion 32
+    compileSdkVersion 33
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin-parcelize'
     defaultConfig {
         resConfigs 'zh_CN,en,zh_TW'
         applicationId "me.simpleHook"
         minSdkVersion 22
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode rootProject.ext.config.versionCode
         versionName rootProject.ext.config.versionName
         flavorDimensions "default"
@@ -36,11 +35,11 @@ android {
             zipAlignEnabled true
             signingConfig signingConfigs.mySign
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField("Boolean", "normal", "${normal}")
+            //buildConfigField("Boolean", "normal", "${normal}")
         }
         debug {
             // minifyEnabled true
-            buildConfigField("Boolean", "normal", "${normal}")
+            //buildConfigField("Boolean", "normal", "${normal}")
         }
     }
     compileOptions {

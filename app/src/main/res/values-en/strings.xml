@@ -108,11 +108,14 @@
     <string name="main_extension_menu_show_model">View templates</string>
     <string name="main_extension_menu_about_model">About templates</string>
     <string name="main_settings_summary_help">FAQ</string>
-    <string name="main_settings_title_expand">Add read config</string>
+    <string name="main_settings_title_necessary_permission_status">Necessary permission status</string>
     <string name="main_settings_title_storage">Save config to file</string>
     <string name="main_settings_summary_storage">Save the configuration to the local and read part of the Log (in most cases, it needs to be turned on)</string>
-    <string name="main_settings_title_storage_root">Save config to file</string>
-    <string name="main_settings_summary_storage_root">Save configuration and read part of Log through Root (need to be enabled in most cases)</string>
+    <string name="main_settings_title_storage_permission">Obtained necessary permissions</string>
+    <string name="main_settings_summary_storage_permission">Running normally</string>
+    <string name="main_settings_title_storage_no_permission">Missing necessary permissions</string>
+    <string name="main_settings_summary_storage_no_root">Click to get ROOT permission</string>
+    <string name="main_settings_summary_storage_no">Click to get storage permission</string>
     <string name="main_settings_summary_to_config">See FAQ 2 for details</string>
     <string name="app_record">Record</string>
     <string name="app_about">About</string>
@@ -361,4 +364,5 @@
     <string name="copied">copied!</string>
     <string name="record_item_swipe_delete_tip">Swipe to delete</string>
     <string name="extension_item_desc_application_name">Record Application name</string>
+    <string name="main_request_root_permission_message">Since your system version is 13 or above, you need to grant root permission to use</string>
 </resources>

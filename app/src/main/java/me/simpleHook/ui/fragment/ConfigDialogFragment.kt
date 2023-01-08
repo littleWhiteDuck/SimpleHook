@@ -2,8 +2,8 @@ package me.simpleHook.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +26,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.hook.Type
+import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.util.*
 
 class ConfigDialogFragment(
@@ -106,21 +107,18 @@ class ConfigDialogFragment(
             }
             confirm.setOnClickListener {
                 var checkIsZero = true
-                val isGrant = sp.openStorage
                 if (mode == Constant.CONFIG_IMPORT_MODE) {
                     val tempList = mutableListOf<AppConfig>()
                     for (item in configsList) {
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                if (isGrant) {
-                                    FileUtils.saveConfig(
-                                        mContext,
-                                        item.appConfig.packageName,
-                                        Constant.APP_CONFIG_NAME,
-                                        Gson().toJson(item.appConfig)
-                                    )
-                                }
+                                FileUtils.saveConfig(
+                                    mContext,
+                                    item.appConfig.packageName,
+                                    Constant.APP_CONFIG_NAME,
+                                    Gson().toJson(item.appConfig)
+                                )
                             }
                             tempList.add(item.appConfig)
                         }
@@ -131,6 +129,9 @@ class ConfigDialogFragment(
                     } else {
                         "导入成功".toast(mContext)
                         this@ConfigDialogFragment.dismiss()
+                    }
+                    if (tag == "from text import") {
+                        goMainActivity()
                     }
                 } else {
                     val tempList = ArrayList<ConfigItem>()
@@ -165,8 +166,21 @@ class ConfigDialogFragment(
                     setAllSelect()
                 }
             }
-            cancel.setOnClickListener { this@ConfigDialogFragment.dismiss() }
+            cancel.setOnClickListener {
+                this@ConfigDialogFragment.dismiss()
+                if (tag == "from text import") {
+                    goMainActivity()
+                }
+            }
         }
+    }
+
+    private fun goMainActivity() {
+        val intent = Intent(requireActivity(), MainActivity::class.java).also {
+            it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        }
+        requireActivity().startActivity(intent)
+        requireActivity().finish()
     }
 
     @SuppressLint("NotifyDataSetChanged")

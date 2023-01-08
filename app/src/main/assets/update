@@ -1,3 +1,13 @@
+v1.2.6
+    1. 安卓13及以上使用root权限写入配置
+    2. 记录信息（扩展功能：加密算法、弹窗信息等）须保持本应用在后台运行
+    3. fix: bugs
+    4. 支持文本文件外部打开simplehook导入配置
+
+    1. Android 13 and above write config by using root
+    2. Record(extension functions: encryption algorithm, dialog information, etc.) must keep the app running in the background
+    3. fix: bugs
+    4. Support import config from external text file
 v1.2.5
     1. 增加扩展Hook：记录应用入口名
     2. 修复删除配置界面卡顿的情况

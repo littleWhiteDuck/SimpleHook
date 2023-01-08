@@ -326,11 +326,9 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        if (sp.openStorage) {
-                            FileUtils.saveConfig(
-                                mContext, appConfig.packageName, Constant.APP_CONFIG_NAME, configs
-                            )
-                        }
+                        FileUtils.saveConfig(
+                            mContext, appConfig.packageName, Constant.APP_CONFIG_NAME, configs
+                        )
                     }
                 } catch (e: java.lang.Exception) {
                     getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
@@ -348,12 +346,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun saveToText(packageName: String, configs: String) {
-        if (sp.openStorage) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                FileUtils.saveConfig(
-                    requireContext(), packageName, Constant.APP_CONFIG_NAME, configs
-                )
-            }
+        lifecycleScope.launch(Dispatchers.IO) {
+            FileUtils.saveConfig(
+                requireContext(), packageName, Constant.APP_CONFIG_NAME, configs
+            )
         }
     }
 

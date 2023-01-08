@@ -231,12 +231,10 @@ class ExtensionFragment : Fragment() {
     }
 
     private fun saveToText(packageName: String, configs: String) {
-        if (sp.openStorage) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                FileUtils.saveConfig(
-                    requireContext(), packageName, Constant.EXTENSION_CONFIG_NAME, configs
-                )
-            }
+        lifecycleScope.launch(Dispatchers.IO) {
+            FileUtils.saveConfig(
+                requireContext(), packageName, Constant.EXTENSION_CONFIG_NAME, configs
+            )
         }
     }
 

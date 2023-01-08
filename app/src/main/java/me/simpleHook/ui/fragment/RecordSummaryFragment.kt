@@ -5,7 +5,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -225,8 +224,8 @@ class RecordSummaryFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.getAllRecord()
         }, time)
-        readFileLogInsert()
-        readFileLogInsert()
+        // readFileLogInsert()
+        // readFileLogInsert()
     }
 
     private fun readFileLogInsert() {

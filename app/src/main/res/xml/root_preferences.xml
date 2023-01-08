@@ -1,18 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/main_settings_title_expand">
-        <SwitchPreferenceCompat
-            app:defaultValue="false"
-            app:key="openStorage"
-            app:summary="@string/main_settings_summary_storage_root"
-            app:title="@string/main_settings_title_storage_root" />
-        <SwitchPreferenceCompat
-            app:defaultValue="false"
-            app:isPreferenceVisible="false"
-            app:key="openXml"
-            app:summary="@string/main_settings_summary_xml"
-            app:title="@string/main_settings_title_xml" />
+    <PreferenceCategory app:title="@string/main_settings_title_necessary_permission_status">
+        <Preference
+            app:key="necessary_permission"
+            app:title="@string/main_settings_title_storage_permission"
+            app:summary="@string/main_settings_summary_storage_permission" />
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_custom">

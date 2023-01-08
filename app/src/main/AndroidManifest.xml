@@ -60,6 +60,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activity.ImportConfigActivity"
+            android:exported="true">
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name=".provider.MyProvider"
@@ -79,7 +90,6 @@
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
-
     </application>
 
 </manifest>

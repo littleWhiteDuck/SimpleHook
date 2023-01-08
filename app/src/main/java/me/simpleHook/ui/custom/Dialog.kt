@@ -7,11 +7,15 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.simpleHook.R
 
-fun requestPermissionDialog(context: Context, okClick: () -> Unit) {
+fun requestPermissionDialog(
+    context: Context,
+    message: String = context.getString(R.string.main_request_storage_permission_message),
+    okClick: () -> Unit
+) {
     warningDialog(
         context,
         context.getString(R.string.main_request_storage_permission_title),
-        context.getString(R.string.main_request_storage_permission_message),
+        message,
         okText = context.getString(R.string.main_request_storage_permission_okText),
         okClick = okClick
     )
@@ -29,7 +33,8 @@ fun warningDialog(
         title = title,
         message = message,
         okText = okText,
-        okClick = { okClick() }, cancelText = context.getString(R.string.dialog_cancel)
+        okClick = { okClick() },
+        cancelText = context.getString(R.string.dialog_cancel)
     ).show()
 }
 

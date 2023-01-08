@@ -1,10 +1,10 @@
 package me.simpleHook.util
 
-import me.simpleHook.BuildConfig
+import android.os.Build
 
 object FlavorUtils {
 
     fun isNormal(): Boolean {
-        return BuildConfig.normal
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2
     }
 }

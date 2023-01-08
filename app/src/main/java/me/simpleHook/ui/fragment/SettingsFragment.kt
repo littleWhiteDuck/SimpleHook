@@ -16,10 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -31,9 +31,13 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.viewmodel.SettingsViewModel
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
-import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.MenuPreference
+import me.simpleHook.ui.custom.requestPermissionDialog
+import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.io.*
 import java.util.*
@@ -42,6 +46,7 @@ import kotlin.concurrent.thread
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
     private val viewModel: AppViewModel by activityViewModels()
+    private val settingsViewModel by viewModels<SettingsViewModel>()
     private val restoreConfigs =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
             resultUri?.let {
@@ -67,39 +72,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        findPreference<SwitchPreferenceCompat>("openStorage")?.apply {
-            if (FlavorUtils.isNormal()) {
-                title = getString(R.string.main_settings_title_storage)
-                summary = getString(R.string.main_settings_summary_storage)
-            }
-            setOnPreferenceChangeListener { _, newValue ->
-                if (newValue as Boolean) {
-                    if (FlavorUtils.isNormal()) {
-                        if (!FileUtils.isGrant(requireContext())) {
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                                requestPermissionDialog(requireContext()) {
-                                    val document = DocumentFile.fromTreeUri(
-                                        requireContext(), Uri.parse(Constant.ANDROID_DATA_URI)
-                                    )
-                                    startActivityForData.launch(
-                                        document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                                    )
-                                }
-                            } else {
-                                requestPermissionDialog(requireContext()) {
-                                    FileUtils.verifyStoragePermissions(requireActivity())
-                                }
-                            }
-                        }
-                    } else {
-                        SuUtil.init(requireContext())
-                    }
-                }
-                true
-            }
-        }
         findPreference<Preference>("about")?.apply {
             setOnPreferenceClickListener {
                 startActivity(Intent(requireContext(), AboutActivity::class.java))
@@ -251,11 +224,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun checkPermission() {
+        if (SuUtil.isRoot || FileUtils.isGrant(requireContext())) {
+            settingsViewModel.permStatus.value = Constant.IS_GRANT
+            return
+        }
+        settingsViewModel.permStatus.value = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
+            Constant.NO_ROOT
+        } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            Constant.NO_STORAGE_1
+        } else {
+            Constant.NO_STORAGE_2
+        }
+    }
+
 
     private fun deleteLeftConfigs(position: Int) {
         val loadingDialog = LoadingDialog(
-            requireActivity(),
-            getString(R.string.main_delete_left_config_loading_tip)
+            requireActivity(), getString(R.string.main_delete_left_config_loading_tip)
         )
         loadingDialog.show()
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
@@ -395,7 +381,57 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         })
+        initViewModel()
         return recyclerView
+    }
+
+    private fun initViewModel() {
+        findPreference<Preference>("necessary_permission")?.apply {
+            settingsViewModel.permStatus.observe(viewLifecycleOwner) {
+                when (it) {
+                    Constant.IS_GRANT -> {
+                        title = getString(R.string.main_settings_title_storage_permission)
+                        summary = getString(R.string.main_settings_summary_storage_permission)
+                    }
+                    Constant.NO_ROOT -> {
+                        title = "缺少必要权限"
+                        summary = "点击获取ROOT权限"
+                    }
+                    else -> {
+                        title = "缺少必要权限"
+                        summary = "点击获取存储权限"
+                    }
+                }
+            }
+            setOnPreferenceClickListener {
+                when (settingsViewModel.permStatus.value) {
+                    Constant.NO_ROOT -> {
+                        SuUtil.init(requireContext())
+                        if (SuUtil.isRoot) settingsViewModel.permStatus.value = 0
+                    }
+                    Constant.NO_STORAGE_1 -> {
+                        requestPermissionDialog(requireContext()) {
+                            val document = DocumentFile.fromTreeUri(
+                                requireContext(), Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
+                            startActivityForData.launch(
+                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
+                            )
+                            if (FileUtils.isGrant(requireContext())) settingsViewModel.permStatus.value =
+                                0
+                        }
+                    }
+                    Constant.NO_STORAGE_2 -> {
+                        requestPermissionDialog(requireContext()) {
+                            FileUtils.verifyStoragePermissions(requireActivity())
+                        }
+                        if (FileUtils.isGrant(requireContext())) settingsViewModel.permStatus.value =
+                            0
+                    }
+                }
+                true
+            }
+        }
     }
 
     private fun readTextFromUri(uri: Uri): String {
@@ -442,6 +478,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } catch (e: java.lang.Exception) {
             getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkPermission()
     }
 
     private fun alterDocument(uri: Uri, strConfigs: String) {

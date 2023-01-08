@@ -49,7 +49,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
     ) {
         try {
             val strConfig =
-                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.APP_CONFIG_NAME).reader()
+                File(Constant.ROOT_CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.APP_CONFIG_NAME).reader()
                     .use { it.readText() }
             getTip("getConfigSuccessRoot").log(packageName)
             determineCan(strConfig, packageName)
@@ -504,7 +504,7 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
     private fun fileExtensionHook(packageName: String) {
         try {
             val strConfig =
-                File(Constant.CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
+                File(Constant.ROOT_CONFIG_MAIN_DIRECTORY + packageName + "/config/" + Constant.EXTENSION_CONFIG_NAME).reader()
                     .use { it.readText() }
             getTip("getExtensionConfigSuccessRoot").log(packageName)
             readyExtensionHook(strConfig, packageName)

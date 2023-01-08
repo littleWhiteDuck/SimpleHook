@@ -45,7 +45,7 @@ open class BaseActivity : AppCompatActivity() {
     private val refresh = object : Runnable {
         override fun run() {
             if (dismissFloat) return
-            readFileLogInsert()
+            // readFileLogInsert()
             updateData()
             handler.postDelayed(this, 500)
         }
