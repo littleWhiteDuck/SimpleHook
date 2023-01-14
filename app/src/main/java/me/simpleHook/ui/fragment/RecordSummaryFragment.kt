@@ -224,13 +224,13 @@ class RecordSummaryFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.getAllRecord()
         }, time)
-        // readFileLogInsert()
-        // readFileLogInsert()
+        readFileLogInsert()
+        readFileLogInsert()
     }
 
     private fun readFileLogInsert() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            if (FlavorUtils.isNormal()) {
+            try {
                 assistConfigs.forEach {
                     val list = FileUtils.readLogFile(requireContext(), it.packageName)
                     appViewModel.insertRecord(*list.toTypedArray())
@@ -239,9 +239,8 @@ class RecordSummaryFragment : Fragment() {
                     val list = FileUtils.readLogFile(requireContext(), it.packageName)
                     appViewModel.insertRecord(*list.toTypedArray())
                 }
-            } else {
-                val list = FileUtils.readLogFile()
-                appViewModel.insertRecord(*list.toTypedArray())
+            } catch (_: Exception) {
+
             }
         }
     }

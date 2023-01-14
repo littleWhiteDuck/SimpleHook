@@ -1,6 +1,7 @@
 package me.simpleHook.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -56,9 +57,11 @@ class HomeAdapter(
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
             onClick(appConfig, Constant.HOME_ITEM_CLICK_DELETE)
         }
-        viewHolder.ableSwitch.setOnCheckedChangeListener { _, isChecked ->
-            val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
-            onChange(appConfig, isChecked)
+        viewHolder.ableSwitch.setOnCheckedChangeListener { switchView, isChecked ->
+            if (switchView.isPressed) {
+                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+                onChange(appConfig, isChecked)
+            }
         }
         return viewHolder
     }

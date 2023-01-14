@@ -45,7 +45,7 @@ open class BaseActivity : AppCompatActivity() {
     private val refresh = object : Runnable {
         override fun run() {
             if (dismissFloat) return
-            // readFileLogInsert()
+            readFileLogInsert()
             updateData()
             handler.postDelayed(this, 500)
         }
@@ -77,17 +77,12 @@ open class BaseActivity : AppCompatActivity() {
 
     private fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            if (FlavorUtils.isNormal()) {
-                assistConfigs.forEach {
-                    val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
-                    viewModel.insertRecord(*list.toTypedArray())
-                }
-                configs.forEach {
-                    val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
-                    viewModel.insertRecord(*list.toTypedArray())
-                }
-            } else {
-                val list = FileUtils.readLogFile()
+            assistConfigs.forEach {
+                val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
+                viewModel.insertRecord(*list.toTypedArray())
+            }
+            configs.forEach {
+                val list = FileUtils.readLogFile(this@BaseActivity, it.packageName)
                 viewModel.insertRecord(*list.toTypedArray())
             }
         }
@@ -184,7 +179,8 @@ open class BaseActivity : AppCompatActivity() {
             val pausePrintRecord = it.findViewById<ImageButton>(R.id.pause_print_record)
             pausePrintRecord.setOnClickListener {
                 stopPrint = !stopPrint
-                val bgId = if (stopPrint) R.drawable.ic_start_float_24 else R.drawable.ic_outline_pause_24
+                val bgId =
+                    if (stopPrint) R.drawable.ic_start_float_24 else R.drawable.ic_outline_pause_24
                 pausePrintRecord.setImageResource(bgId)
             }
             mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -195,8 +191,10 @@ open class BaseActivity : AppCompatActivity() {
                 }
             })
             handler.postDelayed(refresh, 500)
-        }.setTag("floatPrint").setShowPattern(ShowPattern.ALL_TIME).setDragEnable(false).setSidePattern(SidePattern.DEFAULT).setLocation(100, 100)
-            .setMatchParent(widthMatch = false, heightMatch = false).setAnimator(DefaultAnimator()).registerCallback {
+        }.setTag("floatPrint").setShowPattern(ShowPattern.ALL_TIME).setDragEnable(false)
+            .setSidePattern(SidePattern.DEFAULT).setLocation(100, 100)
+            .setMatchParent(widthMatch = false, heightMatch = false).setAnimator(DefaultAnimator())
+            .registerCallback {
                 dismiss {
                     dismissFloat = true
                     list.clear()
@@ -210,7 +208,8 @@ open class BaseActivity : AppCompatActivity() {
                 EasyFloat.show("floatPrint")
                 EasyFloat.hide("floatControl")
             }
-        }.setTag("floatControl").setShowPattern(ShowPattern.ALL_TIME).setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
+        }.setTag("floatControl").setShowPattern(ShowPattern.ALL_TIME)
+            .setSidePattern(SidePattern.RESULT_HORIZONTAL).setDragEnable(true).setLocation(100, 200)
             .setAnimator(DefaultAnimator()).show()
     }
 }

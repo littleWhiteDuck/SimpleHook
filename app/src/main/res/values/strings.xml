@@ -156,6 +156,7 @@
     <string name="about_introduce_test_bug">测试bug</string>
     <string name="about_tester_zj" translatable="false">正己</string>
     <string name="about_tester_j" translatable="false">简</string>
+    <string name="about_tester_xn" translatable="false">快乐小牛</string>
     <string name="about_title_open_sources">开源相关</string>
     <string name="about_source_license_2" translatable="false">Apache software license 2.0</string>
     <string name="about_menu_add_group">加入TG群</string>

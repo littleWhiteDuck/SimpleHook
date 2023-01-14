@@ -2,8 +2,6 @@ package me.simpleHook.hook
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
-import android.os.Build.VERSION_CODES.S_V2
 import androidx.core.content.contentValuesOf
 import com.google.gson.Gson
 import me.simpleHook.constant.Constant
@@ -29,10 +27,8 @@ object LogHook {
                 it.contentResolver?.insert(PRINT_URI, contentValues)
             }
         } catch (e: Exception) {
-            "error occurred while saving log to the database, please keep simpleHook running".tip(
-                packageName
-            )
-            // printLogToFile(log, packageName, type, time)
+            "error occurred while saving log to the database".tip(packageName)
+            printLogToFile(log, packageName, type, time)
         }
     }
 
@@ -42,11 +38,8 @@ object LogHook {
             val printLog =
                 PrintLog(log = log, packageName = tempPackageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
-            val filePath = if (Build.VERSION.SDK_INT > S_V2) {
-                Constant.ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
-            } else {
+            val filePath =
                 Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-            }
             FileUtils.writeLogToFile(content = printLogStr, filePath = filePath)
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip(packageName)

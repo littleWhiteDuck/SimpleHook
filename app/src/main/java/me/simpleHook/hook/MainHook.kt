@@ -35,10 +35,10 @@ class MainHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
 
     override fun startHook(packageName: String, strConfig: String) {
         if (FlavorUtils.isNormal()) {
-            // 普通版本
+            // Android13以下
             fileHook2(packageName)
         } else {
-            // root版本
+            // Android13及以上
             fileHook(packageName)
         }
         contextAssistHook(packageName)

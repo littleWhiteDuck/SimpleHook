@@ -32,9 +32,15 @@ object SuUtil {
         }
     }
 
-    fun set777() {
+    fun copyFile(filePath: String, filePath2: String) {
         thread {
-            Cmd.builder("chmod -R 777 /data/local/tmp/simpleHook").execute(session)
+            try {
+                Cmd.builder("mkdir -p $filePath2", "cp $filePath $filePath2").execute(
+                    session
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -62,5 +68,11 @@ object SuUtil {
                 "rm -rf $filePath"
             ).execute(session)
         }
+    }
+
+    fun deleteFile(filePath: String) {
+        Cmd.builder(
+            "rm -rf $filePath"
+        ).execute(session)
     }
 }

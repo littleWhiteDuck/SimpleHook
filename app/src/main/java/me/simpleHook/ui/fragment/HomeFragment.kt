@@ -61,7 +61,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
-    private val sp by lazy { SPUtils(requireContext()) }
     private var isFabShow = true
 
     private fun onItemClick(mode: Int, appConfig: AppConfig) {

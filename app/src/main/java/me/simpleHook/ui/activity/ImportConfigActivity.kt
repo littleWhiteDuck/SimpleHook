@@ -3,7 +3,6 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,7 +37,6 @@ class ImportConfigActivity : AppCompatActivity() {
         if (intent?.action == Intent.ACTION_VIEW) {
             intent.data?.apply {
                 val configs = readTextFromUri(this)
-                Log.d("littleWhiteDuck", "initReceiveFile: $configs")
                 importConfigs(configs)
             }
 

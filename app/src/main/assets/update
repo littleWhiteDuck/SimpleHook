@@ -1,3 +1,9 @@
+v1.2.7
+    1. 修复读写记录
+    2. 修复recycler view 嵌套 check box导致的数据错乱问题
+
+    1. fix: [record] bug
+    2. fix: a bug caused by recycler view nested check box
 v1.2.6
     1. 安卓13及以上使用root权限写入配置
     2. 记录信息（扩展功能：加密算法、弹窗信息等）须保持本应用在后台运行

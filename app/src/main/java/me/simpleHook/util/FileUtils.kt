@@ -11,6 +11,7 @@ import android.provider.DocumentsContract
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ROOT_CONFIG_MAIN_DIRECTORY
@@ -343,48 +344,35 @@ object FileUtils {
         }
     }
 
-    private fun createLogFile() {
-        try {
-            val file = File(ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY)
-            if (!file.exists()) {
-                SuUtil.setRecordFile()
-            }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-
-    }
-
-    fun readLogFile(): List<PrintLog> {
-        val filePath = ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
-        val list = mutableListOf<PrintLog>()
-        try {
-            val file = File(filePath)
-            file.useLines {
-                it.iterator().forEach { str ->
-                    try {
-                        list.add(Gson().fromJson(str, PrintLog::class.java))
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-            file.writer().use {
-                it.write("")
-            }
-        } catch (e: Exception) {
-            createLogFile()
-        }
-        return list
-    }
-
     fun readLogFile(context: Context, packageName: String): List<PrintLog> {
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
         val fileUri = Uri.parse(changeToUri(filePath))
+        val recordPath =
+            Constant.ANDROID_DATA_PATH + "me.simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
         val list = mutableListOf<PrintLog>()
         try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
+                SuUtil.copyFile(
+                    filePath, Constant.ANDROID_DATA_PATH + BuildConfig.APPLICATION_ID + "/logTemp/"
+                )
+                SuUtil.deleteFile(filePath)
+                try {
+                    val file = File(recordPath)
+                    file.useLines {
+                        it.iterator().forEach { str ->
+                            try {
+                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                            } catch (e: java.lang.Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                    SuUtil.deleteFile(recordPath)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 context.contentResolver.openInputStream(fileUri)?.also { inputStream ->
                     val bufferedReader = BufferedReader(InputStreamReader(inputStream))
                     bufferedReader.useLines {
@@ -404,17 +392,18 @@ object FileUtils {
                         try {
                             list.add(Gson().fromJson(str, PrintLog::class.java))
                         } catch (e: java.lang.Exception) {
-
+                            e.printStackTrace()
                         }
                     }
                 }
                 deleteFile(filePath)
             }
         } catch (e: Exception) {
-
+            e.printStackTrace()
         } catch (e: OutOfMemoryError) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                deleteFile(filePath = ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY)
+                SuUtil.deleteFile(filePath)
+                SuUtil.deleteFile(recordPath)
             } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 DocumentsContract.deleteDocument(context.contentResolver, fileUri)
             } else {

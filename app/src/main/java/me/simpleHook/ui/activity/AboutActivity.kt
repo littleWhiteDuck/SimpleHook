@@ -64,7 +64,8 @@ class AboutActivity : BaseActivity() {
             add(
                 Author(
                     getString(R.string.about_tester_zj),
-                    getString(R.string.about_introduce_test_bug), R.drawable.zhengji
+                    getString(R.string.about_introduce_test_bug),
+                    R.drawable.zhengji
                 )
             )
             add(
@@ -72,6 +73,13 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_tester_j),
                     getString(R.string.about_introduce_test_bug),
                     R.drawable.jian
+                )
+            )
+            add(
+                Author(
+                    getString(R.string.about_tester_xn),
+                    getString(R.string.about_introduce_test_bug),
+                    R.drawable.xiaoniu
                 )
             )
             add(Title("其他推荐"))
@@ -127,7 +135,9 @@ class AboutActivity : BaseActivity() {
             )
             add(
                 OpenSource(
-                    "XposedBridge - rovo89", "https://github.com/rovo89/XposedBridge", ""
+                    "XposedBridge - rovo89",
+                    "https://github.com/rovo89/XposedBridge",
+                    getString(R.string.about_source_license_2)
                 )
             )
             add(
@@ -159,10 +169,7 @@ class AboutActivity : BaseActivity() {
     private fun initView() {
         binding.apply {
             donateMe.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW).also {
-                    it.data = Uri.parse("https://xydh.fun/littleWhiteDuck")
-                }
-                startActivity(intent)
+                "感谢支持\nThanks for your support".toast(this@AboutActivity)
             }
             rev.adapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
                 override fun getItemViewType(position: Int, data: Any): Int {

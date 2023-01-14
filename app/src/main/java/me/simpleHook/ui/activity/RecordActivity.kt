@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -259,23 +258,18 @@ class RecordActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             recordAdapter.refresh()
         }, delayTime)
-        // readFileLogInsert()
-        // readFileLogInsert()
+        readFileLogInsert()
+        readFileLogInsert()
     }
 
     private fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            if (FlavorUtils.isNormal()) {
-                assistConfigs.forEach {
-                    val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
-                    appViewModel.insertRecord(*list.toTypedArray())
-                }
-                configs.forEach {
-                    val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
-                    appViewModel.insertRecord(*list.toTypedArray())
-                }
-            } else {
-                val list = FileUtils.readLogFile()
+            assistConfigs.forEach {
+                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
+                appViewModel.insertRecord(*list.toTypedArray())
+            }
+            configs.forEach {
+                val list = FileUtils.readLogFile(this@RecordActivity, it.packageName)
                 appViewModel.insertRecord(*list.toTypedArray())
             }
         }

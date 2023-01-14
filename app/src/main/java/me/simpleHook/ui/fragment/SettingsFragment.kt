@@ -31,7 +31,6 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.viewmodel.SettingsViewModel
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -39,6 +38,7 @@ import me.simpleHook.ui.custom.MenuPreference
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+import me.simpleHook.viewmodel.SettingsViewModel
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
