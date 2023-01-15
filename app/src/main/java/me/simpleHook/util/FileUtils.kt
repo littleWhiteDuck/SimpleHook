@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.Gson
@@ -348,13 +349,12 @@ object FileUtils {
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
         val fileUri = Uri.parse(changeToUri(filePath))
-        val recordPath =
-            Constant.ANDROID_DATA_PATH + "me.simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
+        val recordPath = ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
         val list = mutableListOf<PrintLog>()
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
                 SuUtil.copyFile(
-                    filePath, Constant.ANDROID_DATA_PATH + BuildConfig.APPLICATION_ID + "/logTemp/"
+                    filePath, ROOT_CONFIG_MAIN_DIRECTORY + "logTemp"
                 )
                 SuUtil.deleteFile(filePath)
                 try {

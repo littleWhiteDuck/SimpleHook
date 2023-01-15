@@ -32,6 +32,7 @@ import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
 import org.json.JSONObject
+import java.io.File
 import java.lang.reflect.Field
 import java.net.URL
 import kotlin.random.Random
@@ -78,7 +79,12 @@ class MainActivity : BaseActivity() {
         } else {
             SuUtil.init(this)
         }
-        initUseTip()
+        //initUseTip()
+        val file = File(getExternalFilesDir("")!!.path + "/logTemp/log.txt")
+        if (!file.exists()) {
+            file.parentFile.mkdirs()
+            file.createNewFile()
+        }
         checkUpdate()
         super.onCreate(savedInstanceState)
     }

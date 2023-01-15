@@ -405,10 +405,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
-                    Constant.NO_ROOT -> {
-                        SuUtil.init(requireContext())
-                        if (SuUtil.isRoot) settingsViewModel.permStatus.value = 0
-                    }
+                    Constant.NO_ROOT -> SuUtil.init(requireContext())
                     Constant.NO_STORAGE_1 -> {
                         requestPermissionDialog(requireContext()) {
                             val document = DocumentFile.fromTreeUri(
@@ -417,18 +414,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             startActivityForData.launch(
                                 document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
                             )
-                            if (FileUtils.isGrant(requireContext())) settingsViewModel.permStatus.value =
-                                0
                         }
                     }
                     Constant.NO_STORAGE_2 -> {
                         requestPermissionDialog(requireContext()) {
                             FileUtils.verifyStoragePermissions(requireActivity())
                         }
-                        if (FileUtils.isGrant(requireContext())) settingsViewModel.permStatus.value =
-                            0
                     }
                 }
+                checkPermission()
                 true
             }
         }

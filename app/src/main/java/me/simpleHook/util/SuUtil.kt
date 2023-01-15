@@ -35,7 +35,11 @@ object SuUtil {
     fun copyFile(filePath: String, filePath2: String) {
         thread {
             try {
-                Cmd.builder("mkdir -p $filePath2", "cp $filePath $filePath2").execute(
+                Cmd.builder(
+                    "mkdir -p $filePath2",
+                    "cp $filePath $filePath2",
+                    "chmod -R 777 $filePath2"
+                ).execute(
                     session
                 )
             } catch (e: Exception) {
