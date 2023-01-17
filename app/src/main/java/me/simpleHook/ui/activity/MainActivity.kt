@@ -1,27 +1,20 @@
 package me.simpleHook.ui.activity
 
-import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import android.os.Process
 import androidx.annotation.Keep
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
@@ -32,24 +25,12 @@ import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.util.*
 import org.json.JSONObject
-import java.io.File
-import java.lang.reflect.Field
 import java.net.URL
-import kotlin.random.Random
 
 
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val sp by lazy { SPUtils(this) }
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -80,11 +61,6 @@ class MainActivity : BaseActivity() {
             SuUtil.init(this)
         }
         //initUseTip()
-        val file = File(getExternalFilesDir("")!!.path + "/logTemp/log.txt")
-        if (!file.exists()) {
-            file.parentFile.mkdirs()
-            file.createNewFile()
-        }
         checkUpdate()
         super.onCreate(savedInstanceState)
     }
@@ -129,10 +105,10 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n", "InflateParams")
+/*    @SuppressLint("SetTextI18n", "InflateParams")
     private fun initUseTip() {
         if (sp.termsOfUse) return
-        val message = AssetsUtil.getText(this, "terms_of_use")
+        val message = AssetsUtil.getText(this, "agreement")
         val random1 = Random.nextInt(5, 10)
         val random2 = Random.nextInt(10, 15)
         val contentView = layoutInflater.inflate(R.layout.terms_use, null)
@@ -173,7 +149,7 @@ class MainActivity : BaseActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
+    } */
 
     private fun initView() {
         binding.apply {

@@ -1,7 +1,6 @@
 package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -37,7 +36,6 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
@@ -81,14 +79,6 @@ class AssistActivity : BaseActivity() {
     private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
     private val itemList = ArrayList<Any>()
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
     private var statusChecked = 0
     private var statusUnChecked = 0
     private lateinit var configBean: ExtensionConfigBean
@@ -634,6 +624,7 @@ class AssistActivity : BaseActivity() {
 
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!isSaving) super.onBackPressed()
     }

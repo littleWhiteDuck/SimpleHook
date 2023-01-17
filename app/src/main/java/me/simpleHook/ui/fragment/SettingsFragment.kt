@@ -54,7 +54,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
     private val backupConfigs =
-        registerForActivityResult(ActivityResultContracts.CreateDocument()) { resultUri ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { resultUri ->
             resultUri?.apply {
                 thread {
                     alterDocument(this, JsonUtil.formatJson(Gson().toJson(viewModel.getConfigs())))
@@ -63,11 +63,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
+            if (uri != Uri.EMPTY) {
                 val contentResolver = requireActivity().contentResolver
                 val takeFlags: Int =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
             }
         }
 
@@ -335,7 +335,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showUseTerms() {
-        val message = AssetsUtil.getText(requireContext(), "terms_of_use")
+        val message = AssetsUtil.getText(requireContext(), "agreement")
         warningDialog(requireContext(), title = "用户协议【已同意】", message = message)
     }
 

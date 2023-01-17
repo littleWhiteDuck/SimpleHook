@@ -2,6 +2,7 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -26,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.ui.view.ControlView
@@ -34,6 +36,14 @@ import me.simpleHook.util.*
 @Keep
 open class BaseActivity : AppCompatActivity() {
     protected var isSaving = false
+    protected val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            if (uri != Uri.EMPTY) {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
+            }
+        }
 
     private val viewModel by viewModels<AppViewModel>()
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }

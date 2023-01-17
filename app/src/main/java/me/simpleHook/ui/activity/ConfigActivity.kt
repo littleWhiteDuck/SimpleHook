@@ -35,7 +35,6 @@ import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
@@ -146,14 +145,7 @@ class ConfigActivity : BaseActivity() {
                 }
             }
         }
-    private val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            uri?.also {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            }
-        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -757,6 +749,7 @@ class ConfigActivity : BaseActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!isSaving) super.onBackPressed()
     }

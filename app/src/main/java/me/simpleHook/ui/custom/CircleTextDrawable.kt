@@ -43,6 +43,7 @@ class CircleTextDrawable(
         paint.colorFilter = colorFilter
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return when (paint.alpha) {
             0 -> PixelFormat.TRANSPARENT

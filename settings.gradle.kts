@@ -1,2 +1,2 @@
 rootProject.name = "SimpleHook"
-include ':app'
+include(":app")

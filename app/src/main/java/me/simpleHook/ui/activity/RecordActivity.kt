@@ -448,6 +448,7 @@ class RecordActivity : BaseActivity() {
         refreshData()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (appViewModel.queryPattern.value.isNullOrEmpty()) {
             super.onBackPressed()
