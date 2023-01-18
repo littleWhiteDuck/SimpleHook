@@ -12,7 +12,7 @@ object ErrorTool {
         context: Context, list: List<String>, packageName: String, type: String
     ) {
         val logBean = LogBean(type = type, other = list, "error.hook.tip")
-        LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+        LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     @JvmStatic

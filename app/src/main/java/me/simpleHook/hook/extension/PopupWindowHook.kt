@@ -1,6 +1,5 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -14,36 +13,36 @@ import me.simpleHook.hook.LogHook
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.getAllTextView
 
-class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
-    BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
-            "showAtLocation",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam?) {
-                    hookPopupWindowDetail(
-                        param, packageName, strConfig
-                    )
-                }
-            })
-        XposedBridge.hookAllMethods(
-            PopupWindow::class.java,
-            "showAsDropDown",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam?) {
-                    hookPopupWindowDetail(
-                        param, packageName, strConfig
-                    )
-                }
-            })
+object PopupWindowHook : BaseHook() {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (configBean.popup || configBean.popCancel || configBean.stopDialog.enable) {
+            XposedBridge.hookAllMethods(
+                PopupWindow::class.java,
+                "showAtLocation",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam?) {
+                        hookPopupWindowDetail(
+                            param, packageName, configBean
+                        )
+                    }
+                })
+            XposedBridge.hookAllMethods(
+                PopupWindow::class.java,
+                "showAsDropDown",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam?) {
+                        hookPopupWindowDetail(
+                            param, packageName, configBean
+                        )
+                    }
+                })
+        }
     }
 
     private fun hookPopupWindowDetail(
-        param: XC_MethodHook.MethodHookParam?, packageName: String, strConfig: String
+        param: XC_MethodHook.MethodHookParam?, packageName: String, configBean: ExtensionConfigBean
     ) {
         val popupWindow = param?.thisObject as PopupWindow
-        val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
         if (configBean.popCancel) {
             popupWindow.isFocusable = true
             popupWindow.isOutsideTouchable = true
@@ -67,7 +66,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
                             type, list + LogHook.getStackTrace(), packageName
                         )
                     )
-                    LogHook.toLogMsg(mContext, log, packageName, type)
+                    LogHook.toLogMsg(log, packageName, type)
                     param.result = null
                     return
                 }
@@ -76,7 +75,7 @@ class PopupWindowHook(mClassLoader: ClassLoader, mContext: Context) :
         if (configBean.popup) {
             val type = "PopupWindow"
             val log = Gson().toJson(LogBean(type, list + LogHook.getStackTrace(), packageName))
-            LogHook.toLogMsg(mContext, log, packageName, type)
+            LogHook.toLogMsg(log, packageName, type)
         }
     }
 

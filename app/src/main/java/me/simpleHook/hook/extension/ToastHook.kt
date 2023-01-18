@@ -1,6 +1,5 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -8,6 +7,7 @@ import android.widget.Toast
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.BaseHook
 import me.simpleHook.hook.LogHook
@@ -15,9 +15,10 @@ import me.simpleHook.hook.Tip
 import me.simpleHook.hook.getAllTextView
 import me.simpleHook.util.log
 
-class ToastHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
+object ToastHook : BaseHook() {
 
-    override fun startHook(packageName: String, strConfig: String) {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.toast) return
         XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
                 val list = mutableListOf<String>()
@@ -48,7 +49,7 @@ class ToastHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassL
                         type, list + LogHook.getStackTrace(), packageName
                     )
                 )
-                LogHook.toLogMsg(mContext, log, packageName, type)
+                LogHook.toLogMsg(log, packageName, type)
             }
         })
     }

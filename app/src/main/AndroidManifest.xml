@@ -12,6 +12,8 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-sdk tools:overrideLibrary="com.github.kyuubiran.ezxhelper" />
+
     <application
         android:name=".SimpleApplication"
         android:allowBackup="false"

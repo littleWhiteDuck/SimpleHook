@@ -1,12 +1,12 @@
 package me.simpleHook.hook
 
-import android.content.Context
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.util.LanguageUtils
 
 
-abstract class BaseHook(val mClassLoader: ClassLoader, val mContext: Context) {
+abstract class BaseHook {
 
     protected val isShowEnglish = LanguageUtils.isNotChinese()
 
-    abstract fun startHook(packageName: String, strConfig: String)
+    abstract fun startHook(configBean: ExtensionConfigBean, packageName: String)
 }

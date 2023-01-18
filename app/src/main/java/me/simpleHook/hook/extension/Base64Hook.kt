@@ -1,21 +1,24 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.util.Base64
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.BaseHook
 import me.simpleHook.hook.LogHook
 import me.simpleHook.hook.Tip
 import java.nio.charset.Charset
 
-class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloader, context) {
+object Base64Hook : BaseHook() {
 
-    override fun startHook(packageName: String, strConfig: String) {
-        XposedHelpers.findAndHookMethod("java.util.Base64.Encoder",
-            mClassLoader,
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.base64) return
+        XposedHelpers.findAndHookMethod(
+            "java.util.Base64.Encoder",
+            InitFields.ezXClassLoader,
             "encode",
             ByteArray::class.java,
             object : XC_MethodHook() {
@@ -31,13 +34,14 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(
-                        mContext, Gson().toJson(logBean), packageName, logBean.type
+                        Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
             })
 
-        XposedHelpers.findAndHookMethod("java.util.Base64.Decoder",
-            mClassLoader,
+        XposedHelpers.findAndHookMethod(
+            "java.util.Base64.Decoder",
+            InitFields.ezXClassLoader,
             "decode",
             ByteArray::class.java,
             object : XC_MethodHook() {
@@ -53,7 +57,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                         ) + items, packageName
                     )
                     LogHook.toLogMsg(
-                        mContext, Gson().toJson(logBean), packageName, logBean.type
+                        Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
             })
@@ -84,7 +88,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                             Tip.getTip("encryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, logBean.type)
+                    LogHook.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
                 }
             })
 
@@ -110,7 +114,7 @@ class Base64Hook(classloader: ClassLoader, context: Context) : BaseHook(classloa
                             Tip.getTip("decryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, logBean.type)
+                    LogHook.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
                 }
             })
     }

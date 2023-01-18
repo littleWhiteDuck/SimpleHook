@@ -1,8 +1,8 @@
 package me.simpleHook.hook
 
-import android.content.Context
 import android.net.Uri
 import androidx.core.content.contentValuesOf
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
@@ -10,7 +10,7 @@ import me.simpleHook.util.*
 
 object LogHook {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
-    fun toLogMsg(context: Context?, log: String, packageName: String, type: String) {
+    fun toLogMsg(log: String, packageName: String, type: String) {
         if (type == "null") return
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
@@ -23,9 +23,7 @@ object LogHook {
                 "time" to time,
                 "isMark" to 0
             )
-            context?.let {
-                it.contentResolver?.insert(PRINT_URI, contentValues)
-            }
+            InitFields.appContext.contentResolver?.insert(PRINT_URI, contentValues)
         } catch (e: Exception) {
             "error occurred while saving log to the database".tip(packageName)
             printLogToFile(log, packageName, type, time)

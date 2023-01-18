@@ -58,4 +58,6 @@ object Type {
         "context" -> Context::class.java
         else -> null
     }
+
+    fun getClassTypeName(className: String) = getClassType(className)?.name ?: className
 }

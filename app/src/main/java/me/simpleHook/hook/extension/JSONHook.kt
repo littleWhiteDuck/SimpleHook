@@ -1,6 +1,5 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -12,9 +11,9 @@ import me.simpleHook.hook.LogHook
 import org.json.JSONArray
 import org.json.JSONObject
 
-class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
-        val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
+object JSONHook : BaseHook() {
+
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
         if (configBean.jsonObject) {
             hookJSONObject(packageName)
         }
@@ -34,7 +33,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
 
@@ -52,7 +51,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }
@@ -69,7 +68,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
 
@@ -87,7 +86,7 @@ class JSONHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLo
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }

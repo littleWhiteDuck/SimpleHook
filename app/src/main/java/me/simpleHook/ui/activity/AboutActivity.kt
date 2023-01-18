@@ -163,6 +163,14 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_source_license_2)
                 )
             )
+
+            add(
+                OpenSource(
+                    "EzXHelper - KyuubiRan",
+                    "https://github.com/KyuubiRan/EzXHelper",
+                    getString(R.string.about_source_license_2)
+                )
+            )
         }
     }
 

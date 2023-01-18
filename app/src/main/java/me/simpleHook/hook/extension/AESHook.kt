@@ -1,9 +1,9 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.BaseHook
 import me.simpleHook.hook.LogHook
@@ -13,8 +13,9 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class AESHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
+object AESHook : BaseHook() {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.crypt) return
         val map: HashMap<String, String> = HashMap()
         XposedBridge.hookAllConstructors(IvParameterSpec::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -110,7 +111,7 @@ class AESHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                             map["algorithmType"] ?: "null", list + items, packageName
                         )
                         LogHook.toLogMsg(
-                            mContext, Gson().toJson(logBean), packageName, logBean.type
+                            Gson().toJson(logBean), packageName, logBean.type
                         )
                         map.clear()
                     }

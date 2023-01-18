@@ -16,7 +16,7 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.2.7"
+    val verName = "1.2.8"
 
     signingConfigs {
         create("keyStore") {
@@ -49,7 +49,7 @@ android {
             )
         }
         getByName("debug") {
-
+            signingConfig = signConfig
         }
     }
     compileOptions {
@@ -66,10 +66,10 @@ android {
 
     productFlavors {
         create("beta") {
-            versionName += "_beta"
+            versionName = verName + "_beta"
         }
         create("normal") {
-            versionName = versionName
+            versionName = verName
         }
     }
     namespace = "me.simpleHook"
@@ -106,7 +106,7 @@ dependencies {
     // xposed
     compileOnly("de.robv.android.xposed:api:82")
     //compileOnly("de.robv.android.xposed:api:82:sources")
-
+    implementation("com.github.kyuubiran:EzXHelper:1.0.3")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
