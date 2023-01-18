@@ -54,7 +54,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
     private val backupConfigs =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { resultUri ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/json")) { resultUri ->
             resultUri?.apply {
                 thread {
                     alterDocument(this, JsonUtil.formatJson(Gson().toJson(viewModel.getConfigs())))

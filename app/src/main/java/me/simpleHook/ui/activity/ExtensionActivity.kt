@@ -118,7 +118,7 @@ class AssistActivity : BaseActivity() {
         val dexPath = if (FlavorUtils.isNormal()) {
             dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
         } else {
-            dexPosition + "/data/simpleHook/${assistConfig.packageName}/dex/"
+            dexPosition + "/data/local/tmp/simpleHook/${assistConfig.packageName}/dex/"
         }
         val config = assistConfig.config
         configBean = if (config.isNotEmpty()) Gson().fromJson(
