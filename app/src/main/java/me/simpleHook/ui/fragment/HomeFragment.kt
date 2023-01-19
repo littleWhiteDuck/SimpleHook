@@ -140,7 +140,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             viewModel.deleteConfigs(appConfig)
             FileUtils.realDeleteConfig(
-                requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
+                appConfig.packageName, Constant.APP_CONFIG_NAME
             )
             Snackbar.make(
                 binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG

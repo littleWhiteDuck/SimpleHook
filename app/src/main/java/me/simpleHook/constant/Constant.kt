@@ -76,7 +76,6 @@ object Constant {
     // permission
     const val IS_GRANT = 0
     const val NO_ROOT = 1
-    const val NO_STORAGE_1 = 2
-    const val NO_STORAGE_2 = 3
+    const val NO_STORAGE = 2
 
 }

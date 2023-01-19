@@ -40,25 +40,12 @@ class MainActivity : BaseActivity() {
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
-        if (FlavorUtils.isNormal()) {
-            if (!FileUtils.isGrant(this)) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(this) {
-                        val document = DocumentFile.fromTreeUri(
-                            this, Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                        startActivityForData.launch(
-                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                    }
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
-                }
-            }
-        } else {
+        if (!FlavorUtils.isNormal()) {
             SuUtil.init(this)
+        } else if (!FileUtils.isGrant(this)) {
+            requestPermissionDialog(this) {
+                FileUtils.verifyStoragePermissions(this)
+            }
         }
         //initUseTip()
         checkUpdate()

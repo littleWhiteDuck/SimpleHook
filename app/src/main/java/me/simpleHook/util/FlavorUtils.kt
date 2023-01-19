@@ -5,6 +5,6 @@ import android.os.Build
 object FlavorUtils {
 
     fun isNormal(): Boolean {
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
     }
 }

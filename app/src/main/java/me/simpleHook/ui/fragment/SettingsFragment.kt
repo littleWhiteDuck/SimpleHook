@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -229,12 +228,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             settingsViewModel.permStatus.value = Constant.IS_GRANT
             return
         }
-        settingsViewModel.permStatus.value = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
+        settingsViewModel.permStatus.value = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             Constant.NO_ROOT
-        } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            Constant.NO_STORAGE_1
         } else {
-            Constant.NO_STORAGE_2
+            Constant.NO_STORAGE
         }
     }
 
@@ -254,11 +251,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val extensionPackageNames = viewModel.getAllPackageNames()
             for (i in apps.indices) {
                 if (apps[i] !in appPackageNames) {
-                    FileUtils.realDeleteConfig(requireContext(), apps[i], Constant.APP_CONFIG_NAME)
+                    FileUtils.realDeleteConfig(apps[i], Constant.APP_CONFIG_NAME)
                 }
                 if (apps[i] !in extensionPackageNames) {
                     FileUtils.realDeleteConfig(
-                        requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
+                        apps[i], Constant.EXTENSION_CONFIG_NAME
                     )
                 }
             }
@@ -288,7 +285,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     val configs = viewModel.getConfigs()
                     configs.forEach {
                         FileUtils.realDeleteConfig(
-                            requireContext(),
                             it.packageName,
                             Constant.APP_CONFIG_NAME,
                         )
@@ -300,7 +296,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     val configs = viewModel.getAssistConfigs()
                     configs.forEach {
                         FileUtils.realDeleteConfig(
-                            requireContext(), it.packageName, Constant.EXTENSION_CONFIG_NAME
+                            it.packageName, Constant.EXTENSION_CONFIG_NAME
                         )
                     }
                     viewModel.deleteAssistConfigsByPackageName("模板配置")
@@ -406,17 +402,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
                     Constant.NO_ROOT -> SuUtil.init(requireContext())
-                    Constant.NO_STORAGE_1 -> {
-                        requestPermissionDialog(requireContext()) {
-                            val document = DocumentFile.fromTreeUri(
-                                requireContext(), Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                            startActivityForData.launch(
-                                document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                            )
-                        }
-                    }
-                    Constant.NO_STORAGE_2 -> {
+                    Constant.NO_STORAGE -> {
                         requestPermissionDialog(requireContext()) {
                             FileUtils.verifyStoragePermissions(requireActivity())
                         }

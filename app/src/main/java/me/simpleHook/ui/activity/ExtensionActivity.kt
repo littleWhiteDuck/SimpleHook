@@ -2,8 +2,6 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,7 +15,6 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -479,41 +476,19 @@ class AssistActivity : BaseActivity() {
         if (FlavorUtils.isNormal()) {
             if (FileUtils.isGrant(this)) {
                 val filePath = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    FileUtils.writeDocumentFile(
-                        content = tip,
-                        context = this,
-                        path = "/${assistConfig.packageName}/simpleHook/dex/",
-                        fileName = "说明.txt",
-                        mimiType = "text/plain"
-                    )
-                } else {
-                    FileUtils.writeTextToFile(
-                        tip, filePath, "说明.txt"
-                    )
-                }
+                FileUtils.writeTextToFile(
+                    tip, filePath, "说明.txt"
+                )
                 if (tipToast) {
                     ToolUtils.toClip(this, filePath)
                     "dex存放目录已复制到剪切板中".toast(this)
                 }
 
             } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(this) {
-                        val document = DocumentFile.fromTreeUri(
-                            this, Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                        startActivityForData.launch(
-                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                    }
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
+                requestPermissionDialog(this) {
+                    FileUtils.verifyStoragePermissions(this)
                 }
             }
-
         } else {
             val filePath = Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
             SuUtil.saveConfig(filePath = filePath, fileName = "说明.txt", content = tip)

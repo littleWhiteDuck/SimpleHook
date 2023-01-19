@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,7 +16,6 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -709,7 +707,7 @@ class ConfigActivity : BaseActivity() {
             saveToText(appConfig.packageName, configStr)
             if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
                 FileUtils.realDeleteConfig(
-                    this@ConfigActivity, tempPackageName, Constant.APP_CONFIG_NAME
+                    tempPackageName, Constant.APP_CONFIG_NAME
                 )
             }
         }
@@ -727,19 +725,8 @@ class ConfigActivity : BaseActivity() {
                     this, packageName, Constant.APP_CONFIG_NAME, configStr
                 )
             } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                    requestPermissionDialog(this) {
-                        val document = DocumentFile.fromTreeUri(
-                            this, Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                        startActivityForData.launch(
-                            document?.uri ?: Uri.parse(Constant.ANDROID_DATA_URI)
-                        )
-                    }
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
+                requestPermissionDialog(this) {
+                    FileUtils.verifyStoragePermissions(this)
                 }
             }
         } else {

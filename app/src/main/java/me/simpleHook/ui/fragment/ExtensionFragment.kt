@@ -205,7 +205,7 @@ class ExtensionFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             appViewModel.deleteAssistConfigs(assistConfig)
             FileUtils.realDeleteConfig(
-                requireContext(), assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
+                assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
             )
         }
         Snackbar.make(
