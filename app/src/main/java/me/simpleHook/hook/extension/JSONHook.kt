@@ -6,8 +6,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -29,11 +28,11 @@ object JSONHook : BaseHook() {
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
-                val items = LogHook.getStackTrace()
+                val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
 
@@ -47,11 +46,11 @@ object JSONHook : BaseHook() {
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
-                val items = LogHook.getStackTrace()
+                val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }
@@ -64,11 +63,11 @@ object JSONHook : BaseHook() {
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
-                val items = LogHook.getStackTrace()
+                val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
 
@@ -82,11 +81,11 @@ object JSONHook : BaseHook() {
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
-                val items = LogHook.getStackTrace()
+                val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
                     type, list + items, packageName
                 )
-                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }

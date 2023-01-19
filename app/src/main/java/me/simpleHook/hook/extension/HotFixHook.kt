@@ -5,7 +5,6 @@ import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.BaseHook
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip

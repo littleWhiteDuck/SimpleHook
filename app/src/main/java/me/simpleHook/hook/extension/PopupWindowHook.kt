@@ -8,10 +8,9 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.getAllTextView
+import me.simpleHook.hook.utils.getAllTextView
 
 object PopupWindowHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
@@ -63,10 +62,10 @@ object PopupWindowHook : BaseHook() {
                         if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.getStackTrace(), packageName
+                            type, list + LogUtil.getStackTrace(), packageName
                         )
                     )
-                    LogHook.toLogMsg(log, packageName, type)
+                    LogUtil.toLogMsg(log, packageName, type)
                     param.result = null
                     return
                 }
@@ -74,8 +73,8 @@ object PopupWindowHook : BaseHook() {
         }
         if (configBean.popup) {
             val type = "PopupWindow"
-            val log = Gson().toJson(LogBean(type, list + LogHook.getStackTrace(), packageName))
-            LogHook.toLogMsg(log, packageName, type)
+            val log = Gson().toJson(LogBean(type, list + LogUtil.getStackTrace(), packageName))
+            LogUtil.toLogMsg(log, packageName, type)
         }
     }
 

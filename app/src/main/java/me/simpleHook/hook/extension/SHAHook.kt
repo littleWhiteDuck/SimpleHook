@@ -5,10 +5,9 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.byte2Sting
+import me.simpleHook.hook.utils.byte2Sting
 import java.security.MessageDigest
 
 object SHAHook : BaseHook() {
@@ -51,7 +50,7 @@ object SHAHook : BaseHook() {
                 val md = param.thisObject as MessageDigest
                 val type = md.algorithm ?: "unknown"
                 val result = byte2Sting(param.result as ByteArray)
-                val items = LogHook.getStackTrace().toList()
+                val items = LogUtil.getStackTrace().toList()
                 val logBean = LogBean(
                     type, listOf(
                         Tip.getTip("isEncrypt"),
@@ -59,7 +58,7 @@ object SHAHook : BaseHook() {
                         Tip.getTip("encryptResult") + result
                     ) + items, packageName
                 )
-                LogHook.toLogMsg(
+                LogUtil.toLogMsg(
                     Gson().toJson(logBean), packageName, logBean.type
                 )
             }

@@ -5,8 +5,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 import java.security.spec.EncodedKeySpec
 import javax.crypto.Cipher
@@ -106,11 +105,11 @@ object AESHook : BaseHook() {
                                 map["cryptType"] ?: "error"
                             ) + Tip.getTip("result") + map["result"]
                         )
-                        val items = LogHook.getStackTrace()
+                        val items = LogUtil.getStackTrace()
                         val logBean = LogBean(
                             map["algorithmType"] ?: "null", list + items, packageName
                         )
-                        LogHook.toLogMsg(
+                        LogUtil.toLogMsg(
                             Gson().toJson(logBean), packageName, logBean.type
                         )
                         map.clear()

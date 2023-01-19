@@ -10,8 +10,7 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 
 private const val ACTIVITY = "android.app.Activity"
 private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
@@ -106,6 +105,6 @@ object IntentHook : BaseHook() {
         val logBean = LogBean(
             "intent", listOf(configBean), packName
         )
-        LogHook.toLogMsg(Gson().toJson(logBean), packName, "intent")
+        LogUtil.toLogMsg(Gson().toJson(logBean), packName, "intent")
     }
 }

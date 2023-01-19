@@ -337,6 +337,9 @@ object FileUtils {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
+            if (file.length() > 12 * 1000 * 1000) {
+                file.delete()
+            }
             FileWriter(file.path, true).use {
                 it.write(strContent)
             }

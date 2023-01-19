@@ -8,8 +8,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 
 object WebHook : BaseHook() {
 
@@ -35,7 +34,7 @@ object WebHook : BaseHook() {
                     list.add("Header: $headers")
                 }
                 val logBean = LogBean(type, list, packageName)
-                LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.Type
+import me.simpleHook.hook.utils.Type
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan

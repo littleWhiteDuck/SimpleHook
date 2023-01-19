@@ -883,7 +883,9 @@ class ConfigActivity : BaseActivity() {
         if (params.contains("JSON")) {
             paramStr = paramStr.replace("JSON", json)
         }
+        paramStr = paramStr.replace("[]", "防止加逗号")
         paramStr = paramStr.replace("[", ",[")
+        paramStr = paramStr.replace("防止加逗号", "[]")
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }

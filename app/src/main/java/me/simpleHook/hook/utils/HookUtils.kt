@@ -1,4 +1,4 @@
-package me.simpleHook.hook
+package me.simpleHook.hook.utils
 
 import android.view.ViewGroup
 import android.widget.Button
@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.view.children
 import com.github.kyuubiran.ezxhelper.utils.*
 import me.simpleHook.constant.Constant
+import me.simpleHook.hook.Tip
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 

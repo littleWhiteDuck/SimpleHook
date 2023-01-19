@@ -4,7 +4,6 @@ import com.github.kyuubiran.ezxhelper.init.InitFields
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
-import me.simpleHook.hook.BaseHook
 
 object VpnCheckHook : BaseHook() {
 

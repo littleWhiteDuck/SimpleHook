@@ -7,8 +7,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 import java.nio.charset.Charset
 
@@ -24,7 +23,7 @@ object Base64Hook : BaseHook() {
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
-                    val items = LogHook.getStackTrace()
+                    val items = LogUtil.getStackTrace()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
@@ -33,7 +32,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(
+                    LogUtil.toLogMsg(
                         Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
@@ -47,7 +46,7 @@ object Base64Hook : BaseHook() {
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val data = param.args[0] as ByteArray
-                    val items = LogHook.getStackTrace().toList()
+                    val items = LogUtil.getStackTrace().toList()
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
@@ -56,7 +55,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(
+                    LogUtil.toLogMsg(
                         Gson().toJson(logBean), packageName, logBean.type
                     )
                 }
@@ -79,7 +78,7 @@ object Base64Hook : BaseHook() {
                     val len = param.args[2] as Int
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
-                    val items = LogHook.getStackTrace()
+                    val items = LogUtil.getStackTrace()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
@@ -88,7 +87,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
+                    LogUtil.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
                 }
             })
 
@@ -105,7 +104,7 @@ object Base64Hook : BaseHook() {
                     val len = param.args[2] as Int
                     val rawData = ByteArray(len)
                     System.arraycopy(input, offset, rawData, 0, len)
-                    val items = LogHook.getStackTrace()
+                    val items = LogUtil.getStackTrace()
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
@@ -114,7 +113,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, packageName
                     )
-                    LogHook.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
+                    LogUtil.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
                 }
             })
     }

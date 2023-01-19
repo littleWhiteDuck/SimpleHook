@@ -1,38 +1,19 @@
-package me.simpleHook.hook
+package me.simpleHook.hook.utils
 
-import android.net.Uri
-import androidx.core.content.contentValuesOf
-import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
+import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.hook.Tip
 import me.simpleHook.util.*
 
-object LogHook {
-    private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
+object LogUtil {
+
     fun toLogMsg(log: String, packageName: String, type: String) {
         if (type == "null") return
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
         try {
-            val contentValues = contentValuesOf(
-                "packageName" to tempPackageName,
-                "log" to log,
-                "read" to 0,
-                "type" to type,
-                "time" to time,
-                "isMark" to 0
-            )
-            InitFields.appContext.contentResolver?.insert(PRINT_URI, contentValues)
-        } catch (e: Exception) {
-            "error occurred while saving log to the database".tip(packageName)
-            printLogToFile(log, packageName, type, time)
-        }
-    }
-
-    private fun printLogToFile(log: String, packageName: String, type: String, time: String) {
-        try {
-            val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
             val printLog =
                 PrintLog(log = log, packageName = tempPackageName, type = type, time = time)
             val printLogStr = Gson().toJson(printLog)
@@ -67,5 +48,39 @@ object LogHook {
             items.add("${if (isNotChinese) "Class : " else "类："}${element.className} -->${if (isNotChinese) "Method : " else "方法："}${element.methodName}(line：${element.lineNumber})")
         }
         return items
+    }
+
+
+    fun toLog(
+        list: List<String>, packageName: String, type: String
+    ) {
+        val logBean = LogBean(type = type, other = list, "error.hook.tip")
+        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+    }
+
+    fun notFoundClass(
+        packageName: String, className: String, methodName: String, error: String
+    ) {
+        val list = listOf(
+            Tip.getTip("errorType") + "ClassNotFoundError",
+            Tip.getTip("solution") + Tip.getTip("notFoundClass"),
+            Tip.getTip("filledClassName") + className,
+            Tip.getTip("filledMethodOrField") + methodName,
+            Tip.getTip("detailReason") + error
+        )
+        toLog(list, packageName, "Error ClassNotFoundError")
+    }
+
+    fun noSuchMethod(
+        packageName: String, className: String, methodName: String, error: String
+    ) {
+        val list = listOf(
+            Tip.getTip("errorType") + "NoSuchMethodError",
+            Tip.getTip("solution") + Tip.getTip("useSmali2Config"),
+            Tip.getTip("filledClassName") + className,
+            Tip.getTip("filledMethodParams") + methodName,
+            Tip.getTip("detailReason") + error
+        )
+        toLog(list, packageName, "Error NoSuchMethodError")
     }
 }

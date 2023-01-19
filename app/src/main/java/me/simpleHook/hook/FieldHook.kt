@@ -12,6 +12,7 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.Tip.getTip
+import me.simpleHook.hook.utils.*
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 
@@ -42,7 +43,11 @@ object FieldHook {
         hooker: Hooker, packageName: String
     ) {
         try {
-            if (params == "*") {
+            if (methodName == "*") {
+                findAllMethods(className) {
+                    true
+                }.hook(hookPoint == "before", hooker)
+            } else if (params == "*") {
                 if (methodName == "<init>") {
                     hookAllConstructorAfter(className, hooker = hooker)
                 } else {
@@ -62,27 +67,27 @@ object FieldHook {
                 }
             }
         } catch (e: NoSuchMethodError) {
-            ErrorTool.noSuchMethod(
-                appContext, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.noSuchMethod(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
 
         } catch (e: NoSuchMethodException) {
-            ErrorTool.noSuchMethod(
-                appContext, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.noSuchMethod(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
-            ErrorTool.notFoundClass(
-                appContext, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.notFoundClass(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
-            ErrorTool.notFoundClass(
-                appContext, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.notFoundClass(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -101,7 +106,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     private fun hookStaticField(
@@ -140,7 +145,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogHook.toLogMsg(Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     private fun hookInstanceField(

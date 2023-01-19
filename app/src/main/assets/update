@@ -1,3 +1,13 @@
+v1.2.8
+    1. 引入EzXHelper库
+    2. 去除从数据库读取配置方式
+    3. 支持hook一个类的所有方法，方法名填 *
+    4. 修复smali转java的一个问题
+
+    1. Using EzXHelper library for hook
+    2. Delete: read config from db
+    3. In a class, you can hook all methods by fill * in the method name
+    4. Fix a bug: smali to java
 v1.2.7
     1. 修复读写记录
     2. 修复recycler view 嵌套 check box导致的数据错乱问题

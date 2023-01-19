@@ -1,4 +1,4 @@
-package me.simpleHook.hook
+package me.simpleHook.hook.extension
 
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.util.LanguageUtils

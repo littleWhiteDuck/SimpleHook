@@ -6,8 +6,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip.getTip
 
 object ApplicationHook : BaseHook() {
@@ -24,7 +23,7 @@ object ApplicationHook : BaseHook() {
                             type, listOf(getTip("applicationName") + className), packageName
                         )
                     )
-                    LogHook.toLogMsg(log, packageName, type)
+                    LogUtil.toLogMsg(log, packageName, type)
                 }
             })
     }

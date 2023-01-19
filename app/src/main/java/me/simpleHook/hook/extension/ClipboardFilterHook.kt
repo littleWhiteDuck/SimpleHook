@@ -7,8 +7,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 
 object ClipboardFilterHook : BaseHook() {
@@ -27,13 +26,13 @@ object ClipboardFilterHook : BaseHook() {
                             if (info.contains(Regex(it))) {
                                 param.result = null
                                 val type = Tip.getTip("filterClipboard")
-                                val items = LogHook.getStackTrace()
+                                val items = LogUtil.getStackTrace()
                                 val logBean = LogBean(
                                     type,
                                     arrayListOf(Tip.getTip("clipboardInfo") + info) + items,
                                     packageName
                                 )
-                                LogHook.toLogMsg(
+                                LogUtil.toLogMsg(
                                     Gson().toJson(logBean), packageName, type
                                 )
                                 return@forEach

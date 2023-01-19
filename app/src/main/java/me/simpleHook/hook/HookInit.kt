@@ -5,7 +5,7 @@ import android.content.Context
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import com.github.kyuubiran.ezxhelper.utils.hookBefore
+import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
@@ -17,9 +17,8 @@ class HookInit : IXposedHookLoadPackage {
         if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
             findMethod("me.simpleHook.ui.activity.MainActivity") {
                 name == "isModuleLive"
-            }.hookBefore {
-                it.result = true
-            }
+            }.hookReturnConstant(true)
+
         } else {
             findMethod(Application::class.java) {
                 name == "attach"

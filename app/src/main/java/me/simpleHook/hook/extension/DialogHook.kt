@@ -9,10 +9,9 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.getAllTextView
+import me.simpleHook.hook.utils.getAllTextView
 
 object DialogHook : BaseHook() {
 
@@ -43,10 +42,10 @@ object DialogHook : BaseHook() {
                                     if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
                                 val log = Gson().toJson(
                                     LogBean(
-                                        type, list + LogHook.getStackTrace(), packageName
+                                        type, list + LogUtil.getStackTrace(), packageName
                                     )
                                 )
-                                LogHook.toLogMsg(log, packageName, type)
+                                LogUtil.toLogMsg(log, packageName, type)
                                 return
                             }
                         }
@@ -55,10 +54,10 @@ object DialogHook : BaseHook() {
                         val type = if (isShowEnglish) "Dialog" else "弹窗"
                         val log = Gson().toJson(
                             LogBean(
-                                type, list + LogHook.getStackTrace(), packageName
+                                type, list + LogUtil.getStackTrace(), packageName
                             )
                         )
-                        LogHook.toLogMsg(log, packageName, type)
+                        LogUtil.toLogMsg(log, packageName, type)
                     }
                 }
             })

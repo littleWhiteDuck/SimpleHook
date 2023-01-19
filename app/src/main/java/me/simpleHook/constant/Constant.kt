@@ -25,8 +25,7 @@ object Constant {
     const val ROOT_CONFIG_MAIN_DIRECTORY = "/data/local/tmp/simpleHook/"
     const val RECORD_TEMP_DIRECTORY = "logTemp/log.txt"
     const val CONFIG_DIRECTORY = "/simpleHook/config/"
-    const val RECORD_DIRECTORY = "simpleHook/printLog/"
-    const val HOT_FIX_DIRECTORY = "simpleHook/hotFix/"
+
 
     // Android/data
     const val ANDROID_DATA_URI =

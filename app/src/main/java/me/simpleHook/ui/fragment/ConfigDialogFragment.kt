@@ -25,7 +25,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
-import me.simpleHook.hook.Type
+import me.simpleHook.hook.utils.Type
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.util.*
 

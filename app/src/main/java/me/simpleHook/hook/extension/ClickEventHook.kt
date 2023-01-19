@@ -9,10 +9,9 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.getAllTextView
+import me.simpleHook.hook.utils.getAllTextView
 import me.simpleHook.util.log
 
 object ClickEventHook : BaseHook() {
@@ -41,10 +40,10 @@ object ClickEventHook : BaseHook() {
                     }
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.getStackTrace(), packageName
+                            type, list + LogUtil.getStackTrace(), packageName
                         )
                     )
-                    LogHook.toLogMsg(log, packageName, type)
+                    LogUtil.toLogMsg(log, packageName, type)
                 } catch (e: Exception) {
                     "error: click".log(packageName)
                 }
