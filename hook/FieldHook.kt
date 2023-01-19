@@ -1,111 +1,93 @@
 package me.simpleHook.hook
 
 import android.content.Context
+import com.github.kyuubiran.ezxhelper.init.InitFields.appContext
+import com.github.kyuubiran.ezxhelper.init.InitFields.ezXClassLoader
+import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.constant.Constant
 import me.simpleHook.hook.Tip.getTip
+import me.simpleHook.hook.utils.*
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 
 object FieldHook {
     /**
      * @author littleWhiteDuck
-     * @param className Hook变量之前hook的方法所在的类的类名
-     * @param classLoader
-     * @param methodName Hook变量之前hook的方法的方法名
-     * @param fieldName 变量名
-     * @param values 要修改的变量值
-     * @param fieldClassName 变量所在的类的类名
-     * @param context
-     * @param packageName 应用包名
+     * @param configBean 配置类
+     * @param packageName 目标应用包名
      */
     @JvmStatic
-    fun hookStaticField(
-        className: String,
-        classLoader: ClassLoader,
-        methodName: String,
-        params: String,
-        fieldName: String,
-        values: String,
-        fieldClassName: String,
-        context: Context,
-        packageName: String,
-        hookPoint: String,
-        isRecord: Boolean
-    ) {
-        if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
-            // 直接hook
-            hookStaticField(fieldClassName, classLoader, values, fieldName)
-            return
-        }
-        val methodParams = params.split(",")
-        val realSize = if (params == "" || params == "*") 0 else methodParams.size
-        val obj = arrayOfNulls<Any>(realSize + 1)
-        for (i in 0 until realSize) {
-            val classType = Type.getClassType(methodParams[i])
-            if (classType == null) {
-                obj[i] = methodParams[i]
+    fun hookStaticField(configBean: ConfigBean, packageName: String) {
+        configBean.apply {
+            if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+                // 直接hook
+                hookStaticField(fieldClassName, ezXClassLoader, resultValues, fieldName)
+                return
+            }
+            val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
+                { recordStaticField(appContext, fieldClassName, packageName, fieldName) }
             } else {
-                obj[i] = classType
+                { hookStaticField(fieldClassName, ezXClassLoader, resultValues, fieldName) }
             }
+            hookField(hooker, packageName)
         }
-        obj[realSize] = if (hookPoint == "before") {
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam?) {
-                    if (isRecord) {
-                        recordStaticField(context, fieldClassName, packageName, fieldName)
-                    } else {
-                        hookStaticField(fieldClassName, classLoader, values, fieldName)
-                    }
-                }
-            }
-        } else {
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    if (isRecord) {
-                        recordStaticField(context, fieldClassName, packageName, fieldName)
-                    } else {
-                        hookStaticField(fieldClassName, classLoader, values, fieldName)
-                    }
-                }
-            }
-        }
+    }
 
+    private fun ConfigBean.hookField(
+        hooker: Hooker, packageName: String
+    ) {
         try {
-            if (params == "*") {
-                val hookClass = classLoader.loadClass(className)
+            if (methodName == "*") {
+                findAllMethods(className) {
+                    true
+                }.hook(hookPoint == "before", hooker)
+            } else if (params == "*") {
                 if (methodName == "<init>") {
-                    XposedBridge.hookAllConstructors(hookClass, obj[realSize] as XC_MethodHook?)
+                    hookAllConstructorAfter(className, hooker = hooker)
                 } else {
-                    XposedBridge.hookAllMethods(
-                        hookClass, methodName, obj[realSize] as XC_MethodHook?
-                    )
+                    findAllMethods(className) {
+                        name == methodName
+                    }.hook(hookPoint == "before", hooker)
                 }
             } else {
                 if (methodName == "<init>") {
-                    XposedHelpers.findAndHookConstructor(className, classLoader, *obj)
+                    findConstructor(className) {
+                        isSearchConstructor(params)
+                    }.hookAfter(hooker)
                 } else {
-                    XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
+                    findMethod(className) {
+                        name == methodName && isSearchMethod(params)
+                    }.hook(hookPoint == "before", hooker)
                 }
             }
         } catch (e: NoSuchMethodError) {
-            ErrorTool.noSuchMethod(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.noSuchMethod(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
+            )
+            getTip("noSuchMethod").log(packageName)
+            XposedBridge.log(e.stackTraceToString())
+
+        } catch (e: NoSuchMethodException) {
+            LogUtil.noSuchMethod(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
-            ErrorTool.notFoundClass(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.notFoundClass(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
-            ErrorTool.notFoundClass(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
+            LogUtil.notFoundClass(
+                packageName, className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -124,7 +106,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     private fun hookStaticField(
@@ -135,91 +117,20 @@ object FieldHook {
     }
 
     @JvmStatic
-    fun hookField(
-        className: String,
-        classLoader: ClassLoader,
-        methodName: String,
-        params: String,
-        fieldName: String,
-        values: String,
-        context: Context,
-        packageName: String,
-        hookPoint: String,
-        isRecord: Boolean
+    fun hookInstanceField(
+        configBean: ConfigBean, packageName: String
     ) {
-        val methodParams = params.split(",")
-        val realSize = if (params == "" || params == "*") 0 else methodParams.size
-        val obj = arrayOfNulls<Any>(realSize + 1)
-        for (i in 0 until realSize) {
-            val classType = Type.getClassType(methodParams[i])
-            if (classType == null) {
-                obj[i] = methodParams[i]
+        configBean.apply {
+            val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
+                { recordInstanceField(className, packageName, it, fieldName) }
             } else {
-                obj[i] = classType
+                { hookInstanceField(it, resultValues, fieldName) }
             }
+            hookField(hooker, packageName)
         }
-        obj[realSize] = if (hookPoint == "before") {
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (isRecord) {
-                        recordInstanceField(context, className, packageName, param, fieldName)
-                    } else {
-                        hookInstanceField(param, values, fieldName)
-                    }
-                }
-            }
-        } else {
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    if (isRecord) {
-                        recordInstanceField(context, className, packageName, param, fieldName)
-                    } else {
-                        hookInstanceField(param, values, fieldName)
-                    }
-                }
-            }
-        }
-        try {
-            if (params == "*") {
-                val hookClass = classLoader.loadClass(className)
-                if (methodName == "<init>") {
-                    XposedBridge.hookAllConstructors(hookClass, obj[realSize] as XC_MethodHook?)
-                } else {
-                    XposedBridge.hookAllMethods(
-                        hookClass, methodName, obj[realSize] as XC_MethodHook?
-                    )
-                }
-            } else {
-                if (methodName == "<init>") {
-                    XposedHelpers.findAndHookConstructor(className, classLoader, *obj)
-                } else {
-                    XposedHelpers.findAndHookMethod(className, classLoader, methodName, *obj)
-                }
-            }
-        } catch (e: NoSuchMethodError) {
-            ErrorTool.noSuchMethod(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("noSuchMethod").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: XposedHelpers.ClassNotFoundError) {
-            ErrorTool.notFoundClass(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("notFoundClass").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: ClassNotFoundException) {
-            ErrorTool.notFoundClass(
-                context, packageName, className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("notFoundClass").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-        }
-
     }
 
     private fun recordInstanceField(
-        context: Context,
         className: String,
         packageName: String,
         param: XC_MethodHook.MethodHookParam,
@@ -234,7 +145,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogHook.toLogMsg(context, Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     private fun hookInstanceField(
@@ -242,29 +153,5 @@ object FieldHook {
     ) {
         val thisObj = param.thisObject
         XposedHelpers.setObjectField(thisObj, fieldName, Type.getDataTypeValue(values))
-        /* when (val value = x) {
-             is Byte -> XposedHelpers.setByteField(
-                 thisObj, fieldName, value
-             )
-             is Char -> XposedHelpers.setCharField(thisObj, fieldName, value)
-             is Short -> XposedHelpers.setShortField(
-                 thisObj, fieldName, value
-             )
-             is Int -> XposedHelpers.setIntField(thisObj, fieldName, value)
-             is Long -> XposedHelpers.setLongField(
-                 thisObj, fieldName, value
-             )
-             is Float -> XposedHelpers.setFloatField(
-                 thisObj, fieldName, value
-             )
-             is Double -> XposedHelpers.setDoubleField(
-                 thisObj, fieldName, value
-             )
-             is Boolean -> XposedHelpers.setBooleanField(
-                 thisObj, fieldName, value
-             )
-             is String -> XposedHelpers.setObjectField(thisObj, fieldName, value)
-             else -> XposedHelpers.setObjectField(thisObj, fieldName, null)
-         }*/
     }
 }

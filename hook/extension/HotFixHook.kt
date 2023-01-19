@@ -1,23 +1,24 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.BaseHook
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.log
 import me.simpleHook.util.tip
 import java.io.File
 
-class HotFixHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
+object HotFixHook : BaseHook() {
 
-    override fun startHook(packageName: String, strConfig: String) {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.hotFix) return
         val dexFilePaths: MutableList<String> = mutableListOf()
         val pathName = if (FlavorUtils.isNormal()) {
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/dex/"
         } else {
-            Constant.CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
+            Constant.ROOT_CONFIG_MAIN_DIRECTORY + packageName + "/dex/"
         }
         val fileTree: FileTreeWalk = File(pathName).walk()
         fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {//循环处理符合条件的文件
@@ -26,9 +27,9 @@ class HotFixHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
         try {
             for (index in 0 until dexFilePaths.size) {
                 dexFilePaths[index].log(packageName)
-                val originalLoader = mClassLoader
+                val originalLoader = InitFields.ezXClassLoader
                 val classLoader = DexClassLoader(
-                    dexFilePaths[index], mContext.cacheDir.path, null, null
+                    dexFilePaths[index], InitFields.appContext.cacheDir.path, null, null
                 )
                 val loaderClass: Class<*> = BaseDexClassLoader::class.java
                 val pathListField = loaderClass.getDeclaredField("pathList")

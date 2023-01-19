@@ -1,27 +1,27 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 
 private const val ACTIVITY = "android.app.Activity"
 private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"
 private const val START_ACTIVITY = "startActivity"
 private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
-class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            mClassLoader,
+object IntentHook : BaseHook() {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.intent) return
+        XposedHelpers.findAndHookMethod(ACTIVITY,
+            InitFields.ezXClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             object : XC_MethodHook() {
@@ -32,7 +32,7 @@ class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
             })
 
         XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
-            mClassLoader,
+            InitFields.ezXClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             object : XC_MethodHook() {
@@ -43,7 +43,7 @@ class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
             })
 
         XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
-            mClassLoader,
+            InitFields.ezXClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             Bundle::class.java,
@@ -55,7 +55,7 @@ class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
             })
 
         XposedHelpers.findAndHookMethod(ACTIVITY,
-            mClassLoader,
+            InitFields.ezXClassLoader,
             START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
@@ -65,8 +65,9 @@ class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
                     saveLog(intent, packageName)
                 }
             })
-        XposedHelpers.findAndHookMethod(ACTIVITY,
-            mClassLoader,
+        XposedHelpers.findAndHookMethod(
+            ACTIVITY,
+            InitFields.ezXClassLoader,
             START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
@@ -104,6 +105,6 @@ class IntentHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClass
         val logBean = LogBean(
             "intent", listOf(configBean), packName
         )
-        LogHook.toLogMsg(mContext, Gson().toJson(logBean), packName, "intent")
+        LogUtil.toLogMsg(Gson().toJson(logBean), packName, "intent")
     }
 }

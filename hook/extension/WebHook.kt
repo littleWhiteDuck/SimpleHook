@@ -1,19 +1,18 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.webkit.WebView
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 
-class WebHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
-        val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
+object WebHook : BaseHook() {
+
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
         if (configBean.webLoadUrl) {
             hookWebLoadUrl(packageName)
         }
@@ -35,13 +34,13 @@ class WebHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                     list.add("Header: $headers")
                 }
                 val logBean = LogBean(type, list, packageName)
-                LogHook.toLogMsg(mContext, Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
             }
         })
     }
 
     private fun hookWebDebug(packageName: String) {
-        val webClass = XposedHelpers.findClass("android.webkit.WebView", mClassLoader)
+        val webClass = XposedHelpers.findClass("android.webkit.WebView", InitFields.ezXClassLoader)
         XposedBridge.hookAllConstructors(webClass, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 XposedHelpers.callStaticMethod(webClass, "setWebContentsDebuggingEnabled", true)

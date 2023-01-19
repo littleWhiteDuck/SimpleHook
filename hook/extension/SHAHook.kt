@@ -1,18 +1,19 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.byte2Sting
+import me.simpleHook.hook.utils.byte2Sting
 import java.security.MessageDigest
 
-class SHAHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
+object SHAHook : BaseHook() {
+
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.digest) return
         val hashMap = HashMap<String, String>()
         XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -49,7 +50,7 @@ class SHAHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                 val md = param.thisObject as MessageDigest
                 val type = md.algorithm ?: "unknown"
                 val result = byte2Sting(param.result as ByteArray)
-                val items = LogHook.getStackTrace().toList()
+                val items = LogUtil.getStackTrace().toList()
                 val logBean = LogBean(
                     type, listOf(
                         Tip.getTip("isEncrypt"),
@@ -57,8 +58,8 @@ class SHAHook(mClassLoader: ClassLoader, mContext: Context) : BaseHook(mClassLoa
                         Tip.getTip("encryptResult") + result
                     ) + items, packageName
                 )
-                LogHook.toLogMsg(
-                    mContext, Gson().toJson(logBean), packageName, logBean.type
+                LogUtil.toLogMsg(
+                    Gson().toJson(logBean), packageName, logBean.type
                 )
             }
         })
