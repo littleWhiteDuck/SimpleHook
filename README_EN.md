@@ -8,13 +8,10 @@
 >
 > TG Group: @simpleHook
 >
-> Email: 484303285@qq.com
->
 > **SimpleHook** is mainly simple, just like the name. If you pursue more complex hook operation, it is recommended to use **[jsHook (You can implement very powerful Hook)](https://github.com/Xposed-Modules-Repo/me.jsonet.jshook)**, [Qujing (computer browser operation)](https://github.com/Mocha-L/QuJing); if you pursue more extended functions, it is recommended to use [算法助手]
 >
 > Function overview: custom return value, parameter value, etc., record common encryption algorithms, toast, dialog, popupwindow, JSONObject creation and put, etc.
 >
-> Development plan: Due to busy schoolwork, new functions cannot be added for the time being
 
 ## 1. Function description
 
@@ -58,11 +55,9 @@ Floating window
 
 The following are the writing rules: (You can download *[HookTest.apk](/HookTest.apk)*, this App applies all the situations and includes configuration)
 
-> Please understand the setting page **[smali to config]** before use, it can simplify your operation (with reverse analysis software such as MT manager)
+> Please understand the setting page **[smali to config]** before use, it can simplify your operation (with decompiler apps such as **MT manager**)
 
 ### A brief basic introduction
-
-- Please use the normal version first, and use the ROOT version when the normal version cannot be used! ! !
 
 - Support Java syntax and Smali syntax to fill in configuration information
 
@@ -72,7 +67,7 @@ The following are the writing rules: (You can download *[HookTest.apk](/HookTest
   // smali
   Lme/simplehook/MainActivity; //must have --> ; <--
   ````
-  
+
 - Support for primitive types and other type parameters
 
   ````java
@@ -86,7 +81,8 @@ The following are the writing rules: (You can download *[HookTest.apk](/HookTest
   // You can also use smali syntax to fill in other types like this
   Ljava/lang/String; Landroid/content/Context; //must have --> ; <--
   ````
-  
+
+
 ### Filling rules for result values
 
   > It should be noted here that this software does not need to fill in the return value and parameter value type like other software, this software does not need it, you only need to **fill in according to the rules**, automatic judgment
@@ -296,11 +292,20 @@ public void testBreakMethod() {
 }
 ````
 
-#### Hook all methods
+#### Hook all methods with the same name
 
 ````java
 /*
-  Hook all methods of the same name in a class, fill in * for the method parameter type
+  Hook all methods of the same name in a class, fill in * for the parameter type
+*/
+````
+
+#### Hook all methods in a class
+
+````java
+/*
+  Hook all methods in a class, fill in * for the method name.
+  The parameter type can be filled in freely, some hook types cannot be empty.
 */
 ````
 
@@ -460,19 +465,10 @@ public class MainActivity extends Acitvity {
 
 ### 1.hook has no effect
 
-> You may not have Turn on storage permission to write configuration (top of settings page)
->
-> If it is not enabled, it will only read data from the database, but there is a problem, https://medium.com/androiddevelopers/package-visibility-in-android-11-cc857f221cd9
->
-> Turn on storage permission to write configuration, still no effect:
->
-> You can view the framework log. If it prompts that the storage file has no storage file configuration, make sure to enable the write storage configuration
->
-> In addition, in some cases, the storage file update configuration needs to be refreshed manually. It can be refreshed by opening, closing, editing and saving.
->
-> You also need to manually refresh the configuration to switch between the ROOT version and the normal version (generally only needed for extended configuration)
->
-> After uninstalling and reinstalling the target application, it is generally necessary to manually refresh the configuration (generally only required for extended configuration)
+> - You can see the xposed framework(example: LSPosed) log, whether there is an error, etc.
+>- In some cases, the storage file update configuration needs to be manually refreshed, open, close, edit and save to refresh
+> - Please grant the required permissions (below android11: storage permission, android11 and above: ROOT permission)
+
 
 ### 2. What is smali transfer configuration
 
@@ -493,36 +489,13 @@ public class MainActivity extends Acitvity {
 >
 > The above can be selected by long-pressing a field or method in the MT Manager navigation to select **Copy Signature** or **Find Call**
 
-```smali
- 
-````
+### 3. Why the target application is running slowly
 
-### What is the difference between 3.root version and normal version
+> Please turn off unnecessary **EXTENSION HOOK** and **record parameters**, **record return value**...etc, such as: md5, base64, etc., these functions will generate a lot of Log
 
-> 1. There is no difference in function between the two, only the difference in writing to the local configuration directory. If you use the root version, but your model is not suitable for the root version, you will be prompted in the xposed framework log.
-> 2. The root configuration storage directory is:
->
-> 1. /data/simpleHook/target application package name/config/
->
-> 2. /storage/emluated/0/Android/data/target application package name/simpleHook/config/
-> 3. The general version configuration storage directory is:
-> 1. /storage/emluated/0/Android/data/target application package name/simpleHook/config/
->
-> **config.json** is the custom hook configuration, **assistConfig.json** is the extension function configuration
->
-> **How ​​to choose, first use the normal version, if the normal version cannot be used, then use the root version, both versions may have one version that does not work on different models**
+### 4.
 
-### 4. Some records cannot be recorded
-
-> You may not have Turn on storage permission to write configuration (top of settings page)
->
-> Remember to manually refresh the configuration after opening (re-save or switch the configuration)
-
-### 5. The software needs to hang in the background before it can be used
-
-> You may not have turned on Enable storage permissions to write to configuration (switch configuration settings at the top of the page)
->
-> Remember to manually refresh the configuration after opening (re-save or switch the configuration)
+### 5.
 
 ### 6. What is hook point
 
@@ -535,7 +508,7 @@ public class MainActivity extends Acitvity {
 
 > When you uninstall the app or clear data, the target app configuration file may still be saved in the storage file
 >
-> 1. /data/simpleHook/target application package name/config/
+> 1. /data/local/tmp/simpleHook/target application package name/config/
 > 2. /storage/emluated/0/Android/data/target application package name/simpleHook/config/
 >
 > This function is to traverse all application directories and delete useless configurations (the configuration is displayed in this application).

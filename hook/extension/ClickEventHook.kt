@@ -1,6 +1,5 @@
 package me.simpleHook.hook.extension
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -8,16 +7,16 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.BaseHook
-import me.simpleHook.hook.LogHook
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.getAllTextView
+import me.simpleHook.hook.utils.getAllTextView
 import me.simpleHook.util.log
 
-class ClickEventHook(mClassLoader: ClassLoader, mContext: Context) :
-    BaseHook(mClassLoader, mContext) {
-    override fun startHook(packageName: String, strConfig: String) {
+object ClickEventHook : BaseHook() {
+    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+        if (!configBean.click) return
         XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 try {
@@ -41,10 +40,10 @@ class ClickEventHook(mClassLoader: ClassLoader, mContext: Context) :
                     }
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogHook.getStackTrace(), packageName
+                            type, list + LogUtil.getStackTrace(), packageName
                         )
                     )
-                    LogHook.toLogMsg(mContext, log, packageName, type)
+                    LogUtil.toLogMsg(log, packageName, type)
                 } catch (e: Exception) {
                     "error: click".log(packageName)
                 }

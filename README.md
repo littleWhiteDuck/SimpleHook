@@ -8,13 +8,10 @@
 >
 > TG交流群: @simpleHook
 >
-> Email: 484303285@qq.com
->
-> 本软件主打简单，如名字一样，如果你追求更复杂的hook操作，推荐使用 [jsHook（你可以实现更复杂的功能）](https://github.com/Xposed-Modules-Repo/me.jsonet.jshook)、[曲境（电脑端浏览器操作）](https://github.com/Mocha-L/QuJing)；如果你追求更多的扩展功能，推荐使用算法助手
+> 本软件主打简单，如名字一样，如果你追求更复杂的hook操作，推荐使用 [jsHook（你可以实现更复杂的功能）](https://github.com/Xposed-Modules-Repo/me.jsonet.jshook)、[曲境（电脑端浏览器操作）](https://github.com/Mocha-L/QuJing)；如果你追求更多的扩展功能，推荐使用算法助手等等类似应用
 >
 > 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow、JSONObject创建增加等
->
-> 开发计划：由于忙于学业，暂无法加新功能
+
 
 ## 1. 功能说明
 
@@ -62,8 +59,6 @@
 
 ### 简要的基本介绍
 
-- 请优先使用普通版，普通版无法使用时，再使用ROOT版！！！
-
 - 支持Java语法和Smali语法填写配置信息
 
   ```java
@@ -72,7 +67,7 @@
   // smali
   Lme/simplehook/MainActivity; //一定要有 --> ; <--
   ```
-  
+
 - 支持基本类型和其它类型参数
 
   ```java
@@ -86,7 +81,8 @@
   // 其他类型你也可以使用smali语法这样填
   Ljava/lang/String; Landroid/content/Context; //一定要有 --> ; <--
   ```
-  
+
+
 ### 结果值的填写规则
 
   > 此处应注意，本软件不像其他软件一样需要填写返回值、参数值类型，本软件并不需要，你只需要**按照规则填写**，自动判断
@@ -297,12 +293,19 @@ public void testBreakMethod() {
 }
 ```
 
-#### Hook所有方法
+#### Hook所有同名方法
 
 ```java
-
 /*
-  Hook一个类所有同名方法，方法参数类型填写 * 即可
+  Hook一个类所有同名方法，参数类型填写 * 即可
+*/
+```
+
+#### Hook一个类中所有方法
+
+```java
+/*
+  Hook一个类所有方法，方法名填写 * 即可；参数类型可随意填写，有些h不可为空
 */
 ```
 
@@ -458,23 +461,14 @@ public class MainActivity extends Acitvity {
 > 切记**打开总开关**
 > 功能请前往app查看
 
-## 常见问题(FAQ)
+## 4.常见问题(FAQ)
 
 ### 1.hook没有效果
 
-> 你可能没有打开 开启储存权限写入配置（设置页顶部）
->
-> 如果不开启，仅仅会从数据库读取数据，但是有个问题，https://medium.com/androiddevelopers/package-visibility-in-android-11-cc857f221cd9
->
-> 开启储存权限写入配置,仍然没有效果：
->
-> 可看框架日志，若提示储存文件无储存文件配置，确保开启写入储存配置
->
-> 另外，储存文件更新配置某些情况下需要手动刷新，开启、关闭、编辑保存即可刷新
->
-> 切换ROOT版和普通版也需手动刷新配置(一般仅扩展配置需要)
->
-> 卸载目标应用重新安装后，一般也需要手动刷新配置(一般仅扩展配置需要)
+> - 可看框架日志，是否有报错等
+> - 储存文件更新配置某些情况下需要手动刷新，开启、关闭、编辑保存即可刷新
+> - 请授予所需权限（android11以下：储存权限，android11及以上：ROOT权限）
+
 
 ### 2.什么是smali转配置
 
@@ -495,36 +489,13 @@ public class MainActivity extends Acitvity {
 >
 > 上述可在MT管理器导航中长按字段或方法选择**复制签名**或者**查找调用**
 
-```smali
- 
-```
+### 3.为什么目标应用运行很慢
 
-### 3.root版和普通版有什么区别
+> 请关闭不必要的扩展HOOK和记录参数、返回值功能, 例如：md5、base64等，这些功能会产生大量的Log
 
-> 1. 两者功能上没有任何区别，仅仅在写入本地配置目录上有所区别。如果你使用root版，但是你的机型又不适合使用root版，xposed框架日志中会提示你。
-> 2. root配置存储目录有：
->
->    1. /data/simpleHook/目标应用包名/config/
->
->    2. /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/
-> 3. 普通版配置存储目录有：
->    1. /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/
->
-> **config.json**是自定义hook配置，**assistConfig.json**是扩展功能配置
->
-> **如何选用，首先使用普通版，若普通版无法使用，再去使用root版，两个版本在不同机型上都可能有一个版本没有效果**
+### 4.
 
-### 4.部分记录无法被记录
-
-> 你可能没有打开 开启储存权限写入配置（设置页顶部）
->
-> 打开后记得手动刷新配置（重新保存或开关配置）
-
-### 5.需要本软件挂后台才能使用
-
-> 你可能没有打开 开启储存权限写入配置（开关配置设置页顶）
->
-> 打开后记得手动刷新配置（重新保存或开关配置）
+### 5.
 
 ### 6.什么是hook点
 
@@ -537,9 +508,9 @@ public class MainActivity extends Acitvity {
 
 > 当你卸载本应用或者清除数据时，目标应用配置文件仍然可能保存在储存文件中
 >
-> 1. /data/simpleHook/目标应用包名/config/
-> 2. /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/
+> 1. /data/local/tmp/simpleHook/目标应用包名/config/
+> 2. /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
 >
-> 这个功能就是遍历所有的应用目录并删除无用的配置(本应用内显示其配置)
+> 这个功能就是遍历所有的应用目录并删除无用的配置(本应用内未显示其配置)
 >
 > 因为需要遍历所有应用会比较慢
