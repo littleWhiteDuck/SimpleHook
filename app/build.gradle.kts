@@ -10,9 +10,11 @@ plugins {
     id("kotlin-parcelize")
 }
 
+val debug = false
+
 android {
     val verCode = run {
-        val sdf = SimpleDateFormat("yyMMddHH")
+        val sdf = SimpleDateFormat(if (debug) "ddHHmm" else "yyMMddHH")
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }

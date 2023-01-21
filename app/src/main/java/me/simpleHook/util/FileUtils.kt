@@ -277,7 +277,7 @@ object FileUtils {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
-            if (file.length() > 12 * 1000 * 1000) {
+            if (file.length() > 10 * 1000 * 1000) {
                 file.delete()
             }
             FileWriter(file.path, true).use {
@@ -288,33 +288,28 @@ object FileUtils {
         }
     }
 
+    @Synchronized
     fun readLogFile(context: Context, packageName: String): List<PrintLog> {
-        val filePath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-        val fileUri = Uri.parse(changeToUri(filePath))
-        val recordPath = ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
+        val filePath = Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
         val list = mutableListOf<PrintLog>()
+        // 未判断文件是否存在
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                SuUtil.copyFile(
-                    filePath, ROOT_CONFIG_MAIN_DIRECTORY + "logTemp"
-                )
-                SuUtil.deleteFile(filePath)
-                try {
-                    val file = File(recordPath)
-                    file.useLines {
-                        it.iterator().forEach { str ->
-                            try {
-                                list.add(Gson().fromJson(str, PrintLog::class.java))
-                            } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
-                            }
+                val process = Runtime.getRuntime().exec("su")
+                DataOutputStream(process.outputStream).use {
+                    it.write("cat $filePath".toByteArray())
+                    it.writeBytes("\nexit\n")
+                }
+                process.inputStream.bufferedReader().useLines {
+                    it.iterator().forEach { str ->
+                        try {
+                            list.add(Gson().fromJson(str, PrintLog::class.java))
+                        } catch (e: java.lang.Exception) {
+                            e.printStackTrace()
                         }
                     }
-                    SuUtil.deleteFile(recordPath)
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
+                SuUtil.deleteFile(filePath)
             } else {
                 File(filePath).useLines {
                     it.iterator().forEach { str ->
@@ -327,12 +322,11 @@ object FileUtils {
                 }
                 deleteFile(filePath)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (_: Exception) {
+
         } catch (e: OutOfMemoryError) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 SuUtil.deleteFile(filePath)
-                SuUtil.deleteFile(recordPath)
             } else {
                 deleteFile(filePath)
             }

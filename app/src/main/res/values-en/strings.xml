@@ -365,4 +365,6 @@
     <string name="record_item_swipe_delete_tip">Swipe to delete</string>
     <string name="extension_item_desc_application_name">Record Application name</string>
     <string name="main_request_root_permission_message">Since your system version is 13 or above, you need to grant root permission to use</string>
+    <string name="main_version_update">New Version</string>
+    <string name="main_go_upgrade">Go update</string>
 </resources>

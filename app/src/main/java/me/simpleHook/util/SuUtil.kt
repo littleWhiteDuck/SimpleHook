@@ -6,7 +6,6 @@ import android.os.Looper
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import eu.darken.rxshell.root.Root
-import me.simpleHook.constant.Constant
 import kotlin.concurrent.thread
 
 object SuUtil {
@@ -32,30 +31,6 @@ object SuUtil {
         }
     }
 
-    fun copyFile(filePath: String, filePath2: String) {
-        thread {
-            try {
-                Cmd.builder(
-                    "mkdir -p $filePath2",
-                    "cp $filePath $filePath2",
-                    "chmod -R 777 $filePath2"
-                ).execute(
-                    session
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun setRecordFile() {
-        val filePath = Constant.ROOT_CONFIG_MAIN_DIRECTORY + "logTemp/"
-        thread {
-            Cmd.builder(
-                "mkdir -p $filePath", "cd $filePath", "echo > log.txt", "chmod -R 666 $filePath"
-            ).execute(session)
-        }
-    }
 
     fun saveConfig(filePath: String, fileName: String, content: String) {
 

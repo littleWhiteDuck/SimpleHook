@@ -2,19 +2,16 @@ package me.simpleHook.ui.activity
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.Keep
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
@@ -63,14 +60,14 @@ class MainActivity : BaseActivity() {
                         Regex("""_root|_beta"""), ""
                     ) != versionName
                 ) {
-                    val body = result.optString("body").substringAfterLast("更新记录")
+                    val body = result.optString("body").substringAfterLast("更新记录").trim()
                     val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
                     Looper.prepare()
                     customDialog(
                         this@MainActivity,
-                        title = "新版本 $versionName",
+                        title = getString(R.string.main_version_update) + versionName,
                         message = message,
-                        okText = "更新",
+                        okText = getString(R.string.main_go_upgrade),
                         okClick = {
                             val intent = Intent(Intent.ACTION_VIEW).also {
                                 it.data =
@@ -78,7 +75,7 @@ class MainActivity : BaseActivity() {
                             }
                             startActivity(intent)
                         },
-                        cancelText = "取消",
+                        cancelText = getString(R.string.dialog_cancel),
                         cancelClick = {
                             it.dismiss()
                         },

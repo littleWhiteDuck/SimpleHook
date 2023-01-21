@@ -365,4 +365,6 @@
     <string name="record_item_swipe_delete_tip">右滑刪除</string>
     <string name="extension_item_desc_application_name">記錄Application(入口)名</string>
     <string name="main_request_root_permission_message">由於你的系統版本在13或以上，需要申請root權限後才能使用</string>
+    <string name="main_version_update">新版本</string>
+    <string name="main_go_upgrade">更新</string>
 </resources>
