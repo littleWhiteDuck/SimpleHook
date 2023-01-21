@@ -1,5 +1,9 @@
 package me.simpleHook.hook.utils
 
+import android.net.Uri
+import android.os.Build.VERSION_CODES
+import androidx.core.content.contentValuesOf
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
@@ -8,11 +12,26 @@ import me.simpleHook.hook.Tip
 import me.simpleHook.util.*
 
 object LogUtil {
-
+    private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(log: String, packageName: String, type: String) {
         if (type == "null") return
+        InitFields.appContext.getExternalFilesDirs("")
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else packageName
+        val targetSdkVersion = AppUtils.getTargetSdkVer(InitFields.appContext, packageName)
+        targetSdkVersion?.let {
+            if (it > VERSION_CODES.Q) {
+                outLogFile(log, packageName, tempPackageName, type, time)
+            } else {
+                outLogDB(log, packageName, tempPackageName, type, time)
+            }
+        } ?: outLogFile(log, packageName, tempPackageName, type, time)
+
+    }
+
+    private fun outLogFile(
+        log: String, packageName: String, tempPackageName: String, type: String, time: String
+    ) {
         try {
             val printLog =
                 PrintLog(log = log, packageName = tempPackageName, type = type, time = time)
@@ -23,6 +42,25 @@ object LogUtil {
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip(packageName)
             log.log(packageName)
+        }
+    }
+
+    private fun outLogDB(
+        log: String, packageName: String, tempPackageName: String, type: String, time: String
+    ) {
+        try {
+            val contentValues = contentValuesOf(
+                "packageName" to tempPackageName,
+                "log" to log,
+                "read" to 0,
+                "type" to type,
+                "time" to time,
+                "isMark" to 0
+            )
+            InitFields.appContext.contentResolver?.insert(PRINT_URI, contentValues)
+        } catch (e: Exception) {
+            "error occurred while saving log to the database".tip(packageName)
+            outLogFile(log, packageName, tempPackageName, type, time)
         }
     }
 
@@ -55,7 +93,7 @@ object LogUtil {
         list: List<String>, packageName: String, type: String
     ) {
         val logBean = LogBean(type = type, other = list, "error.hook.tip")
-        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+        toLogMsg(Gson().toJson(logBean), packageName, type)
     }
 
     fun notFoundClass(

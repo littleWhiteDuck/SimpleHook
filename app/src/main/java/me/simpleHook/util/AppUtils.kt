@@ -79,6 +79,9 @@ object AppUtils {
         return packageInfo.applicationInfo.loadIcon(context.packageManager)
     }
 
+    /**
+     * 仅用于显示APP列表
+     */
     fun getTargetSdkVersion(context: Context, packageName: String): String {
         return try {
             "Target Api ${
@@ -88,6 +91,14 @@ object AppUtils {
             }"
         } catch (e: Exception) {
             "Target Api -1"
+        }
+    }
+
+    fun getTargetSdkVer(context: Context, packageName: String): Int? {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0).applicationInfo.targetSdkVersion
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
         }
     }
 
