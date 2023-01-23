@@ -9,6 +9,7 @@ import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
+import me.simpleHook.hook.utils.HookHelper
 
 class HookInit : IXposedHookLoadPackage {
 
@@ -20,12 +21,14 @@ class HookInit : IXposedHookLoadPackage {
             }.hookReturnConstant(true)
 
         } else {
+            if (HookHelper.isAppContextInitialized) return
             findMethod(Application::class.java) {
                 name == "attach"
             }.hookAfter {
-                EzXHelperInit.initAppContext(context = it.args[0] as Context)
+                HookHelper.initFields(context = it.args[0] as Context, lpparam)
                 MainHook.startHook(lpparam.packageName)
             }
         }
     }
+
 }

@@ -3,7 +3,6 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
-import com.github.kyuubiran.ezxhelper.init.InitFields.ezXClassLoader
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -15,14 +14,14 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.hook.utils.LogUtil.noSuchMethod
-import me.simpleHook.hook.utils.LogUtil.notFoundClass
-import me.simpleHook.hook.utils.LogUtil.getStackTrace
-import me.simpleHook.hook.utils.LogUtil.toLogMsg
 import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.utils.*
+import me.simpleHook.hook.utils.LogUtil.getStackTrace
+import me.simpleHook.hook.utils.LogUtil.noSuchMethod
+import me.simpleHook.hook.utils.LogUtil.notFoundClass
+import me.simpleHook.hook.utils.LogUtil.toLogMsg
+import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
 import org.json.JSONObject
 
@@ -104,7 +103,7 @@ object MainHook {
                     getTip("errorType") + getTip("unknownError"),
                     "config: $configTemp",
                     getTip("detailReason") + e.stackTraceToString()
-                ), packageName, "Error Unknown Error"
+                ), "Error Unknown Error"
             )
             "config error".log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -173,25 +172,25 @@ object MainHook {
             }
         } catch (e: NoSuchMethodError) {
             noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: NoSuchMethodException) {
             noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
             notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
             notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -202,7 +201,7 @@ object MainHook {
     private fun hookReturnValuePro(
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
-        val hookClass = XposedHelpers.findClass(returnClassName, ezXClassLoader)
+        val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
         try {
             val hookObject = Gson().fromJson(values, hookClass)
             param.result = hookObject
@@ -274,7 +273,7 @@ object MainHook {
                 getTip("filledMethodParams") + "$methodName($params)",
                 getTip("detailReason") + e.stackTraceToString()
             )
-            LogUtil.toLog(list, packageName, "Error HookParamsError")
+            LogUtil.toLog(list, "Error HookParamsError")
         }
     }
 
@@ -297,7 +296,7 @@ object MainHook {
         val logBean = LogBean(
             type, list + items, packageName
         )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun recordReturnValue(
@@ -313,7 +312,7 @@ object MainHook {
         val logBean = LogBean(
             type, list + items, packageName
         )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun recordParamsAndReturn(
@@ -337,7 +336,7 @@ object MainHook {
         val logBean = LogBean(
             type, list + items, packageName
         )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun getObjectString(value: Any): String {
@@ -381,7 +380,7 @@ object MainHook {
                     getTip("errorType") + getTip("unknownError"),
                     "config: ${JsonUtil.formatJson(strConfig)}",
                     getTip("detailReason") + e.stackTraceToString()
-                ), packageName, "Error Unknown Error"
+                ), "Error Unknown Error"
             )
         }
     }
@@ -390,7 +389,9 @@ object MainHook {
         configBean: ExtensionConfigBean, packageName: String, vararg hooks: BaseHook
     ) {
         hooks.forEach {
-            it.startHook(configBean, packageName)
+            if (it.isInit) return@forEach
+            it.isInit
+            it.startHook(configBean)
         }
     }
 }

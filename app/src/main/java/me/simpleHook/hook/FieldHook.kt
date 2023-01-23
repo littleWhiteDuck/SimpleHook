@@ -1,8 +1,5 @@
 package me.simpleHook.hook
 
-import android.content.Context
-import com.github.kyuubiran.ezxhelper.init.InitFields.appContext
-import com.github.kyuubiran.ezxhelper.init.InitFields.ezXClassLoader
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
@@ -13,6 +10,7 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.utils.*
+import me.simpleHook.hook.utils.HookHelper.appClassLoader
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 
@@ -27,13 +25,13 @@ object FieldHook {
         configBean.apply {
             if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
                 // 直接hook
-                hookStaticField(fieldClassName, ezXClassLoader, resultValues, fieldName)
+                hookStaticField(fieldClassName, resultValues, fieldName)
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                { recordStaticField(appContext, fieldClassName, packageName, fieldName) }
+                { recordStaticField(fieldClassName, packageName, fieldName) }
             } else {
-                { hookStaticField(fieldClassName, ezXClassLoader, resultValues, fieldName) }
+                { hookStaticField(fieldClassName, resultValues, fieldName) }
             }
             hookField(hooker, packageName)
         }
@@ -68,26 +66,26 @@ object FieldHook {
             }
         } catch (e: NoSuchMethodError) {
             LogUtil.noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
 
         } catch (e: NoSuchMethodException) {
             LogUtil.noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("noSuchMethod").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
             LogUtil.notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
             LogUtil.notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
             getTip("notFoundClass").log(packageName)
             XposedBridge.log(e.stackTraceToString())
@@ -95,10 +93,10 @@ object FieldHook {
     }
 
     private fun recordStaticField(
-        context: Context, fieldClassName: String, packageName: String, fieldName: String
+        fieldClassName: String, packageName: String, fieldName: String
     ) {
         val type = if (LanguageUtils.isNotChinese()) "Static field" else "静态变量"
-        val hookClass = XposedHelpers.findClass(fieldClassName, context.classLoader)
+        val hookClass = XposedHelpers.findClass(fieldClassName, appClassLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, fieldName)
         val list = listOf(
             getTip("className") + fieldClassName,
@@ -106,13 +104,13 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun hookStaticField(
-        fieldClassName: String, classLoader: ClassLoader, values: String, fieldName: String
+        fieldClassName: String, values: String, fieldName: String
     ) {
-        val clazz: Class<*> = XposedHelpers.findClass(fieldClassName, classLoader)
+        val clazz: Class<*> = XposedHelpers.findClass(fieldClassName, appClassLoader)
         XposedHelpers.setStaticObjectField(clazz, fieldName, Type.getDataTypeValue(values))
     }
 
@@ -145,7 +143,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = packageName)
-        LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+        LogUtil.toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun hookInstanceField(

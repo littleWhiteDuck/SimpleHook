@@ -9,11 +9,12 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 import java.nio.charset.Charset
 
 object Base64Hook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.base64) return
         XposedHelpers.findAndHookMethod(
             "java.util.Base64.Encoder",
@@ -30,10 +31,10 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("isEncrypt"),
                             Tip.getTip("rawData") + String(data),
                             Tip.getTip("encryptResult") + result
-                        ) + items, packageName
+                        ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.toLogMsg(
-                        Gson().toJson(logBean), packageName, logBean.type
+                        Gson().toJson(logBean), logBean.type
                     )
                 }
             })
@@ -53,10 +54,10 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("isDecrypt"),
                             Tip.getTip("rawData") + String(data),
                             Tip.getTip("decryptResult") + result
-                        ) + items, packageName
+                        ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.toLogMsg(
-                        Gson().toJson(logBean), packageName, logBean.type
+                        Gson().toJson(logBean), logBean.type
                     )
                 }
             })
@@ -85,9 +86,9 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("isEncrypt"),
                             Tip.getTip("rawData") + String(rawData),
                             Tip.getTip("encryptResult") + result
-                        ) + items, packageName
+                        ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
+                    LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
                 }
             })
 
@@ -111,9 +112,9 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("isDecrypt"),
                             Tip.getTip("rawData") + String(rawData),
                             Tip.getTip("decryptResult") + result
-                        ) + items, packageName
+                        ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(Gson().toJson(logBean), packageName, logBean.type)
+                    LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
                 }
             })
     }
