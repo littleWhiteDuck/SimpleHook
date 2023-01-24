@@ -4,16 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.core.app.ActivityCompat
 import androidx.documentfile.provider.DocumentFile
-import com.google.gson.Gson
-import me.simpleHook.R
 import me.simpleHook.constant.Constant
-import me.simpleHook.constant.Constant.ROOT_CONFIG_MAIN_DIRECTORY
-import me.simpleHook.database.entity.PrintLog
 import java.io.*
 
 
@@ -54,51 +47,6 @@ object FileUtils {
             stringBuilder.append("%2F").append(p)
         }
         return stringBuilder.toString()
-    }
-
-    fun realDeleteConfig(packageName: String, fileName: String) {
-        val configPath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.APP_CONFIG_NAME
-        val extensionPath =
-            Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/config/" + Constant.EXTENSION_CONFIG_NAME
-        if (FlavorUtils.isNormal()) {
-            if (fileName == Constant.APP_CONFIG_NAME) {
-                if (fileIsExists(extensionPath)) {
-                    deleteFile(configPath)
-                } else {
-                    deleteFile(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/")
-                }
-            } else {
-                if (fileIsExists(configPath)) {
-                    deleteFile(extensionPath)
-                } else {
-                    deleteFile(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/")
-                }
-            }
-        } else {
-            if (fileName == Constant.APP_CONFIG_NAME) {
-                SuUtil.deleteConfig(ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.APP_CONFIG_NAME}")
-                /* if (fileIsExists(extensionPath)) {
-                     // deleteFile(configPath)
-                     //  SuUtil.deleteConfig(configPath)
-                     SuUtil.deleteConfig(ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.APP_CONFIG_NAME}")
-                 } else {
-                     // SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook")
-                     SuUtil.deleteConfig("$ROOT_CONFIG_MAIN_DIRECTORY$packageName")
-                 }*/
-            } else {
-                SuUtil.deleteConfig(ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_NAME}")
-                /*if (fileIsExists(configPath)) {
-                    //deleteFile(extensionPath)
-                    //SuUtil.deleteConfig(extensionPath)
-                    SuUtil.deleteConfig(ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_NAME}")
-                } else {
-                    //SuUtil.deleteConfig(Constant.ANDROID_DATA_PATH + packageName + "/simpleHook")
-                    SuUtil.deleteConfig("$ROOT_CONFIG_MAIN_DIRECTORY$packageName")
-                }*/
-            }
-
-        }
     }
 
     private fun getDocumentFile(documentFile: DocumentFile, dir: String): DocumentFile? {
@@ -167,36 +115,6 @@ object FileUtils {
             e.printStackTrace()
         }
     }
-
-
-    @Synchronized
-    fun saveConfig(context: Context, packageName: String, fileName: String, content: String) {
-        try {
-            if (!AppUtils.isAppInstalled(context, packageName) || content.isEmpty()) return
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                if (SuUtil.isRoot) {
-                    SuUtil.saveConfig(
-                        filePath = "$ROOT_CONFIG_MAIN_DIRECTORY$packageName/config/",
-                        fileName = fileName,
-                        content = content.replace("\\", "\\\\")
-                    )
-                } else {
-                    Handler(Looper.getMainLooper()).post {
-                        "get ROOT failed".toast(context)
-                    }
-                }
-            } else {
-                val filePath = Constant.ANDROID_DATA_PATH + packageName + Constant.CONFIG_DIRECTORY
-                writeTextToFile(content, filePath, fileName)
-            }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            Handler(Looper.getMainLooper()).post {
-                "这应该是出现了bug".toast(context)
-            }
-        }
-    }
-
 
     fun alterDocument(context: Context, uri: Uri, content: String) {
         try {
@@ -286,52 +204,5 @@ object FileUtils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    @Synchronized
-    fun readLogFile(context: Context, packageName: String): List<PrintLog> {
-        val filePath = Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-        val list = mutableListOf<PrintLog>()
-        // 未判断文件是否存在
-        try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                val process = Runtime.getRuntime().exec("su")
-                DataOutputStream(process.outputStream).use {
-                    it.write("cat $filePath".toByteArray())
-                    it.writeBytes("\nexit\n")
-                }
-                process.inputStream.bufferedReader().useLines {
-                    it.iterator().forEach { str ->
-                        try {
-                            list.add(Gson().fromJson(str, PrintLog::class.java))
-                        } catch (e: java.lang.Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-                SuUtil.deleteFile(filePath)
-            } else {
-                File(filePath).useLines {
-                    it.iterator().forEach { str ->
-                        try {
-                            list.add(Gson().fromJson(str, PrintLog::class.java))
-                        } catch (e: java.lang.Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-                deleteFile(filePath)
-            }
-        } catch (_: Exception) {
-
-        } catch (e: OutOfMemoryError) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                SuUtil.deleteFile(filePath)
-            } else {
-                deleteFile(filePath)
-            }
-            context.getString(R.string.record_tip_log_out_of_memory).toast(context)
-        }
-        return list
     }
 }

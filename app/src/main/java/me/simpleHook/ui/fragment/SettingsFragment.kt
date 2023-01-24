@@ -21,11 +21,13 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
@@ -224,7 +226,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermission() {
-        if (SuUtil.isRoot || FileUtils.isGrant(requireContext())) {
+        if (FlavorUtils.isLiteVersion) return
+        if (Shell.isAppGrantedRoot() == true || FileUtils.isGrant(requireContext())) {
             settingsViewModel.permStatus.value = Constant.IS_GRANT
             return
         }
@@ -251,11 +254,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val extensionPackageNames = viewModel.getAllPackageNames()
             for (i in apps.indices) {
                 if (apps[i] !in appPackageNames) {
-                    FileUtils.realDeleteConfig(apps[i], Constant.APP_CONFIG_NAME)
+                    ConfigHelper.deleteConfig(requireContext(), apps[i], Constant.APP_CONFIG_NAME)
                 }
                 if (apps[i] !in extensionPackageNames) {
-                    FileUtils.realDeleteConfig(
-                        apps[i], Constant.EXTENSION_CONFIG_NAME
+                    ConfigHelper.deleteConfig(
+                        requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
                     )
                 }
             }
@@ -284,7 +287,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 0 -> {
                     val configs = viewModel.getConfigs()
                     configs.forEach {
-                        FileUtils.realDeleteConfig(
+                        ConfigHelper.deleteConfig(
+                            requireActivity(),
                             it.packageName,
                             Constant.APP_CONFIG_NAME,
                         )
@@ -295,8 +299,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
                     configs.forEach {
-                        FileUtils.realDeleteConfig(
-                            it.packageName, Constant.EXTENSION_CONFIG_NAME
+                        ConfigHelper.deleteConfig(
+                            requireActivity(), it.packageName, Constant.EXTENSION_CONFIG_NAME
                         )
                     }
                     viewModel.deleteAssistConfigsByPackageName("模板配置")
@@ -401,7 +405,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
-                    Constant.NO_ROOT -> SuUtil.init(requireContext())
+                    Constant.NO_ROOT -> {
+                        getString(R.string.not_root_tip).toast(requireContext())
+                    }
                     Constant.NO_STORAGE -> {
                         requestPermissionDialog(requireContext()) {
                             FileUtils.verifyStoragePermissions(requireActivity())

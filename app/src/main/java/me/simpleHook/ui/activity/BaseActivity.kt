@@ -2,7 +2,6 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -28,8 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
-import me.simpleHook.bean.ExtensionConfigBean
-import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.ui.view.ControlView
@@ -38,15 +36,6 @@ import me.simpleHook.util.*
 @Keep
 open class BaseActivity : AppCompatActivity() {
     protected var isSaving = false
-    protected val startActivityForData =
-        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
-        }
-
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
     private val list = ArrayList<PrintLog>()
@@ -65,7 +54,8 @@ open class BaseActivity : AppCompatActivity() {
     private var currentTime = ""
     private var startTime = ""
     private var tempCount = 0
-    private var needRecordPacks = mutableSetOf<String>()
+    private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
+    private val configs by lazy { appViewModel.getConfigs() }
 
     @SuppressLint("RestrictedApi")
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
@@ -73,9 +63,6 @@ open class BaseActivity : AppCompatActivity() {
             try {
                 menu.setOptionalIconsVisible(true)
                 super.onMenuOpened(featureId, menu)
-                /*   val method: Method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
-                            method.isAccessible = true
-                            method.invoke(menu, true)*/
             } catch (e: Exception) {
                 super.onMenuOpened(featureId, menu)
             }
@@ -89,28 +76,24 @@ open class BaseActivity : AppCompatActivity() {
 
     fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
-            appViewModel.getConfigs().forEach { appConfig ->
-                if (appConfig.enable && AppUtils.isAppInstalled(
-                        this@BaseActivity, appConfig.packageName
-                    )
-                ) {
-                    needRecordPacks.add(appConfig.packageName)
+            assistConfigs.forEach {
+                ConfigHelper.insertRecordsFromFile(it.packageName) { strRecord ->
+                    insertRecords(strRecord)
                 }
             }
-            appViewModel.getAssistConfigs().forEach { assistConfig ->
-                val extensionConfigBean =
-                    Gson().fromJson(assistConfig.config, ExtensionConfigBean::class.java)
-                if (extensionConfigBean.all && AppUtils.isAppInstalled(
-                        this@BaseActivity, assistConfig.packageName
-                    )
-                ) {
-                    needRecordPacks.add(assistConfig.packageName)
+            configs.forEach {
+                ConfigHelper.insertRecordsFromFile(it.packageName) { strRecord ->
+                    insertRecords(strRecord)
                 }
             }
-            needRecordPacks.forEach {
-                val list = FileUtils.readLogFile(this@BaseActivity, it)
-                appViewModel.insertRecord(*list.toTypedArray())
-            }
+        }
+    }
+
+    private fun insertRecords(str: String) {
+        try {
+            appViewModel.insertRecord(Gson().fromJson(str, PrintLog::class.java))
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
         }
     }
 

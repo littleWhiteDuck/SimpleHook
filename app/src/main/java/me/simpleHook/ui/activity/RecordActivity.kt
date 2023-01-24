@@ -258,6 +258,7 @@ class RecordActivity : BaseActivity() {
             recordAdapter.refresh()
         }, delayTime)
         readFileLogInsert()
+        readFileLogInsert()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

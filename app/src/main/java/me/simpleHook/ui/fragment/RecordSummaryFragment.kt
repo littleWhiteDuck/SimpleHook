@@ -14,18 +14,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.database.AppViewModel
+import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
-import me.simpleHook.ui.activity.BaseActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.RecordType
+import me.simpleHook.util.SPUtils
 
 
 class RecordSummaryFragment : Fragment() {
@@ -225,7 +229,35 @@ class RecordSummaryFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.getAllRecord()
         }, time)
-        (requireActivity() as BaseActivity).readFileLogInsert()
+        readFileLogInsert()
+        readFileLogInsert()
+    }
+
+    private fun readFileLogInsert() {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                assistConfigs.forEach {
+                    ConfigHelper.insertRecordsFromFile(it.packageName) { strRecord ->
+                        insertRecords(strRecord)
+                    }
+                }
+                configs.forEach {
+                    ConfigHelper.insertRecordsFromFile(it.packageName) { strRecord ->
+                        insertRecords(strRecord)
+                    }
+                }
+            } catch (_: Exception) {
+
+            }
+        }
+    }
+
+    private fun insertRecords(str: String) {
+        try {
+            appViewModel.insertRecord(Gson().fromJson(str, PrintLog::class.java))
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
     }
 
 

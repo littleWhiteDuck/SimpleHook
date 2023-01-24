@@ -21,6 +21,7 @@ import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -113,7 +114,7 @@ class ConfigDialogFragment(
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                FileUtils.saveConfig(
+                                ConfigHelper.saveConfig(
                                     mContext,
                                     item.appConfig.packageName,
                                     Constant.APP_CONFIG_NAME,

@@ -11,6 +11,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.utils.*
 import me.simpleHook.hook.utils.HookHelper.appClassLoader
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.log
 
@@ -18,10 +19,9 @@ object FieldHook {
     /**
      * @author littleWhiteDuck
      * @param configBean 配置类
-     * @param packageName 目标应用包名
      */
     @JvmStatic
-    fun hookStaticField(configBean: ConfigBean, packageName: String) {
+    fun hookStaticField(configBean: ConfigBean) {
         configBean.apply {
             if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
                 // 直接hook
@@ -29,39 +29,42 @@ object FieldHook {
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                { recordStaticField(fieldClassName, packageName, fieldName) }
+                { recordStaticField(fieldClassName, fieldName) }
             } else {
                 { hookStaticField(fieldClassName, resultValues, fieldName) }
             }
-            hookField(hooker, packageName)
+            hookField(hooker, hostPackageName)
         }
     }
 
     private fun ConfigBean.hookField(
         hooker: Hooker, packageName: String
     ) {
+        val isBeforeHook = hookPoint == "before"
         try {
             if (methodName == "*") {
                 findAllMethods(className) {
                     true
-                }.hook(hookPoint == "before", hooker)
+                }.hook(isBeforeHook, hooker)
             } else if (params == "*") {
                 if (methodName == "<init>") {
-                    hookAllConstructorAfter(className, hooker = hooker)
+                    findAllConstructors(className) {
+                        true
+                    }.hook(isBeforeHook, hooker)
                 } else {
                     findAllMethods(className) {
                         name == methodName
-                    }.hook(hookPoint == "before", hooker)
+                    }.hook(isBeforeHook, hooker)
                 }
             } else {
                 if (methodName == "<init>") {
                     findConstructor(className) {
                         isSearchConstructor(params)
-                    }.hookAfter(hooker)
+                    }.hook(isBeforeHook, hooker)
                 } else {
                     findMethod(className) {
                         name == methodName && isSearchMethod(params)
-                    }.hook(hookPoint == "before", hooker)
+                    }.hook(isBeforeHook, hooker)
                 }
             }
         } catch (e: NoSuchMethodError) {
@@ -93,7 +96,7 @@ object FieldHook {
     }
 
     private fun recordStaticField(
-        fieldClassName: String, packageName: String, fieldName: String
+        fieldClassName: String, fieldName: String
     ) {
         val type = if (LanguageUtils.isNotChinese()) "Static field" else "静态变量"
         val hookClass = XposedHelpers.findClass(fieldClassName, appClassLoader)
@@ -103,7 +106,7 @@ object FieldHook {
             getTip("fieldName") + fieldName,
             getTip("fieldValue") + result
         )
-        val logBean = LogBean(type = type, other = list, packageName = packageName)
+        val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
         LogUtil.toLogMsg(Gson().toJson(logBean), type)
     }
 
@@ -116,15 +119,15 @@ object FieldHook {
 
     @JvmStatic
     fun hookInstanceField(
-        configBean: ConfigBean, packageName: String
+        configBean: ConfigBean
     ) {
         configBean.apply {
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                { recordInstanceField(className, packageName, it, fieldName) }
+                { recordInstanceField(className, hostPackageName, it, fieldName) }
             } else {
                 { hookInstanceField(it, resultValues, fieldName) }
             }
-            hookField(hooker, packageName)
+            hookField(hooker, hostPackageName)
         }
     }
 

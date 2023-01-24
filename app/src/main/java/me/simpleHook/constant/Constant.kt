@@ -78,4 +78,7 @@ object Constant {
     const val NO_ROOT = 1
     const val NO_STORAGE = 2
 
+    const val EXTENSION_CONFIG_PREF = "me.simplehook_extension"
+    const val CUSTOM_CONFIG_PREF = "simplehook_custom"
+
 }

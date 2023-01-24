@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -139,8 +140,10 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private fun deleteConfig(appConfig: AppConfig) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             viewModel.deleteConfigs(appConfig)
-            FileUtils.realDeleteConfig(
-                appConfig.packageName, Constant.APP_CONFIG_NAME
+            ConfigHelper.deleteConfig(
+                requireContext(),
+                appConfig.packageName,
+                Constant.APP_CONFIG_NAME
             )
             Snackbar.make(
                 binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
@@ -325,7 +328,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        FileUtils.saveConfig(
+                        ConfigHelper.saveConfig(
                             mContext, appConfig.packageName, Constant.APP_CONFIG_NAME, configs
                         )
                     }
@@ -346,7 +349,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
 
     private fun saveToText(packageName: String, configs: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            FileUtils.saveConfig(
+            ConfigHelper.saveConfig(
                 requireContext(), packageName, Constant.APP_CONFIG_NAME, configs
             )
         }

@@ -77,7 +77,7 @@
 
         <provider
             android:name=".provider.MyProvider"
-            android:authorities="littleWhiteDuck"
+            android:authorities="${PROVIDER}"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 
@@ -93,6 +93,9 @@
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
+        <meta-data
+            android:name="xposedsharedprefs"
+            android:value="true" />
     </application>
 
 </manifest>

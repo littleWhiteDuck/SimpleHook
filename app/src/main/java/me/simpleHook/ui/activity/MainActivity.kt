@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
@@ -32,12 +33,27 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
-        if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
-        if (!FlavorUtils.isNormal()) {
-            SuUtil.init(this)
-        } else if (!FileUtils.isGrant(this)) {
-            requestPermissionDialog(this) {
-                FileUtils.verifyStoragePermissions(this)
+        if (FlavorUtils.isLiteVersion) {
+            if (!isModuleLive()) {
+                customDialog(
+                    this,
+                    title = getString(R.string.module_not_activated),
+                    message = getString(R.string.module_not_activated_message),
+                    okText = getString(R.string.module_not_activated_ok),
+                    okClick = {
+                        android.os.Process.killProcess(android.os.Process.myPid())
+                    },
+                    cancelAble = false
+                ).show()
+            }
+        } else {
+            if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
+            if (!FlavorUtils.isNormal()) {
+                SuUtil.init(this)
+            } else if (!FileUtils.isGrant(this)) {
+                requestPermissionDialog(this) {
+                    FileUtils.verifyStoragePermissions(this)
+                }
             }
         }
         //initUseTip()
@@ -125,14 +141,25 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         binding.apply {
             viewPager.apply {
-                adapter = object : FragmentStateAdapter(this@MainActivity) {
-                    override fun getItemCount() = 4
+                adapter = if (FlavorUtils.isLiteVersion) {
+                    object : FragmentStateAdapter(this@MainActivity) {
+                        override fun getItemCount() = 2
 
-                    override fun createFragment(position: Int) = when (position) {
-                        0 -> HomeFragment()
-                        1 -> ExtensionFragment()
-                        2 -> RecordSummaryFragment()
-                        else -> SettingsFragment()
+                        override fun createFragment(position: Int) = when (position) {
+                            0 -> HomeFragment()
+                            else -> SettingsFragment()
+                        }
+                    }
+                } else {
+                    object : FragmentStateAdapter(this@MainActivity) {
+                        override fun getItemCount() = 4
+
+                        override fun createFragment(position: Int) = when (position) {
+                            0 -> HomeFragment()
+                            1 -> ExtensionFragment()
+                            2 -> RecordSummaryFragment()
+                            else -> SettingsFragment()
+                        }
                     }
                 }
                 isUserInputEnabled = false
@@ -144,15 +171,28 @@ class MainActivity : BaseActivity() {
                 }
 
             }
-            binding.bottomNavigationView.setOnItemSelectedListener {
-                when (it.itemId) {
-                    R.id.homeFragment -> setCurrentItem(0)
-                    R.id.assistFragment -> setCurrentItem(1)
-                    R.id.recordFragment -> setCurrentItem(2)
-                    R.id.settingsFragment -> setCurrentItem(3)
+            if (FlavorUtils.isLiteVersion) {
+                binding.bottomNavigationView.menu.removeItem(R.id.assistFragment)
+                binding.bottomNavigationView.menu.removeItem(R.id.recordFragment)
+                binding.bottomNavigationView.setOnItemSelectedListener {
+                    when (it.itemId) {
+                        R.id.homeFragment -> setCurrentItem(0)
+                        R.id.settingsFragment -> setCurrentItem(1)
+                    }
+                    true
                 }
-                true
+            } else {
+                binding.bottomNavigationView.setOnItemSelectedListener {
+                    when (it.itemId) {
+                        R.id.homeFragment -> setCurrentItem(0)
+                        R.id.assistFragment -> setCurrentItem(1)
+                        R.id.recordFragment -> setCurrentItem(2)
+                        R.id.settingsFragment -> setCurrentItem(3)
+                    }
+                    true
+                }
             }
+
         }
     }
 

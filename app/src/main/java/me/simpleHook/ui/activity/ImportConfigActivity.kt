@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -80,7 +81,7 @@ class ImportConfigActivity : AppCompatActivity() {
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        FileUtils.saveConfig(
+                        ConfigHelper.saveConfig(
                             this@ImportConfigActivity,
                             appConfig.packageName,
                             Constant.APP_CONFIG_NAME,

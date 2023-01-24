@@ -367,4 +367,10 @@
     <string name="main_request_root_permission_message">Since your system version is 13 or above, you need to grant root permission to use</string>
     <string name="main_version_update">New Version</string>
     <string name="main_go_upgrade">Go update</string>
+    <string name="xsp_not_save_config">Failed to save</string>
+    <string name="xsp_not_delete_config_succeed">Failed to delete</string>
+    <string name="module_not_activated">Module not activated</string>
+    <string name="module_not_activated_message">Due to write and delete configuration depends on the New XSharedPreferences, must under the modules are activated operating configuration. If the module is not activated, it cannot be used!!</string>
+    <string name="module_not_activated_ok">To activated</string>
+    <string name="not_root_tip">请手动授予ROOT权限, 并重启APP</string>
 </resources>

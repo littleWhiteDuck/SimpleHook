@@ -4,12 +4,15 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.net.Uri
+import me.simpleHook.BuildConfig
+import me.simpleHook.util.FlavorUtils
 
 class MyProvider:ContentProvider() {
     private val configDir = 0
     private val printLogDir = 1
     private val assistConfig = 2
-    private val authority = "littleWhiteDuck"
+    private val authority =
+        if (FlavorUtils.isLiteVersion) "me.simpleHook.provider" else "me.simplehook.lite.provider"
     private var dbHelper: MyDatabaseHelper? = null
 
     private val uriMatcher by lazy {

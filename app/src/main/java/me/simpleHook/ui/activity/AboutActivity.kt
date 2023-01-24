@@ -142,8 +142,8 @@ class AboutActivity : BaseActivity() {
             )
             add(
                 OpenSource(
-                    "RxShell - d4rken",
-                    "https://github.com/d4rken/RxShell",
+                    "libsu - topjohnwu",
+                    "https://github.com/topjohnwu/libsu",
                     getString(R.string.about_source_license_2)
                 )
             )

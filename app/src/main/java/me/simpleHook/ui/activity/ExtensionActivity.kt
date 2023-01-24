@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import com.topjohnwu.superuser.io.SuFile
+import com.topjohnwu.superuser.io.SuFileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -30,6 +32,7 @@ import me.simpleHook.adapter.MultiTypeAdapter
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
@@ -467,11 +470,10 @@ class AssistActivity : BaseActivity() {
 
     private fun createDexDirectory(tipToast: Boolean = true) {
         val tip = """
-                     若是root版：导入dex后，手动给可读权限（Root）或重新打开simpleHook软件（需有Root权限）
                      1. 无效，取消此应用作用域，再给此应用作用域
                      2. 无效，清除数据，重复1
                      3. 无效，卸载重装，重复1
-                     4. 无效，与你无缘，用不了
+                     4. 无效，重启系统，如依旧用不了，那就是用不了
                     """.trimIndent()
         if (FlavorUtils.isNormal()) {
             if (FileUtils.isGrant(this)) {
@@ -490,8 +492,15 @@ class AssistActivity : BaseActivity() {
                 }
             }
         } else {
-            val filePath = Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/"
-            SuUtil.saveConfig(filePath = filePath, fileName = "说明.txt", content = tip)
+            val filePath =
+                Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/说明.txt"
+            val suFile = SuFile.open(filePath)
+            if (!suFile.exists()) {
+                suFile.parentFile?.mkdirs()
+            }
+            SuFileOutputStream.open(suFile).writer().use {
+                it.write(tip)
+            }
             if (tipToast) {
                 ToolUtils.toClip(this, filePath)
                 "dex存放目录已复制到剪切板中".toast(this)
@@ -607,7 +616,7 @@ class AssistActivity : BaseActivity() {
 
     private fun saveToText(packageName: String, config: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            FileUtils.saveConfig(
+            ConfigHelper.saveConfig(
                 this@AssistActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
             )
         }

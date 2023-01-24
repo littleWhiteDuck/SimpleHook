@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.database.AppViewModel
@@ -204,8 +205,10 @@ class ExtensionFragment : Fragment() {
     private fun itemOnLongClick(assistConfig: AssistConfig) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             appViewModel.deleteAssistConfigs(assistConfig)
-            FileUtils.realDeleteConfig(
-                assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
+            ConfigHelper.deleteConfig(
+                requireContext(),
+                assistConfig.packageName,
+                Constant.EXTENSION_CONFIG_NAME
             )
         }
         Snackbar.make(
@@ -232,7 +235,7 @@ class ExtensionFragment : Fragment() {
 
     private fun saveToText(packageName: String, configs: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            FileUtils.saveConfig(
+            ConfigHelper.saveConfig(
                 requireContext(), packageName, Constant.EXTENSION_CONFIG_NAME, configs
             )
         }

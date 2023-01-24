@@ -3,7 +3,6 @@ package me.simpleHook.hook.utils
 import android.net.Uri
 import android.os.Build.VERSION_CODES
 import androidx.core.content.contentValuesOf
-import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
@@ -16,10 +15,12 @@ object LogUtil {
     private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
     fun toLogMsg(log: String, type: String) {
         if (type == "null") return
-        InitFields.appContext.getExternalFilesDirs("")
+        HookHelper.appContext.getExternalFilesDirs("")
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else hostPackageName
-        if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
+        if (FlavorUtils.isLiteVersion) {
+            log.log(hostPackageName)
+        } else if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
             outLogFile(log, tempPackageName, type, time)
         } else {
             outLogDB(log, tempPackageName, type, time)
@@ -55,7 +56,7 @@ object LogUtil {
                 "time" to time,
                 "isMark" to 0
             )
-            InitFields.appContext.contentResolver?.insert(PRINT_URI, contentValues)
+            HookHelper.appContext.contentResolver?.insert(PRINT_URI, contentValues)
         } catch (e: Exception) {
             "error occurred while saving log to the database".tip(hostPackageName)
             outLogFile(log, tempPackageName, type, time)

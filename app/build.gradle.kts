@@ -18,7 +18,7 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.2.8"
+    val verName = "1.2.9"
 
     signingConfigs {
         create("keyStore") {
@@ -41,6 +41,7 @@ android {
     }
 
     buildTypes {
+
         val signConfig = signingConfigs.getByName("keyStore")
         getByName("release") {
             isMinifyEnabled = true
@@ -65,16 +66,18 @@ android {
         viewBinding = true
     }
     buildToolsVersion = "31.0.0"
-
+    namespace = "me.simpleHook"
     productFlavors {
-        create("beta") {
-            versionName = verName + "_beta"
-        }
         create("normal") {
-            versionName = verName
+            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider"
+        }
+        create("lite") {
+            minSdk = 27
+            applicationId = "me.simplehook.lite"
+            manifestPlaceholders["PROVIDER"] = "me.simplehook.lite.provider"
         }
     }
-    namespace = "me.simpleHook"
+
 
     androidComponents.onVariants { v ->
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl
@@ -125,9 +128,6 @@ dependencies {
     //splashScreen
     implementation("androidx.core:core-splashscreen:1.0.0-beta02")
 
-    //shell
-    implementation("com.github.d4rken:rxshell:3.0.0")
-
     //paging3
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
@@ -137,4 +137,10 @@ dependencies {
     val glideVersion = "4.14.2"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     kapt("com.github.bumptech.glide:compiler:$glideVersion")
+
+    val libsuVersion = "5.0.4"
+    // The core module that provides APIs to a shell
+    implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
+
+    implementation("com.github.topjohnwu.libsu:io:${libsuVersion}")
 }

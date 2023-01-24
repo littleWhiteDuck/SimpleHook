@@ -26,12 +26,14 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
+import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -706,8 +708,8 @@ class ConfigActivity : BaseActivity() {
             val configStr = Gson().toJson(appConfig)
             saveToText(appConfig.packageName, configStr)
             if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
-                FileUtils.realDeleteConfig(
-                    tempPackageName, Constant.APP_CONFIG_NAME
+                ConfigHelper.deleteConfig(
+                    this@ConfigActivity, tempPackageName, Constant.APP_CONFIG_NAME
                 )
             }
         }
@@ -721,7 +723,7 @@ class ConfigActivity : BaseActivity() {
     private fun saveToText(packageName: String, configStr: String) {
         if (FlavorUtils.isNormal()) {
             if (FileUtils.isGrant(this)) {
-                FileUtils.saveConfig(
+                ConfigHelper.saveConfig(
                     this, packageName, Constant.APP_CONFIG_NAME, configStr
                 )
             } else {
@@ -730,9 +732,13 @@ class ConfigActivity : BaseActivity() {
                 }
             }
         } else {
-            FileUtils.saveConfig(
-                this, packageName, Constant.APP_CONFIG_NAME, configStr
-            )
+            if (Shell.isAppGrantedRoot() == true) {
+                ConfigHelper.saveConfig(
+                    this, packageName, Constant.APP_CONFIG_NAME, configStr
+                )
+            } else {
+                SuUtil.init(this)
+            }
         }
     }
 

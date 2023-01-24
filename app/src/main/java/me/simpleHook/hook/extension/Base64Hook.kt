@@ -1,24 +1,22 @@
 package me.simpleHook.hook.extension
 
 import android.util.Base64
-import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 import java.nio.charset.Charset
 
 object Base64Hook : BaseHook() {
 
     override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.base64) return
-        XposedHelpers.findAndHookMethod(
-            "java.util.Base64.Encoder",
-            InitFields.ezXClassLoader,
+        XposedHelpers.findAndHookMethod("java.util.Base64.Encoder",
+            HookHelper.appClassLoader,
             "encode",
             ByteArray::class.java,
             object : XC_MethodHook() {
@@ -41,7 +39,7 @@ object Base64Hook : BaseHook() {
 
         XposedHelpers.findAndHookMethod(
             "java.util.Base64.Decoder",
-            InitFields.ezXClassLoader,
+            HookHelper.appClassLoader,
             "decode",
             ByteArray::class.java,
             object : XC_MethodHook() {

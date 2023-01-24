@@ -14,6 +14,8 @@ import me.simpleHook.hook.utils.HookHelper
 class HookInit : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        EzXHelperInit.setLogTag("SimpleHook_Xposed")
+        EzXHelperInit.setLogXp(BuildConfig.DEBUG)
         EzXHelperInit.initHandleLoadPackage(lpparam)
         if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
             findMethod("me.simpleHook.ui.activity.MainActivity") {
