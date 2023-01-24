@@ -35,16 +35,16 @@ class MainActivity : BaseActivity() {
         initView()
         if (FlavorUtils.isLiteVersion) {
             if (!isModuleLive()) {
-                customDialog(
-                    this,
+                customDialog(this,
                     title = getString(R.string.module_not_activated),
                     message = getString(R.string.module_not_activated_message),
                     okText = getString(R.string.module_not_activated_ok),
                     okClick = {
                         android.os.Process.killProcess(android.os.Process.myPid())
                     },
-                    cancelAble = false
-                ).show()
+                    cancelAble = false,
+                    cancelText = getString(R.string.dialog_cancel),
+                    cancelClick = { it.dismiss() }).show()
             }
         } else {
             if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)

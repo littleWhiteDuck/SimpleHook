@@ -72,6 +72,7 @@
     <string name="main_settings_summary_storage_permission">正常運行中</string>
     <string name="main_settings_title_storage_no_permission">缺少必要權限</string>
     <string name="main_settings_summary_storage_no_root">點擊獲取ROOT權限</string>
+    <string name="main_settings_summary_no_alive">模塊未激活，無法正常運行</string>
     <string name="main_settings_summary_storage_no">點擊獲取存儲權限</string>
     <string name="main_settings_title_experiment">實驗功能</string>
     <string name="main_settings_summary_to_config">詳細說明見常見問題第2條</string>

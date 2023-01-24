@@ -125,7 +125,7 @@ object ConfigHelper {
         }
     }
 
-    private fun getHookConfigPref(
+    fun getHookConfigPref(
         context: Context, name: String = Constant.CUSTOM_CONFIG_PREF
     ): SharedPreferences? {
         return try {

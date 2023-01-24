@@ -3,7 +3,7 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
-import android.util.Log
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -27,6 +27,7 @@ import me.simpleHook.hook.utils.LogUtil.notFoundClass
 import me.simpleHook.hook.utils.LogUtil.toLogMsg
 import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -48,6 +49,21 @@ object MainHook {
                 "get extension config succeed".log(packageName)
                 readyExtensionHook(it)
             } ?: "get extension config failed".log(packageName)
+            // 特殊情况, 仅支持自定义hook功能
+            readyInternalConfigHook()
+        }
+    }
+
+    private fun readyInternalConfigHook() {
+        HookHelper.enableRecord = false
+        val internalConfigs = AssetsUtil.getText(InitFields.moduleRes.assets.open("configs"))
+            ?.replace(Regex("<---.*--->"), "")?.trim()
+        val jsonArray = JSONArray(internalConfigs)
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            if (jsonObject.optString("packageName") == hostPackageName) {
+                readyHook(jsonObject.toString())
+            }
         }
     }
 
@@ -162,7 +178,6 @@ object MainHook {
                 }
             } else {
                 if (methodName == "<init>") {
-                    Log.d("littleWhiteDuck", "specificHook: ")
                     findConstructor(className) {
                         isSearchConstructor(params)
                     }.hookBefore(hooker)
@@ -257,7 +272,8 @@ object MainHook {
         param: XC_MethodHook.MethodHookParam,
         values: String,
         className: String,
-        methodName: String, params: String
+        methodName: String,
+        params: String
     ) {
         try {
             for (i in param.args.indices) {

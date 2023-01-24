@@ -226,7 +226,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermission() {
-        if (FlavorUtils.isLiteVersion) return
+        if (FlavorUtils.isLiteVersion) {
+            if (ConfigHelper.getHookConfigPref(requireContext()) == null) {
+                settingsViewModel.permStatus.value = Constant.NO_ALIVE
+            }
+            return
+        }
         if (Shell.isAppGrantedRoot() == true || FileUtils.isGrant(requireContext())) {
             settingsViewModel.permStatus.value = Constant.IS_GRANT
             return
@@ -336,12 +341,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun showUseTerms() {
         val message = AssetsUtil.getText(requireContext(), "agreement")
-        warningDialog(requireContext(), title = "用户协议【已同意】", message = message)
+        warningDialog(requireContext(), title = "用户协议【已同意】", message = message!!)
     }
 
     private fun showUpdateRecord() {
         val message = AssetsUtil.getText(requireContext(), "update")
-        warningDialog(requireContext(), title = "更新记录", message = message)
+        warningDialog(requireContext(), title = "更新记录", message = message!!)
     }
 
     private fun showHelp() {
@@ -394,12 +399,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         summary = getString(R.string.main_settings_summary_storage_permission)
                     }
                     Constant.NO_ROOT -> {
-                        title = "缺少必要权限"
-                        summary = "点击获取ROOT权限"
+                        title = getString(R.string.main_settings_title_storage_no_permission)
+                        summary = getString(R.string.main_settings_summary_storage_no_root)
+                    }
+                    Constant.NO_ALIVE -> {
+                        title = getString(R.string.main_settings_title_storage_no_permission)
+                        summary = getString(R.string.main_settings_summary_no_alive)
                     }
                     else -> {
-                        title = "缺少必要权限"
-                        summary = "点击获取存储权限"
+                        title = getString(R.string.main_settings_title_storage_no_permission)
+                        summary = getString(R.string.main_settings_summary_storage_no)
                     }
                 }
             }

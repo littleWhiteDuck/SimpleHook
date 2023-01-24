@@ -115,6 +115,7 @@
     <string name="main_settings_summary_storage_permission">Running normally</string>
     <string name="main_settings_title_storage_no_permission">Missing necessary permissions</string>
     <string name="main_settings_summary_storage_no_root">Click to get ROOT permission</string>
+    <string name="main_settings_summary_no_alive">Not activated, can\'t run normally</string>
     <string name="main_settings_summary_storage_no">Click to get storage permission</string>
     <string name="main_settings_summary_to_config">See FAQ 2 for details</string>
     <string name="app_record">Record</string>

@@ -14,19 +14,21 @@ object HookHelper {
     }
 
     lateinit var appContext: Context
-        internal set
+        private set
 
     val isAppContextInitialized: Boolean
         get() = this::appContext.isInitialized
 
     lateinit var appClassLoader: ClassLoader
-        internal set
+        private set
 
 
     lateinit var hostPackageName: String
-        internal set
+        private set
 
     lateinit var appInfo: ApplicationInfo
+
+    var enableRecord: Boolean = true
 
 
 }

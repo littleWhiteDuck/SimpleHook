@@ -14,7 +14,7 @@ import me.simpleHook.util.*
 object LogUtil {
     private val PRINT_URI = Uri.parse("content://me.simplehook.provider/print_logs")
     fun toLogMsg(log: String, type: String) {
-        if (type == "null") return
+        if (type == "null" || !HookHelper.enableRecord) return
         HookHelper.appContext.getExternalFilesDirs("")
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else hostPackageName

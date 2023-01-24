@@ -82,6 +82,7 @@
     <string name="main_settings_title_storage_no_permission">缺少必要权限</string>
     <string name="main_settings_summary_storage_no_root">点击获取ROOT权限</string>
     <string name="main_settings_summary_storage_no">点击获取存储权限</string>
+    <string name="main_settings_summary_no_alive">模块未激活，无法正常运行</string>
     <string name="main_settings_summary_xml" translatable="false">使用New XSharedPreferences,保存配置前请确保本应用已被激活，否则不会被更改</string>
     <string name="main_settings_title_xml" translatable="false">向xml中写入配置</string>
     <string name="main_settings_title_experiment">实验功能</string>
