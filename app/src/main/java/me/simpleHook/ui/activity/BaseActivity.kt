@@ -49,7 +49,7 @@ open class BaseActivity : AppCompatActivity() {
             handler.postDelayed(this, 500)
         }
     }
-    private val uri = Uri.parse("content://littleWhiteDuck/print_logs")
+    private val uri = Uri.parse("content://me.simplehook.provider/print_logs")
     private var stopPrint = false
     private var currentTime = ""
     private var startTime = ""

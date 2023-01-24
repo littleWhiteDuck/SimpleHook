@@ -12,7 +12,7 @@ import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.util.*
 
 object LogUtil {
-    private val PRINT_URI = Uri.parse("content://littleWhiteDuck/print_logs")
+    private val PRINT_URI = Uri.parse("content://me.simplehook.provider/print_logs")
     fun toLogMsg(log: String, type: String) {
         if (type == "null") return
         HookHelper.appContext.getExternalFilesDirs("")
