@@ -721,23 +721,29 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun saveToText(packageName: String, configStr: String) {
-        if (FlavorUtils.isNormal()) {
-            if (FileUtils.isGrant(this)) {
-                ConfigHelper.saveConfig(
-                    this, packageName, Constant.APP_CONFIG_NAME, configStr
-                )
-            } else {
-                requestPermissionDialog(this) {
-                    FileUtils.verifyStoragePermissions(this)
-                }
-            }
+        if (FlavorUtils.isLiteVersion) {
+            ConfigHelper.saveConfig(
+                this, packageName, Constant.APP_CONFIG_NAME, configStr
+            )
         } else {
-            if (Shell.isAppGrantedRoot() == true) {
-                ConfigHelper.saveConfig(
-                    this, packageName, Constant.APP_CONFIG_NAME, configStr
-                )
+            if (FlavorUtils.isNormal()) {
+                if (FileUtils.isGrant(this)) {
+                    ConfigHelper.saveConfig(
+                        this, packageName, Constant.APP_CONFIG_NAME, configStr
+                    )
+                } else {
+                    requestPermissionDialog(this) {
+                        FileUtils.verifyStoragePermissions(this)
+                    }
+                }
             } else {
-                SuUtil.init(this)
+                if (Shell.isAppGrantedRoot() == true) {
+                    ConfigHelper.saveConfig(
+                        this, packageName, Constant.APP_CONFIG_NAME, configStr
+                    )
+                } else {
+                    SuUtil.init(this)
+                }
             }
         }
     }

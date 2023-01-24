@@ -82,7 +82,8 @@ android {
     androidComponents.onVariants { v ->
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl
         variant.outputs.forEach {
-            it.outputFileName.set("SimpleHook-${verName}-${verCode}.apk")
+            val name = if (variant.flavorName == "lite") "SimpleHookL" else "SimpleHook"
+            it.outputFileName.set("$name-${verName}-${verCode}.apk")
         }
     }
 
