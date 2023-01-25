@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_home_24"
+        android:title="@string/main_home_name" />
+    <item
+        android:id="@+id/assistFragment"
+        android:icon="@drawable/ic_extension_24"
+        android:title="@string/main_extension_name" />
+    <item
+        android:id="@+id/recordFragment"
+        android:icon="@drawable/ic_record_24"
+        android:title="@string/main_record_name" />
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_settings_24"
+        android:title="@string/main_settings_name" />
+</menu>

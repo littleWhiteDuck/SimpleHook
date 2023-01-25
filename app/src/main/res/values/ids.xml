@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="item_position" type="id" />
+    <item name="item_select_position" type="id" />
+    <item name="item_home_position" type="id" />
+    <item name="item_print_position" type="id" />
+    <item name="item_assist_setting" type="id" />
+    <item name="item_assist_config" type="id" />
+    <item name="item_collection" type="id" />
+    <item name="item_in_export_config_position" type="id" />
+    <item name="item_record_position" type="id" />
+    <item name="item_record_summary" type="id" />
+    <item name="fab_label" type="id" />
+    <item name="fab_fab" type="id" />
+</resources>

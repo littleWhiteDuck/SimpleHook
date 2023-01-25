@@ -1,0 +1,88 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/main_settings_title_necessary_permission_status">
+        <Preference
+            app:key="necessary_permission"
+            app:title="@string/main_settings_title_storage_permission"
+            app:summary="@string/main_settings_summary_storage_permission" />
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/main_settings_title_custom">
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:key="startFloat"
+            app:summary="@string/main_settings_summary_start_float"
+            app:title="@string/main_settings_title_start_float" />
+        <CheckBoxPreference
+            android:key="bottomConfigDialog"
+            android:title="@string/main_settings_summary_bottom_config_dialog"
+            app:defaultValue="false"
+            app:summary="@string/main_settings_title_bottom_config_dialog" />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/main_settings_title_experiment">
+        <CheckBoxPreference
+            app:defaultValue="true"
+            app:key="smali2Config"
+            app:summary="@string/main_settings_summary_to_config"
+            app:title="@string/main_settings_title_to_config" />
+        <Preference
+            app:key="toJSConfig"
+            app:summary="@string/main_settings_summary_js_config"
+            app:title="@string/main_settings_title_JS_config" />
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/main_settings_title_normal">
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_ui_mode_item_entries"
+            app:key="uiMode"
+            app:summary="@string/main_settings_ui_mode_summary_follow_system"
+            app:title="@string/main_settings_ui_mode_title" />
+
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_language_item_entries"
+            app:key="selectLanguage"
+            app:summary="@string/main_settings_select_language_summary"
+            app:title="@string/main_settings_select_language_title" />
+
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_clear_item_entries"
+            app:key="clearConfigData"
+            app:summary="@string/main_settings_clear_data_summary"
+            app:title="@string/main_settings_clear_data_title" />
+        <me.simpleHook.ui.custom.MenuPreference
+            app:entries="@array/main_settings_left_config_select_item"
+            app:key="leftConfig"
+            app:summary="@string/main_settings_left_config_summary"
+            app:title="@string/main_settings_left_config_title" />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
+        <Preference
+            app:key="backupConfigs"
+            app:summary="@string/main_settings_summary_backup"
+            app:title="@string/main_settings_title_backup" />
+        <Preference
+            app:key="restoreConfigs"
+            app:summary="@string/main_settings_summary_restore"
+            app:title="@string/main_settings_title_restore" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory app:title="@string/main_settings_title_other">
+        <Preference
+            app:key="about"
+            app:title="@string/main_settings_title_about" />
+        <Preference
+            app:key="updateRecord"
+            app:summary="@string/main_settings_summary_update_record"
+            app:title="@string/main_settings_title_update_record" />
+        <Preference
+            app:key="help"
+            app:summary="@string/main_settings_summary_help"
+            app:title="@string/main_settings_title_help" />
+        <Preference
+            app:key="termsOfUse"
+            app:title="@string/main_settings_title_terms_of_use" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

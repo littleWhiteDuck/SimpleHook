@@ -1,0 +1,9 @@
+<---Instructions for use, click the + button on the home page -> click Share Configuration -> select the desired configuration -> will be copied to the clipboard -> paste it into this file, Every time you paste the configuration, you need to completely overwrite the last configuration! ! ! --->
+<---This method is only used in special cases such as no root, and the use of non-special cases will lead to hook confusion--->
+<---Please do not directly copy the configuration shared by others here--->
+<---These texts can be deleted, if not deleted, please do not modify, otherwise it will lead to read configuration errors--->
+<---使用说明，点击首页加号按钮 -> 点击分享配置 -> 选中所需配置 -> 会复制到剪切板 -> 粘贴到此文件内即可,每次粘贴配置需完全覆盖上次配置！！！--->
+<---此方法仅用于无root等特殊情况，非特殊情况使用会导致hook错乱--->
+<---请不要直接将别人分享的配置复制到这里--->
+<---这几条文字可以删除，如不删除请不要修改，否则会导致读取配置错误--->
+
