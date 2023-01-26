@@ -70,7 +70,7 @@ private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
 private const val APPLICATION_STATUS = 1 shl 20
 private const val startAppTag = 666
 
-class AssistActivity : BaseActivity() {
+class ExtensionActivity : BaseActivity() {
 
 
     private lateinit var binding: ActivityExtensionBinding
@@ -375,10 +375,10 @@ class AssistActivity : BaseActivity() {
         })
         binding.recyclerView.apply {
             adapter = mAdapter
-            layoutManager = LinearLayoutManager(this@AssistActivity)
+            layoutManager = LinearLayoutManager(this@ExtensionActivity)
             addItemDecoration(
                 DividerItemDecoration(
-                    this@AssistActivity, LinearLayoutManager.VERTICAL
+                    this@ExtensionActivity, LinearLayoutManager.VERTICAL
                 )
             )
         }
@@ -617,7 +617,7 @@ class AssistActivity : BaseActivity() {
     private fun saveToText(packageName: String, config: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             ConfigHelper.saveConfig(
-                this@AssistActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
+                this@ExtensionActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
             )
         }
     }

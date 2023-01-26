@@ -145,6 +145,7 @@ object ConfigHelper {
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 val suFile = SuFile.open(filePath)
+                if (suFile.canRead()) return emptyList()
                 SuFileInputStream.open(suFile).bufferedReader().useLines {
                     it.iterator().forEach { str ->
                         try {
@@ -157,6 +158,7 @@ object ConfigHelper {
                 }
                 suFile.delete()
             } else {
+                if (!FileUtils.fileIsExists(filePath)) return emptyList()
                 File(filePath).useLines {
                     it.iterator().forEach { str ->
                         try {

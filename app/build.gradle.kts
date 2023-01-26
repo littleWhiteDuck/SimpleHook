@@ -15,6 +15,7 @@ plugins {
 }
 
 val debug = false
+val beta = false
 
 android {
     val verCode = run {
@@ -73,14 +74,21 @@ android {
     productFlavors {
         create("normal") {
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider"
+            versionName = verName + if (beta) "_beta" else ""
         }
         create("lite") {
             minSdk = 27
+            versionName = verName + if (beta) "_beta" else ""
             applicationId = "me.simplehook.lite"
             manifestPlaceholders["PROVIDER"] = "me.simplehook.lite.provider"
         }
     }
 
+    packagingOptions.resources.excludes += setOf(
+        "META-INF/**", "okhttp3/**", "kotlin/**", "org/**", "**.properties", "**.bin"
+    )
+
+    dependenciesInfo.includeInApk = false
 
     androidComponents.onVariants { v ->
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl

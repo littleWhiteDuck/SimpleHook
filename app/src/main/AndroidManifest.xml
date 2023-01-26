@@ -38,7 +38,7 @@
             android:label="@string/app_about"
             android:theme="@style/Theme.SimpleHook" />
         <activity
-            android:name=".ui.activity.AssistActivity"
+            android:name=".ui.activity.ExtensionActivity"
             android:label="@string/app_extension"
             android:theme="@style/Theme.SimpleHook" />
         <activity

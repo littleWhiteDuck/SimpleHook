@@ -31,7 +31,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.ui.activity.AppListActivity
-import me.simpleHook.ui.activity.AssistActivity
+import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
@@ -242,7 +242,7 @@ class ExtensionFragment : Fragment() {
     private fun itemOnClick(assistConfig: AssistConfig) {
         val bundle = Bundle()
         bundle.putParcelable("assistConfig", assistConfig)
-        val intent = Intent(requireActivity(), AssistActivity::class.java).apply {
+        val intent = Intent(requireActivity(), ExtensionActivity::class.java).apply {
             putExtra("bundle", bundle)
         }
         startActivity(intent)
@@ -282,7 +282,7 @@ class ExtensionFragment : Fragment() {
                     assistConfig.appName = modelName
                     val bundle = Bundle()
                     bundle.putParcelable("assistConfig", assistConfig)
-                    val intent = Intent(requireActivity(), AssistActivity::class.java).apply {
+                    val intent = Intent(requireActivity(), ExtensionActivity::class.java).apply {
                         putExtra("bundle", bundle)
                         putExtra("editMode", editMode)
                     }

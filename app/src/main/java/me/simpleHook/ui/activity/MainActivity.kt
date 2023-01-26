@@ -7,7 +7,6 @@ import androidx.annotation.Keep
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
@@ -63,6 +62,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkUpdate() {
+        if (BuildConfig.VERSION_NAME.contains("beta")) return
         lifecycleScope.launch(Dispatchers.Main) {
             val result =
                 fetchJson("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest")
