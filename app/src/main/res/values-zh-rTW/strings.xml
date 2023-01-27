@@ -373,5 +373,9 @@
     <string name="module_not_activated">模塊未激活</string>
     <string name="module_not_activated_message">由於配置寫入和刪除依賴於New XSharedPreferences, 必須在模塊被激活下操作配置。如果不激活模塊，將無法使用！！！</string>
     <string name="module_not_activated_ok">去激活</string>
-    <string name="not_root_tip">请手动授予ROOT权限, 并重启APP</string>
+    <string name="not_root_tip">請手動授予ROOT權限, 並重啟APP</string>
+    <string name="launch_app">啟動</string>
+    <string name="force_stop">強行停止</string>
+    <string name="app_info">應用信息</string>
+    <string name="relaunch_app">重新啟動</string>
 </resources>

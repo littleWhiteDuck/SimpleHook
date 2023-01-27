@@ -3,7 +3,9 @@ package me.simpleHook.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -20,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -32,7 +35,6 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
-import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.util.*
 import java.io.BufferedReader
@@ -54,25 +56,20 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private var config = "错误"
     private lateinit var mContext: Context
     private var currentPattern = ""
+    private var appInfo: ApplicationInfo? = null
     private val mAdapter: HomeAdapter by lazy {
-        HomeAdapter(onClick = { appConfig, mode ->
+        HomeAdapter(menuListener = { appConfig, menu ->
+            onItemCreateContextMenu(appConfig, menu)
+        }, onClick = { appConfig, mode ->
             onItemClick(mode, appConfig)
         }, onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) })
     }
+
+
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private var isFabShow = true
-
-    private fun onItemClick(mode: Int, appConfig: AppConfig) {
-        when (mode) {
-            Constant.HOME_ITEM_CLICK_NORMAL -> adapterOnClick(appConfig)
-            Constant.HOME_ITEM_CLICK_LONG -> itemOnLongClick(appConfig)
-            Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
-            Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
-            Constant.HOME_ITEM_CLICK_DELETE -> deleteConfig(appConfig)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -167,25 +164,34 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         }
     }
 
+
     private fun itemOnLongClick(appConfig: AppConfig) {
-        val arrayList =
-            requireContext().resources.getStringArray(R.array.main_home_item_select_item)
-        val popupWindowList = PopupWindowList.Builder(requireContext()).setItemList(arrayList)
-            .setOutsideTouchable(true).build()
-        popupWindowList.setOnItemClickListener { _, _, position, _ ->
-            popupWindowList.dismiss()
-            when (position) {
-                0 -> copyConfigs(appConfig)
-                1 -> deleteConfig(appConfig)
-                2 -> editConfig(appConfig)
-            }
-        }.show()
+        appInfo = AppUtils.appInfo(requireContext(), appConfig.packageName)
     }
 
     private fun editConfig(appConfig: AppConfig) {
         val bundle = Bundle()
         bundle.putParcelable("appConfig", appConfig)
         toAddFragment(bundle)
+    }
+
+    private fun onItemClick(mode: Int, appConfig: AppConfig) {
+        when (mode) {
+            Constant.HOME_ITEM_CLICK_NORMAL -> adapterOnClick(appConfig)
+            Constant.HOME_ITEM_CLICK_LONG -> itemOnLongClick(appConfig)
+            Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
+            Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
+            Constant.HOME_ITEM_CLICK_DELETE -> deleteConfig(appConfig)
+        }
+    }
+
+    private fun onItemCreateContextMenu(appConfig: AppConfig, menu: ContextMenu) {
+        requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
+        menu.setHeaderTitle(appConfig.appName)
+        if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.isLiteVersion || Shell.isAppGrantedRoot() != true) {
+            menu.removeItem(R.id.menu_launch)
+            menu.removeItem(R.id.menu_relaunch)
+        }
     }
 
     private fun copyConfigs(config: AppConfig) {
@@ -353,8 +359,53 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         }
     }
 
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_launch -> {
+                appInfo?.let {
+                    AppUtils.startApp(it.packageName, requireContext())
+                }
+            }
+            R.id.menu_force_stop -> {
+                appInfo?.let {
+                    if (Shell.isAppGrantedRoot() == true) {
+                        Shell.cmd("am force-stop ${it.packageName}").exec()
+                    } else {
+                        val intent = Intent()
+                        intent.action =
+                            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        intent.data = Uri.parse("package:" + it.packageName)
+                        requireActivity().startActivity(intent);
+                    }
+                }
+            }
+            R.id.menu_relaunch -> {
+                appInfo?.let {
+                    val intent =
+                        requireActivity().packageManager.getLaunchIntentForPackage(it.packageName)
+                    intent?.component?.className?.let { className ->
+                        Shell.cmd(
+                            "am force-stop ${it.packageName}",
+                            "am start ${it.packageName}/$className"
+                        ).exec()
+                    }
+                }
+            }
+            R.id.menu_app_info -> {
+                appInfo?.let {
+                    val intent = Intent()
+                    intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    intent.data = Uri.parse("package:" + it.packageName)
+                    requireActivity().startActivity(intent);
+                }
+            }
+        }
+        return super.onContextItemSelected(item)
+    }
+
     private fun adapterOnClick(appConfig: AppConfig) {
-        val bottomSheetDialog = me.simpleHook.ui.custom.BottomSheetDialog(requireContext(),
+        val bottomSheetDialog = me.simpleHook.ui.custom.BottomSheetDialog(
+            requireContext(),
             appConfig,
             onClick = { editConfig(appConfig) })
         bottomSheetDialog.setContentView()

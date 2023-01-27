@@ -21,7 +21,7 @@ object LogUtil {
         if (FlavorUtils.isLiteVersion) {
             log.log(hostPackageName)
         } else if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
-            outLogFile(log, tempPackageName, type, time)
+            outLogDB(log, tempPackageName, type, time)
         } else {
             outLogDB(log, tempPackageName, type, time)
         }

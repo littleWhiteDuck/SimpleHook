@@ -373,5 +373,9 @@
     <string name="module_not_activated">Module not activated</string>
     <string name="module_not_activated_message">Due to write and delete configuration depends on the New XSharedPreferences, must under the modules are activated operating configuration. If the module is not activated, it cannot be used!!</string>
     <string name="module_not_activated_ok">To activated</string>
-    <string name="not_root_tip">请手动授予ROOT权限, 并重启APP</string>
+    <string name="not_root_tip">Please manually grant ROOT permission and restart APP</string>
+    <string name="launch_app">Launch it</string>
+    <string name="force_stop">Force stop</string>
+    <string name="app_info">App info</string>
+    <string name="relaunch_app">Restart launch it</string>
 </resources>

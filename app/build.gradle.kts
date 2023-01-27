@@ -23,7 +23,7 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.2.9"
+    val verName = "1.3.0"
     signingConfigs {
         create("keyStore") {
             keyAlias = prop.getProperty("alias")
@@ -85,7 +85,7 @@ android {
     }
 
     packagingOptions.resources.excludes += setOf(
-        "META-INF/**", "okhttp3/**", "kotlin/**", "org/**", "**.properties", "**.bin"
+        "META-INF/**", "okhttp3/**", "kotlin/**", "org/**", "**.properties", "**.bin", "**.json"
     )
 
     dependenciesInfo.includeInApk = false
@@ -94,7 +94,8 @@ android {
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl
         variant.outputs.forEach {
             val name = if (variant.flavorName == "lite") "SimpleHookLite" else "SimpleHook"
-            it.outputFileName.set("$name-${verName}-${verCode}.apk")
+            val tempVerName = verName + if (beta) "_beta" else ""
+            it.outputFileName.set("$name-${tempVerName}-${verCode}.apk")
         }
     }
 

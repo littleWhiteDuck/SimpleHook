@@ -18,6 +18,16 @@ object AppUtils {
         }
     }
 
+    fun appInfo(context: Context, packageName: String): ApplicationInfo? {
+        return try {
+            context.packageManager.getPackageInfo(
+                packageName, PackageManager.GET_CONFIGURATIONS
+            ).applicationInfo
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon(context: Context, packageName: String): Drawable {
         return try {

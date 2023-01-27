@@ -31,8 +31,4 @@ object SuUtil {
         }
     }
 
-    fun moveFile(originalPath: String, finalPath: String) {
-        Shell.cmd("mv $originalPath $finalPath").exec()
-    }
-
 }

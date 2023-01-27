@@ -66,6 +66,7 @@ object MainHook {
             HookHelper.enableRecord = false
             val internalConfigs = AssetsUtil.getText(InitFields.moduleRes.assets.open("configs"))
                 ?.replace(Regex("<---.*--->"), "")?.trim()
+            if (internalConfigs?.isEmpty() == true) return
             val jsonArray = JSONArray(internalConfigs)
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
@@ -74,7 +75,7 @@ object MainHook {
                 }
             }
         } catch (e: Throwable) {
-            e.stackTraceToString().log(hostPackageName)
+            //e.stackTraceToString().log(hostPackageName)
         }
 
     }

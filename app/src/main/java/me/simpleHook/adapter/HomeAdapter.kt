@@ -1,7 +1,7 @@
 package me.simpleHook.adapter
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.view.ContextMenu
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -15,17 +15,10 @@ import me.simpleHook.util.GlideApp
 import me.simpleHook.util.marquee
 
 class HomeAdapter(
+    private val menuListener: (AppConfig, menu: ContextMenu) -> Unit,
     private val onClick: (AppConfig, mode: Int) -> Unit,
     private val onChange: (AppConfig, Boolean) -> Unit,
 ) : ListAdapter<AppConfig, HomeAdapter.ViewHolder>(AppDiffCallback) {
-
-    inner class ViewHolder(appConfigView: AppConfigView) : RecyclerView.ViewHolder(appConfigView) {
-        private val containerView = appConfigView.container
-        val tvAppName = containerView.appName
-        val tvConfigDesc = containerView.desc
-        val ableSwitch = containerView.switch
-        val ivAppIcon = containerView.icon
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,7 +33,11 @@ class HomeAdapter(
             setOnLongClickListener {
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 onClick(appConfig, Constant.HOME_ITEM_CLICK_LONG)
-                true
+                false
+            }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+                menuListener(appConfig, menu)
             }
         }
         appConfigView.editConfig.setOnClickListener {
@@ -79,6 +76,14 @@ class HomeAdapter(
                 GlideApp.with(ivAppIcon).load(packageName).into(ivAppIcon)
             }
         }
+    }
+
+    inner class ViewHolder(appConfigView: AppConfigView) : RecyclerView.ViewHolder(appConfigView) {
+        private val containerView = appConfigView.container
+        val tvAppName = containerView.appName
+        val tvConfigDesc = containerView.desc
+        val ableSwitch = containerView.switch
+        val ivAppIcon = containerView.icon
     }
 
     object AppDiffCallback : DiffUtil.ItemCallback<AppConfig>() {

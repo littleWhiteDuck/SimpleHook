@@ -404,6 +404,10 @@
     <string name="module_not_activated_message">由于配置写入和删除依赖于New XSharedPreferences, 必须在模块被激活下操作配置。如果不激活模块，将无法使用！！！</string>
     <string name="module_not_activated_ok">去激活</string>
     <string name="not_root_tip">请手动授予ROOT权限, 并重启APP</string>
+    <string name="launch_app">启动</string>
+    <string name="force_stop">强行停止</string>
+    <string name="relaunch_app">重新启动</string>
+    <string name="app_info">应用信息</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>
