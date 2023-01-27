@@ -187,7 +187,7 @@ object FileUtils {
         if (file.exists()) file.delete()
     }
 
-    fun writeLogToFile(content: String, filePath: String, size: Int = 10000) {
+    fun writeLogToFile(content: String, filePath: String, size: Int = 4092) {
         val strContent = "${content}\r\n"
         try {
             val file = File(filePath)

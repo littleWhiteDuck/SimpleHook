@@ -112,7 +112,7 @@ open class BaseActivity : AppCompatActivity() {
                 FileUtils.writeLogToFile(
                     e.stackTrace.toString(),
                     filePath = "/storage/emulated/0/Android/data/me.simpleHook/files/log.txt",
-                    size = 1024
+                    size = 512
                 )
             }
         }

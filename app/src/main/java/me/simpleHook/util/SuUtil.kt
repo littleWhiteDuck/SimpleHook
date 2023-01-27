@@ -20,7 +20,7 @@ object SuUtil {
                 "su",
                 "mount -o remount /data",
                 "cd /data/local/tmp",
-                "mkdir simpleHook",
+                "mkdir -p simpleHook/logTemp/",
                 "chmod -R 777 simpleHook"
             ).exec()
             if (Shell.isAppGrantedRoot() != true) {
@@ -29,6 +29,10 @@ object SuUtil {
                 Looper.loop()
             }
         }
+    }
+
+    fun moveFile(originalPath: String, finalPath: String) {
+        Shell.cmd("mv $originalPath $finalPath").exec()
     }
 
 }

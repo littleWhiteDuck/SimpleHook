@@ -141,11 +141,13 @@ object ConfigHelper {
     fun insertRecordsFromFile(packageName: String): List<PrintLog> {
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
+        val finalPath = Constant.ROOT_CONFIG_MAIN_DIRECTORY + Constant.RECORD_TEMP_DIRECTORY
         val list = mutableListOf<PrintLog>()
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                val suFile = SuFile.open(filePath)
-                if (suFile.canRead()) return emptyList()
+                SuUtil.moveFile(filePath, finalPath)
+                val suFile = SuFile.open(finalPath)
+                if (!suFile.canRead()) return emptyList()
                 SuFileInputStream.open(suFile).bufferedReader().useLines {
                     it.iterator().forEach { str ->
                         try {
@@ -175,7 +177,7 @@ object ConfigHelper {
             FileUtils.writeLogToFile(
                 e.stackTraceToString(),
                 filePath = "/storage/emulated/0/Android/data/me.simpleHook/files/log.txt",
-                size = 1024
+                size = 512
             )
         }
         return list
