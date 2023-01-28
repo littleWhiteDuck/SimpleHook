@@ -68,6 +68,7 @@ private const val WEB_DEBUG_STATUS = 1 shl 17
 private const val STOP_DIALOG_STATUS = 1 shl 18
 private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
 private const val APPLICATION_STATUS = 1 shl 20
+private const val SIGNATURE_STATUS = 1 shl 21
 private const val startAppTag = 666
 
 class ExtensionActivity : BaseActivity() {
@@ -291,6 +292,14 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_others)))
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_signature),
+                        signature,
+                        SIGNATURE_STATUS,
+                        getString(R.string.extension_item_desc_signature)
+                    )
+                )
                 add(
                     AssistItem(
                         getString(R.string.extension_item_title_intent),
@@ -581,6 +590,9 @@ class ExtensionActivity : BaseActivity() {
         }
         if (isContains(APPLICATION_STATUS)) {
             configBean.application = isChecked(APPLICATION_STATUS)
+        }
+        if (isContains(SIGNATURE_STATUS)) {
+            configBean.signature = isChecked(SIGNATURE_STATUS)
         }
     }
 

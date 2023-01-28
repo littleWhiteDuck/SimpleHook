@@ -387,4 +387,6 @@
     <string name="save_and_exit">Save and exit</string>
     <string name="exit">Exit</string>
     <string name="only_save">Save only</string>
+    <string name="extension_item_title_signature">App signature monitoring</string>
+    <string name="extension_item_desc_signature">Record: Use API to get the call stack of the aoo signature</string>
 </resources>

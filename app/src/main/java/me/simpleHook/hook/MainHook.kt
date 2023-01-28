@@ -32,8 +32,7 @@ import org.json.JSONObject
 
 
 object MainHook {
-    /* private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
-     private val assistUri = Uri.parse("content://littleWhiteDuck/assist_configs")*/
+
     private val prefHookConfig by lazy { getPref(Constant.CUSTOM_CONFIG_PREF) }
     private val prefExHookConfig by lazy { getPref(Constant.EXTENSION_CONFIG_PREF) }
 
@@ -406,7 +405,8 @@ object MainHook {
                 JSONHook,
                 WebHook,
                 ClipboardFilterHook,
-                ApplicationHook
+                ApplicationHook,
+                SignatureHook
             )
         } catch (e: java.lang.Exception) {
             LogUtil.toLog(

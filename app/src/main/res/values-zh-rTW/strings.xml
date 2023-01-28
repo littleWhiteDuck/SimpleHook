@@ -387,4 +387,6 @@
     <string name="save_and_exit">保存並退出</string>
     <string name="exit">退出</string>
     <string name="only_save">僅保存</string>
+    <string name="extension_item_title_signature">應用簽名監聽</string>
+    <string name="extension_item_desc_signature">記錄：使用API讀取應用簽名的調用堆棧</string>
 </resources>

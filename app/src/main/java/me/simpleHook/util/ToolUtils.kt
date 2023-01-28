@@ -32,9 +32,9 @@ object ToolUtils {
         )
     }
 
-    fun getMD5(bytes: ByteArray): String {
+    fun getDigest(bytes: ByteArray, algorithm: String = "MD5"): String {
         return try {
-            val digest: ByteArray = MessageDigest.getInstance("MD5").digest(bytes)
+            val digest: ByteArray = MessageDigest.getInstance(algorithm).digest(bytes)
             val hexDigits = "0123456789abcdef"
             val str = CharArray(digest.size * 2)
             var k = 0

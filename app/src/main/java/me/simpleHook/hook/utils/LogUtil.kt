@@ -13,7 +13,7 @@ import me.simpleHook.util.*
 
 object LogUtil {
     private const val filterClass =
-        """EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
+        """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
     private val PRINT_URI = Uri.parse("content://me.simplehook.provider/print_logs")
     fun toLogMsg(log: String, type: String) {
         if (type == "null" || !HookHelper.enableRecord) return
