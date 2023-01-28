@@ -4,6 +4,8 @@ import android.app.Dialog
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.github.kyuubiran.ezxhelper.utils.findAllMethods
+import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -17,6 +19,12 @@ import me.simpleHook.hook.utils.getAllTextView
 object DialogHook : BaseHook() {
 
     override fun startHook(configBean: ExtensionConfigBean) {
+
+        if (configBean.stopDialog.enable) {
+            findAllMethods(Dialog::class.java) {
+                name == "setOnCancelListener" || name == "setOnDismissListener" || name == "setOnShowListener"
+            }.hookReturnConstant(null)
+        }
         if (configBean.dialog || configBean.diaCancel || configBean.stopDialog.enable) {
             XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam?) {

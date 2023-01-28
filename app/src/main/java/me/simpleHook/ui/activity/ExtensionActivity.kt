@@ -591,7 +591,7 @@ class ExtensionActivity : BaseActivity() {
         loadingDialog.show()
         refreshConfigBean()
         val config = Gson().toJson(configBean)
-        tempConfigStr = config.toString()
+        tempConfigStr = configBean.toString()
         assistConfig.config = config
         assistConfig.allSwitch = configBean.all
         if (editMode) {

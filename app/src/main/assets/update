@@ -1,9 +1,11 @@
 v1.3.0
     - 修复: hook实例变量
     - 增加: 长按首页配置item:【启动】、【强行停止】、【重新启动】、【应用信息】
+    - 增强: 弹窗拦截
 
     - Fix: hook instance field
     - Add: Long press the homepage config item:[Launch it(app)]、[Force stop]、[Restart launch]、[App info]
+    - Improve: Intercept dialog
 v1.2.9
     1. 修复若干问题，提高稳定性
 
