@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -57,6 +56,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private lateinit var mContext: Context
     private var currentPattern = ""
     private var appInfo: ApplicationInfo? = null
+    private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter(menuListener = { appConfig, menu ->
             onItemCreateContextMenu(appConfig, menu)
@@ -166,7 +166,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
 
 
     private fun itemOnLongClick(appConfig: AppConfig) {
-        appInfo = AppUtils.appInfo(requireContext(), appConfig.packageName)
+        //appInfo = AppUtils.appInfo(requireContext(), appConfig.packageName)
     }
 
     private fun editConfig(appConfig: AppConfig) {
@@ -177,7 +177,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
 
     private fun onItemClick(mode: Int, appConfig: AppConfig) {
         when (mode) {
-            Constant.HOME_ITEM_CLICK_NORMAL -> adapterOnClick(appConfig)
+            Constant.HOME_ITEM_CLICK_NORMAL -> editConfig(appConfig)
             Constant.HOME_ITEM_CLICK_LONG -> itemOnLongClick(appConfig)
             Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
             Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
@@ -186,12 +186,18 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun onItemCreateContextMenu(appConfig: AppConfig, menu: ContextMenu) {
-        requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
-        menu.setHeaderTitle(appConfig.appName)
-        if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.isLiteVersion || Shell.isAppGrantedRoot() != true) {
-            menu.removeItem(R.id.menu_launch)
-            menu.removeItem(R.id.menu_relaunch)
+        configOfItemMenu = appConfig
+        val isInstalled = AppUtils.isAppInstalled(requireContext(), appConfig.packageName)
+        if (isInstalled) {
+            requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
+            if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.isLiteVersion || Shell.isAppGrantedRoot() != true) {
+                menu.removeItem(R.id.menu_launch)
+                menu.removeItem(R.id.menu_relaunch)
+            }
+        } else {
+            requireActivity().menuInflater.inflate(R.menu.menu_app_item2, menu)
         }
+        menu.setHeaderTitle(appConfig.appName)
     }
 
     private fun copyConfigs(config: AppConfig) {
@@ -361,44 +367,30 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_launch -> {
-                appInfo?.let {
-                    AppUtils.startApp(it.packageName, requireContext())
-                }
-            }
+            R.id.menu_launch -> AppUtils.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
-                appInfo?.let {
-                    if (Shell.isAppGrantedRoot() == true) {
-                        Shell.cmd("am force-stop ${it.packageName}").exec()
-                    } else {
-                        val intent = Intent()
-                        intent.action =
-                            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        intent.data = Uri.parse("package:" + it.packageName)
-                        requireActivity().startActivity(intent);
-                    }
+                if (Shell.isAppGrantedRoot() == true) {
+                    Shell.cmd("am force-stop ${configOfItemMenu.packageName}").exec()
+                } else {
+                    AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
             }
             R.id.menu_relaunch -> {
-                appInfo?.let {
-                    val intent =
-                        requireActivity().packageManager.getLaunchIntentForPackage(it.packageName)
-                    intent?.component?.className?.let { className ->
-                        Shell.cmd(
-                            "am force-stop ${it.packageName}",
-                            "am start ${it.packageName}/$className"
-                        ).exec()
-                    }
+                val intent =
+                    requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
+                intent?.component?.className?.let { className ->
+                    Shell.cmd(
+                        "am force-stop ${configOfItemMenu.packageName}",
+                        "am start ${configOfItemMenu.packageName}/$className"
+                    ).exec()
                 }
             }
-            R.id.menu_app_info -> {
-                appInfo?.let {
-                    val intent = Intent()
-                    intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    intent.data = Uri.parse("package:" + it.packageName)
-                    requireActivity().startActivity(intent);
-                }
-            }
+            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
+                requireContext(), configOfItemMenu.packageName
+            )
+            R.id.menu_copy_config -> copyConfigs(configOfItemMenu)
+            R.id.menu_delete_config -> deleteConfig(configOfItemMenu)
+            R.id.menu_edit_config -> editConfig(configOfItemMenu)
         }
         return super.onContextItemSelected(item)
     }

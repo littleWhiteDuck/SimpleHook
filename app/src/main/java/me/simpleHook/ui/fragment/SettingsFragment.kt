@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -35,11 +34,11 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
-import me.simpleHook.ui.custom.MenuPreference
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import me.simpleHook.viewmodel.SettingsViewModel
+import rikka.preference.SimpleMenuPreference
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -134,80 +133,31 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<MenuPreference>("uiMode")?.apply {
-            val arrayList =
-                requireContext().resources.getStringArray(R.array.main_settings_ui_mode_item_entries)
-            this.summary = when (sp.uiMode) {
-                MODE_NIGHT_YES -> arrayList[1]
-                MODE_NIGHT_NO -> arrayList[0]
-                else -> arrayList[2]
-            }
+        val themePreference = findPreference<SimpleMenuPreference>("themeMode")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                when (newValue as String) {
-                    arrayList[0] -> {
-                        if (sp.uiMode != MODE_NIGHT_NO) {
-                            sp.uiMode = MODE_NIGHT_NO
-                            setDefaultNightMode(MODE_NIGHT_NO)
-                        }
-                    }
-                    arrayList[1] -> {
-                        if (sp.uiMode != MODE_NIGHT_YES) {
-                            sp.uiMode = MODE_NIGHT_YES
-                            setDefaultNightMode(MODE_NIGHT_YES)
-                        }
-                    }
-                    arrayList[2] -> {
-                        if (sp.uiMode != MODE_NIGHT_FOLLOW_SYSTEM) {
-                            sp.uiMode = MODE_NIGHT_FOLLOW_SYSTEM
-                            setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                        }
-                    }
-                }
-                requireActivity().recreate()
+                ThemeModeUtil.setMode(newValue as String)
+                if (sp.themeMode != newValue) requireActivity().recreate()
                 true
             }
-        }
-
-        findPreference<MenuPreference>("selectLanguage")?.apply {
-            val arrayList =
-                requireContext().resources.getStringArray(R.array.main_settings_language_item_entries)
-            this.summary = when (sp.language) {
-                Locale.SIMPLIFIED_CHINESE.toString() -> arrayList[1]
-                Locale.TRADITIONAL_CHINESE.toString() -> arrayList[2]
-                Locale.ENGLISH.language.toString() -> arrayList[3]
-                else -> arrayList[0]
-            }
+        }!!
+        val themeNames =
+            requireContext().resources.getStringArray(R.array.main_settings_theme_mode_item_entries)
+        themePreference.summary =
+            themeNames[listOf(*themePreference.entryValues).indexOf(themePreference.value)]
+        val languagePreference = findPreference<SimpleMenuPreference>("language")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                when (newValue as String) {
-                    arrayList[1] -> {
-                        LanguageUtils.switchLanguage(
-                            Locale.SIMPLIFIED_CHINESE.toString(),
-                            requireActivity(),
-                            MainActivity::class.java
-                        )
-                    }
-                    arrayList[2] -> {
-                        LanguageUtils.switchLanguage(
-                            Locale.TRADITIONAL_CHINESE.toString(),
-                            requireActivity(),
-                            MainActivity::class.java
-                        )
-                    }
-                    arrayList[3] -> {
-                        LanguageUtils.switchLanguage(
-                            Locale.ENGLISH.toString(), requireActivity(), MainActivity::class.java
-                        )
-                    }
-                    else -> {
-                        LanguageUtils.switchLanguage(
-                            "system", requireActivity(), MainActivity::class.java
-                        )
-                    }
+                if (newValue is String) {
+                    LanguageUtils.switchLanguage(
+                        newValue, requireActivity(), MainActivity::class.java
+                    )
                 }
                 true
             }
-        }
-
+        }!!
+        val languageNames =
+            requireContext().resources.getStringArray(R.array.main_settings_language_item_entries)
+        languagePreference.summary =
+            languageNames[listOf(*languagePreference.entryValues).indexOf(languagePreference.value)]
         findPreference<Preference>("toJSConfig")?.apply {
             setOnPreferenceClickListener {
                 toJSConfig()

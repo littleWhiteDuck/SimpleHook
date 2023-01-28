@@ -4,8 +4,8 @@
     <PreferenceCategory app:title="@string/main_settings_title_necessary_permission_status">
         <Preference
             app:key="necessary_permission"
-            app:title="@string/main_settings_title_storage_permission"
-            app:summary="@string/main_settings_summary_storage_permission" />
+            app:summary="@string/main_settings_summary_storage_permission"
+            app:title="@string/main_settings_title_storage_permission" />
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_custom">
@@ -33,18 +33,19 @@
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_normal">
-        <me.simpleHook.ui.custom.MenuPreference
-            app:entries="@array/main_settings_ui_mode_item_entries"
-            app:key="uiMode"
-            app:summary="@string/main_settings_ui_mode_summary_follow_system"
+
+        <rikka.preference.SimpleMenuPreference
+            app:entries="@array/main_settings_theme_mode_item_entries"
+            app:entryValues="@array/main_settings_theme_mode_item_values"
+            app:key="themeMode"
+            app:defaultValue="system"
             app:title="@string/main_settings_ui_mode_title" />
-
-        <me.simpleHook.ui.custom.MenuPreference
-            app:entries="@array/main_settings_language_item_entries"
-            app:key="selectLanguage"
-            app:summary="@string/main_settings_select_language_summary"
+        <rikka.preference.SimpleMenuPreference
+            app:defaultValue="system"
+            android:entries="@array/main_settings_language_item_entries"
+            app:key="language"
+            app:entryValues="@array/main_settings_language_item_values"
             app:title="@string/main_settings_select_language_title" />
-
         <me.simpleHook.ui.custom.MenuPreference
             app:entries="@array/main_settings_clear_item_entries"
             app:key="clearConfigData"

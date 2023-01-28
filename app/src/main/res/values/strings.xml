@@ -110,10 +110,16 @@
         <item>清空所有记录</item>
         <item>清空所有收藏</item>
     </string-array>
-    <string-array name="main_settings_ui_mode_item_entries">
+    <string-array name="main_settings_theme_mode_item_entries">
         <item>总是关闭</item>
         <item>总是开启</item>
         <item>跟随系统</item>
+    </string-array>
+
+    <string-array name="main_settings_theme_mode_item_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
     </string-array>
 
     <string-array name="main_settings_language_item_entries">
@@ -121,6 +127,13 @@
         <item>中文（简体）</item>
         <item>中文（繁體）</item>
         <item>English</item>
+    </string-array>
+
+    <string-array name="main_settings_language_item_values">
+        <item>system</item>
+        <item>zh_CN</item>
+        <item>zh_TW</item>
+        <item>en</item>
     </string-array>
 
     <string name="main_share_config_cancel">取消</string>
@@ -159,7 +172,8 @@
     <string name="about_tester_j" translatable="false">简</string>
     <string name="about_tester_xn" translatable="false">快乐小牛</string>
     <string name="about_title_open_sources">开源相关</string>
-    <string name="about_source_license_2" translatable="false">Apache software license 2.0</string>
+    <string name="about_source_license_2" translatable="false">Apache Software License 2.0</string>
+    <string name="about_source_license_mit" translatable="false">MIT License 2.0</string>
     <string name="about_menu_add_group">加入TG群</string>
     <!--others-->
     <string name="search">搜索</string>
@@ -408,6 +422,10 @@
     <string name="force_stop">强行停止</string>
     <string name="relaunch_app">重新启动</string>
     <string name="app_info">应用信息</string>
+    <string name="copy_config">复制配置</string>
+    <string name="delete_config">删除配置</string>
+    <string name="edit_config">编辑配置</string>
+    <string name="config_version_support">安装: %s, 支持: %s</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

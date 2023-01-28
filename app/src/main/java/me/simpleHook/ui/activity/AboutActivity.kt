@@ -171,6 +171,14 @@ class AboutActivity : BaseActivity() {
                     getString(R.string.about_source_license_2)
                 )
             )
+
+            add(
+                OpenSource(
+                    "SimpleMenuPreference - RikkaX",
+                    "https://github.com/RikkaApps/RikkaX/tree/master/preference/simplemenu-preference",
+                    getString(R.string.about_source_license_mit)
+                )
+            )
         }
     }
 
@@ -240,7 +248,7 @@ class AboutActivity : BaseActivity() {
                 ivIcon.avatarWidth = 50f.dp
             }
             itemView.setOnClickListener {
-                if (data.name == "Source Code") {
+                if (data.name == "Source Code(Hook)") {
                     intent.data = Uri.parse(data.introduce)
                     itemView.context.startActivity(intent)
                 }

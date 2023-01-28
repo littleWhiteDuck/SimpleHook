@@ -2,10 +2,12 @@ package me.simpleHook.util
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 
 
@@ -168,6 +170,13 @@ object AppUtils {
             e.printStackTrace()
         }
         return packageInfo != null
+    }
+
+    fun jumpAppInfoPage(context: Context, packageName: String) {
+        val intent = Intent()
+        intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        intent.data = Uri.parse("package:$packageName")
+        context.startActivity(intent);
     }
 
 }

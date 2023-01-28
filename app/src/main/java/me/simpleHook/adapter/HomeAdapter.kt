@@ -30,11 +30,6 @@ class HomeAdapter(
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 onClick(appConfig, Constant.HOME_ITEM_CLICK_NORMAL)
             }
-            setOnLongClickListener {
-                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
-                onClick(appConfig, Constant.HOME_ITEM_CLICK_LONG)
-                false
-            }
             setOnCreateContextMenuListener { menu, _, _ ->
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 menuListener(appConfig, menu)

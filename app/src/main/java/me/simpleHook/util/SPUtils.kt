@@ -2,7 +2,6 @@ package me.simpleHook.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatDelegate
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -21,7 +20,7 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var readIntroduction by SharedPreferenceDelegates.boolean(true)
     var startFloat by SharedPreferenceDelegates.boolean(false)
     var bottomConfigDialog by SharedPreferenceDelegates.boolean(false)
-    var uiMode by SharedPreferenceDelegates.int(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    var themeMode by SharedPreferenceDelegates.string("system")
     var xParams by SharedPreferenceDelegates.boolean(true)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()

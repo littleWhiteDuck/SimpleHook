@@ -219,7 +219,11 @@ class ConfigActivity : BaseActivity() {
                 } else {
                     appInfo.containerView.appName.text = it.appName
                     appInfo.containerView.packageName.text = it.packageName
-                    appInfo.containerView.otherInfo.text = it.versionName
+                    appInfo.containerView.otherInfo.text = getString(
+                        R.string.config_version_support,
+                        AppUtils.getAppVersionName(this@ConfigActivity, it.packageName),
+                        it.versionName
+                    )
                     appInfo.containerView.icon.setImageDrawable(
                         AppUtils.getIcon(
                             this@ConfigActivity, it.packageName

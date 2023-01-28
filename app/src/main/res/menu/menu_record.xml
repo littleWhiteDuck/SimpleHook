@@ -32,7 +32,7 @@
 
     <item
         android:id="@+id/save_marked_record"
-        android:icon="@drawable/ic_save2_24"
+        android:icon="@drawable/ic_save_24"
         android:title="@string/record_menu_save_marked_record" />
 
     <item

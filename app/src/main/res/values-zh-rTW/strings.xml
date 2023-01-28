@@ -96,7 +96,7 @@
         <item>清空所有記錄</item>
         <item>清空所有收藏</item>
     </string-array>
-    <string-array name="main_settings_ui_mode_item_entries">
+    <string-array name="main_settings_theme_mode_item_entries">
         <item>總是關閉</item>
         <item>總是開啟</item>
         <item>跟隨系統</item>
@@ -378,4 +378,8 @@
     <string name="force_stop">強行停止</string>
     <string name="app_info">應用信息</string>
     <string name="relaunch_app">重新啟動</string>
+    <string name="copy_config">複製配置</string>
+    <string name="delete_config">刪除配置</string>
+    <string name="edit_config">編輯配置</string>
+    <string name="config_version_support">安裝: %s, 支持: %s</string>
 </resources>

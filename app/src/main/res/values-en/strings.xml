@@ -129,7 +129,7 @@
         <item>Delete</item>
         <item>Edit</item>
     </string-array>
-    <string-array name="main_settings_ui_mode_item_entries">
+    <string-array name="main_settings_theme_mode_item_entries">
         <item>Always off</item>
         <item>Always on</item>
         <item>Follow system</item>
@@ -378,4 +378,8 @@
     <string name="force_stop">Force stop</string>
     <string name="app_info">App info</string>
     <string name="relaunch_app">Restart launch it</string>
+    <string name="copy_config">Copy config</string>
+    <string name="delete_config">Delete config</string>
+    <string name="edit_config">Edit config</string>
+    <string name="config_version_support">Installed: %s, Support: %s</string>
 </resources>
