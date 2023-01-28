@@ -19,9 +19,7 @@ object SuUtil {
             Shell.cmd(
                 "su",
                 "mount -o remount /data",
-                "cd /data/local/tmp",
-                "mkdir -p simpleHook/logTemp/",
-                "chmod -R 777 simpleHook"
+                "cd /data/local/tmp", "mkdir -p simpleHook/logTemp/", "chmod -R 777 simpleHook"
             ).exec()
             if (Shell.isAppGrantedRoot() != true) {
                 Looper.prepare()
@@ -29,6 +27,16 @@ object SuUtil {
                 Looper.loop()
             }
         }
+    }
+
+    fun forceStopApp(packageName: String) {
+        Shell.cmd("am force-stop $packageName").exec()
+    }
+
+    fun reLaunchApp(packageName: String, activityName: String) {
+        Shell.cmd(
+            "am force-stop $packageName", "am start ${packageName}/$activityName"
+        ).exec()
     }
 
 }

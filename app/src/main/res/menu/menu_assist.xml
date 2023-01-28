@@ -2,10 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <item
         android:id="@+id/save_config"
         android:icon="@drawable/ic_save_24"
         android:title="@string/config_menu_save_config"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_force_stop"
+        android:title="@string/force_stop" />
+    <item
+        android:id="@+id/menu_relaunch"
+        android:title="@string/relaunch_app" />
+    <item
+        android:id="@+id/menu_app_info"
+        android:title="@string/app_info" />
 </menu>

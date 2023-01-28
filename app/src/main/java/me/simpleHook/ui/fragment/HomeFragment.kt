@@ -370,7 +370,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
             R.id.menu_launch -> AppUtils.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
                 if (Shell.isAppGrantedRoot() == true) {
-                    Shell.cmd("am force-stop ${configOfItemMenu.packageName}").exec()
+                    SuUtil.forceStopApp(configOfItemMenu.packageName)
                 } else {
                     AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
@@ -379,10 +379,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                 val intent =
                     requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
                 intent?.component?.className?.let { className ->
-                    Shell.cmd(
-                        "am force-stop ${configOfItemMenu.packageName}",
-                        "am start ${configOfItemMenu.packageName}/$className"
-                    ).exec()
+                    SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
                 }
             }
             R.id.menu_app_info -> AppUtils.jumpAppInfoPage(

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileOutputStream
 import kotlinx.coroutines.Dispatchers
@@ -666,7 +667,16 @@ class ExtensionActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val isInstalled = AppUtils.isAppInstalled(this, assistConfig.packageName)
         menuInflater.inflate(R.menu.menu_assist, menu)
+        if (packageManager.getLaunchIntentForPackage(packageName) == null || Shell.isAppGrantedRoot() != true) {
+            menu.removeItem(R.id.menu_relaunch)
+        }
+        if (!isInstalled) {
+            menu.removeItem(R.id.menu_force_stop)
+            menu.removeItem(R.id.menu_relaunch)
+            menu.removeItem(R.id.menu_app_info)
+        }
         return true
     }
 
@@ -674,6 +684,20 @@ class ExtensionActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
+            R.id.menu_force_stop -> {
+                if (Shell.isAppGrantedRoot() == true) {
+                    SuUtil.forceStopApp(assistConfig.packageName)
+                } else {
+                    AppUtils.jumpAppInfoPage(this, assistConfig.packageName)
+                }
+            }
+            R.id.menu_relaunch -> {
+                val intent = packageManager.getLaunchIntentForPackage(assistConfig.packageName)
+                intent?.component?.className?.let { className ->
+                    SuUtil.reLaunchApp(assistConfig.packageName, className)
+                }
+            }
+            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(this, assistConfig.packageName)
         }
         return true
     }
