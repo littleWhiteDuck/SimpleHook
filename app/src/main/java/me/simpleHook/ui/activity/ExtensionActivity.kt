@@ -82,7 +82,7 @@ class ExtensionActivity : BaseActivity() {
     private var statusChecked = 0
     private var statusUnChecked = 0
     private lateinit var configBean: ExtensionConfigBean
-    private var tempConfigMD5 = ""
+    private var tempConfigStr = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +120,7 @@ class ExtensionActivity : BaseActivity() {
         configBean = if (config.isNotEmpty()) Gson().fromJson(
             config, ExtensionConfigBean::class.java
         ) else ExtensionConfigBean()
-        tempConfigMD5 = ToolUtils.getMD5(configBean.toString().toByteArray())
+        tempConfigStr = configBean.toString()
         itemList.apply {
             configBean.apply {
                 add(AssistTitle(getString(R.string.extension_item_title_basic)))
@@ -591,7 +591,7 @@ class ExtensionActivity : BaseActivity() {
         loadingDialog.show()
         refreshConfigBean()
         val config = Gson().toJson(configBean)
-        tempConfigMD5 = ToolUtils.getMD5(configBean.toString().toByteArray())
+        tempConfigStr = config.toString()
         assistConfig.config = config
         assistConfig.allSwitch = configBean.all
         if (editMode) {
@@ -614,8 +614,9 @@ class ExtensionActivity : BaseActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         refreshConfigBean()
-        if (tempConfigMD5 != ToolUtils.getMD5(configBean.toString().toByteArray())) {
-            customDialog(this,
+        if (tempConfigStr != configBean.toString()) {
+            customDialog(
+                this,
                 title = getString(R.string.save_config_warning),
                 message = getString(R.string.save_config_warning_message),
                 okText = getString(R.string.save_and_exit),
@@ -738,7 +739,5 @@ class ExtensionActivity : BaseActivity() {
                 }
             }
         }
-
     }
-
 }

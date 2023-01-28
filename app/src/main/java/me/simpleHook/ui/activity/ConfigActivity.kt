@@ -117,13 +117,15 @@ class ConfigActivity : BaseActivity() {
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
     private val collectAdapter by lazy {
-        ConfigAdapter({ position -> onCollectClick(position) },
+        ConfigAdapter(
+            { position -> onCollectClick(position) },
             onLongClick = {},
             onCheckedChange = { position, isChecked ->
                 onCollectCheckedChange(
                     position, isChecked
                 )
-            }, isCollect = true
+            },
+            isCollect = true
         )
     }
     private var isCollection = false
@@ -139,7 +141,7 @@ class ConfigActivity : BaseActivity() {
                 refreshAppInfo(AppInfo(appName, packageName, versionName))
             }
         }
-    private lateinit var tempConfigMD5: String
+    private lateinit var tempConfigStr: String
     private var tempVersionName: String = ""
 
 
@@ -203,7 +205,6 @@ class ConfigActivity : BaseActivity() {
         }
         appConfig?.let {
             modify = true
-            tempConfigMD5 = ToolUtils.getMD5(it.copy(enable = true).toString().toByteArray())
             configId = it.id
             binding.apply {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
@@ -229,10 +230,10 @@ class ConfigActivity : BaseActivity() {
                 appName.text = getString(R.string.config_no_app_info)
                 GlideApp.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
             }
-            tempConfigMD5 =
-                ToolUtils.getMD5(getAppConfig().copy(enable = true).toString().toByteArray())
+
         }
         showIntroductionDialog()
+        tempConfigStr = getAppConfig().copy(enable = true).toString()
     }
 
     private fun refreshAppInfo(appInfo: AppInfo) {
@@ -721,8 +722,7 @@ class ConfigActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.dismiss()
             isSaving = false
-            tempConfigMD5 =
-                ToolUtils.getMD5(getAppConfig().copy(enable = true).toString().toByteArray())
+            tempConfigStr = getAppConfig().copy(enable = true).toString()
             if (exit) {
                 finish()
             }
@@ -762,11 +762,9 @@ class ConfigActivity : BaseActivity() {
         if (configList.size == 0) {
             finish()
         }
-        if (tempConfigMD5 != ToolUtils.getMD5(
-                getAppConfig().copy(enable = true).toString().toByteArray()
-            )
-        ) {
-            customDialog(this,
+        if (tempConfigStr != getAppConfig().copy(enable = true).toString()) {
+            customDialog(
+                this,
                 title = getString(R.string.save_config_warning),
                 message = getString(R.string.save_config_warning_message),
                 okText = getString(R.string.save_and_exit),
