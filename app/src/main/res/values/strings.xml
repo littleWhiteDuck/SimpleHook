@@ -426,6 +426,11 @@
     <string name="delete_config">删除配置</string>
     <string name="edit_config">编辑配置</string>
     <string name="config_version_support">安装: %s, 支持: %s</string>
+    <string name="save_config_warning">Warning</string>
+    <string name="save_config_warning_message">The config has been changed, but it has not been saved. Do you want to save it? </string>
+    <string name="save_and_exit">Save and exit</string>
+    <string name="exit">Exit</string>
+    <string name="only_save">Save only</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

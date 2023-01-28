@@ -123,8 +123,7 @@ class ConfigActivity : BaseActivity() {
                 onCollectCheckedChange(
                     position, isChecked
                 )
-            },
-            isCollect = true
+            }, isCollect = true
         )
     }
     private var isCollection = false
@@ -134,17 +133,14 @@ class ConfigActivity : BaseActivity() {
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                val appName = it.data?.getStringExtra("appName")
-                val versionName = it.data?.getStringExtra("versionName")
-                val packageName = it.data?.getStringExtra("packageName")
-                binding.appInfo.apply {
-                    containerView.appName.text = appName
-                    containerView.packageName.text = packageName
-                    containerView.otherInfo.text = versionName
-                    GlideApp.with(containerView.icon).load(packageName).into(containerView.icon)
-                }
+                val appName = it.data?.getStringExtra("appName")!!
+                val versionName = it.data?.getStringExtra("versionName")!!
+                val packageName = it.data?.getStringExtra("packageName")!!
+                refreshAppInfo(AppInfo(appName, packageName, versionName))
             }
         }
+    private lateinit var tempConfigMD5: String
+    private var tempVersionName: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,6 +203,7 @@ class ConfigActivity : BaseActivity() {
         }
         appConfig?.let {
             modify = true
+            tempConfigMD5 = ToolUtils.getMD5(it.copy(enable = true).toString().toByteArray())
             configId = it.id
             binding.apply {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
@@ -217,18 +214,7 @@ class ConfigActivity : BaseActivity() {
                         )
                     )
                 } else {
-                    appInfo.containerView.appName.text = it.appName
-                    appInfo.containerView.packageName.text = it.packageName
-                    appInfo.containerView.otherInfo.text = getString(
-                        R.string.config_version_support,
-                        AppUtils.getAppVersionName(this@ConfigActivity, it.packageName),
-                        it.versionName
-                    )
-                    appInfo.containerView.icon.setImageDrawable(
-                        AppUtils.getIcon(
-                            this@ConfigActivity, it.packageName
-                        )
-                    )
+                    refreshAppInfo(AppInfo(it.appName, it.packageName, it.versionName))
                 }
                 descStringEdit.setText(it.description)
                 val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
@@ -238,14 +224,29 @@ class ConfigActivity : BaseActivity() {
 
                 collapsing.title = it.appName
             }
-        } ?: kotlin.run {
+        } ?: run {
             binding.appInfo.containerView.apply {
                 appName.text = getString(R.string.config_no_app_info)
                 GlideApp.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
             }
-
+            tempConfigMD5 =
+                ToolUtils.getMD5(getAppConfig().copy(enable = true).toString().toByteArray())
         }
         showIntroductionDialog()
+    }
+
+    private fun refreshAppInfo(appInfo: AppInfo) {
+        binding.appInfo.containerView.apply {
+            appName.text = appInfo.appName
+            packageName.text = appInfo.packageName
+            otherInfo.text = getString(
+                R.string.config_version_support,
+                AppUtils.getAppVersionName(this@ConfigActivity, appInfo.packageName),
+                appInfo.versionName
+            )
+            icon.setImageDrawable(AppUtils.getIcon(this@ConfigActivity, appInfo.packageName))
+        }
+        tempVersionName = appInfo.versionName
     }
 
     private fun showIntroductionDialog() {
@@ -690,7 +691,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     @SuppressLint("Range")
-    private fun saveConfig() {
+    private fun saveConfig(exit: Boolean = true) {
         if (configList.size == 0) {
             getString(R.string.config_save_empty_config_tip).toast(this)
             return
@@ -720,7 +721,11 @@ class ConfigActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.dismiss()
             isSaving = false
-            onBackPressed()
+            tempConfigMD5 =
+                ToolUtils.getMD5(getAppConfig().copy(enable = true).toString().toByteArray())
+            if (exit) {
+                finish()
+            }
         }, 1500)
     }
 
@@ -754,20 +759,43 @@ class ConfigActivity : BaseActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (!isSaving) super.onBackPressed()
+        if (configList.size == 0) {
+            finish()
+        }
+        if (tempConfigMD5 != ToolUtils.getMD5(
+                getAppConfig().copy(enable = true).toString().toByteArray()
+            )
+        ) {
+            customDialog(this,
+                title = getString(R.string.save_config_warning),
+                message = getString(R.string.save_config_warning_message),
+                okText = getString(R.string.save_and_exit),
+                okClick = {
+                    saveConfig()
+                },
+                neutralText = getString(R.string.exit),
+                neutralClick = {
+                    finish()
+                },
+                cancelText = getString(R.string.only_save),
+                cancelClick = {
+                    saveConfig(exit = false)
+                }).show()
+        } else {
+            if (!isSaving) finish()
+        }
     }
 
     private fun getAppConfig(): AppConfig {
         val appName = binding.appInfo.containerView.appName.text.toString()
         val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
-        val versionName = binding.appInfo.containerView.otherInfo.text.toString()
         val configs = Gson().toJson(configList)
         return AppConfig(
             appName = appName,
             packageName = packageName,
             description = description,
-            versionName = versionName,
+            versionName = tempVersionName,
             configs = configs,
             id = configId
         )
@@ -963,3 +991,5 @@ class ConfigActivity : BaseActivity() {
         }
     }
 }
+
+data class AppInfo(val appName: String, val packageName: String, val versionName: String)

@@ -82,6 +82,7 @@ class ExtensionActivity : BaseActivity() {
     private var statusChecked = 0
     private var statusUnChecked = 0
     private lateinit var configBean: ExtensionConfigBean
+    private var tempConfigMD5 = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,11 +105,6 @@ class ExtensionActivity : BaseActivity() {
         assistConfig = bundle!!.getParcelable("assistConfig")!!
         supportActionBar?.title = assistConfig.appName
         supportActionBar?.subtitle = assistConfig.packageName
-        /*lifecycleScope.launch(Dispatchers.IO) {
-            if (assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
-                saveToText(assistConfig.packageName, "")
-            }
-        }*/
         initData()
         initView()
     }
@@ -124,6 +120,7 @@ class ExtensionActivity : BaseActivity() {
         configBean = if (config.isNotEmpty()) Gson().fromJson(
             config, ExtensionConfigBean::class.java
         ) else ExtensionConfigBean()
+        tempConfigMD5 = ToolUtils.getMD5(configBean.toString().toByteArray())
         itemList.apply {
             configBean.apply {
                 add(AssistTitle(getString(R.string.extension_item_title_basic)))
@@ -518,11 +515,7 @@ class ExtensionActivity : BaseActivity() {
 
     private fun isChecked(state: Int) = statusChecked isContainState state
 
-    @SuppressLint("Range")
-    private fun saveConfig() {
-        isSaving = true
-        val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
-        loadingDialog.show()
+    private fun refreshConfigBean() {
         if (isContains(ALL_STATUS)) {
             configBean.all = isChecked(ALL_STATUS)
         }
@@ -583,14 +576,22 @@ class ExtensionActivity : BaseActivity() {
         if (isContains(STOP_DIALOG_STATUS)) {
             configBean.stopDialog.enable = isChecked(STOP_DIALOG_STATUS)
         }
-
         if (isContains(FILTER_CLIPBOARD_STATUS)) {
             configBean.filterClipboard.enable = isChecked(FILTER_CLIPBOARD_STATUS)
         }
         if (isContains(APPLICATION_STATUS)) {
             configBean.application = isChecked(APPLICATION_STATUS)
         }
+    }
+
+    @SuppressLint("Range")
+    private fun saveConfig(exit: Boolean = false) {
+        isSaving = true
+        val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
+        loadingDialog.show()
+        refreshConfigBean()
         val config = Gson().toJson(configBean)
+        tempConfigMD5 = ToolUtils.getMD5(configBean.toString().toByteArray())
         assistConfig.config = config
         assistConfig.allSwitch = configBean.all
         if (editMode) {
@@ -605,13 +606,33 @@ class ExtensionActivity : BaseActivity() {
             loadingDialog.quickDismiss()
             isSaving = false
             getString(R.string.extension_config_save_success_tip).toast(this)
+            if (exit) finish()
         }, 500)
 
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (!isSaving) super.onBackPressed()
+        refreshConfigBean()
+        if (tempConfigMD5 != ToolUtils.getMD5(configBean.toString().toByteArray())) {
+            customDialog(this,
+                title = getString(R.string.save_config_warning),
+                message = getString(R.string.save_config_warning_message),
+                okText = getString(R.string.save_and_exit),
+                okClick = {
+                    saveConfig(exit = true)
+                },
+                neutralText = getString(R.string.exit),
+                neutralClick = {
+                    finish()
+                },
+                cancelText = getString(R.string.only_save),
+                cancelClick = {
+                    saveConfig()
+                }).show()
+        } else {
+            if (!isSaving) finish()
+        }
     }
 
     private fun saveToText(packageName: String, config: String) {

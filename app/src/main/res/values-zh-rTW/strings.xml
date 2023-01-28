@@ -382,4 +382,9 @@
     <string name="delete_config">刪除配置</string>
     <string name="edit_config">編輯配置</string>
     <string name="config_version_support">安裝: %s, 支持: %s</string>
+    <string name="save_config_warning">警告</string>
+    <string name="save_config_warning_message">配置已做出更改，但還未保存，是否保存？ </string>
+    <string name="save_and_exit">保存並退出</string>
+    <string name="exit">退出</string>
+    <string name="only_save">僅保存</string>
 </resources>

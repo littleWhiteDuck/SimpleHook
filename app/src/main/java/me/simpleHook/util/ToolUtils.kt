@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 object ToolUtils {
     fun getClipboardContent(context: Context): String? {
@@ -28,5 +30,21 @@ object ToolUtils {
                 "label", configs
             )
         )
+    }
+
+    fun getMD5(bytes: ByteArray): String {
+        return try {
+            val digest: ByteArray = MessageDigest.getInstance("MD5").digest(bytes)
+            val hexDigits = "0123456789abcdef"
+            val str = CharArray(digest.size * 2)
+            var k = 0
+            for (b in digest) {
+                str[k++] = hexDigits[b.toInt() ushr 4 and 0xf]
+                str[k++] = hexDigits[b.toInt() and 0xf]
+            }
+            String(str)
+        } catch (e: NoSuchAlgorithmException) {
+            ""
+        }
     }
 }
