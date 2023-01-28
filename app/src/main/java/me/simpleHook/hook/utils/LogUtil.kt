@@ -12,6 +12,8 @@ import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.util.*
 
 object LogUtil {
+    private const val filterClass =
+        """EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
     private val PRINT_URI = Uri.parse("content://me.simplehook.provider/print_logs")
     fun toLogMsg(log: String, type: String) {
         if (type == "null" || !HookHelper.enableRecord) return
@@ -23,7 +25,7 @@ object LogUtil {
         } else if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
             outLogDB(log, tempPackageName, type, time)
         } else {
-            outLogDB(log, tempPackageName, type, time)
+            outLogFile(log, tempPackageName, type, time)
         }
 
     }
@@ -70,14 +72,7 @@ object LogUtil {
         var notBug = 0
         for (element in stackTrace) {
             val className = element.className
-            if (className.startsWith("me.simpleHook") || className.startsWith("littleWhiteDuck") || className.startsWith(
-                    "de.robv.android.xposed"
-                ) || className.contains(
-                    "LspHooker", true
-                ) || className.contains("EdHooker") || className.startsWith(
-                    "me.weishu"
-                )
-            ) continue
+            if (className.contains(Regex(filterClass))) continue
             if (notBug == 0) {
                 items.add(if (isNotChinese) "Call stack: " else "调用堆栈：")
             }

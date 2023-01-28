@@ -42,19 +42,31 @@ object MainHook {
             readyXmlHook()
         } else {
             var internalCount = 0
-            ConfigUtil.getConfigFromFile(packageName)?.let {
-                "get custom config succeed".log(packageName)
+            ConfigUtil.getConfigFromFile()?.let {
+                "get custom config succeed from file".log(packageName)
                 readyHook(it)
             } ?: run {
-                "get custom config failed".log(packageName)
-                internalCount++
+                "get custom config failed from file".log(packageName)
+                ConfigUtil.getCustomConfigFromDB()?.let {
+                    "get custom config succeed from db".log(packageName)
+                    readyHook(it)
+                } ?: run {
+                    "get custom config failed from db".log(packageName)
+                    internalCount++
+                }
             }
-            ConfigUtil.getConfigFromFile(packageName, Constant.EXTENSION_CONFIG_NAME)?.let {
-                "get extension config succeed".log(packageName)
+            ConfigUtil.getConfigFromFile(Constant.EXTENSION_CONFIG_NAME)?.let {
+                "get extension config succeed from file".log(packageName)
                 readyExtensionHook(it)
             } ?: run {
-                "get extension config failed".log(packageName)
-                internalCount++
+                "get extension config failed from file".log(packageName)
+                ConfigUtil.getExConfigFromDB()?.let {
+                    "get extension config succeed from db".log(packageName)
+                    readyExtensionHook(it)
+                } ?: run {
+                    "get extension config failed from db".log(packageName)
+                    internalCount++
+                }
             }
             // 特殊情况, 仅支持自定义hook功能
             if (internalCount == 2) readyInternalConfigHook()
