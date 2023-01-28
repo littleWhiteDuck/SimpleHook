@@ -433,6 +433,8 @@
     <string name="only_save">仅保存</string>
     <string name="extension_item_title_signature">应用签名监听</string>
     <string name="extension_item_desc_signature">记录：使用API读取应用签名的调用堆栈</string>
+    <string name="extension_item_title_contact">联系人</string>
+    <string name="extension_item_desc_contact">阻止应用获取联系人，返回NULL</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

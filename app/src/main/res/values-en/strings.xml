@@ -389,4 +389,6 @@
     <string name="only_save">Save only</string>
     <string name="extension_item_title_signature">App signature monitoring</string>
     <string name="extension_item_desc_signature">Record: Use API to get the call stack of the aoo signature</string>
+    <string name="extension_item_title_contact">Contact</string>
+    <string name="extension_item_desc_contact">Prevent app from obtaining contacts, return NULL</string>
 </resources>

@@ -69,6 +69,7 @@ private const val STOP_DIALOG_STATUS = 1 shl 18
 private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
 private const val APPLICATION_STATUS = 1 shl 20
 private const val SIGNATURE_STATUS = 1 shl 21
+private const val CONTACT_STATUS = 1 shl 22
 private const val startAppTag = 666
 
 class ExtensionActivity : BaseActivity() {
@@ -324,6 +325,14 @@ class ExtensionActivity : BaseActivity() {
                         application,
                         APPLICATION_STATUS,
                         getString(R.string.extension_item_desc_application_name)
+                    )
+                )
+                add(
+                    AssistItem(
+                        title = getString(R.string.extension_item_title_contact),
+                        contact,
+                        CONTACT_STATUS,
+                        getString(R.string.extension_item_desc_contact)
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_network)))

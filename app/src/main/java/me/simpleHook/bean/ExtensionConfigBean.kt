@@ -25,7 +25,8 @@ data class ExtensionConfigBean(
     val stopDialog: ExtensionItemConfig = ExtensionItemConfig(),
     val filterClipboard: ExtensionItemConfig = ExtensionItemConfig(),
     var application: Boolean = false,
-    var signature: Boolean = false
+    var signature: Boolean = false,
+    var contact: Boolean = false
 )
 
 @Keep

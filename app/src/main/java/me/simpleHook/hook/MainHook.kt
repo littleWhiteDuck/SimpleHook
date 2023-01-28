@@ -406,7 +406,8 @@ object MainHook {
                 WebHook,
                 ClipboardFilterHook,
                 ApplicationHook,
-                SignatureHook
+                SignatureHook,
+                ContactHook
             )
         } catch (e: java.lang.Exception) {
             LogUtil.toLog(

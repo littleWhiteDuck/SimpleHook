@@ -389,4 +389,6 @@
     <string name="only_save">僅保存</string>
     <string name="extension_item_title_signature">應用簽名監聽</string>
     <string name="extension_item_desc_signature">記錄：使用API讀取應用簽名的調用堆棧</string>
+    <string name="extension_item_title_contact">聯繫人</string>
+    <string name="extension_item_desc_contact">阻止應用獲取聯繫人，返回NULL</string>
 </resources>
