@@ -71,6 +71,7 @@ private const val FILTER_CLIPBOARD_STATUS = 1 shl 19
 private const val APPLICATION_STATUS = 1 shl 20
 private const val SIGNATURE_STATUS = 1 shl 21
 private const val CONTACT_STATUS = 1 shl 22
+private const val TIP_STATUS = 1 shl 23
 private const val startAppTag = 666
 
 class ExtensionActivity : BaseActivity() {
@@ -131,14 +132,27 @@ class ExtensionActivity : BaseActivity() {
                     AssistItem(
                         getString(R.string.extension_item_title_application),
                         false,
-                        startAppTag,
-                        assistConfig.packageName,
-                        assistConfig.appName
+                        startAppTag, assistConfig.packageName, assistConfig.appName
                     )
                 )
                 add(
                     AssistItem(
-                        getString(R.string.extension_item_title_all_switch), all, ALL_STATUS, ""
+                        getString(R.string.extension_item_title_all_switch),
+                        all,
+                        ALL_STATUS,
+                        getString(
+                            R.string.extension_item_desc_all_switch
+                        )
+                    )
+                )
+                add(
+                    AssistItem(
+                        getString(R.string.extension_item_title_hook_success_tip),
+                        tip,
+                        TIP_STATUS,
+                        getString(
+                            R.string.extension_item_desc_hook_success_tip
+                        )
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_algorithm_analysis)))
@@ -604,6 +618,12 @@ class ExtensionActivity : BaseActivity() {
         if (isContains(SIGNATURE_STATUS)) {
             configBean.signature = isChecked(SIGNATURE_STATUS)
         }
+        if (isContains(CONTACT_STATUS)) {
+            configBean.contact = isChecked(CONTACT_STATUS)
+        }
+        if (isContains(TIP_STATUS)) {
+            configBean.tip = isChecked(TIP_STATUS)
+        }
     }
 
     @SuppressLint("Range")
@@ -627,7 +647,6 @@ class ExtensionActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.quickDismiss()
             isSaving = false
-            getString(R.string.extension_config_save_success_tip).toast(this)
             if (exit) finish()
         }, 500)
 

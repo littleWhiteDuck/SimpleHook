@@ -392,6 +392,9 @@
     <string name="extension_item_desc_signature">记录：使用API读取应用签名的调用堆栈</string>
     <string name="extension_item_title_contact">联系人</string>
     <string name="extension_item_desc_contact">阻止应用获取联系人，返回NULL</string>
+    <string name="extension_item_title_hook_success_tip">Hook应用成功提示</string>
+    <string name="extension_item_desc_hook_success_tip">弹出Toast：StartHook</string>
+    <string name="extension_item_desc_all_switch">请注意开启此开关</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

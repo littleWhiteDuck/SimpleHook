@@ -350,4 +350,7 @@
     <string name="extension_item_desc_signature">記錄：使用API讀取應用簽名的調用堆棧</string>
     <string name="extension_item_title_contact">聯繫人</string>
     <string name="extension_item_desc_contact">阻止應用獲取聯繫人，返回NULL</string>
+    <string name="extension_item_title_hook_success_tip">Hook應用成功提示</string>
+    <string name="extension_item_desc_hook_success_tip">彈出Toast：StartHook</string>
+    <string name="extension_item_desc_all_switch">請注意開啟此開關</string>
 </resources>

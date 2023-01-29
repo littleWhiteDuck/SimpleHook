@@ -3,6 +3,7 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
+import android.widget.Toast
 import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
@@ -20,6 +21,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.utils.*
+import me.simpleHook.hook.utils.HookHelper.appContext
 import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.hook.utils.LogUtil.getStackTrace
 import me.simpleHook.hook.utils.LogUtil.noSuchMethod
@@ -389,6 +391,7 @@ object MainHook {
             getTip("startExtensionHook").log(hostPackageName)
             val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
             if (!configBean.all) return
+            if (configBean.tip) "SimpleHook: StartHook".toast(appContext)
             initExtensionHook(
                 configBean,
                 DialogHook,

@@ -350,4 +350,7 @@
     <string name="extension_item_desc_signature">Record: Use API to get the call stack of the aoo signature</string>
     <string name="extension_item_title_contact">Contact</string>
     <string name="extension_item_desc_contact">Prevent app from obtaining contacts, return NULL</string>
+    <string name="extension_item_title_hook_success_tip">Hook app success tip</string>
+    <string name="extension_item_desc_hook_success_tip">Pop up Toast: StartHook</string>
+    <string name="extension_item_desc_all_switch">Note this switch!</string>
 </resources>
