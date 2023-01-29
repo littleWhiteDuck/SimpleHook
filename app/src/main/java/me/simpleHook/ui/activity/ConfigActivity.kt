@@ -906,7 +906,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun tranParams(params: String): String {
         val isSmali = params.contains(Regex("[/;]")) || isPrimitiveType(params)
-        if (!isSmali || params.isEmpty() || !sp.xParams) return params
+        if (!isSmali || params.isEmpty()) return params
         var paramStr = params
         val json = "<ON>"
         if (params.contains("JSON")) {

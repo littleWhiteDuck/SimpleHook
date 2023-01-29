@@ -190,7 +190,7 @@ class ConfigBottomSheetFragment(
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                getString(me.simpleHook.R.string.config_hook_constructor_tip).toast(requireContext())
+                getString(R.string.config_hook_constructor_tip).toast(requireContext())
             }
             val configBean = ConfigBean(
                 this.hookMode,
@@ -234,7 +234,9 @@ class ConfigBottomSheetFragment(
         if (params.contains("JSON")) {
             paramStr = paramStr.replace("JSON", json)
         }
+        paramStr = paramStr.replace("[]", "防止加逗号")
         paramStr = paramStr.replace("[", ",[")
+        paramStr = paramStr.replace("防止加逗号", "[]")
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
