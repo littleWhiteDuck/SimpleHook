@@ -5,15 +5,16 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 import java.security.spec.EncodedKeySpec
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 object AESHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.crypt) return
         val map: HashMap<String, String> = HashMap()
         XposedBridge.hookAllConstructors(IvParameterSpec::class.java, object : XC_MethodHook() {
@@ -107,11 +108,9 @@ object AESHook : BaseHook() {
                         )
                         val items = LogUtil.getStackTrace()
                         val logBean = LogBean(
-                            map["algorithmType"] ?: "null", list + items, packageName
+                            map["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
                         )
-                        LogUtil.toLogMsg(
-                            Gson().toJson(logBean), packageName, logBean.type
-                        )
+                        LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
                         map.clear()
                     }
                 }

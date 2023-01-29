@@ -2,7 +2,6 @@ package me.simpleHook.hook.extension
 
 import android.content.Intent
 import android.os.Bundle
-import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -10,6 +9,7 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.LogUtil
 
 private const val ACTIVITY = "android.app.Activity"
@@ -18,56 +18,55 @@ private const val START_ACTIVITY = "startActivity"
 private const val START_ACTIVITY_FOR_RESULT = "startActivityForResult"
 
 object IntentHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.intent) return
         XposedHelpers.findAndHookMethod(ACTIVITY,
-            InitFields.ezXClassLoader,
+            HookHelper.appClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
-                    saveLog(intent, packageName)
+                    saveLog(intent, HookHelper.hostPackageName)
                 }
             })
 
         XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
-            InitFields.ezXClassLoader,
+            HookHelper.appClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
-                    saveLog(intent, packageName)
+                    saveLog(intent, HookHelper.hostPackageName)
                 }
             })
 
         XposedHelpers.findAndHookMethod(CONTEXT_WRAPPER,
-            InitFields.ezXClassLoader,
+            HookHelper.appClassLoader,
             START_ACTIVITY,
             Intent::class.java,
             Bundle::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
-                    saveLog(intent, packageName)
+                    saveLog(intent, HookHelper.hostPackageName)
                 }
             })
 
         XposedHelpers.findAndHookMethod(ACTIVITY,
-            InitFields.ezXClassLoader,
+            HookHelper.appClassLoader,
             START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
-                    saveLog(intent, packageName)
+                    saveLog(intent, HookHelper.hostPackageName)
                 }
             })
-        XposedHelpers.findAndHookMethod(
-            ACTIVITY,
-            InitFields.ezXClassLoader,
+        XposedHelpers.findAndHookMethod(ACTIVITY,
+            HookHelper.appClassLoader,
             START_ACTIVITY_FOR_RESULT,
             Intent::class.java,
             Int::class.java,
@@ -76,7 +75,7 @@ object IntentHook : BaseHook() {
 
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val intent = param.args[0] as Intent
-                    saveLog(intent, packageName)
+                    saveLog(intent, HookHelper.hostPackageName)
                 }
             })
     }
@@ -105,6 +104,6 @@ object IntentHook : BaseHook() {
         val logBean = LogBean(
             "intent", listOf(configBean), packName
         )
-        LogUtil.toLogMsg(Gson().toJson(logBean), packName, "intent")
+        LogUtil.toLogMsg(Gson().toJson(logBean), "intent")
     }
 }

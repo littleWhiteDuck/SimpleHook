@@ -7,10 +7,12 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
+import me.simpleHook.hook.utils.HookHelper
 
-class HookInit : IXposedHookLoadPackage {
+class HookInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         EzXHelperInit.initHandleLoadPackage(lpparam)
@@ -20,12 +22,18 @@ class HookInit : IXposedHookLoadPackage {
             }.hookReturnConstant(true)
 
         } else {
+            if (HookHelper.isAppContextInitialized) return
             findMethod(Application::class.java) {
                 name == "attach"
             }.hookAfter {
-                EzXHelperInit.initAppContext(context = it.args[0] as Context)
+                HookHelper.initFields(context = it.args[0] as Context, lpparam)
                 MainHook.startHook(lpparam.packageName)
             }
         }
     }
+
+    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
+        EzXHelperInit.initZygote(startupParam)
+    }
+
 }

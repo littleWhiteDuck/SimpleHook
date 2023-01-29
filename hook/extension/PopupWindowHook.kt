@@ -10,28 +10,27 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.getAllTextView
 
 object PopupWindowHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (configBean.popup || configBean.popCancel || configBean.stopDialog.enable) {
-            XposedBridge.hookAllMethods(
-                PopupWindow::class.java,
+            XposedBridge.hookAllMethods(PopupWindow::class.java,
                 "showAtLocation",
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         hookPopupWindowDetail(
-                            param, packageName, configBean
+                            param, configBean
                         )
                     }
                 })
-            XposedBridge.hookAllMethods(
-                PopupWindow::class.java,
+            XposedBridge.hookAllMethods(PopupWindow::class.java,
                 "showAsDropDown",
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam?) {
                         hookPopupWindowDetail(
-                            param, packageName, configBean
+                            param, configBean
                         )
                     }
                 })
@@ -39,7 +38,7 @@ object PopupWindowHook : BaseHook() {
     }
 
     private fun hookPopupWindowDetail(
-        param: XC_MethodHook.MethodHookParam?, packageName: String, configBean: ExtensionConfigBean
+        param: XC_MethodHook.MethodHookParam?, configBean: ExtensionConfigBean
     ) {
         val popupWindow = param?.thisObject as PopupWindow
         if (configBean.popCancel) {
@@ -62,10 +61,10 @@ object PopupWindowHook : BaseHook() {
                         if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogUtil.getStackTrace(), packageName
+                            type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                         )
                     )
-                    LogUtil.toLogMsg(log, packageName, type)
+                    LogUtil.toLogMsg(log, type)
                     param.result = null
                     return
                 }
@@ -73,8 +72,12 @@ object PopupWindowHook : BaseHook() {
         }
         if (configBean.popup) {
             val type = "PopupWindow"
-            val log = Gson().toJson(LogBean(type, list + LogUtil.getStackTrace(), packageName))
-            LogUtil.toLogMsg(log, packageName, type)
+            val log = Gson().toJson(
+                LogBean(
+                    type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
+                )
+            )
+            LogUtil.toLogMsg(log, type)
         }
     }
 

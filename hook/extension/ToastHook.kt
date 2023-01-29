@@ -11,12 +11,13 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.getAllTextView
 import me.simpleHook.util.log
 
 object ToastHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.toast) return
         XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
@@ -28,7 +29,7 @@ object ToastHook : BaseHook() {
                         list.add(Tip.getTip("text") + it)
                     }
                 } catch (e: NoSuchFieldError) {
-                    "toast error1".log(packageName)
+                    "toast error1".log(HookHelper.hostPackageName)
                     try {
                         XposedHelpers.getObjectField(toast, "mNextView")?.also {
                             val toastView = it as View
@@ -39,16 +40,16 @@ object ToastHook : BaseHook() {
                             }
                         }
                     } catch (e: NoSuchFieldError) {
-                        "toast error2".log(packageName)
+                        "toast error2".log(HookHelper.hostPackageName)
                     }
                 }
                 val type = "Toast"
                 val log = Gson().toJson(
                     LogBean(
-                        type, list + LogUtil.getStackTrace(), packageName
+                        type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                     )
                 )
-                LogUtil.toLogMsg(log, packageName, type)
+                LogUtil.toLogMsg(log, type)
             }
         })
     }
