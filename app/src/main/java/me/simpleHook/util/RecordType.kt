@@ -24,6 +24,7 @@ object RecordType {
         type == "Filter clipboard" -> "Clip"
         type.contains("变量") -> "变量"
         type.contains("field") -> "Field"
+        type == "Signature" -> "Sign"
         else -> type
     }
 

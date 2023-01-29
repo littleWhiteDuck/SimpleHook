@@ -30,6 +30,7 @@ android {
             keyPassword = prop.getProperty("keyPassword")
             storeFile = File(prop.getProperty("file"))
             storePassword = prop.getProperty("password")
+            enableV3Signing = true
         }
     }
     compileSdk = 33
@@ -103,7 +104,7 @@ android {
 
 
 dependencies {
-
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.appcompat:appcompat:1.6.0-rc01")
     implementation("com.google.android.material:material:1.7.0")
@@ -156,4 +157,9 @@ dependencies {
     implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
 
     implementation("com.github.topjohnwu.libsu:io:${libsuVersion}")
+
+    // rikka
+    implementation(files("libs/simplemenu-preference-release.aar"))
+    //implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
+
 }

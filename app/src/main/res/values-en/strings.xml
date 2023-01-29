@@ -3,40 +3,25 @@
     <string name="app_name">SimpleHook</string>
     <string name="record_detail_menu_copy">Copy</string>
     <string name="assist_start_float_window">start float window</string>
-    <string name="assist_float_import_Log">Import</string>
-    <string name="assist_float_clear_log">Clear</string>
-    <string name="assist_float_pause_print">Pause</string>
-    <string name="assist_float_drag">Drag</string>
-    <string name="assist_float_export_config_empty_tip">It is empty</string>
-    <string name="extension_settings">settings</string>
     <string name="config_config_smali_to_config">Smali to config</string>
-    <string name="config_application_input_helper">example: com.example.MyApplication</string>
     <string name="config_add_config">Add a config</string>
-    <string name="config_dialog_help">\?</string>
     <string name="config_dialog_class_edit_tip">Class name</string>
     <string name="config_dialog_class_input_helper">Example: com.example.example</string>
     <string name="config_dialog_method_input_tip">Method name</string>
-    <string name="config_version_input_tip">Version name</string>
     <string name="config_description_input_tip">Description</string>
     <string name="config_menu_save_config">Save config</string>
-    <string name="config_menu_select_app">Select app</string>
     <string name="config_undo_repeat_config">undo</string>
     <string name="config_add_repeat_config_tip">One has been added repeatedly, go and change it</string>
     <string name="config_dialog_delete_this">Delete</string>
     <string name="config_dialog_cancel">Cancel</string>
     <string name="config_dialog_alter_this">Change</string>
     <string name="config_dialog_add_a_new">Add</string>
-    <string name="config_help_dialog_title">Help</string>
-    <string name="config_help_dialog_cancel">Cancel</string>
-    <string name="config_dialog_config_empty">Required fields are blank</string>
     <string name="config_save_empty_config_tip">Config is empty</string>
-    <string name="config_add_config_tip">Configuration added</string>
     <string name="main_home_name">Home</string>
     <string name="main_home_undo_delete_config">undo</string>
     <string name="record_detail_menu_copy_json_format">Json text</string>
     <string name="record_detail_menu_copy_text">Common text</string>
     <string name="record_fab_scroll_to_bottom">Scroll to bottom</string>
-    <string name="record_scroll_to_top">Scroll to top</string>
     <string name="record_menu_delete">Delete</string>
     <string name="record_menu_delete_all">Delete all</string>
     <string name="record_menu_delete_read">Delete read</string>
@@ -72,13 +57,6 @@
     <string name="config_dialog_field_class_name_input_tip">Example: com.example.example</string>
     <string name="config_dialog_title">Method Config</string>
     <string name="config_dialog_mode_select">Select mode:</string>
-    <string name="config_package_name_input_tip">Package name</string>
-    <string name="config_package_name_input_helper">Example: com.example.example</string>
-    <string name="config_app_name_input_tip">App name</string>
-    <string name="config_app_name_input_helper">Example: SimpleHook</string>
-    <string name="config_version_input_helper">Example: 1.0.0</string>
-    <string name="assist_float_minify">Minimize</string>
-    <string name="assist_float_print_log">Printout</string>
     <string name="main_bottom_version_info">Current: %s, Support: %s</string>
     <string name="main_bottom_config_description">Config intro</string>
     <string name="main_bottom_edit_config">Edit</string>
@@ -109,8 +87,6 @@
     <string name="main_extension_menu_about_model">About templates</string>
     <string name="main_settings_summary_help">FAQ</string>
     <string name="main_settings_title_necessary_permission_status">Necessary permission status</string>
-    <string name="main_settings_title_storage">Save config to file</string>
-    <string name="main_settings_summary_storage">Save the configuration to the local and read part of the Log (in most cases, it needs to be turned on)</string>
     <string name="main_settings_title_storage_permission">Obtained necessary permissions</string>
     <string name="main_settings_summary_storage_permission">Running normally</string>
     <string name="main_settings_title_storage_no_permission">Missing necessary permissions</string>
@@ -123,12 +99,6 @@
     <string name="app_extension">Extension</string>
     <string name="app_select_app">Select App</string>
     <string name="app_config">Config</string>
-    <string name="main_settings_ui_mode_summary_follow_system">Follow system</string>
-    <string-array name="main_home_item_select_item">
-        <item>Share</item>
-        <item>Delete</item>
-        <item>Edit</item>
-    </string-array>
     <string-array name="main_settings_theme_mode_item_entries">
         <item>Always off</item>
         <item>Always on</item>
@@ -149,7 +119,6 @@
     <string name="sort_app_installed_time">Install time</string>
     <string name="sort_app_target_api">Target API</string>
     <string name="sort_reverse_order">Reverse order</string>
-    <string name="config_description_input_helper">Optional</string>
     <string name="home_fab__share_config">Share config</string>
     <string name="home_fab_import_config_from_internet">Import config from network</string>
     <string name="home_fab_import_config_from_clip">Import config</string>
@@ -193,10 +162,6 @@
         <item>Clear all favorites</item>
     </string-array>
 
-    <string name="settings_clear_hook_config">Clear hook configs</string>
-    <string name="setting_clear_extension_config">Clear extension configs</string>
-    <string name="settings_clear_all_record">Clear all records</string>
-    <string name="settings_clear_all_favorites">Clear all favorites</string>
     <string name="settings_clear_warning_dialog_title">Warn</string>
     <string name="settings_clear_warning_dialog_message">Are you sure you want to delete?</string>
     <string name="settings_clear_warning_dialog_confirm">OK</string>
@@ -253,11 +218,7 @@
         <item>ENGLISH</item>
     </string-array>
     <string name="main_settings_select_language_title">Language</string>
-    <string name="record_tip_log_out_of_memory">Log text too large to read, deleted</string>
     <string name="main_module_not_activated_tip">Module not activated</string>
-    <string name="main_agreement_tip">Calculate the bottom multiplication</string>
-    <string name="main_agreement_confirm">Agree</string>
-    <string name="main_agreement_cancel">Deny</string>
     <string name="main_settings_title_JS_config">Export as JSHook config</string>
     <string name="main_settings_summary_js_config">For testing only, not fully supported</string>
     <string name="config_dialog_title_export_js_config">Export as JSHook-Rhino config</string>
@@ -270,7 +231,6 @@
     <string name="extension_item_title_hot_fix">"Hot fix "</string>
     <string name="config_hook_constructor_tip">This modal hook constructor may cause problems for the target application</string>
     <string name="config_auto_transfer_param_field">Auto transfer param|field type</string>
-    <string name="config_xparams_tip">Remember to enable this feature to simplify your operation</string>
     <string name="about_menu_feedback">feedback</string>
     <string name="about_clip_email_tip">Email address copied to clipboard</string>
     <string name="config_no_collection_tip">No favorite configuration yet</string>
@@ -365,7 +325,6 @@
     <string name="copied">copied!</string>
     <string name="record_item_swipe_delete_tip">Swipe to delete</string>
     <string name="extension_item_desc_application_name">Record Application name</string>
-    <string name="main_request_root_permission_message">Since your system version is 13 or above, you need to grant root permission to use</string>
     <string name="main_version_update">New Version</string>
     <string name="main_go_upgrade">Go update</string>
     <string name="xsp_not_save_config">Failed to save</string>

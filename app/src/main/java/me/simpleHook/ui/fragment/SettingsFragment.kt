@@ -110,9 +110,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<Preference>("clearConfigData")?.apply {
+        findPreference<SimpleMenuPreference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                warningDialog(requireContext(),
+                warningDialog(
+                    requireContext(),
                     getString(R.string.settings_clear_warning_dialog_title),
                     getString(
                         R.string.settings_clear_warning_dialog_message
@@ -122,10 +123,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     ),
                     okClick = {
                         when (newValue as String) {
-                            getString(R.string.settings_clear_hook_config) -> clearHookConfig(0)
-                            getString(R.string.setting_clear_extension_config) -> clearHookConfig(1)
-                            getString(R.string.settings_clear_all_record) -> clearHookConfig(2)
-                            getString(R.string.settings_clear_all_favorites) -> {
+                            "hook" -> clearHookConfig(0)
+                            "extension" -> clearHookConfig(1)
+                            "record" -> clearHookConfig(2)
+                            "favourite" -> {
                                 FileUtils.deleteFile(requireActivity().getExternalFilesDir(null)!!.path + "/collection_config.json")
                             }
                         }
@@ -166,10 +167,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<Preference>("leftConfig")?.also {
             it.setOnPreferenceChangeListener { _, newValue ->
-                val itemValue =
-                    requireActivity().resources.getStringArray(R.array.main_settings_left_config_select_item)
-                val position = itemValue.indexOf(newValue as String)
-                deleteLeftConfigs(position)
+                deleteLeftConfigs(newValue as String)
                 true
             }
         }
@@ -194,15 +192,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
 
-    private fun deleteLeftConfigs(position: Int) {
+    private fun deleteLeftConfigs(mode: String) {
         val loadingDialog = LoadingDialog(
             requireActivity(), getString(R.string.main_delete_left_config_loading_tip)
         )
         loadingDialog.show()
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val apps = when (position) {
-                0 -> AppUtils.getUserPackageNames(requireContext())
-                1 -> AppUtils.getSystemPackageNames(requireContext())
+            val apps = when (mode) {
+                "user" -> AppUtils.getUserPackageNames(requireContext())
+                "system" -> AppUtils.getSystemPackageNames(requireContext())
                 else -> AppUtils.getPackageNames(requireContext())
             }
             val appPackageNames = viewModel.getAllPackageNames()

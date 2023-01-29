@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="popup_window_background">#0c0c0c</color>
-    <color name="paint_color">#FFFFFFFF</color>
     <color name="config_tag_background">@color/white</color>
     <color name="config_tag_text_color">@color/black</color>
     <color name="background_gray">@color/black</color>

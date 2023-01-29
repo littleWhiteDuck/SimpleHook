@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="add_text_input_layout_style">
-        <item name="android:layout_marginStart">10dp</item>
-        <item name="android:layout_marginEnd">10dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="helperTextTextColor">@android:color/darker_gray</item>
-        <item name="android:textColorHint">@android:color/darker_gray</item>
-    </style>
-
-    <style name="add_edit_text_style">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
     <style name="bottom_dialog_button_style">
         <item name="android:layout_margin">16dp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -96,10 +81,4 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
-    <style name="OutlinedButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:paddingLeft">@dimen/mtrl_btn_padding_left</item>
-        <item name="android:paddingRight">@dimen/mtrl_btn_padding_right</item>
-        <item name="strokeColor">@color/mtrl_btn_stroke_color_selector</item>
-        <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
-    </style>
 </resources>
