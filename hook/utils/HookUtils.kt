@@ -1,5 +1,6 @@
 package me.simpleHook.hook.utils
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
@@ -54,7 +55,16 @@ fun Method.hook(hookMode: Int, hooker: Hooker) {
 }
 
 fun Method.hook(hookBefore: Boolean, hooker: Hooker) {
-    if (hookBefore) this.hookBefore(hooker) else hookAfter(hooker)
+    if (hookBefore) hookBefore(hooker) else hookAfter(hooker)
+}
+
+fun Constructor<*>.hook(hookBefore: Boolean, hooker: Hooker) {
+    if (hookBefore) hookBefore(hooker) else hookAfter(hooker)
+}
+
+@JvmName("hookConstructor")
+fun List<Constructor<*>>.hook(hookBefore: Boolean, hooker: Hooker) {
+    if (hookBefore) hookBefore(hooker) else hookAfter(hooker)
 }
 
 fun List<Method>.hook(hookMode: Int, hooker: Hooker) {
@@ -67,6 +77,7 @@ fun List<Method>.hook(hookMode: Int, hooker: Hooker) {
     }
 }
 
+@JvmName("hookMethod")
 fun List<Method>.hook(hookBefore: Boolean, hooker: Hooker) {
     if (hookBefore) hookBefore(hooker) else hookAfter(hooker)
 }

@@ -9,12 +9,12 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 
 object ClipboardFilterHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.filterClipboard.enable) return
-        XposedHelpers.findAndHookMethod(
-            ClipboardManager::class.java,
+        XposedHelpers.findAndHookMethod(ClipboardManager::class.java,
             "setPrimaryClip",
             ClipData::class.java,
             object : XC_MethodHook() {
@@ -30,10 +30,10 @@ object ClipboardFilterHook : BaseHook() {
                                 val logBean = LogBean(
                                     type,
                                     arrayListOf(Tip.getTip("clipboardInfo") + info) + items,
-                                    packageName
+                                    HookHelper.hostPackageName
                                 )
                                 LogUtil.toLogMsg(
-                                    Gson().toJson(logBean), packageName, type
+                                    Gson().toJson(logBean), type
                                 )
                                 return@forEach
                             }

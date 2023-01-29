@@ -6,22 +6,23 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.LogUtil
 import org.json.JSONArray
 import org.json.JSONObject
 
 object JSONHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (configBean.jsonObject) {
-            hookJSONObject(packageName)
+            hookJSONObject()
         }
         if (configBean.jsonArray) {
-            hookJSONArray(packageName)
+            hookJSONArray()
         }
     }
 
-    private fun hookJSONObject(packageName: String) {
+    private fun hookJSONObject() {
         XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val type = if (isShowEnglish) "JSON put" else "JSON 增加"
@@ -30,9 +31,9 @@ object JSONHook : BaseHook() {
                 val list = arrayListOf("Name: $name", "Value: $value")
                 val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
-                    type, list + items, packageName
+                    type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), type)
             }
         })
 
@@ -48,14 +49,14 @@ object JSONHook : BaseHook() {
                 val list = arrayListOf("Value: $value")
                 val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
-                    type, list + items, packageName
+                    type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), type)
             }
         })
     }
 
-    private fun hookJSONArray(packageName: String) {
+    private fun hookJSONArray() {
 
         XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -65,9 +66,9 @@ object JSONHook : BaseHook() {
                 val list = arrayListOf("Name: $name", "Value: $value")
                 val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
-                    type, list + items, packageName
+                    type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), type)
             }
         })
 
@@ -83,9 +84,9 @@ object JSONHook : BaseHook() {
                 val list = arrayListOf("Value: $value")
                 val items = LogUtil.getStackTrace()
                 val logBean = LogBean(
-                    type, list + items, packageName
+                    type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), packageName, type)
+                LogUtil.toLogMsg(Gson().toJson(logBean), type)
             }
         })
     }

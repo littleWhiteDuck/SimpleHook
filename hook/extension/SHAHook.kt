@@ -7,12 +7,13 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.byte2Sting
 import java.security.MessageDigest
 
 object SHAHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.digest) return
         val hashMap = HashMap<String, String>()
         XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
@@ -56,10 +57,10 @@ object SHAHook : BaseHook() {
                         Tip.getTip("isEncrypt"),
                         Tip.getTip("rawData") + hashMap["rawData"],
                         Tip.getTip("encryptResult") + result
-                    ) + items, packageName
+                    ) + items, HookHelper.hostPackageName
                 )
                 LogUtil.toLogMsg(
-                    Gson().toJson(logBean), packageName, logBean.type
+                    Gson().toJson(logBean), logBean.type
                 )
             }
         })

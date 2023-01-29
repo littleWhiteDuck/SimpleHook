@@ -11,11 +11,12 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.getAllTextView
 import me.simpleHook.util.log
 
 object ClickEventHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean, packageName: String) {
+    override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.click) return
         XposedBridge.hookAllMethods(View::class.java, "performClick", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -40,12 +41,12 @@ object ClickEventHook : BaseHook() {
                     }
                     val log = Gson().toJson(
                         LogBean(
-                            type, list + LogUtil.getStackTrace(), packageName
+                            type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                         )
                     )
-                    LogUtil.toLogMsg(log, packageName, type)
+                    LogUtil.toLogMsg(log, type)
                 } catch (e: Exception) {
-                    "error: click".log(packageName)
+                    "error: click".log(HookHelper.hostPackageName)
                 }
             }
         })

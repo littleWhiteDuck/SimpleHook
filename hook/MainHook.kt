@@ -3,82 +3,124 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
-import com.github.kyuubiran.ezxhelper.init.InitFields.ezXClassLoader
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.simpleHook.BuildConfig
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.hook.utils.LogUtil.noSuchMethod
-import me.simpleHook.hook.utils.LogUtil.notFoundClass
-import me.simpleHook.hook.utils.LogUtil.getStackTrace
-import me.simpleHook.hook.utils.LogUtil.toLogMsg
 import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.utils.*
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.utils.LogUtil.getStackTrace
+import me.simpleHook.hook.utils.LogUtil.noSuchMethod
+import me.simpleHook.hook.utils.LogUtil.notFoundClass
+import me.simpleHook.hook.utils.LogUtil.toLogMsg
+import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
+import org.json.JSONArray
 import org.json.JSONObject
 
 
 object MainHook {
-    /* private val uri = Uri.parse("content://littleWhiteDuck/app_configs")
-     private val assistUri = Uri.parse("content://littleWhiteDuck/assist_configs")*/
-    /*    private val prefHookConfig by lazy { getHookConfigPref() }
-        private val prefAssistConfig by lazy { getHookConfigPref("assistConfig") }*/
+
+    private val prefHookConfig by lazy { getPref(Constant.CUSTOM_CONFIG_PREF) }
+    private val prefExHookConfig by lazy { getPref(Constant.EXTENSION_CONFIG_PREF) }
 
     fun startHook(packageName: String) {
-        ConfigUtil.getConfigFromFile(packageName)?.let {
-            "get custom config succeed".log(packageName)
-            readHook(it, packageName)
-        } ?: "get custom config failed".log(packageName)
-        ConfigUtil.getConfigFromFile(packageName, Constant.EXTENSION_CONFIG_NAME)?.let {
-            "get extension config succeed".log(packageName)
-            readyExtensionHook(it, packageName)
-        } ?: "get extension config failed".log(packageName)
+        if (BuildConfig.FLAVOR == "lite") {
+            readyXmlHook()
+        } else {
+            var internalCount = 0
+            ConfigUtil.getConfigFromFile()?.let {
+                "get custom config succeed from file".log(packageName)
+                readyHook(it)
+            } ?: run {
+                "get custom config failed from file".log(packageName)
+                ConfigUtil.getCustomConfigFromDB()?.let {
+                    "get custom config succeed from db".log(packageName)
+                    readyHook(it)
+                } ?: run {
+                    "get custom config failed from db".log(packageName)
+                    internalCount++
+                }
+            }
+            ConfigUtil.getConfigFromFile(Constant.EXTENSION_CONFIG_NAME)?.let {
+                "get extension config succeed from file".log(packageName)
+                readyExtensionHook(it)
+            } ?: run {
+                "get extension config failed from file".log(packageName)
+                ConfigUtil.getExConfigFromDB()?.let {
+                    "get extension config succeed from db".log(packageName)
+                    readyExtensionHook(it)
+                } ?: run {
+                    "get extension config failed from db".log(packageName)
+                    internalCount++
+                }
+            }
+            // 特殊情况, 仅支持自定义hook功能
+            if (internalCount == 2) readyInternalConfigHook()
+        }
     }
 
-    /*  private fun xmlHook(
-          packageName: String
-      ) {
-          val error = "no have config or error"
-          prefHookConfig?.let {
-              val strConfig = it.getString(packageName, error)
-              if (strConfig == null || strConfig == error) {
-                  error.log()
-                  "准备使用Context获取配置".log()
-                  contextHook(packageName)
-              } else {
-                  // xml读取配置成功
-                  determineCan(strConfig, packageName)
-              }
-          } ?: contextHook(packageName)
+    private fun readyInternalConfigHook() {
+        try {
+            HookHelper.enableRecord = false
+            val internalConfigs = AssetsUtil.getText(InitFields.moduleRes.assets.open("configs"))
+                ?.replace(Regex("<---.*--->"), "")?.trim()
+            if (internalConfigs?.isEmpty() == true) return
+            val jsonArray = JSONArray(internalConfigs)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                if (jsonObject.optString("packageName") == hostPackageName) {
+                    readyHook(jsonObject.toString())
+                }
+            }
+        } catch (e: Throwable) {
+            //e.stackTraceToString().log(hostPackageName)
+        }
 
-      }*/
+    }
 
-    private fun readHook(strConfig: String, packageName: String) {
+    private fun readyXmlHook() {
+        prefHookConfig?.let { sp ->
+            sp.getString(hostPackageName, null)?.let {
+                readyHook(it)
+            } ?: "not have the custom config".log(hostPackageName)
+        } ?: "null: XSharedPreferences".log(hostPackageName)
+        prefExHookConfig?.let { sp ->
+            sp.getString(hostPackageName, null)?.let {
+                readyExtensionHook(it)
+            } ?: "not have the extension config".log(hostPackageName)
+        } ?: "null: XSharedPreferences".log(hostPackageName)
+    }
+
+    private fun readyHook(strConfig: String) {
         if (strConfig.trim().isEmpty()) return
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
             if (!appConfig.enable) return
             val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
             val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
-            getTip("startCustomHook").log(packageName)
+            getTip("startCustomHook").log(hostPackageName)
             configs.forEach {
                 if (!it.enable) return@forEach
                 it.apply {
                     when (it.mode) {
                         Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> FieldHook.hookStaticField(
-                            configBean = it, packageName
+                            configBean = it
                         )
                         Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> FieldHook.hookInstanceField(
-                            it, packageName = packageName
+                            it
                         )
                         else -> specificHook(
                             className = className,
@@ -86,7 +128,6 @@ object MainHook {
                             values = resultValues,
                             params = params,
                             mode = mode,
-                            packageName = packageName,
                             returnClassName = returnClassName
                         )
                     }
@@ -104,9 +145,9 @@ object MainHook {
                     getTip("errorType") + getTip("unknownError"),
                     "config: $configTemp",
                     getTip("detailReason") + e.stackTraceToString()
-                ), packageName, "Error Unknown Error"
+                ), "Error Unknown Error"
             )
-            "config error".log(packageName)
+            "config error".log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         }
     }
@@ -118,7 +159,6 @@ object MainHook {
         values: String,
         params: String,
         mode: Int,
-        packageName: String,
         returnClassName: String
     ) {
         val hooker: Hooker = when (mode) {
@@ -132,16 +172,16 @@ object MainHook {
                 {}
             }
             Constant.HOOK_PARAM -> {
-                { hookParamsValue(it, values, className, methodName, params, packageName) }
+                { hookParamsValue(it, values, className, methodName, params) }
             }
             Constant.HOOK_RECORD_PARAMS -> {
-                { recordParamsValue(className, it, packageName) }
+                { recordParamsValue(className, it) }
             }
             Constant.HOOK_RECORD_RETURN -> {
-                { recordReturnValue(className, it, packageName) }
+                { recordReturnValue(className, it) }
             }
             Constant.HOOK_RECORD_PARAMS_RETURN -> {
-                { recordParamsAndReturn(className, it, packageName) }
+                { recordParamsAndReturn(className, it) }
             }
             else -> {
                 throw Exception("读不懂配置")
@@ -154,7 +194,7 @@ object MainHook {
                 }.hook(mode, hooker)
             } else if (params == "*") {
                 if (methodName == "<init>") {
-                    hookAllConstructorAfter(className, hooker = hooker)
+                    hookAllConstructorBefore(className, hooker = hooker)
                 } else {
                     findAllMethods(className) {
                         name == methodName
@@ -164,7 +204,7 @@ object MainHook {
                 if (methodName == "<init>") {
                     findConstructor(className) {
                         isSearchConstructor(params)
-                    }.hookAfter(hooker)
+                    }.hookBefore(hooker)
                 } else {
                     findMethod(className) {
                         name == methodName && isSearchMethod(params)
@@ -173,27 +213,27 @@ object MainHook {
             }
         } catch (e: NoSuchMethodError) {
             noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
-            getTip("noSuchMethod").log(packageName)
+            getTip("noSuchMethod").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: NoSuchMethodException) {
             noSuchMethod(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
-            getTip("noSuchMethod").log(packageName)
+            getTip("noSuchMethod").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
             notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
-            getTip("notFoundClass").log(packageName)
+            getTip("notFoundClass").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
             notFoundClass(
-                packageName, className, "$methodName($params)", e.stackTraceToString()
+                className, "$methodName($params)", e.stackTraceToString()
             )
-            getTip("notFoundClass").log(packageName)
+            getTip("notFoundClass").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         }
 
@@ -202,7 +242,7 @@ object MainHook {
     private fun hookReturnValuePro(
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
-        val hookClass = XposedHelpers.findClass(returnClassName, ezXClassLoader)
+        val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
         try {
             val hookObject = Gson().fromJson(values, hookClass)
             param.result = hookObject
@@ -257,8 +297,7 @@ object MainHook {
         values: String,
         className: String,
         methodName: String,
-        params: String,
-        packageName: String
+        params: String
     ) {
         try {
             for (i in param.args.indices) {
@@ -274,12 +313,12 @@ object MainHook {
                 getTip("filledMethodParams") + "$methodName($params)",
                 getTip("detailReason") + e.stackTraceToString()
             )
-            LogUtil.toLog(list, packageName, "Error HookParamsError")
+            LogUtil.toLog(list, "Error HookParamsError")
         }
     }
 
     private fun recordParamsValue(
-        className: String, param: XC_MethodHook.MethodHookParam, packageName: String
+        className: String, param: XC_MethodHook.MethodHookParam
     ) {
         val type = if (LanguageUtils.isNotChinese()) "Param value" else "参数值"
         val list = mutableListOf<String>()
@@ -294,14 +333,12 @@ object MainHook {
             }
         }
         val items = getStackTrace()
-        val logBean = LogBean(
-            type, list + items, packageName
-        )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        val logBean = LogBean(type, list + items, hostPackageName)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun recordReturnValue(
-        className: String, param: XC_MethodHook.MethodHookParam, packageName: String
+        className: String, param: XC_MethodHook.MethodHookParam
     ) {
         val list = mutableListOf<String>()
         val type = if (LanguageUtils.isNotChinese()) "Return value" else "返回值"
@@ -310,14 +347,12 @@ object MainHook {
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
-        val logBean = LogBean(
-            type, list + items, packageName
-        )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        val logBean = LogBean(type, list + items, hostPackageName)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun recordParamsAndReturn(
-        className: String, param: XC_MethodHook.MethodHookParam, packageName: String
+        className: String, param: XC_MethodHook.MethodHookParam
     ) {
         val type = if (LanguageUtils.isNotChinese()) "Param&Return Value" else "参返"
         val list = mutableListOf<String>()
@@ -334,10 +369,8 @@ object MainHook {
         val result = getObjectString(param.result ?: "null")
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
-        val logBean = LogBean(
-            type, list + items, packageName
-        )
-        toLogMsg(Gson().toJson(logBean), packageName, type)
+        val logBean = LogBean(type, list + items, hostPackageName)
+        toLogMsg(Gson().toJson(logBean), type)
     }
 
     private fun getObjectString(value: Any): String {
@@ -349,16 +382,15 @@ object MainHook {
     }
 
     private fun readyExtensionHook(
-        strConfig: String, packageName: String
+        strConfig: String
     ) {
         try {
             if (strConfig.trim().isEmpty()) return
-            getTip("startExtensionHook").log(packageName)
+            getTip("startExtensionHook").log(hostPackageName)
             val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
             if (!configBean.all) return
             initExtensionHook(
                 configBean,
-                packageName,
                 DialogHook,
                 PopupWindowHook,
                 ToastHook,
@@ -373,7 +405,9 @@ object MainHook {
                 JSONHook,
                 WebHook,
                 ClipboardFilterHook,
-                ApplicationHook
+                ApplicationHook,
+                SignatureHook,
+                ContactHook
             )
         } catch (e: java.lang.Exception) {
             LogUtil.toLog(
@@ -381,17 +415,26 @@ object MainHook {
                     getTip("errorType") + getTip("unknownError"),
                     "config: ${JsonUtil.formatJson(strConfig)}",
                     getTip("detailReason") + e.stackTraceToString()
-                ), packageName, "Error Unknown Error"
+                ), "Error Unknown Error"
             )
         }
     }
 
     private fun initExtensionHook(
-        configBean: ExtensionConfigBean, packageName: String, vararg hooks: BaseHook
+        configBean: ExtensionConfigBean, vararg hooks: BaseHook
     ) {
         hooks.forEach {
-            it.startHook(configBean, packageName)
+            if (it.isInit) return@forEach
+            it.isInit
+            it.startHook(configBean)
         }
     }
+
+
+    private fun getPref(path: String): XSharedPreferences? {
+        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
+        return if (pref.file.canRead()) pref else null
+    }
+
 }
 
