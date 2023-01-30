@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.view.ContextMenu
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -17,6 +18,7 @@ import me.simpleHook.hook.utils.Type
 import me.simpleHook.ui.custom.PopupWindowList
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
+import me.simpleHook.util.HookModeUtil
 import me.simpleHook.util.dp
 import me.simpleHook.util.marquee
 import me.simpleHook.util.random
@@ -24,7 +26,7 @@ import org.json.JSONObject
 
 class ConfigAdapter(
     private val onClick: (position: Int) -> Unit,
-    private val onLongClick: (position: Int) -> Unit,
+    private val menuListener: (position: Int, menu: ContextMenu) -> Unit,
     private val onCheckedChange: (position: Int, isChecked: Boolean) -> Unit,
     private val isCollect: Boolean = false
 ) : ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
@@ -70,10 +72,9 @@ class ConfigAdapter(
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
                     onClick(position)
                 }
-                setOnLongClickListener {
+                setOnCreateContextMenuListener { menu, _, _ ->
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
-                    onLongClick(position)
-                    true
+                    menuListener(position, menu)
                 }
             }
             enable.setOnCheckedChangeListener { _, isChecked ->
@@ -187,20 +188,7 @@ class ConfigAdapter(
             }
             tvNumber.text = (position + 1).toString()
             enable.isChecked = methodConfig.enable
-            val tipText = when (methodConfig.mode) {
-                Constant.HOOK_RETURN -> context.getString(R.string.config_mode_tip_return_value)
-                Constant.HOOK_PARAM -> context.getString(R.string.config_mode_tip_param_value)
-                Constant.HOOK_STATIC_FIELD -> context.getString(R.string.config_mode_tip_static_field_value)
-                Constant.HOOK_FIELD -> context.getString(R.string.config_mode_tip_field_value)
-                Constant.HOOK_BREAK -> context.getString(R.string.config_mode_tip_break)
-                Constant.HOOK_RECORD_PARAMS -> context.getString(R.string.config_mode_tip_record_param_value)
-                Constant.HOOK_RECORD_RETURN -> context.getString(R.string.config_mode_tip_record_return_value)
-                Constant.HOOK_RECORD_PARAMS_RETURN -> context.getString(R.string.config_mode_tip_record_param_return_value)
-                Constant.HOOK_RECORD_STATIC_FIELD -> context.getString(R.string.config_mode_tip_record_static_field_value)
-                Constant.HOOK_RECORD_INSTANCE_FIELD -> context.getString(R.string.config_mode_tip_record_instance_field_value)
-                Constant.HOOK_RETURN2 -> context.getString(R.string.config_mode_tip_return2_value)
-                else -> "未知"
-            }
+            val tipText = HookModeUtil.getShowText(methodConfig.mode, context)
             val span = SpannableString("$tipText ").also {
                 val bgColor = context.resources.getColor(R.color.config_tag_background)
                 val textColor = context.resources.getColor(R.color.config_tag_text_color)

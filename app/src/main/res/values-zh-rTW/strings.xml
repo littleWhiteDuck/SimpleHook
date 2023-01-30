@@ -231,24 +231,15 @@
     <string name="extension_item_desc_json_array">記錄JSONArray創建時內容、增加時內容記錄JSONArray創建時內容、增加時內容</string>
     <string name="extension_item_title_hot_fix">熱修復</string>
     <string name="config_hook_constructor_tip">此模式hook構造方法可能導致目標應用出問題</string>
-    <string name="config_auto_transfer_param_field">自動轉參數|變量類型</string>
     <string name="about_menu_feedback">反饋</string>
     <string name="about_clip_email_tip">郵箱地址已復製到剪切板</string>
     <string name="config_no_collection_tip">還沒有收藏任何配置</string>
     <string name="config_menu_collect_config">收藏的配置</string>
     <string name="config_collect_success_tip">收藏成功</string>
-    <string name="config_collect_failed_tip">收藏失敗</string>
     <string name="config_get_collection_error">出現錯誤，請清空收藏</string>
     <string name="config_collection_dialog_title">收藏</string>
     <string name="config_collection_confirm">確認導入</string>
     <string name="config_collection_cancel">取消</string>
-    <string name="config_auto_transfer_smali_title">說明</string>
-    <string name="config_auto_transfer_smali_message">關閉後，你需要將參數類型/類名/變量名等填寫為符合java語法的格式，可以查看使用說明（有關於java格式、smali格式的介紹）</string>
-    <string-array name="config_select_item">
-        <item>收藏</item>
-        <item>複製到剪切板</item>
-        <item>重複新增一個</item>
-    </string-array>
     <string name="extension_item_desc_web_load_url">記錄加載鏈接</string>
     <string name="extension_item_desc_web_debug">webView可調試</string>
     <string name="config_app_info_is_empty_tip">請選擇應用後再保存配置</string>
@@ -274,7 +265,6 @@
     <string name="extension_item_desc_block_dialog">指定關鍵詞攔截</string>
     <string name="extension_block_dialog_helper_tip">多個關鍵詞請換行輸入</string>
     <string name="extension_block_dialog_title">攔截關鍵詞彈窗</string>
-    <string name="extension_config_save_success_tip">已保存</string>
     <string name="mark">標記</string>
     <string name="delete">刪除</string>
     <string name="edit">編輯</string>
@@ -353,4 +343,7 @@
     <string name="extension_item_title_hook_success_tip">Hook應用成功提示</string>
     <string name="extension_item_desc_hook_success_tip">彈出Toast：StartHook</string>
     <string name="extension_item_desc_all_switch">請注意開啟此開關</string>
+    <string name="collect">收藏</string>
+    <string name="duplicate_config">重複一個</string>
+    <string name="delete_same_type">刪除同類型</string>
 </resources>

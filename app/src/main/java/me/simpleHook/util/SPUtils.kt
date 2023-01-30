@@ -21,7 +21,6 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var startFloat by SharedPreferenceDelegates.boolean(false)
     var bottomConfigDialog by SharedPreferenceDelegates.boolean(false)
     var themeMode by SharedPreferenceDelegates.string("system")
-    var xParams by SharedPreferenceDelegates.boolean(true)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }

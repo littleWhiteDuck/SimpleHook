@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -113,13 +114,12 @@ class ConfigActivity : BaseActivity() {
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter by lazy {
         ConfigAdapter({ position -> onClick(position) },
-            { position -> onLongClick(position) },
+            { position, menu -> onItemCreateContextMenu(position, menu) },
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
     private val collectAdapter by lazy {
-        ConfigAdapter(
-            { position -> onCollectClick(position) },
-            onLongClick = {},
+        ConfigAdapter({ position -> onCollectClick(position) },
+            menuListener = { _, _ -> },
             onCheckedChange = { position, isChecked ->
                 onCollectCheckedChange(
                     position, isChecked
@@ -143,6 +143,7 @@ class ConfigActivity : BaseActivity() {
         }
     private lateinit var tempConfigStr: String
     private var tempVersionName: String = ""
+    private var longClickPosition = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -275,45 +276,11 @@ class ConfigActivity : BaseActivity() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun onLongClick(position: Int) {
-        val methodConfig = configList[position]
-        val arrayList = resources.getStringArray(R.array.config_select_item)
-        val popupWindowList =
-            PopupWindowList.Builder(this).setItemList(arrayList).setOutsideTouchable(true).build()
-        popupWindowList.setOnItemClickListener { _, _, pos, _ ->
-            popupWindowList.dismiss()
-            when (pos) {
-                0 -> {
-                    try {
-                        val tempList = getAllCollection(true)
-                        tempList.add(methodConfig)
-                        writeCollection(Gson().toJson(tempList))
-                        getString(R.string.config_collect_success_tip).toast(this)
-                    } catch (e: Exception) {
-                        getString(R.string.config_collect_failed_tip).toast(this)
-                    }
-                }
-                1 -> {
-                    ToolUtils.toClip(this, Gson().toJson(methodConfig))
-                    getString(R.string.main_home_export_configs_tip).toast(this)
-                }
-                2 -> {
-                    addRemoveItem(methodConfig)
-                    Snackbar.make(
-                        binding.addMethodConfig,
-                        getString(R.string.config_add_repeat_config_tip),
-                        Snackbar.LENGTH_LONG
-                    ).apply {
-                        anchorView = binding.addMethodConfig
-                    }.setAction(getString(R.string.config_undo_repeat_config)) {
-                        configList.removeAt(configList.size - 1)
-                        mAdapter.submitList(configList)
-                        mAdapter.notifyDataSetChanged()
-                    }.show()
-                }
-            }
-        }.show()
+
+    private fun onItemCreateContextMenu(position: Int, menu: ContextMenu) {
+        menuInflater.inflate(R.menu.menu_config_item, menu)
+        longClickPosition = position
+        menu.setHeaderTitle(HookModeUtil.getShowText(configList[position].mode, this))
     }
 
     private fun onClick(position: Int) {
@@ -334,6 +301,46 @@ class ConfigActivity : BaseActivity() {
 
     private fun onCheckedChange(position: Int, checked: Boolean) {
         configList[position] = configList[position].copy(enable = checked)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val methodConfig = configList[longClickPosition]
+        when (item.itemId) {
+            R.id.menu_collect -> {
+                val tempList = getAllCollection(true)
+                tempList.add(methodConfig)
+                writeCollection(Gson().toJson(tempList))
+                getString(R.string.config_collect_success_tip).toast(this)
+            }
+            R.id.menu_copy -> {
+                ToolUtils.toClip(this, Gson().toJson(methodConfig))
+                getString(R.string.main_home_export_configs_tip).toast(this)
+            }
+            R.id.menu_duplicate -> {
+                addRemoveItem(methodConfig)
+                Snackbar.make(
+                    binding.addMethodConfig,
+                    getString(R.string.config_add_repeat_config_tip),
+                    Snackbar.LENGTH_LONG
+                ).apply {
+                    anchorView = binding.addMethodConfig
+                }.setAction(getString(R.string.config_undo_repeat_config)) {
+                    configList.removeAt(configList.size - 1)
+                    mAdapter.submitList(configList)
+                    mAdapter.notifyDataSetChanged()
+                }.show()
+            }
+            R.id.menu_delete_same_type -> {
+                val size = configList.size
+                for (i in 0 until configList.size) {
+                    if (configList[i + configList.size - size].mode == methodConfig.mode) {
+                        configList.removeAt(i + configList.size - size)
+                    }
+                }
+                mAdapter.notifyDataSetChanged()
+            }
+        }
+        return super.onContextItemSelected(item)
     }
 
     private fun showDialog(
@@ -598,7 +605,6 @@ class ConfigActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_config, menu)
         if (!sp.smali2Config) menu.removeItem(R.id.config_smali_to_config)
-        menu.findItem(R.id.xParams).isChecked = sp.xParams
         return true
     }
 
@@ -608,19 +614,6 @@ class ConfigActivity : BaseActivity() {
             R.id.save_config -> saveConfig()
             R.id.config_smali_to_config -> {
                 ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
-            }
-            R.id.xParams -> {
-                item.isChecked = !item.isChecked
-                sp.xParams = item.isChecked
-                if (!item.isChecked) {
-                    warningDialog(
-                        this,
-                        title = getString(R.string.config_auto_transfer_smali_title),
-                        message = getString(
-                            R.string.config_auto_transfer_smali_message
-                        )
-                    )
-                }
             }
             R.id.collect -> {
                 showCollectConfigDialog()

@@ -124,6 +124,7 @@ class ConfigDialogFragment(
                             tempList.add(item.appConfig)
                         }
                     }
+                    tempList.reverse()
                     viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
                         "为空".toast(mContext)

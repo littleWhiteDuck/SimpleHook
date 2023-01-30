@@ -25,11 +25,6 @@
     <string name="config_dialog_alter_this">修改</string>
     <string name="config_dialog_add_a_new">增加</string>
     <string name="config_save_empty_config_tip">配置为空</string>
-    <string-array name="config_select_item">
-        <item>收藏</item>
-        <item>复制到剪切板</item>
-        <item>重复新增一个</item>
-    </string-array>
 
     <!--main-->
     <string name="app_name">SimpleHook</string>
@@ -255,18 +250,15 @@
     <string name="config_dialog_button_invert_selection">反选</string>
     <string name="config_dialog_button_select_all">全选</string>
     <string name="config_hook_constructor_tip">此模式hook构造方法可能导致目标应用出问题</string>
-    <string name="config_auto_transfer_param_field">自动转参数|变量类型</string>
     <string name="about_menu_feedback">反馈</string>
     <string name="about_clip_email_tip">邮箱地址已复制到剪切板</string>
     <string name="config_collect_success_tip">收藏成功</string>
-    <string name="config_collect_failed_tip">收藏失败</string>
     <string name="config_menu_collect_config">收藏的配置</string>
     <string name="config_no_collection_tip">还没有收藏任何配置</string>
     <string name="config_get_collection_error">出现错误，请清空收藏</string>
     <string name="config_collection_dialog_title">收藏</string>
     <string name="config_collection_confirm">确认导入</string>
     <string name="config_collection_cancel">取消</string>
-    <string name="config_auto_transfer_smali_title">说明</string>
     <string-array name="config_hook_mode_item">
         <item>Hook返回值</item>
         <item>Hook返回值+</item>
@@ -296,7 +288,6 @@
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
     </string-array>
-    <string name="config_auto_transfer_smali_message">关闭后，你需要将参数类型/类名/变量名等填写为符合java语法的格式，可以查看使用说明（有关于java格式、smali格式的介绍）</string>
     <string name="extension_item_desc_web_load_url">记录加载链接</string>
     <string name="extension_item_desc_web_debug">webView可调试</string>
     <string name="config_app_info_is_empty_tip">请选择应用后再保存配置</string>
@@ -322,7 +313,6 @@
     <string name="extension_item_desc_block_dialog">指定关键词拦截</string>
     <string name="extension_block_dialog_helper_tip">多个关键词请换行输入</string>
     <string name="extension_block_dialog_title">拦截关键词弹窗</string>
-    <string name="extension_config_save_success_tip">已保存</string>
     <string name="mark">标记</string>
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
@@ -395,6 +385,9 @@
     <string name="extension_item_title_hook_success_tip">Hook应用成功提示</string>
     <string name="extension_item_desc_hook_success_tip">弹出Toast：StartHook</string>
     <string name="extension_item_desc_all_switch">请注意开启此开关</string>
+    <string name="collect">收藏</string>
+    <string name="duplicate_config">重复一个</string>
+    <string name="delete_same_type">删除同类型</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>

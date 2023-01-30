@@ -7,13 +7,7 @@
         android:title="@string/config_menu_collect_config"
         android:icon="@drawable/ic_collect_24"
         app:showAsAction="always" />
-    <item
-        android:visible="false"
-        android:id="@+id/xParams"
-        android:checkable="true"
-        android:title="@string/config_auto_transfer_param_field"
-        android:checked="true"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/config_smali_to_config"
         android:title="@string/config_config_smali_to_config"

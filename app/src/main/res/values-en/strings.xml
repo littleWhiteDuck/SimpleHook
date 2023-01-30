@@ -230,25 +230,16 @@
     <string name="extension_item_desc_json_array">Record the content of JSONArray when it is created and when it is put</string>
     <string name="extension_item_title_hot_fix">"Hot fix "</string>
     <string name="config_hook_constructor_tip">This modal hook constructor may cause problems for the target application</string>
-    <string name="config_auto_transfer_param_field">Auto transfer param|field type</string>
     <string name="about_menu_feedback">feedback</string>
     <string name="about_clip_email_tip">Email address copied to clipboard</string>
     <string name="config_no_collection_tip">No favorite configuration yet</string>
     <string name="config_menu_collect_config">Favorite configuration</string>
     <string name="config_collect_success_tip">Collect success</string>
-    <string name="config_collect_failed_tip">Collect failed</string>
     <string name="config_get_collection_error">An error occurred, please clear the collection</string>
     <string name="config_collection_dialog_title">Favorites</string>
     <string name="config_collection_confirm">IMPORT</string>
     <string name="config_collection_cancel" tools:ignore="ButtonCase">CANCEL</string>
-    <string name="config_auto_transfer_smali_title">About</string>
-    <string name="config_auto_transfer_smali_message">After closing, you need to fill in the parameter type/class name/field name in a format that conforms to java syntax, you can view the instructions for use (there are introductions about java format and smali format)</string>
 
-    <string-array name="config_select_item">
-        <item>Favorite</item>
-        <item>Copy to clipboard</item>
-        <item>Repeat a new one</item>
-    </string-array>
     <string name="extension_item_desc_web_load_url">record loading link</string>
     <string name="extension_item_desc_web_debug">webView is debuggable</string>
     <string name="config_app_info_is_empty_tip">Please select App and then save the configuration</string>
@@ -274,7 +265,6 @@
     <string name="extension_item_desc_block_dialog">Specify keyword blocking</string>
     <string name="extension_block_dialog_helper_tip">Please enter multiple keywords in a new line</string>
     <string name="extension_block_dialog_title">Block keyword dialog</string>
-    <string name="extension_config_save_success_tip">Saved</string>
     <string name="mark">MARK</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
@@ -353,4 +343,7 @@
     <string name="extension_item_title_hook_success_tip">Hook app success tip</string>
     <string name="extension_item_desc_hook_success_tip">Pop up Toast: StartHook</string>
     <string name="extension_item_desc_all_switch">Note this switch!</string>
+    <string name="collect">Collect</string>
+    <string name="duplicate_config">Duplicate one</string>
+    <string name="delete_same_type">Delete same type</string>
 </resources>

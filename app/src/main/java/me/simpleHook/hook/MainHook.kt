@@ -378,7 +378,7 @@ object MainHook {
     private fun getObjectString(value: Any): String {
         return if (value is String) value else try {
             Gson().toJson(value)
-        } catch (e: java.lang.Exception) {
+        } catch (e: Throwable) {
             value.javaClass.name
         }
     }
