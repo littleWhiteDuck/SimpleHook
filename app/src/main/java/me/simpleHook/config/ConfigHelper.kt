@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.google.gson.Gson
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.io.SuFile
@@ -98,7 +99,7 @@ object ConfigHelper {
             } else {
                 if (fileName == Constant.APP_CONFIG_NAME) {
                     val exSuFile =
-                        SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_PREF}")
+                        SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_NAME}")
                     if (exSuFile.exists()) {
                         val customSuFile =
                             SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.APP_CONFIG_NAME}")
@@ -106,21 +107,19 @@ object ConfigHelper {
                     } else {
                         val appConfigSuFile =
                             SuFile.open("${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
-                        if (appConfigSuFile.exists()) Shell.cmd("rm -rf ${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
-                            .exec()
+                        if (appConfigSuFile.exists()) SuUtil.deleteFile("${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
                     }
                 } else {
                     val configSuFile =
                         SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.APP_CONFIG_NAME}")
                     if (configSuFile.exists()) {
                         val exSuFile =
-                            SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_PREF}")
+                            SuFile.open(Constant.ROOT_CONFIG_MAIN_DIRECTORY + "$packageName/config/${Constant.EXTENSION_CONFIG_NAME}")
                         if (exSuFile.exists()) exSuFile.delete()
                     } else {
                         val appConfigSuFile =
                             SuFile.open("${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
-                        if (appConfigSuFile.exists()) Shell.cmd("rm -rf ${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
-                            .exec()
+                        if (appConfigSuFile.exists()) SuUtil.deleteFile("${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName")
                     }
                 }
             }

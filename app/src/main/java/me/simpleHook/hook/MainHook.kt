@@ -3,7 +3,6 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
-import android.widget.Toast
 import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson

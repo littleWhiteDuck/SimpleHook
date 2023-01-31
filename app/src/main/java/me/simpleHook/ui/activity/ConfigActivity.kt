@@ -694,10 +694,9 @@ class ConfigActivity : BaseActivity() {
             getString(R.string.config_app_info_is_empty_tip).toast(this)
             return
         }
-        isSaving = true
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
         loadingDialog.show()
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             val appConfig = getAppConfig()
             if (modify) {
                 appViewModel.updateConfigs(appConfig)
@@ -714,12 +713,11 @@ class ConfigActivity : BaseActivity() {
         }
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.dismiss()
-            isSaving = false
             tempConfigStr = getAppConfig().copy(enable = true).toString()
             if (exit) {
                 finish()
             }
-        }, 1500)
+        }, 800)
     }
 
     private fun saveToText(packageName: String, configStr: String) {
@@ -774,7 +772,7 @@ class ConfigActivity : BaseActivity() {
                     saveConfig(exit = false)
                 }).show()
         } else {
-            if (!isSaving) finish()
+            finish()
         }
     }
 

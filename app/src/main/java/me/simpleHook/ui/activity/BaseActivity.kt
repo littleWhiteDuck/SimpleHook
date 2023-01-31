@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.widget.CheckBox
 import android.widget.ImageButton
@@ -34,11 +33,10 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.*
-import kotlin.concurrent.thread
 
 @Keep
 open class BaseActivity : AppCompatActivity() {
-    protected var isSaving = false
+
     private val appViewModel by viewModels<AppViewModel>()
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
     private val list = ArrayList<PrintLog>()

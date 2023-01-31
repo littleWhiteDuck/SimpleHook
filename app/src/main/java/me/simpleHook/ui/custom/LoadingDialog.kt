@@ -2,8 +2,6 @@ package me.simpleHook.ui.custom
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +16,6 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
 
     //    private val progressBar: ProgressBar = ProgressBar(activity, null)
     private val loadingView = LoadingView(activity)
-    private var tempTime = 0L
 
     init {
         loadingView.tip.text = loadingTip
@@ -34,7 +31,6 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
     }
 
     fun show() {
-        tempTime = System.currentTimeMillis()
         val lp = activity.window.attributes
         lp.alpha = 0.7f
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
@@ -48,11 +44,7 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
     }
 
     fun dismiss() {
-        val currentTime = System.currentTimeMillis()
-        val delayTime = if (currentTime - tempTime < 1000) 1000 - (currentTime - tempTime) else 0
-        Handler(Looper.getMainLooper()).postDelayed({
-            quickDismiss()
-        }, delayTime)
+        quickDismiss()
     }
 
     fun quickDismiss() {

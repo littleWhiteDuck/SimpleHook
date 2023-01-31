@@ -34,7 +34,6 @@ class RecordDetailActivity : BaseActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
     private val appViewModel by viewModels<AppViewModel>()
     private var currentText = ""
-    private lateinit var jsonText: String
     private var darkMode = false
     private var rawData = ""
     private var cryptResult = ""
@@ -74,10 +73,7 @@ class RecordDetailActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch(Dispatchers.Main) {
-
-            jsonText = printLog.log
             val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
-
             val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
             if (logBean.type.equals("intent", ignoreCase = true)) {
                 val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
@@ -167,7 +163,7 @@ class RecordDetailActivity : BaseActivity() {
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.copy_json -> {
-                ToolUtils.toClip(this, JsonUtil.formatJson(jsonText).replace("\\u003e", "-> "))
+                ToolUtils.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.copy_raw_data -> {

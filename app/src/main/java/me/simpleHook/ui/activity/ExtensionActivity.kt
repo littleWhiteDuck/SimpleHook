@@ -628,7 +628,6 @@ class ExtensionActivity : BaseActivity() {
 
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = false) {
-        isSaving = true
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
         loadingDialog.show()
         refreshConfigBean()
@@ -646,7 +645,6 @@ class ExtensionActivity : BaseActivity() {
         }
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.quickDismiss()
-            isSaving = false
             if (exit) finish()
         }, 500)
 
@@ -673,7 +671,7 @@ class ExtensionActivity : BaseActivity() {
                     saveConfig()
                 }).show()
         } else {
-            if (!isSaving) finish()
+            finish()
         }
     }
 
