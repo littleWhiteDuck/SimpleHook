@@ -754,6 +754,7 @@ class ConfigActivity : BaseActivity() {
     override fun onBackPressed() {
         if (configList.size == 0) {
             finish()
+            return
         }
         if (tempConfigStr != getAppConfig().copy(enable = true).toString()) {
             customDialog(

@@ -12,7 +12,7 @@ object SuUtil {
         if (!isInit) {
             isInit = true
             Shell.setDefaultBuilder(
-                Shell.Builder.create().setFlags(Shell.FLAG_REDIRECT_STDERR).setTimeout(20)
+                Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER).setTimeout(20)
             )
         }
         thread {
