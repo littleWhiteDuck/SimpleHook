@@ -9,6 +9,7 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.LogBean2
+import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.ui.WindowPreferencesManager
@@ -30,12 +32,14 @@ import java.util.regex.Pattern
 
 class RecordDetailActivity : BaseActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
+    private val appViewModel by viewModels<AppViewModel>()
     private var currentText = ""
     private lateinit var jsonText: String
     private var darkMode = false
     private var rawData = ""
     private var cryptResult = ""
     private var returnValue = ""
+    private lateinit var printLog: PrintLog
 
     // private var showReturnValue = false
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,28 +54,30 @@ class RecordDetailActivity : BaseActivity() {
         } else {
             false
         }
+        val recordPackageName = intent.getStringExtra("record_package_name")!!
+        supportActionBar?.title =
+            if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
+                this, recordPackageName
+            )
+        supportActionBar?.subtitle = recordPackageName
         initView()
-        initData()
     }
 
     private fun initView() {
         binding.progressBar.isVisible = true
+        lifecycleScope.launch(Dispatchers.IO) {
+            val recordId = intent.getIntExtra("record_id", -1)
+            printLog = appViewModel.getRecordByID(recordId)
+            initData()
+        }
     }
 
     private fun initData() {
         lifecycleScope.launch(Dispatchers.Main) {
-            val bundle = intent.getBundleExtra("bundle")
-            val printLog: PrintLog = bundle!!.getParcelable("printLog")!!
+
             jsonText = printLog.log
-            /*  if (printLog.log.contains(Regex("返回值|参返|Param&Return Value|Return value"))) {
-                  showReturnValue = true
-              }*/
             val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
-            supportActionBar?.title =
-                if (printLog.packageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                    this@RecordDetailActivity, logBean.packageName
-                )
-            supportActionBar?.subtitle = logBean.packageName
+
             val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
             if (logBean.type.equals("intent", ignoreCase = true)) {
                 val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)

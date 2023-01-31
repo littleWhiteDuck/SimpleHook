@@ -78,6 +78,9 @@ interface PrintLogDao {
     @Query("SELECT log FROM PrintLog WHERE packageName = :packageName and isMark = 1 ORDER BY time DESC")
     fun getMarkedRecordByPack(packageName: String): List<String>
 
+    @Query("SELECT * FROM PrintLog WHERE id = :ID")
+    fun getRecordByID(ID: Int): PrintLog
+
     @Update
     suspend fun updateRecord(printLog: PrintLog)
 

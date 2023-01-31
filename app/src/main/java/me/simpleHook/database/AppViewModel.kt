@@ -116,6 +116,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getMarkedRecordByPack(packageName: String) = appRepository.getMarkedByPack(packageName)
 
+    fun getRecordByID(id: Int) = appRepository.getRecordByID(id)
+
     fun getAllRecord() = viewModelScope.launch {
         _filterRecordPT.value = appRepository.getAllRecord()
     }

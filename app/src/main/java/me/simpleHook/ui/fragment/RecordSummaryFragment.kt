@@ -1,5 +1,6 @@
 package me.simpleHook.ui.fragment
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -73,6 +74,7 @@ class RecordSummaryFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.progressBar.visibility = View.GONE
@@ -140,6 +142,7 @@ class RecordSummaryFragment : Fragment() {
                 }
             }
             if (tempListSize != list.size) {
+                recorderSummaryAdapter.submitList(emptyList())
                 recorderSummaryAdapter.submitList(emptyList())
             }
             tempListSize = list.size

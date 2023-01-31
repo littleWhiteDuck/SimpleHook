@@ -54,10 +54,9 @@ class RecordActivity : BaseActivity() {
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
             appViewModel.updateRecord(it.copy(read = true))
-            val bundle = Bundle()
-            bundle.putParcelable("printLog", it)
             val intent = Intent(this, RecordDetailActivity::class.java)
-            intent.putExtra("bundle", bundle)
+            intent.putExtra("record_id", it.id)
+            intent.putExtra("record_package_name", it.packageName)
             startActivity(intent)
         }, deleteRecord = { printLog ->
             appViewModel.deleteRecordById(printLog.id)

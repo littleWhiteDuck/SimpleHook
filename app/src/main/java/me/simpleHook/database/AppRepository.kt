@@ -48,6 +48,8 @@ class AppRepository(context: Context) {
 
     fun getMarkedByPack(packageName: String) = printLogDao.getMarkedRecordByPack(packageName)
 
+    fun getRecordByID(id: Int) = printLogDao.getRecordByID(id)
+
     suspend fun filterRecordByPack(packageName: String, pattern: String) =
         printLogDao.filterRecordByPack(packageName, pattern)
 
