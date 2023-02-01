@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
@@ -197,22 +198,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
             requireActivity(), getString(R.string.main_delete_left_config_loading_tip)
         )
         loadingDialog.show()
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val apps = when (mode) {
-                "user" -> AppUtils.getUserPackageNames(requireContext())
-                "system" -> AppUtils.getSystemPackageNames(requireContext())
-                else -> AppUtils.getPackageNames(requireContext())
-            }
-            val appPackageNames = viewModel.getAllPackageNames()
-            val extensionPackageNames = viewModel.getAllPackageNames()
-            for (i in apps.indices) {
-                if (apps[i] !in appPackageNames) {
-                    ConfigHelper.deleteConfig(requireContext(), apps[i], Constant.APP_CONFIG_NAME)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            withContext(Dispatchers.IO) {
+                val apps = when (mode) {
+                    "user" -> AppUtils.getUserPackageNames(requireContext())
+                    "system" -> AppUtils.getSystemPackageNames(requireContext())
+                    else -> AppUtils.getPackageNames(requireContext())
                 }
-                if (apps[i] !in extensionPackageNames) {
-                    ConfigHelper.deleteConfig(
-                        requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
-                    )
+                val appPackageNames = viewModel.getAllPackageNames()
+                val extensionPackageNames = viewModel.getAllPackageNames()
+                for (i in apps.indices) {
+                    if (apps[i] !in appPackageNames) {
+                        ConfigHelper.deleteConfig(
+                            requireContext(), apps[i], Constant.APP_CONFIG_NAME
+                        )
+                    }
+                    if (apps[i] !in extensionPackageNames) {
+                        ConfigHelper.deleteConfig(
+                            requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
+                        )
+                    }
                 }
             }
             loadingDialog.dismiss()

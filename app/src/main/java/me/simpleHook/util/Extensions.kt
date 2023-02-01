@@ -155,3 +155,11 @@ suspend fun fetchJson(url: String) = withContext(Dispatchers.IO) {
         null
     }
 }
+
+suspend fun fetchText(url: String) = withContext(Dispatchers.IO) {
+    try {
+        URL(url).readText()
+    } catch (_: Throwable) {
+        null
+    }
+}

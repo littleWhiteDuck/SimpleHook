@@ -3,7 +3,6 @@ package me.simpleHook.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
@@ -18,8 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
@@ -34,14 +31,11 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
+import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.regex.Pattern
-import kotlin.concurrent.thread
 import kotlin.math.min
 
 
@@ -52,10 +46,8 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var filterConfigs: List<AppConfig> = ArrayList()
-    private var config = "错误"
     private lateinit var mContext: Context
     private var currentPattern = ""
-    private var appInfo: ApplicationInfo? = null
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter(menuListener = { appConfig, menu ->
@@ -172,7 +164,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     private fun editConfig(appConfig: AppConfig) {
         val bundle = Bundle()
         bundle.putParcelable("appConfig", appConfig)
-        toAddFragment(bundle)
+        toAddConfig(bundle)
     }
 
     private fun onItemClick(mode: Int, appConfig: AppConfig) {
@@ -237,7 +229,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
             windowInsets
         }
         binding.apply {
-            addConfig.setOnClickListener { toAddFragment(null) }
+            addConfig.setOnClickListener { toAddConfig(null) }
             importConfigsFromPaste.setOnClickListener {
                 ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
             }
@@ -249,17 +241,14 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun showInternetImportConfigDialog() {
-        val textInputLayout = TextInputLayout(requireContext())
-        val textInput = TextInputEditText(requireContext())
-        textInput.background = null
-        textInputLayout.addView(textInput)
+        val inputView = InputView(requireContext())
         customDialog(
             requireContext(),
             title = "请输入网址",
-            contentView = textInputLayout,
+            contentView = inputView,
             okText = "确认",
             okClick = { dialogInterface ->
-                importConfigsFromInternet(textInput.text.toString().trim())
+                importConfigsFromInternet(inputView.editText.text.toString().trim())
                 dialogInterface.dismiss()
             },
             cancelText = "取消"
@@ -270,35 +259,16 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         val regex =
             """((http|ftp|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?)"""//设置正则表达式
         if (Pattern.matches(regex, urlString)) {
-            thread {
-                var connection: HttpURLConnection? = null
-                try {
-                    val response = StringBuilder()
-                    val url = URL(urlString)
-                    connection = url.openConnection() as HttpURLConnection
-                    connection.connectTimeout = 8000
-                    connection.readTimeout = 8000
-                    val input = connection.inputStream
-                    val reader = BufferedReader(InputStreamReader(input))
-                    reader.use {
-                        reader.forEachLine {
-                            response.append(it)
-                        }
-                    }
-                    config = response.toString()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    connection?.disconnect()
-                }
-            }
-            if (config == "错误") {
-                "稍后再试，网络错误或者其他错误".toast(requireContext())
-            } else {
-                importConfigs(config)
+            val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.data_loading))
+            loadingDialog.show()
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                fetchText(urlString)?.let {
+                    importConfigs(it)
+                } ?: getString(R.string.error_get_config_from_internet).toast(requireContext())
+                loadingDialog.dismiss()
             }
         } else {
-            "网址不正确".toast(requireContext())
+            getString(R.string.url_is_incorrect).toast(requireContext())
         }
 
     }
@@ -403,7 +373,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         bottomSheetDialog.show()
     }
 
-    private fun toAddFragment(bundle: Bundle?) {
+    private fun toAddConfig(bundle: Bundle?) {
         val intent = Intent(requireActivity(), ConfigActivity::class.java)
         intent.putExtra("bundle", bundle)
         startActivity(intent)

@@ -40,7 +40,7 @@
     <string name="main_home_import_incorrect_format_tip">format error</string>
     <string name="main_home_delete_config_tip">This configuration has been removed</string>
     <string name="main_home_toolbar_search_hint">Search…</string>
-    <string name="main_home_empty_tip">This is empty, click the plus button to add the configuration</string>
+    <string name="main_home_empty_tip">Click the plus button to add the config</string>
     <string name="main_request_storage_permission_title">Get permission</string>
     <string name="main_request_storage_permission_message">Since some applications cannot read the configuration, you need to obtain the data folder permission and write the configuration in the target application directory. After opening, please manually refresh the configuration, otherwise the configuration will not be written to the storage file.</string>
     <string name="main_request_storage_permission_okText">To apply</string>
@@ -346,4 +346,7 @@
     <string name="collect">Collect</string>
     <string name="duplicate_config">Duplicate one</string>
     <string name="delete_same_type">Delete same type</string>
+    <string name="error_get_config_from_internet">Try again later, network error or other error</string>
+    <string name="url_is_incorrect">URL is incorrect</string>
+    <string name="data_loading">Loading …</string>
 </resources>

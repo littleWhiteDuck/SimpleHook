@@ -21,6 +21,7 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         }
     private val labelText = AppCompatTextView(context).apply {
         textSize = 4f.dp
+        isClickable = false
     }
     private val cardView = MaterialCardView(context).apply {
         layoutParams =
@@ -28,13 +29,14 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
                 it.marginEnd = 5.dp
             }
         this.addView(labelText)
-        setContentPadding(5.dp, 3.dp, 5.dp, 3.dp)
-        isClickable = true
+        setContentPadding(6.dp, 4.dp, 6.dp, 4.dp)
+        isClickable = false
     }
     val actionButton =
         FloatingActionButton(ContextThemeWrapper(context, R.style.FloatButtonTheme), attrs).apply {
             size = FloatingActionButton.SIZE_MINI
             layoutParams = MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+            isClickable = false
         }
 
     init {
@@ -54,6 +56,7 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         addView(cardView)
         actionButton.id = R.id.fab_fab
         addView(actionButton)
+        isClickable = true
         typeValue.recycle()
         refreshShowState()
     }
@@ -83,11 +86,6 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         cardView.autoLayout(0, cardView.toVerticalCenter(this))
         actionButton.autoLayout(0, actionButton.toVerticalCenter(this), true)
-    }
-
-    override fun setOnClickListener(l: OnClickListener?) {
-        actionButton.setOnClickListener(l)
-        cardView.setOnClickListener(l)
     }
 
 }

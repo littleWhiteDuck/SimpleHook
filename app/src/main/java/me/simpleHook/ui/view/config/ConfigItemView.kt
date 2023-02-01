@@ -69,6 +69,8 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             ).also {
                 it.marginStart = 3.dp
                 it.marginEnd = 3.dp
+                it.topMargin = 3.dp
+                it.bottomMargin = 3.dp
             }
             addView(this)
         }
@@ -109,7 +111,7 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
         }
 
         override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-            enable.autoLayout(paddingEnd + tip.marginEnd, tip.toVerticalCenter(this), true)
+            enable.autoLayout(paddingEnd + enable.marginEnd, enable.toVerticalCenter(this), true)
             num.autoLayout(paddingStart + num.paddingStart, num.toVerticalCenter(this))
             className.autoLayout(num.right + num.paddingEnd + className.marginStart, paddingTop)
             otherName.autoLayout(className.left, className.bottom + otherName.marginTop)
