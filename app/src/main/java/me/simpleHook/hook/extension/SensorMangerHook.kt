@@ -29,7 +29,8 @@ object SensorMangerHook : BaseHook() {
                     it.result = sensors
                 }
             }
-        } else if (configBean.disSensor) {
+        }
+        if (configBean.disSensor) {
             findMethod(SensorManager::class.java) {
                 name == "registerListener"
             }.hookReturnConstant(false)
