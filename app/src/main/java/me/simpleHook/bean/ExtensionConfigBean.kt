@@ -27,7 +27,9 @@ data class ExtensionConfigBean(
     var application: Boolean = false,
     var signature: Boolean = false,
     var contact: Boolean = false,
-    var tip: Boolean = false
+    var tip: Boolean = false,
+    var disSensorAG: Boolean = false,
+    var disSensor: Boolean = false
 )
 
 @Keep

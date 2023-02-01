@@ -349,4 +349,9 @@
     <string name="error_get_config_from_internet">稍後再試，網絡錯誤或者其他錯誤</string>
     <string name="url_is_incorrect">網址不正確</string>
     <string name="data_loading">正在加載中</string>
+    <string name="please_input_url">請輸入網址</string>
+    <string name="extension_item_title_security">安全</string>
+    <string name="extension_item_title_disable_sensor">禁用傳感器</string>
+    <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度傳感器、陀螺儀傳感器</string>
+    <string name="extension_item_title_disable_sensor_register_listener">禁用所有傳感器註冊監聽</string>
 </resources>

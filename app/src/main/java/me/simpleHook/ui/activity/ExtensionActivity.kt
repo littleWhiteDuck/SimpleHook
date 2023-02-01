@@ -246,6 +246,31 @@ class ExtensionActivity : BaseActivity() {
                         )
                     )
                 )
+                add(AssistTitle(getString(R.string.extension_item_title_security)))
+                add(
+                    AssistItem(
+                        title = getString(R.string.extension_item_title_disable_sensor),
+                        disSensorAG,
+                        "disSensorAG",
+                        getString(R.string.extension_item_title_disable_acceleration_gyroscope)
+                    )
+                )
+                add(
+                    AssistItem(
+                        title = getString(R.string.extension_item_title_disable_sensor),
+                        disSensor,
+                        "disSensor",
+                        getString(R.string.extension_item_title_disable_sensor_register_listener)
+                    )
+                )
+                add(
+                    AssistItem(
+                        title = getString(R.string.extension_item_title_contact),
+                        contact,
+                        "contact",
+                        getString(R.string.extension_item_desc_contact)
+                    )
+                )
                 add(AssistTitle("JSON"))
                 add(
                     AssistItem(
@@ -313,14 +338,6 @@ class ExtensionActivity : BaseActivity() {
                         application,
                         "application",
                         getString(R.string.extension_item_desc_application_name)
-                    )
-                )
-                add(
-                    AssistItem(
-                        title = getString(R.string.extension_item_title_contact),
-                        contact,
-                        "contact",
-                        getString(R.string.extension_item_desc_contact)
                     )
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_network)))

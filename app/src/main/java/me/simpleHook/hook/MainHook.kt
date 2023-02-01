@@ -3,6 +3,9 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
+import android.util.Log
 import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
@@ -409,7 +412,8 @@ object MainHook {
                 ClipboardFilterHook,
                 ApplicationHook,
                 SignatureHook,
-                ContactHook
+                ContactHook,
+                SensorMangerHook
             )
         } catch (e: java.lang.Exception) {
             LogUtil.toLog(

@@ -244,14 +244,14 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         val inputView = InputView(requireContext())
         customDialog(
             requireContext(),
-            title = "请输入网址",
+            title = getString(R.string.please_input_url),
             contentView = inputView,
-            okText = "确认",
+            okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 importConfigsFromInternet(inputView.editText.text.toString().trim())
                 dialogInterface.dismiss()
             },
-            cancelText = "取消"
+            cancelText = getString(R.string.dialog_cancel)
         ).show()
     }
 
@@ -360,17 +360,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
             R.id.menu_edit_config -> editConfig(configOfItemMenu)
         }
         return super.onContextItemSelected(item)
-    }
-
-    private fun adapterOnClick(appConfig: AppConfig) {
-        val bottomSheetDialog = me.simpleHook.ui.custom.BottomSheetDialog(
-            requireContext(),
-            appConfig,
-            onClick = { editConfig(appConfig) })
-        bottomSheetDialog.setContentView()
-        val windowPreferencesManager = WindowPreferencesManager(requireContext())
-        windowPreferencesManager.applyEdgeToEdgePreference(bottomSheetDialog.window!!)
-        bottomSheetDialog.show()
     }
 
     private fun toAddConfig(bundle: Bundle?) {

@@ -349,4 +349,9 @@
     <string name="error_get_config_from_internet">Try again later, network error or other error</string>
     <string name="url_is_incorrect">URL is incorrect</string>
     <string name="data_loading">Loading …</string>
+    <string name="please_input_url">Please enter the URL</string>
+    <string name="extension_item_title_security">Security</string>
+    <string name="extension_item_title_disable_sensor">Disable sensor</string>
+    <string name="extension_item_title_disable_acceleration_gyroscope">Disable acceleration sensor, gyroscope sensor</string>
+    <string name="extension_item_title_disable_sensor_register_listener">Disable all sensor registration listeners</string>
 </resources>

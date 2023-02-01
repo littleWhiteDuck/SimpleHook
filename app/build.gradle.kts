@@ -23,7 +23,7 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.3.0"
+    val verName = "1.3.1"
     signingConfigs {
         create("keyStore") {
             keyAlias = prop.getProperty("alias")
