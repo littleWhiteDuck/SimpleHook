@@ -2,38 +2,48 @@ package me.simpleHook.hook.extension
 
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import me.simpleHook.bean.ExtensionConfigBean
 
 object SensorMangerHook : BaseHook() {
+    private val sensorTypes = arrayOf(
+        Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_GYROSCOPE
+    )
+    private val sportSensorTypes = arrayOf(
+        Sensor.TYPE_ACCELEROMETER,
+        Sensor.TYPE_GYROSCOPE,
+        Sensor.TYPE_GRAVITY,
+        Sensor.TYPE_LINEAR_ACCELERATION,
+        Sensor.TYPE_ROTATION_VECTOR,
+        Sensor.TYPE_STEP_COUNTER
+    )
+    // Sensor.TYPE_ACCELEROMETER_UNCALIBRATED
+
     override fun startHook(configBean: ExtensionConfigBean) {
-        if (configBean.disSensorAG) {
-            findMethod(SensorManager::class.java) {
-                name == "getSensorList"
+        if (configBean.disSensorAG || configBean.disSensorSport) {
+            findAllMethods(SensorManager::class.java) {
+                name == "getSensorList" || name == "getDynamicSensorList"
             }.hookAfter {
                 val type = it.args[0] as Int
-                if (type == Sensor.TYPE_ACCELEROMETER || type == Sensor.TYPE_GYROSCOPE) {
+                val disableSensorTypes =
+                    if (configBean.disSensorSport) sportSensorTypes else sensorTypes
+                if (type in disableSensorTypes) {
                     it.result = null
                 } else if (type == Sensor.TYPE_ALL) {
-                    val sensors = it.result as ArrayList<Sensor>
-                    val size = sensors.size
-                    var count = 0
-                    for (i in sensors.indices) {
-                        if (sensors[i + sensors.size - size].type == Sensor.TYPE_ACCELEROMETER || sensors[i + sensors.size - size].type == Sensor.TYPE_GYROSCOPE) {
-                            sensors.removeAt(i + sensors.size - size)
-                            if (++count == 2) break
+                    val unmodifiableList = it.result as List<Sensor>
+                    val sensors = ArrayList<Sensor>()
+                    unmodifiableList.forEach { sensor ->
+                        if (sensor.type !in disableSensorTypes) {
+                            sensors.add(sensor)
                         }
                     }
                     it.result = sensors
                 }
             }
         }
-        if (configBean.disSensor) {
-            findMethod(SensorManager::class.java) {
-                name == "registerListener"
-            }.hookReturnConstant(false)
-        }
+        /* findMethod(SensorManager::class.java) {
+             name == "registerListener"
+         }.hookReturnConstant(false)*/
     }
 }

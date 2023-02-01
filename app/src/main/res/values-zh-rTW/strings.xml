@@ -353,5 +353,5 @@
     <string name="extension_item_title_security">安全</string>
     <string name="extension_item_title_disable_sensor">禁用傳感器</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度傳感器、陀螺儀傳感器</string>
-    <string name="extension_item_title_disable_sensor_register_listener">禁用所有傳感器註冊監聽</string>
+    <string name="extension_item_title_disable_sport_sensor">禁用運動傳感器，包括：加速度傳感器、陀螺儀傳感器等</string>
 </resources>

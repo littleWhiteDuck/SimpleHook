@@ -353,5 +353,5 @@
     <string name="extension_item_title_security">Security</string>
     <string name="extension_item_title_disable_sensor">Disable sensor</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">Disable acceleration sensor, gyroscope sensor</string>
-    <string name="extension_item_title_disable_sensor_register_listener">Disable all sensor registration listeners</string>
+    <string name="extension_item_title_disable_sport_sensor">Disable motion sensors, including: acceleration sensor, gyro sensor, etc.</string>
 </resources>

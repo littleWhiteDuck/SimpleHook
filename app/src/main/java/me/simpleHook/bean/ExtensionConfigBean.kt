@@ -29,7 +29,7 @@ data class ExtensionConfigBean(
     var contact: Boolean = false,
     var tip: Boolean = false,
     var disSensorAG: Boolean = false,
-    var disSensor: Boolean = false
+    var disSensorSport: Boolean = false
 )
 
 @Keep

@@ -258,9 +258,9 @@ class ExtensionActivity : BaseActivity() {
                 add(
                     AssistItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
-                        disSensor,
-                        "disSensor",
-                        getString(R.string.extension_item_title_disable_sensor_register_listener)
+                        disSensorSport,
+                        "disSensorSport",
+                        getString(R.string.extension_item_title_disable_sport_sensor)
                     )
                 )
                 add(

@@ -395,7 +395,7 @@
     <string name="extension_item_title_security">安全</string>
     <string name="extension_item_title_disable_sensor">禁用传感器</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度传感器、陀螺仪传感器</string>
-    <string name="extension_item_title_disable_sensor_register_listener">禁用所有传感器注册监听</string>
+    <string name="extension_item_title_disable_sport_sensor">禁用运动传感器，包括：加速度传感器、陀螺仪传感器等</string>
     <string-array name="main_settings_left_config_select_item">
         <item>校验用户应用(慢)</item>
         <item>校验系统应用(慢)</item>
