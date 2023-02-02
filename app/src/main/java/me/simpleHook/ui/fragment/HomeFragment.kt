@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,13 +31,11 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.*
-import java.util.regex.Pattern
 import kotlin.math.min
 
 
@@ -193,18 +193,11 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun copyConfigs(config: AppConfig) {
-        /* val originConfig = config.configs
-         val configs = if (sp.encryptConfigs && !originConfig.startsWith("config://")) {
-             CipherUtils.encrypt(config.configs)
-         } else {
-             config.configs
-         }*/
         config.apply {
             config.configs = configs
             ToolUtils.toClip(requireContext(), Gson().toJson(config))
             getString(R.string.main_home_export_configs_tip).toast(requireContext())
         }
-//        config.configs = originConfig
     }
 
     private fun initView() {
@@ -242,6 +235,16 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
 
     private fun showInternetImportConfigDialog() {
         val inputView = InputView(requireContext())
+        inputView.editText.doAfterTextChanged {
+            it?.let {
+                if (it.toString().isEmpty() || Patterns.WEB_URL.matcher(it.toString()).matches()) {
+                    inputView.textInputLayout.isErrorEnabled = false
+                } else {
+                    inputView.textInputLayout.isErrorEnabled = true
+                    inputView.textInputLayout.error = getString(R.string.url_is_incorrect)
+                }
+            }
+        }
         customDialog(
             requireContext(),
             title = getString(R.string.please_input_url),
@@ -256,21 +259,14 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun importConfigsFromInternet(urlString: String) {
-        val regex =
-            """((http|ftp|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?)"""//设置正则表达式
-        if (Pattern.matches(regex, urlString)) {
-            val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.data_loading))
-            loadingDialog.show()
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-                fetchText(urlString)?.let {
-                    importConfigs(it)
-                } ?: getString(R.string.error_get_config_from_internet).toast(requireContext())
-                loadingDialog.dismiss()
-            }
-        } else {
-            getString(R.string.url_is_incorrect).toast(requireContext())
+        val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.data_loading))
+        loadingDialog.show()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            fetchText(urlString)?.let {
+                importConfigs(it)
+            } ?: getString(R.string.error_get_config_from_internet).toast(requireContext())
+            loadingDialog.dismiss()
         }
-
     }
 
     private fun shareConfigs() {

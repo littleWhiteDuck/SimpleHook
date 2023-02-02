@@ -2,10 +2,12 @@ v1.3.1
     - 修复: 若干bug，提高稳定性
     - 增加: 禁用加速度传感器、陀螺仪传感器，如X信会提示传感器不可用
     - 增加: 禁用运动传感器，包括：加速度传感器、陀螺仪传感器等
+    - 优化: 网络导入配置逻辑
 
-    - FIX: bugs
+    - Fix: bugs
     - Add: Disable acceleration sensor, gyroscope sensor
     - Add: Disable motion sensors, including: acceleration sensor, gyroscope sensor, etc.
+    - Optimize: Network import configuration logic
 v1.3.0
     - 修复: hook实例变量
     - 增加: 长按首页配置item:【启动】、【强行停止】、【重新启动】、【应用信息】

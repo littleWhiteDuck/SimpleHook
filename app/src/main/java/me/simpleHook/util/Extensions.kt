@@ -150,7 +150,7 @@ infix fun Int.isContainState(state: Int): Boolean {
 
 suspend fun fetchJson(url: String) = withContext(Dispatchers.IO) {
     try {
-        JSONObject(URL(url).readText())
+        fetchText(url)?.let { JSONObject(it) }
     } catch (e: Exception) {
         null
     }

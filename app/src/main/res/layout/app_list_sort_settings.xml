@@ -16,25 +16,25 @@
         <RadioButton
             android:id="@+id/app_name"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/sort_app_name" />
 
         <RadioButton
             android:id="@+id/package_name"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/sort_app_package_name" />
 
         <RadioButton
             android:id="@+id/installed_time"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/sort_app_installed_time" />
 
         <RadioButton
             android:id="@+id/target_api"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/sort_app_target_api" />
     </RadioGroup>
 

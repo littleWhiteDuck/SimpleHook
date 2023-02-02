@@ -40,6 +40,7 @@ import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.*
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -397,17 +398,14 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
-        val textInputLayout = TextInputLayout(this)
-        val textInput = TextInputEditText(this)
-        textInput.background = null
-        textInputLayout.addView(textInput)
+        val inputView = InputView(this)
         customDialog(
             this,
             title = getString(R.string.record_search_dialog_title),
-            contentView = textInputLayout,
+            contentView = inputView,
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
-                appViewModel.queryPattern.value = textInput.text.toString().trim()
+                appViewModel.queryPattern.value = inputView.editText.text.toString().trim()
                 val loadingDialog =
                     LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
