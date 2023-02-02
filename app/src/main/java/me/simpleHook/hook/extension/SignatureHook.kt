@@ -22,20 +22,15 @@ object SignatureHook : BaseHook() {
                 if (flag != PackageManager.GET_SIGNING_CERTIFICATES && flag != PackageManager.GET_SIGNATURES) return@hookAfter
                 val packInfo = it.result as PackageInfo
                 val items = LogUtil.getStackTrace()
-                var md5 = ""
-                var sha1 = ""
-                var sha256 = ""
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
-                    val byteArray = packInfo.signingInfo.apkContentsSigners[0].toByteArray()
-                    md5 = ToolUtils.getDigest(byteArray)
-                    sha1 = ToolUtils.getDigest(byteArray, "SHA-1")
-                    sha256 = ToolUtils.getDigest(byteArray, "SHA-256")
-                } else {
-                    val byteArray2 = packInfo.signatures[0].toByteArray()
-                    md5 = ToolUtils.getDigest(byteArray2)
-                    sha1 = ToolUtils.getDigest(byteArray2, "SHA-1")
-                    sha256 = ToolUtils.getDigest(byteArray2, "SHA-256")
-                }
+                val byteArray =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
+                        packInfo.signingInfo.apkContentsSigners[0].toByteArray()
+                    } else {
+                        packInfo.signatures[0].toByteArray()
+                    }
+                val md5 = ToolUtils.getDigest(byteArray)
+                val sha1 = ToolUtils.getDigest(byteArray, "SHA-1")
+                val sha256 = ToolUtils.getDigest(byteArray, "SHA-256")
                 val list = listOf(
                     "Signature(MD5): $md5", "Signature(SHA-1): $sha1", "Signature(SHA-256): $sha256"
                 )

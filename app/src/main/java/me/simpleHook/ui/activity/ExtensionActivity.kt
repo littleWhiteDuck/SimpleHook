@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -43,6 +42,7 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.edit.InputView
+import me.simpleHook.ui.view.extension.ExtensionItemTitleView
 import me.simpleHook.ui.view.extension.ExtensionItemView
 import me.simpleHook.util.*
 import javax.crypto.Mac
@@ -107,11 +107,7 @@ class ExtensionActivity : BaseActivity() {
                 add(AssistTitle(getString(R.string.extension_item_title_basic)))
                 add(
                     AssistItem(
-                        getString(R.string.extension_item_title_application),
-                        false,
-                        TAG_START_APP,
-                        assistConfig.packageName,
-                        assistConfig.appName
+                        assistConfig.appName, false, TAG_START_APP, assistConfig.packageName, ""
                     )
                 )
                 add(
@@ -361,13 +357,7 @@ class ExtensionActivity : BaseActivity() {
             }
 
             override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
-                1 -> AppCompatTextView(parent.context).apply {
-                    layoutParams = ViewGroup.MarginLayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                    ).also {
-                        it.setMargins(16.dp, 0, 0, 0)
-                    }
-                }
+                1 -> ExtensionItemTitleView(parent.context)
                 2 -> ExtensionItemView(parent.context)
                 else -> throw IllegalArgumentException("unknown viewType: $viewType")
             }
@@ -376,7 +366,7 @@ class ExtensionActivity : BaseActivity() {
                 parent: ViewGroup, itemView: View
             ): BasicViewHolder<*> {
                 return when (itemView) {
-                    is AppCompatTextView -> TitleHolder(itemView)
+                    is ExtensionItemTitleView -> TitleHolder(itemView)
                     is ExtensionItemView -> ItemHolder(itemView, onChangeChecked = { checked, tag ->
                         onChangeChecked(
                             checked, tag
@@ -624,7 +614,7 @@ class ExtensionActivity : BaseActivity() {
     }
 
     class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
-        private val tvTitle = itemView as AppCompatTextView
+        private val tvTitle = itemView as ExtensionItemTitleView
         override fun onBindData(position: Int, data: AssistTitle) {
             tvTitle.text = data.title
         }
@@ -639,10 +629,13 @@ class ExtensionActivity : BaseActivity() {
         private val tvTitle: TextView = assistItemView.title
         private val tvDesc: TextView = assistItemView.desc
         private val tvControl: TextView = assistItemView.control
+        private val lineView: View = assistItemView.lineView
         override fun onBindData(position: Int, data: AssistItem) {
             tvDesc.isVisible = data.desc.isNotEmpty()
             tvTitle.text = data.title
             tvDesc.text = data.desc
+            tvControl.isVisible = data.tag != TAG_START_APP
+            lineView.isVisible = data.tag == TAG_FILTER_CLIPBOARD || data.tag == TAG_STOP_DIALOG
             when {
                 data.tag == TAG_START_APP -> tvControl.text = data.other
                 data.isChecked -> {

@@ -86,12 +86,12 @@ class FloatingActionMenu(context: Context, attrs: AttributeSet) : CustomViewGrou
                 )
                 offsetY += it.measuredHeightWithMargins
 
-                val animatorAlpha = ObjectAnimator.ofFloat(it, "viewAlpha", 0f, 1f)
+                val animatorAlpha = ObjectAnimator.ofFloat(it, "actionViewAlpha", 0f, 1f)
                 animatorAlpha.startDelay = i
                 i += 50L
                 expandAnimators.add(animatorAlpha)
 
-                val animatorReverseAlpha = ObjectAnimator.ofFloat(it, "viewAlpha", 1f, 0f)
+                val animatorReverseAlpha = ObjectAnimator.ofFloat(it, "actionViewAlpha", 1f, 0f)
                 animatorReverseAlpha.startDelay = j
                 j -= 50L
                 collapseAnimators.add(animatorReverseAlpha)

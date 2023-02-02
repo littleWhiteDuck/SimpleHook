@@ -3,6 +3,7 @@ package me.simpleHook.ui.view.extension
 
 import android.content.Context
 import android.util.TypedValue
+import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.marginLeft
@@ -34,6 +35,11 @@ class ExtensionItemView(context: Context) : CustomViewGroup(context) {
                 }
             addView(this)
         }
+    val lineView = View(context).apply {
+        layoutParams = LayoutParams(2.dp, LayoutParams.WRAP_CONTENT)
+        setBackgroundColor(context.resources.getColor(R.color.line_background_color))
+        addView(this)
+    }
     val control = AppCompatTextView(context).apply {
         layoutParams =
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
@@ -46,8 +52,9 @@ class ExtensionItemView(context: Context) : CustomViewGroup(context) {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         control.autoMeasure()
+        lineView.measure(2.dp.toExactlyMeasureSpec(), lineView.defaultHeightMeasureSpec(this))
         val textViewWidth =
-            measuredWidth - control.measuredWidthWithMargins - paddingStart - paddingEnd
+            measuredWidth - control.measuredWidthWithMargins - paddingStart - paddingEnd - lineView.measuredWidth
         title.measure(textViewWidth.toExactlyMeasureSpec(), title.defaultHeightMeasureSpec(this))
         desc.measure(textViewWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
         val height =
@@ -59,5 +66,10 @@ class ExtensionItemView(context: Context) : CustomViewGroup(context) {
         title.autoLayout(paddingStart + title.marginLeft, paddingTop)
         desc.autoLayout(title.left, title.bottom + desc.marginTop)
         control.autoLayout(paddingEnd, control.toVerticalCenter(this), fromRight = true)
+        lineView.autoLayout(
+            paddingEnd + control.measuredWidthWithMargins,
+            lineView.toVerticalCenter(this),
+            fromRight = true
+        )
     }
 }

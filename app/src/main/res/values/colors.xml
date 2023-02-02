@@ -20,4 +20,5 @@
     <color name="background_record_mark">#40FF80AB</color>
     <color name="background_loading_dialog">#FF606060</color>
     <color name="windowSplashScreenBackground">@color/white</color>
+    <color name="line_background_color">#404F9BFA</color>
 </resources>

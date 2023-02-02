@@ -2,10 +2,10 @@ package me.simpleHook.ui.custom
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Parcelable
 import android.util.AttributeSet
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.isVisible
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.simpleHook.R
@@ -14,7 +14,7 @@ import me.simpleHook.util.dp
 @SuppressLint("ResourceType")
 class FloatingActionButton(context: Context, attrs: AttributeSet) :
     CustomViewGroup(context, attrs) {
-    private var viewAlpha = 0f
+    var actionViewAlpha = 0f
         set(value) {
             field = value
             refreshShowState()
@@ -62,15 +62,8 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
     }
 
     private fun refreshShowState() {
-        if (viewAlpha == 0f) {
-            cardView.visibility = GONE
-            actionButton.visibility = GONE
-        } else {
-            cardView.visibility = VISIBLE
-            actionButton.visibility = VISIBLE
-        }
-        cardView.alpha = viewAlpha
-        actionButton.alpha = viewAlpha
+        isVisible = actionViewAlpha != 0f
+        alpha = actionViewAlpha
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
