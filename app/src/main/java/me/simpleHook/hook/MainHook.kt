@@ -274,7 +274,7 @@ object MainHook {
                         param.result = result
                     } else {
                         val sp = AndroidAppHelper.currentApplication()
-                            .getSharedPreferences("me.simpleHook", Context.MODE_MULTI_PROCESS)
+                            .getSharedPreferences("me.simpleHook", Context.MODE_PRIVATE)
                         val oldTime = sp.getLong("time_$key", 0L)
                         val oldRandom = sp.getString("random_$key", defaultValue)
                         val currentTime = System.currentTimeMillis() / 1000
