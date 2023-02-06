@@ -215,11 +215,12 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
             }
             R.id.menu_invert_selection -> {
                 appList = appList.filter {
-                    it.checked = !it.checked
-                    if (it.checked) {
-                        needApplyApps.add(it.packageName)
-                    } else {
+                    if (needApplyApps.contains(it.packageName)) {
                         needApplyApps.remove(it.packageName)
+                        it.checked = false
+                    } else {
+                        needApplyApps.add(it.packageName)
+                        it.checked = true
                     }
                     true
                 }
