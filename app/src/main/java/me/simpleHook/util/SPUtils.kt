@@ -23,6 +23,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var permissionSortMode by SharedPreferenceDelegates.int(0)
     var permissionAppShowMode by SharedPreferenceDelegates.int(0)
     var permissionReverseSort by SharedPreferenceDelegates.boolean(false)
+    var showA13Tip by SharedPreferenceDelegates.boolean(true)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }

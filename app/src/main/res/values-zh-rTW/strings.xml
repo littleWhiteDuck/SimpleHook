@@ -366,4 +366,5 @@
     <string name="permission_display_all_app">所有应用</string>
     <string name="extension_tip_dex_path_to_clip">dex存放目录已复制到剪切板中</string>
     <string name="permission_sort_forward">正向排序</string>
+    <string name="main_android_13_tip"><![CDATA[由於你的系統版本>=13，在配置的保存/刪除/導入前均需要對目標應用的目錄進行授權（僅需授權一次）沒有授權將無法寫入配置，請不要將此類問題當作BUG反饋，你可以在設置頁面進行批量授權]]></string>
 </resources>

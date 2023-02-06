@@ -27,6 +27,7 @@ import me.simpleHook.util.*
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val sp by lazy { SPUtils(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -55,6 +56,17 @@ class MainActivity : BaseActivity() {
             }
         } else if (FlavorUtils.rootVersion) {
             SuUtil.init(this)
+        } else if (OSUtils.atLeastT()) {
+            if (sp.showA13Tip) {
+                customDialog(this,
+                    title = "Tip",
+                    message = getString(R.string.main_android_13_tip),
+                    okText = getString(R.string.dialog_cancel),
+                    cancelText = getString(R.string.read_introduction_not_remind),
+                    cancelClick = {
+                        sp.showA13Tip = false
+                    }).show()
+            }
         } else if (OSUtils.atR2T()) {
             if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
                 requestPermissionDialog(this) {

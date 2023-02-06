@@ -25,12 +25,6 @@ class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
             dataList[position].isChecked = !dataList[position].isChecked
             onCheckedChange(dataList[position].isChecked, position)
         }
-        holder.checkBox.setOnClickListener {
-            val position = holder.itemView.getTag(R.id.item_in_export_config_position) as Int
-            holder.checkBox.isChecked = !dataList[position].isChecked
-            dataList[position].isChecked = !dataList[position].isChecked
-            onCheckedChange(dataList[position].isChecked, position)
-        }
         return holder
     }
 

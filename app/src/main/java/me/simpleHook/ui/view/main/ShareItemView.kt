@@ -1,6 +1,7 @@
 package me.simpleHook.ui.view.main
 
 import android.content.Context
+import android.graphics.Color
 import android.util.TypedValue
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
@@ -25,6 +26,8 @@ class ShareItemView(context: Context) : CustomViewGroup(context) {
     }
     val checkBox = AppCompatCheckBox(context).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        isClickable = false
+        setBackgroundColor(Color.TRANSPARENT)
         addView(this)
     }
 

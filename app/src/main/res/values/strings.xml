@@ -441,5 +441,6 @@
     <string name="settings_clear_warning_dialog_title">警告</string>
     <string name="settings_clear_warning_dialog_message">是否确定要删除？</string>
     <string name="settings_clear_warning_dialog_confirm">确认</string>
+    <string name="main_android_13_tip"><![CDATA[由于你的系统版本>=13，在配置的保存/删除/导入前均需要对目标应用的目录进行授权（仅需授权一次），没有授权将无法写入配置，请不要将此类问题当作BUG反馈，你可以在设置页面进行批量授权]]></string>
 
 </resources>
