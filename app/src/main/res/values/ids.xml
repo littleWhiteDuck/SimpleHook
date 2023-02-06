@@ -8,6 +8,7 @@
     <item name="item_assist_config" type="id" />
     <item name="item_collection" type="id" />
     <item name="item_in_export_config_position" type="id" />
+    <item name="item_permission_grant_position" type="id" />
     <item name="item_record_position" type="id" />
     <item name="item_record_summary" type="id" />
     <item name="fab_label" type="id" />

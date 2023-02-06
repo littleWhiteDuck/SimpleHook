@@ -27,14 +27,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -144,6 +143,7 @@ class ConfigActivity : BaseActivity() {
     private lateinit var tempConfigStr: String
     private var tempVersionName: String = ""
     private var longClickPosition = 0
+    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -583,8 +583,8 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun writeCollection(content: String) {
-        FileUtils.writeTextToFile(
-            content, getExternalFilesDir(null)!!.path + "/", "collection_config.json"
+        FileUtils.outTextToFile(
+            getExternalFilesDir(null)!!.path + "/collection_config.json", content
         )
     }
 
@@ -704,11 +704,9 @@ class ConfigActivity : BaseActivity() {
                 appViewModel.insertConfigs(appConfig)
             }
             val configStr = Gson().toJson(appConfig)
-            saveToText(appConfig.packageName, configStr)
+            saveConfig(appConfig.packageName, configStr)
             if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
-                ConfigHelper.deleteConfig(
-                    this@ConfigActivity, tempPackageName, Constant.APP_CONFIG_NAME
-                )
+                configSystem?.deleteCustomConfig(tempPackageName)
             }
         }
         Handler(Looper.getMainLooper()).postDelayed({
@@ -720,32 +718,8 @@ class ConfigActivity : BaseActivity() {
         }, 800)
     }
 
-    private fun saveToText(packageName: String, configStr: String) {
-        if (FlavorUtils.isLiteVersion) {
-            ConfigHelper.saveConfig(
-                this, packageName, Constant.APP_CONFIG_NAME, configStr
-            )
-        } else {
-            if (FlavorUtils.isNormal()) {
-                if (FileUtils.isGrant(this)) {
-                    ConfigHelper.saveConfig(
-                        this, packageName, Constant.APP_CONFIG_NAME, configStr
-                    )
-                } else {
-                    requestPermissionDialog(this) {
-                        FileUtils.verifyStoragePermissions(this)
-                    }
-                }
-            } else {
-                if (Shell.isAppGrantedRoot() == true) {
-                    ConfigHelper.saveConfig(
-                        this, packageName, Constant.APP_CONFIG_NAME, configStr
-                    )
-                } else {
-                    SuUtil.init(this)
-                }
-            }
-        }
+    private fun saveConfig(packageName: String, configStr: String) {
+        configSystem?.saveCustomConfig(packageName, configStr)
     }
 
     @Deprecated("Deprecated in Java")

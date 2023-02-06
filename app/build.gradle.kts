@@ -9,7 +9,6 @@ prop.load(FileInputStream(keyFile))
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("c")
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("org.jetbrains.kotlin.android")
@@ -74,15 +73,23 @@ android {
     buildToolsVersion = "31.0.0"
     namespace = "me.simpleHook"
     productFlavors {
+        create("root") {
+            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.root"
+            manifestPlaceholders["FLAVOR"] = "SimpleHookR"
+            versionName = verName + if (beta) "_beta" else ""
+        }
         create("normal") {
-            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider"
+            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.normal"
+            manifestPlaceholders["FLAVOR"] = "SimpleHook"
+            applicationId = "me.simplehook.normal"
             versionName = verName + if (beta) "_beta" else ""
         }
         create("lite") {
             minSdk = 27
             versionName = verName + if (beta) "_beta" else ""
             applicationId = "me.simplehook.lite"
-            manifestPlaceholders["PROVIDER"] = "me.simplehook.lite.provider"
+            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.lite"
+            manifestPlaceholders["FLAVOR"] = "xposedsharedprefs"
         }
     }
 
@@ -95,9 +102,13 @@ android {
     androidComponents.onVariants { v ->
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl
         variant.outputs.forEach {
-            val name = if (variant.flavorName == "lite") "SimpleHookLite" else "SimpleHook"
+            val name = when (variant.flavorName) {
+                "lite" -> "SimpleHookL"
+                "root" -> "SimpleHookR"
+                else -> "SimpleHook"
+            }
             val tempVerName = verName + if (beta) "_beta" else ""
-            it.outputFileName.set("$name-${tempVerName}-${verCode}.apk")
+            it.outputFileName.set("$name-${variant.flavorName}-${tempVerName}-${verCode}.apk")
         }
     }
 
@@ -113,6 +124,7 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.core:core-ktx:+")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

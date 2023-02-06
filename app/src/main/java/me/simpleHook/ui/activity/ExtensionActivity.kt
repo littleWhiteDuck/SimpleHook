@@ -19,8 +19,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.topjohnwu.superuser.Shell
-import com.topjohnwu.superuser.io.SuFile
-import com.topjohnwu.superuser.io.SuFileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -30,7 +28,8 @@ import me.simpleHook.adapter.MultiTypeAdapter
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.bean.ExtensionConfigBean
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.compat.ConfigSystemUtil
+import me.simpleHook.compat.DocumentCompatUtils
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
@@ -60,10 +59,9 @@ class ExtensionActivity : BaseActivity() {
     private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
     private val itemList = ArrayList<Any>()
-    private var statusChecked = 0
-    private var statusUnChecked = 0
     private lateinit var configBean: ExtensionConfigBean
     private var tempConfigStr = ""
+    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,9 +88,10 @@ class ExtensionActivity : BaseActivity() {
         initView()
     }
 
+
     private fun initData() {
         val dexPosition = getString(R.string.extension_dex_position)
-        val dexPath = if (FlavorUtils.isNormal()) {
+        val dexPath = if (FlavorUtils.normalVersion) {
             dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
         } else {
             dexPosition + "/data/local/tmp/simpleHook/${assistConfig.packageName}/dex/"
@@ -404,10 +403,11 @@ class ExtensionActivity : BaseActivity() {
     private fun onChangeChecked(checked: Boolean, tag: String) {
         if (tag == TAG_START_APP) {
             if (assistConfig.packageName == MODEL_EXTENSION_CONFIG) return
-            saveConfig()
-            Handler(Looper.getMainLooper()).postDelayed({
-                startAppAndFloat()
-            }, 100)
+            if (saveConfig()) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startAppAndFloat()
+                }, 100)
+            }
             return
         } else {
             if (tag == "hotFix" && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
@@ -453,55 +453,28 @@ class ExtensionActivity : BaseActivity() {
         ).show()
     }
 
-    private fun createDexDirectory(tipToast: Boolean = true) {
-        val tip = """
-                     1. 无效，取消此应用作用域，再给此应用作用域
-                     2. 无效，清除数据，重复1
-                     3. 无效，卸载重装，重复1
-                     4. 无效，重启系统，如依旧用不了，那就是用不了
-                    """.trimIndent()
-        if (FlavorUtils.isNormal()) {
-            if (FileUtils.isGrant(this)) {
-                val filePath = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex/"
-                FileUtils.writeTextToFile(
-                    tip, filePath, "说明.txt"
-                )
-                if (tipToast) {
-                    ToolUtils.toClip(this, filePath)
-                    "dex存放目录已复制到剪切板中".toast(this)
-                }
-
-            } else {
-                requestPermissionDialog(this) {
-                    FileUtils.verifyStoragePermissions(this)
-                }
-            }
+    private fun createDexDirectory() {
+        val filePath = if (FlavorUtils.rootVersion) {
+            val path = Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex"
+            SuUtil.makeDirs(path)
+            path
         } else {
-            val filePath =
-                Constant.ROOT_CONFIG_MAIN_DIRECTORY + assistConfig.packageName + "/dex/说明.txt"
-            val suFile = SuFile.open(filePath)
-            if (!suFile.exists()) {
-                suFile.parentFile?.mkdirs()
+            val path = ANDROID_DATA_PATH + assistConfig.packageName + "/simpleHook/dex"
+            if (OSUtils.atLeastR()) {
+                DocumentCompatUtils.makeDirs(this, path, assistConfig.packageName)
+            } else {
+                FileUtils.makeDirs(path)
             }
-            SuFileOutputStream.open(suFile).writer().use {
-                it.write(tip)
-            }
-            if (tipToast) {
-                ToolUtils.toClip(this, filePath)
-                "dex存放目录已复制到剪切板中".toast(this)
-            }
+            path
         }
+        ToolUtils.toClip(this, filePath)
+        getString(R.string.extension_tip_dex_path_to_clip).toast(this)
     }
 
     private fun startAppAndFloat() {
         if (sp.startFloat) initPrintFloat()
         AppUtils.startApp(assistConfig.packageName, this)
     }
-
-    private fun isContains(state: Int) =
-        statusChecked isContainState state || statusUnChecked isContainState state
-
-    private fun isChecked(state: Int) = statusChecked isContainState state
 
     private fun refreshConfigBean(tag: String, isChecked: Boolean) {
         when (tag) {
@@ -522,8 +495,25 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 
+    fun checkPermission(): Boolean {
+        if (OSUtils.atLeastT() && assistConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
+                assistConfig.packageName
+            )
+        ) {
+            requestPermissionDialog(
+                this, message = getString(R.string.android_13_no_permission)
+            ) {
+                val uri = DocumentCompatUtils.generateAppUri(assistConfig.packageName)
+                startActivityForData.launch(uri)
+            }
+            return false
+        }
+        return true
+    }
+
     @SuppressLint("Range")
-    private fun saveConfig(exit: Boolean = false) {
+    private fun saveConfig(exit: Boolean = false): Boolean {
+        if (!checkPermission()) return false
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
         loadingDialog.show()
         val config = Gson().toJson(configBean)
@@ -536,13 +526,13 @@ class ExtensionActivity : BaseActivity() {
             appViewModel.insertAssistConfigs(assistConfig)
         }
         if (assistConfig.packageName != "模板配置") {
-            saveToText(assistConfig.packageName, config)
+            saveConfig(assistConfig.packageName, config)
         }
         Handler(Looper.getMainLooper()).postDelayed({
             loadingDialog.quickDismiss()
             if (exit) finish()
         }, 500)
-
+        return true
     }
 
     @Deprecated("Deprecated in Java")
@@ -569,11 +559,9 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 
-    private fun saveToText(packageName: String, config: String) {
+    private fun saveConfig(packageName: String, config: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            ConfigHelper.saveConfig(
-                this@ExtensionActivity, packageName, Constant.EXTENSION_CONFIG_NAME, config
-            )
+            configSystem.saveExConfig(packageName, config)
         }
     }
 

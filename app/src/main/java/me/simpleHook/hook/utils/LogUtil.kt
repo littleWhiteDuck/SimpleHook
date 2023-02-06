@@ -10,17 +10,18 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.util.*
+import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI
 
 object LogUtil {
     private const val filterClass =
         """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
-    private val PRINT_URI = Uri.parse("content://me.simplehook.provider/print_logs")
+    private val PRINT_URI = Uri.parse(PROVIDER_RECORD_URI)
     fun toLogMsg(log: String, type: String) {
         if (type == "null" || !HookHelper.enableRecord) return
         HookHelper.appContext.getExternalFilesDirs("")
         val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName = if (type.startsWith("Error")) "error.hook.tip" else hostPackageName
-        if (FlavorUtils.isLiteVersion) {
+        if (FlavorUtils.liteVersion) {
             log.log(hostPackageName)
         } else if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
             outLogFile(log, tempPackageName, type, time)
@@ -39,7 +40,13 @@ object LogUtil {
             val printLogStr = Gson().toJson(printLog)
             val filePath =
                 Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-            FileUtils.writeLogToFile(content = printLogStr, filePath = filePath)
+            FileUtils.outTextToFile(
+                filePath,
+                printLogStr,
+                isNewLine = true,
+                limitSize = 4096,
+                append = true
+            )
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip(hostPackageName)
             log.log(hostPackageName)

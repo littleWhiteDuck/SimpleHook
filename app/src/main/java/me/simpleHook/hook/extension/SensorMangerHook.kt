@@ -8,7 +8,7 @@ import me.simpleHook.bean.ExtensionConfigBean
 
 object SensorMangerHook : BaseHook() {
     private val sensorTypes = arrayOf(
-        Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_GYROSCOPE
+        Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_GYROSCOPE, Sensor.TYPE_LINEAR_ACCELERATION
     )
     private val sportSensorTypes = arrayOf(
         Sensor.TYPE_ACCELEROMETER,

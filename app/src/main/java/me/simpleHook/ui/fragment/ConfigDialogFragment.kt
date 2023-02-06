@@ -21,7 +21,7 @@ import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -43,6 +43,7 @@ class ConfigDialogFragment(
             )
         }
     }
+    private val configSystem = ConfigSystemUtil.getConfigSystem()
     private val staticField = "common.setStaticObjectField('类名', '变量名', 变量值);"
     private val instanceField = "common.setObjectField(param.thisObject, '变量名', 变量值);"
     private val hookAllConstructor = """
@@ -114,11 +115,8 @@ class ConfigDialogFragment(
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                ConfigHelper.saveConfig(
-                                    mContext,
-                                    item.appConfig.packageName,
-                                    Constant.APP_CONFIG_NAME,
-                                    Gson().toJson(item.appConfig)
+                                configSystem.saveCustomConfig(
+                                    item.appConfig.packageName, Gson().toJson(item.appConfig)
                                 )
                             }
                             tempList.add(item.appConfig)

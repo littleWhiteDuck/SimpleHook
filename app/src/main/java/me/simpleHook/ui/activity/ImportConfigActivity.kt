@@ -11,13 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityImportConfigBinding
 import me.simpleHook.ui.fragment.ConfigDialogFragment
-import me.simpleHook.util.FileUtils
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.toast
 import java.io.BufferedReader
@@ -25,6 +24,7 @@ import java.io.InputStreamReader
 import java.util.*
 
 class ImportConfigActivity : AppCompatActivity() {
+    private val configSystem = ConfigSystemUtil.getConfigSystem()
     private lateinit var binding: ActivityImportConfigBinding
     private val viewModel: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,12 +81,7 @@ class ImportConfigActivity : AppCompatActivity() {
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        ConfigHelper.saveConfig(
-                            this@ImportConfigActivity,
-                            appConfig.packageName,
-                            Constant.APP_CONFIG_NAME,
-                            configs
-                        )
+                        configSystem.saveCustomConfig(appConfig.packageName, configs)
                     }
                 } catch (e: java.lang.Exception) {
                     getString(R.string.main_home_import_incorrect_format_tip).toast(this)

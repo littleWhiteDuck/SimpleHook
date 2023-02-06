@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.Keep
+import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
+import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
@@ -32,7 +34,13 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
-        if (FlavorUtils.isLiteVersion) {
+        checkUpdate()
+        initPermission()
+        super.onCreate(savedInstanceState)
+    }
+
+    private fun initPermission() {
+        if (FlavorUtils.liteVersion) {
             if (!isModuleLive()) {
                 customDialog(this,
                     title = getString(R.string.module_not_activated),
@@ -45,20 +53,21 @@ class MainActivity : BaseActivity() {
                     cancelText = getString(R.string.dialog_cancel),
                     cancelClick = { it.dismiss() }).show()
             }
-        } else {
-            if (!isModuleLive()) getString(R.string.main_module_not_activated_tip).toast(this)
-            if (!FlavorUtils.isNormal()) {
-                SuUtil.init(this)
-            } else if (!FileUtils.isGrant(this)) {
+        } else if (FlavorUtils.rootVersion) {
+            SuUtil.init(this)
+        } else if (OSUtils.atR2T()) {
+            if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
                 requestPermissionDialog(this) {
-                    FileUtils.verifyStoragePermissions(this)
+                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
+                }
+            }
+        } else if (OSUtils.atMostQ()) {
+            if (!PermissionUtils.isGrantWritePermission(this)) {
+                requestPermissionDialog(this) {
+                    PermissionUtils.verifyStoragePermissions(this)
                 }
             }
         }
-        //initUseTip()
-        checkUpdate()
-        getExternalFilesDir(null)
-        super.onCreate(savedInstanceState)
     }
 
     private fun checkUpdate() {
@@ -93,56 +102,10 @@ class MainActivity : BaseActivity() {
         }
     }
 
-/*    @SuppressLint("SetTextI18n", "InflateParams")
-    private fun initUseTip() {
-        if (sp.termsOfUse) return
-        val message = AssetsUtil.getText(this, "agreement")
-        val random1 = Random.nextInt(5, 10)
-        val random2 = Random.nextInt(10, 15)
-        val contentView = layoutInflater.inflate(R.layout.terms_use, null)
-        val tvMessage = contentView.findViewById<AppCompatTextView>(R.id.message)
-        tvMessage.text = message
-        val resultInput = contentView.findViewById<TextInputLayout>(R.id.result_input)
-        val resultEdit = contentView.findViewById<TextInputEditText>(R.id.result_edit)
-        resultInput.hint = "$random1×$random2 = "
-        customDialog(
-            this,
-            title = "使用协议",
-            contentView = contentView,
-            okText = getString(R.string.main_agreement_confirm),
-            okClick = { dialogInterface ->
-                val canCancel = resultEdit.text.toString().trim() == (random1 * random2).toString()
-                if (canCancel) {
-                    sp.termsOfUse = true
-                } else {
-                    getString(R.string.main_agreement_tip).toast(this)
-                }
-                dialogDismiss(dialogInterface, canCancel)
-            },
-            cancelText = getString(R.string.main_agreement_cancel),
-            cancelClick = {
-                Process.killProcess(Process.myPid())
-            },
-            cancelAble = false
-        ).show()
-    }
-
-    private fun dialogDismiss(dialog: DialogInterface, canCancel: Boolean) {
-        try {
-            val mShowing: Field =
-                dialog.javaClass.superclass!!.superclass!!.getDeclaredField("mShowing")
-            mShowing.isAccessible = true
-            mShowing.set(dialog, canCancel)
-            dialog.dismiss()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    } */
-
     private fun initView() {
         binding.apply {
             viewPager.apply {
-                adapter = if (FlavorUtils.isLiteVersion) {
+                adapter = if (FlavorUtils.liteVersion) {
                     object : FragmentStateAdapter(this@MainActivity) {
                         override fun getItemCount() = 2
 
@@ -172,7 +135,7 @@ class MainActivity : BaseActivity() {
                 }
 
             }
-            if (FlavorUtils.isLiteVersion) {
+            if (FlavorUtils.liteVersion) {
                 binding.bottomNavigationView.menu.removeItem(R.id.assistFragment)
                 binding.bottomNavigationView.menu.removeItem(R.id.recordFragment)
                 binding.bottomNavigationView.setOnItemSelectedListener {

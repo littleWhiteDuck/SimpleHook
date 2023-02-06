@@ -5,9 +5,12 @@ import me.simpleHook.BuildConfig
 
 object FlavorUtils {
 
-    fun isNormal(): Boolean {
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-    }
-
-    const val isLiteVersion = BuildConfig.FLAVOR == "lite"
+    const val liteVersion = BuildConfig.FLAVOR == "lite"
+    const val rootVersion = BuildConfig.FLAVOR == "root"
+    const val normalVersion = BuildConfig.FLAVOR == "normal"
+    const val AUTHORITIES = "me.simplehook.provider." + BuildConfig.FLAVOR
+    const val PROVIDER_RECORD_URI =
+        "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/print_logs"
+    const val PROVIDER_CONFIG_URI =
+        "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/app_configs"
 }

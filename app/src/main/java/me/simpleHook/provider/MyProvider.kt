@@ -11,8 +11,7 @@ class MyProvider : ContentProvider() {
     private val configDir = 0
     private val printLogDir = 1
     private val assistConfig = 2
-    private val authority =
-        if (FlavorUtils.isLiteVersion) "me.simplehook.lite.provider" else "me.simplehook.provider"
+    private val authority = FlavorUtils.AUTHORITIES
     private var dbHelper: MyDatabaseHelper? = null
 
     private val uriMatcher by lazy {

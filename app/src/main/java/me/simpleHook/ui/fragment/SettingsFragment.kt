@@ -1,18 +1,14 @@
 package me.simpleHook.ui.fragment
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -27,11 +23,13 @@ import kotlinx.coroutines.withContext
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.compat.ConfigSystemUtil
+import me.simpleHook.compat.PrefConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -71,9 +69,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 contentResolver.takePersistableUriPermission(uri, takeFlags)
             }
         }
+    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        findPreference<Preference>("batch_grant")?.apply {
+            if (OSUtils.atLeastT() && FlavorUtils.normalVersion) isVisible = true
+            setOnPreferenceClickListener {
+                val intent = Intent(requireContext(), A33PermissionActivity::class.java)
+                startActivity(intent)
+                true
+            }
+        }
         findPreference<Preference>("about")?.apply {
             setOnPreferenceClickListener {
                 startActivity(Intent(requireContext(), AboutActivity::class.java))
@@ -175,20 +182,38 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermission() {
-        if (FlavorUtils.isLiteVersion) {
-            if (ConfigHelper.getHookConfigPref(requireContext()) == null) {
-                settingsViewModel.permStatus.value = Constant.NO_ALIVE
+        if (FlavorUtils.liteVersion) {
+            settingsViewModel.permStatus.value =
+                if ((configSystem as PrefConfigHelper).customPref == null) {
+                    Constant.NO_ALIVE
+                } else {
+                    Constant.IS_GRANT
+                }
+            return
+        }
+        if (FlavorUtils.rootVersion) {
+            settingsViewModel.permStatus.value = if (Shell.isAppGrantedRoot() == true) {
+                Constant.IS_GRANT
+            } else {
+                Constant.NO_ROOT
             }
             return
         }
-        if (Shell.isAppGrantedRoot() == true || FileUtils.isGrant(requireContext())) {
+        if (OSUtils.atLeastT()) {
             settingsViewModel.permStatus.value = Constant.IS_GRANT
-            return
-        }
-        settingsViewModel.permStatus.value = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            Constant.NO_ROOT
+        } else if (OSUtils.atLeastR()) {
+            settingsViewModel.permStatus.value = if (PermissionUtils.isGrantData()) {
+                Constant.IS_GRANT
+            } else {
+                Constant.NO_STORAGE
+            }
         } else {
-            Constant.NO_STORAGE
+            settingsViewModel.permStatus.value =
+                if (PermissionUtils.isGrantWritePermission(requireContext())) {
+                    Constant.IS_GRANT
+                } else {
+                    Constant.NO_STORAGE
+                }
         }
     }
 
@@ -209,14 +234,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val extensionPackageNames = viewModel.getAllPackageNames()
                 for (i in apps.indices) {
                     if (apps[i] !in appPackageNames) {
-                        ConfigHelper.deleteConfig(
-                            requireContext(), apps[i], Constant.APP_CONFIG_NAME
-                        )
+                        configSystem.deleteCustomConfig(apps[i])
                     }
                     if (apps[i] !in extensionPackageNames) {
-                        ConfigHelper.deleteConfig(
-                            requireContext(), apps[i], Constant.EXTENSION_CONFIG_NAME
-                        )
+                        configSystem.deleteExConfig(apps[i])
                     }
                 }
             }
@@ -239,57 +260,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun clearHookConfig(mode: Int) {
-        showNotification("正在删除中", "请勿退出应用")
         lifecycleScope.launch(Dispatchers.IO) {
             when (mode) {
                 0 -> {
                     val configs = viewModel.getConfigs()
                     configs.forEach {
-                        ConfigHelper.deleteConfig(
-                            requireActivity(),
-                            it.packageName,
-                            Constant.APP_CONFIG_NAME,
-                        )
+                        if (configSystem.isEnableDelete(it.packageName)) {
+                            configSystem.deleteCustomConfig(it.packageName)
+                            viewModel.deleteConfigs(it)
+                        }
                     }
-                    viewModel.deleteAllConfigs()
-                    showNotification("完成", "Hook配置已经删除成功")
                 }
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
                     configs.forEach {
-                        ConfigHelper.deleteConfig(
-                            requireActivity(), it.packageName, Constant.EXTENSION_CONFIG_NAME
-                        )
+                        if (configSystem.isEnableDelete(it.packageName)) {
+                            configSystem.deleteExConfig(it.packageName)
+                            viewModel.deleteAssistConfigs(it)
+                        }
                     }
-                    viewModel.deleteAssistConfigsByPackageName("模板配置")
-                    showNotification("完成", "扩展配置已经删除成功")
                 }
                 2 -> {
                     viewModel.deleteAllLogs()
-                    showNotification("完成", "记录已经删除成功")
                 }
             }
         }
 
-    }
-
-    private fun showNotification(title: String, content: String) {
-        val manager =
-            requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "delete", "删除通知", NotificationManager.IMPORTANCE_HIGH
-            )
-            manager.createNotificationChannel(channel)
-        }
-        val notification = androidx.core.app.NotificationCompat.Builder(requireActivity(), "delete")
-            .setContentTitle(title).setContentText(content)
-            .setSmallIcon(R.drawable.ic_outline_delete_forever_24).setLargeIcon(
-                BitmapFactory.decodeResource(
-                    resources, R.drawable.ic_outline_delete_forever_24
-                )
-            ).build()
-        manager.notify(1, notification)
     }
 
     private fun showUseTerms() {
@@ -371,8 +367,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         getString(R.string.not_root_tip).toast(requireContext())
                     }
                     Constant.NO_STORAGE -> {
-                        requestPermissionDialog(requireContext()) {
-                            FileUtils.verifyStoragePermissions(requireActivity())
+                        if (OSUtils.atR2T()) {
+                            if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
+                                requestPermissionDialog(requireContext()) {
+                                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
+                                }
+                            }
+                        } else if (OSUtils.atMostQ()) {
+                            if (!PermissionUtils.isGrantWritePermission(requireContext())) {
+                                requestPermissionDialog(requireContext()) {
+                                    PermissionUtils.verifyStoragePermissions(requireActivity())
+                                }
+                            }
                         }
                     }
                 }

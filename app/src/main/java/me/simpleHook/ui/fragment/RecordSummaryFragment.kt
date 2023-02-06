@@ -6,7 +6,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -21,7 +20,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.bean.RecordSummary
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.config.RecordsHelper
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
@@ -54,8 +53,7 @@ class RecordSummaryFragment : Fragment() {
         })
     }
     private val sp by lazy { SPUtils(requireContext()) }
-//    private val assistConfigs by lazy { appViewModel.getAssistConfigs() }
-//    private val configs by lazy { appViewModel.getConfigs() }
+
 
     private lateinit var assistConfigs: List<AssistConfig>
     private lateinit var configs: List<AppConfig>
@@ -279,21 +277,17 @@ class RecordSummaryFragment : Fragment() {
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
-                        val list = ConfigHelper.insertRecordsFromFile(it)
+                        val list = RecordsHelper.insertRecordsFromFile(requireContext(), it)
                         appViewModel.insertRecord(*list.toTypedArray())
                     }
                 } else {
                     needCheckPacks.forEach {
-                        val list = ConfigHelper.insertRecordsFromFile(it)
+                        val list = RecordsHelper.insertRecordsFromFile(requireContext(), it)
                         appViewModel.insertRecord(*list.toTypedArray())
                     }
                 }
             } catch (e: Exception) {
-                FileUtils.writeLogToFile(
-                    e.stackTraceToString(),
-                    filePath = "/storage/emulated/0/Android/data/me.simpleHook/files/log.txt",
-                    size = 512
-                )
+                LogUtils.outLog(e.stackTraceToString())
             }
         }
     }

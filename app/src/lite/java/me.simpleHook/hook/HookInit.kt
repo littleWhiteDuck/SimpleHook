@@ -7,12 +7,17 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.IXposedHookZygoteInit
+import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
+import me.simpleHook.constant.Constant
 import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.util.log
 
-class HookInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
+class HookInit : IXposedHookLoadPackage {
+
+    private val prefHookConfig by lazy { getPref(Constant.CUSTOM_CONFIG_PREF) }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         EzXHelperInit.initHandleLoadPackage(lpparam)
@@ -27,13 +32,23 @@ class HookInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 name == "attach"
             }.hookAfter {
                 HookHelper.initFields(context = it.args[0] as Context, lpparam)
-                MainHook.startHook(lpparam.packageName)
+                readyXmlHook()
             }
         }
     }
 
-    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
-        EzXHelperInit.initZygote(startupParam)
+    private fun readyXmlHook() {
+        prefHookConfig?.let { sp ->
+            sp.getString(hostPackageName, null)?.let {
+                MainHook.readyHook(it)
+            } ?: "not have the custom config".log(hostPackageName)
+        } ?: "null: XSharedPreferences".log(hostPackageName)
+    }
+
+
+    private fun getPref(path: String): XSharedPreferences? {
+        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
+        return if (pref.file.canRead()) pref else null
     }
 
 }

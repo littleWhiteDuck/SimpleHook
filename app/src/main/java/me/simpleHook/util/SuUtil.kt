@@ -45,4 +45,8 @@ object SuUtil {
         return Shell.cmd("rm -rf $filePath").exec().isSuccess
     }
 
+    fun makeDirs(filePath: String): Boolean {
+        return Shell.cmd("mkdir -p $filePath").exec().isSuccess
+    }
+
 }

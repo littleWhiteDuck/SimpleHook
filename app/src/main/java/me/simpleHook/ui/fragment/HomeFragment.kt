@@ -12,7 +12,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +25,6 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.config.ConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -39,7 +37,7 @@ import me.simpleHook.util.*
 import kotlin.math.min
 
 
-class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListener {
+class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollListener {
 
     private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
@@ -56,7 +54,6 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
             onItemClick(mode, appConfig)
         }, onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) })
     }
-
 
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -127,32 +124,34 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun deleteConfig(appConfig: AppConfig) {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.deleteConfigs(appConfig)
-            ConfigHelper.deleteConfig(
-                requireContext(), appConfig.packageName, Constant.APP_CONFIG_NAME
-            )
-            Snackbar.make(
-                binding.fab, getString(R.string.main_home_delete_config_tip), Snackbar.LENGTH_LONG
-            ).apply {
-                anchorView = bottomNavigationView
-            }.addCallback(object : Snackbar.Callback() {
-                override fun onShown(sb: Snackbar?) {
-                    super.onShown(sb)
-                    if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
-                        DecelerateInterpolator(1.5f)
-                }
+        if (configSystem.isEnableDelete(appConfig.packageName)) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.deleteConfigs(appConfig)
+                configSystem.deleteCustomConfig(appConfig.packageName)
+                Snackbar.make(
+                    binding.fab,
+                    getString(R.string.main_home_delete_config_tip),
+                    Snackbar.LENGTH_LONG
+                ).apply {
+                    anchorView = bottomNavigationView
+                }.addCallback(object : Snackbar.Callback() {
+                    override fun onShown(sb: Snackbar?) {
+                        super.onShown(sb)
+                        if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
+                            DecelerateInterpolator(1.5f)
+                    }
 
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    super.onDismissed(transientBottomBar, event)
-                    if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
-                        DecelerateInterpolator(1.5f)
-                }
-            }).setAction(getString(R.string.main_home_undo_delete_config)) {
-                viewModel.insertConfigs(appConfig)
-                val configStr = Gson().toJson(appConfig)
-                saveToText(appConfig.packageName, configStr)
-            }.show()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+                        if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
+                            DecelerateInterpolator(1.5f)
+                    }
+                }).setAction(getString(R.string.main_home_undo_delete_config)) {
+                    saveConfig(appConfig)
+                }.show()
+            }
+        } else {
+            requirePermission(appConfig.packageName)
         }
     }
 
@@ -182,7 +181,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
         val isInstalled = AppUtils.isAppInstalled(requireContext(), appConfig.packageName)
         if (isInstalled) {
             requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
-            if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.isLiteVersion || Shell.isAppGrantedRoot() != true) {
+            if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.liteVersion || Shell.isAppGrantedRoot() != true) {
                 menu.removeItem(R.id.menu_launch)
                 menu.removeItem(R.id.menu_relaunch)
             }
@@ -304,9 +303,7 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
                         val appConfig = Gson().fromJson(configs, AppConfig::class.java)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        ConfigHelper.saveConfig(
-                            mContext, appConfig.packageName, Constant.APP_CONFIG_NAME, configs
-                        )
+                        configSystem.saveCustomConfig(appConfig.packageName, configs)
                     }
                 } catch (e: java.lang.Exception) {
                     getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
@@ -317,19 +314,28 @@ class HomeFragment : Fragment(), SearchView.OnQueryTextListener, HideScrollListe
     }
 
     private fun switchOnChange(appConfig: AppConfig, isChecked: Boolean) {
-        appConfig.enable = isChecked
-        viewModel.updateConfigs(appConfig)
-        val configStr = Gson().toJson(appConfig)
-        saveToText(appConfig.packageName, configStr)
-    }
-
-    private fun saveToText(packageName: String, configs: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            ConfigHelper.saveConfig(
-                requireContext(), packageName, Constant.APP_CONFIG_NAME, configs
-            )
+        if (configSystem.isEnableSave(appConfig.packageName)) {
+            appConfig.enable = isChecked
+            viewModel.updateConfigs(appConfig)
+            val configStr = Gson().toJson(appConfig)
+            configSystem.saveCustomConfig(appConfig.packageName, configStr)
+        } else {
+            requirePermission(appConfig.packageName)
         }
     }
+
+    private fun saveConfig(appConfig: AppConfig) {
+        if (configSystem.isEnableSave(appConfig.packageName)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.insertConfigs(appConfig)
+                val configStr = Gson().toJson(appConfig)
+                configSystem.saveCustomConfig(appConfig.packageName, configStr)
+            }
+        } else {
+            requirePermission(appConfig.packageName)
+        }
+    }
+
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

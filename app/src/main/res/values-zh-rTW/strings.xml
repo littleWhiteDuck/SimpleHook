@@ -1,6 +1,6 @@
 <resources>
     <!--assist-->
-    <string name="assist_start_float_window">開啟懸浮窗</string>
+    <string name="extension_start_float_window">開啟懸浮窗</string>
     <!--config-->
     <string name="config_config_smali_to_config">smali轉為配置</string>
     <string name="config_add_config">添加方法配置</string>
@@ -89,13 +89,6 @@
     <string name="main_share_config_select_all">全選</string>
     <string name="main_share_config_confirm">確認</string>
 
-    <string name="main_bottom_download">下載</string>
-    <string name="main_bottom_app_icon">應用圖標</string>
-    <string name="main_bottom_package_name">包名</string>
-    <string name="main_bottom_version_info">當前：%s, 支持：%s</string>
-    <string name="main_bottom_config_description">配置介紹</string>
-    <string name="main_bottom_edit_config">編輯</string>
-
     <string name="main_extension_delete_config_tip">已刪除此配置</string>
     <string name="main_extension_undo_delete_config">撤銷</string>
     <string name="main_extension_name">擴展</string>
@@ -115,7 +108,6 @@
     <!--others-->
     <string name="search">搜索</string>
     <string name="search_hint">輸入應用名或包名</string>
-    <string name="error_tip">出現錯誤</string>
     <string name="record_detail_menu_copy_json_format">json文本</string>
     <string name="record_detail_menu_help">幫助</string>
     <string name="record_detail_menu_copy_text">普通文本</string>
@@ -161,7 +153,6 @@
     <string name="extension_item_status_open">已開啟</string>
     <string name="extension_item_status_close">未開啟</string>
     <string name="extension_item_title_basic">基本</string>
-    <string name="extension_item_title_application">應用</string>
     <string name="extension_item_title_all_switch">總開關</string>
     <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
     <string name="extension_item_desc_base64">Base64加解密</string>
@@ -219,7 +210,6 @@
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
     </string-array>
-    <string name="main_module_not_activated_tip">模塊未激活</string>
     <string name="main_settings_summary_js_config">僅用於測試，未完全支持</string>
     <string name="main_settings_title_JS_config">導出為JSHook配置</string>
     <string name="config_dialog_title_export_js_config">導出為JSHook-Rhino配置</string>
@@ -354,4 +344,26 @@
     <string name="extension_item_title_disable_sensor">禁用傳感器</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度傳感器、陀螺儀傳感器</string>
     <string name="extension_item_title_disable_sport_sensor">禁用運動傳感器，包括：加速度傳感器、陀螺儀傳感器等</string>
+    <string name="main_settings_summary_batch_grant">請配合Auto-auth(GitHub)使用</string>
+    <string name="main_settings_title_batch_grant">批量授權</string>
+    <string name="label_batch_grant">批量授权</string>
+    <string name="sort">排序</string>
+    <string name="select_all">全选</string>
+    <string name="invert_selection">反选</string>
+    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)</string>
+    <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
+    <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
+    <string name="permission_tip">qqq</string>
+    <string name="permission_search_hint_app_name">输入应用名搜索</string>
+    <string name="permission_sort_rule">按照什么规则来排序</string>
+    <string name="permission_sort_app_name">应用名称</string>
+    <string name="permission_sort__package_name">应用包名</string>
+    <string name="permission_sort_install_time">安装时间</string>
+    <string name="permission_sort_backward">逆向排序</string>
+    <string name="permission_show_what_app">显示哪些应用</string>
+    <string name="permission_display_user_app">用户应用</string>
+    <string name="permission_display_system_app">系统应用</string>
+    <string name="permission_display_all_app">所有应用</string>
+    <string name="extension_tip_dex_path_to_clip">dex存放目录已复制到剪切板中</string>
+    <string name="permission_sort_forward">正向排序</string>
 </resources>

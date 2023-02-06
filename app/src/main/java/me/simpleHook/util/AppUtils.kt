@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import me.simpleHook.SystemServices
 
 
 object AppUtils {
@@ -18,6 +19,12 @@ object AppUtils {
         } catch (e: Exception) {
             false
         }
+    }
+
+    fun isAppInstalled(packageName: String): Boolean {
+        return runCatching {
+            SystemServices.packageManager.getPackageInfo(packageName, 0) != null
+        }.getOrDefault(false)
     }
 
     fun appInfo(context: Context, packageName: String): ApplicationInfo? {

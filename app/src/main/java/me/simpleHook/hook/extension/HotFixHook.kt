@@ -16,13 +16,13 @@ object HotFixHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfigBean) {
         if (!configBean.hotFix) return
         val dexFilePaths: MutableList<String> = mutableListOf()
-        val pathName = if (FlavorUtils.isNormal()) {
+        val pathName = if (FlavorUtils.normalVersion) {
             Constant.ANDROID_DATA_PATH + HookHelper.hostPackageName + "/simpleHook/dex/"
         } else {
             Constant.ROOT_CONFIG_MAIN_DIRECTORY + HookHelper.hostPackageName + "/dex/"
         }
         val fileTree: FileTreeWalk = File(pathName).walk()
-        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {//循环处理符合条件的文件
+        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {
             dexFilePaths.add(it.absolutePath)
         }
         try {

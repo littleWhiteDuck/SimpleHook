@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.simpleHook.R
 
+
 fun requestPermissionDialog(
     context: Context,
     message: String = context.getString(R.string.main_request_storage_permission_message),

@@ -8,29 +8,29 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.utils.HookHelper.appContext
 import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.FlavorUtils.PROVIDER_CONFIG_URI
+import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI
 import me.simpleHook.util.log
 import java.io.File
-import java.io.FileNotFoundException
 
 object ConfigUtil {
-    private val uri = Uri.parse("content://me.simplehook.provider/app_configs")
-    private val assistUri = Uri.parse("content://me.simplehook.provider/assist_configs")
+    private val uri = Uri.parse(PROVIDER_CONFIG_URI)
+    private val assistUri = Uri.parse(PROVIDER_RECORD_URI)
 
     fun getConfigFromFile(
-        configName: String = Constant.APP_CONFIG_NAME
+        configName: String = Constant.CUSTOM_CONFIG_NAME
     ): String? {
-        val configPath = if (FlavorUtils.isNormal()) {
-            Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
-        } else {
+        val configPath = if (FlavorUtils.rootVersion) {
             Constant.ROOT_CONFIG_MAIN_DIRECTORY + hostPackageName + "/config/"
+        } else {
+            Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
         } + configName
-        return try {
+        return runCatching {
             val strConfig = File(configPath).reader().use { it.readText() }
             strConfig
-        } catch (e: FileNotFoundException) {
+        }.onFailure {
             "failed: $configPath".log(hostPackageName)
-            null
-        }
+        }.getOrNull()
     }
 
     @SuppressLint("Range")

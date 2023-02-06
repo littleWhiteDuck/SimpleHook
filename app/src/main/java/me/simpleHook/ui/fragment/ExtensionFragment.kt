@@ -13,7 +13,6 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,8 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
-import me.simpleHook.config.ConfigHelper
-import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
@@ -35,13 +32,15 @@ import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.dp
+import me.simpleHook.util.toast
 import java.util.*
 import kotlin.math.min
 
-class ExtensionFragment : Fragment() {
+class ExtensionFragment : BaseFragment() {
     private val appViewModel by activityViewModels<AppViewModel>()
-    private val sp by lazy { SPUtils(requireContext()) }
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
@@ -83,7 +82,7 @@ class ExtensionFragment : Fragment() {
                     modelConfig.id = 0
                     appViewModel.insertAssistConfigs(modelConfig)
                     currentModel = -1
-                    saveToText(modelConfig.packageName, modelConfig.config)
+                    saveConfig(modelConfig)
                 }
             }
         }
@@ -203,39 +202,43 @@ class ExtensionFragment : Fragment() {
     }
 
     private fun itemOnLongClick(assistConfig: AssistConfig) {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            appViewModel.deleteAssistConfigs(assistConfig)
-            ConfigHelper.deleteConfig(
-                requireContext(), assistConfig.packageName, Constant.EXTENSION_CONFIG_NAME
-            )
-        }
-        Snackbar.make(
-            binding.addConfig,
-            getString(R.string.main_extension_delete_config_tip),
-            Snackbar.LENGTH_LONG
-        ).apply {
-            anchorView = bottomNavigationView
-        }.addCallback(object : Snackbar.Callback() {
-            override fun onShown(sb: Snackbar?) {
-                super.onShown(sb)
-                if (isFabShow) upFab()
+        if (configSystem.isEnableDelete(assistConfig.packageName)) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                appViewModel.deleteAssistConfigs(assistConfig)
+                configSystem.deleteExConfig(assistConfig.packageName)
             }
+            Snackbar.make(
+                binding.addConfig,
+                getString(R.string.main_extension_delete_config_tip),
+                Snackbar.LENGTH_LONG
+            ).apply {
+                anchorView = bottomNavigationView
+            }.addCallback(object : Snackbar.Callback() {
+                override fun onShown(sb: Snackbar?) {
+                    super.onShown(sb)
+                    if (isFabShow) upFab()
+                }
 
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                super.onDismissed(transientBottomBar, event)
-                if (isFabShow) showFab()
-            }
-        }).setAction(getString(R.string.main_extension_undo_delete_config)) {
-            appViewModel.insertAssistConfigs(assistConfig)
-            saveToText(assistConfig.packageName, assistConfig.config)
-        }.show()
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    if (isFabShow) showFab()
+                }
+            }).setAction(getString(R.string.main_extension_undo_delete_config)) {
+                saveConfig(assistConfig)
+            }.show()
+        } else {
+            requirePermission(assistConfig.packageName)
+        }
     }
 
-    private fun saveToText(packageName: String, configs: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            ConfigHelper.saveConfig(
-                requireContext(), packageName, Constant.EXTENSION_CONFIG_NAME, configs
-            )
+    private fun saveConfig(assistConfig: AssistConfig) {
+        if (configSystem.isEnableSave(assistConfig.packageName)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                appViewModel.insertAssistConfigs(assistConfig)
+                configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
+            }
+        } else {
+            requirePermission(assistConfig.packageName)
         }
     }
 

@@ -2,15 +2,14 @@ package me.simpleHook.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import me.simpleHook.BuildConfig
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-open class SPUtils(context: Context, name: String = "me.simpleHook_preferences") {
+open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID + "_preferences") {
 
     private val preferences: SharedPreferences =
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
-    var openStorage by SharedPreferenceDelegates.boolean()
-    var termsOfUse by SharedPreferenceDelegates.boolean(false)
     var smali2Config by SharedPreferenceDelegates.boolean(true)
     var language by SharedPreferenceDelegates.string("system")
     var showByType by SharedPreferenceDelegates.boolean(true)
@@ -21,6 +20,9 @@ open class SPUtils(context: Context, name: String = "me.simpleHook_preferences")
     var startFloat by SharedPreferenceDelegates.boolean(false)
     var bottomConfigDialog by SharedPreferenceDelegates.boolean(false)
     var themeMode by SharedPreferenceDelegates.string("system")
+    var permissionSortMode by SharedPreferenceDelegates.int(0)
+    var permissionAppShowMode by SharedPreferenceDelegates.int(0)
+    var permissionReverseSort by SharedPreferenceDelegates.boolean(false)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }

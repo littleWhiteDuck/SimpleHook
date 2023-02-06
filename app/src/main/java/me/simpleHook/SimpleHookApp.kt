@@ -7,14 +7,19 @@ import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.ThemeModeUtil
 
-class SimpleApplication : Application() {
+class SimpleHookApp : Application() {
     private val sp by lazy { SPUtils(applicationContext) }
     override fun onCreate() {
         super.onCreate()
+        app = this
         AppCompatDelegate.setDefaultNightMode(ThemeModeUtil.getDarkMode(sp.themeMode))
     }
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(LanguageUtils.attachBaseContext(base))
+    }
+
+    companion object {
+        lateinit var app: Application
     }
 }

@@ -3,18 +3,12 @@ package me.simpleHook.hook
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
-import android.util.Log
-import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.BuildConfig
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
@@ -31,84 +25,13 @@ import me.simpleHook.hook.utils.LogUtil.notFoundClass
 import me.simpleHook.hook.utils.LogUtil.toLogMsg
 import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
-import org.json.JSONArray
 import org.json.JSONObject
 
 
 object MainHook {
 
-    private val prefHookConfig by lazy { getPref(Constant.CUSTOM_CONFIG_PREF) }
-    private val prefExHookConfig by lazy { getPref(Constant.EXTENSION_CONFIG_PREF) }
 
-    fun startHook(packageName: String) {
-        if (BuildConfig.FLAVOR == "lite") {
-            readyXmlHook()
-        } else {
-            var internalCount = 0
-            ConfigUtil.getConfigFromFile()?.let {
-                "get custom config succeed from file".log(packageName)
-                readyHook(it)
-            } ?: run {
-                "get custom config failed from file".log(packageName)
-                ConfigUtil.getCustomConfigFromDB()?.let {
-                    "get custom config succeed from db".log(packageName)
-                    readyHook(it)
-                } ?: run {
-                    "get custom config failed from db".log(packageName)
-                    internalCount++
-                }
-            }
-            ConfigUtil.getConfigFromFile(Constant.EXTENSION_CONFIG_NAME)?.let {
-                "get extension config succeed from file".log(packageName)
-                readyExtensionHook(it)
-            } ?: run {
-                "get extension config failed from file".log(packageName)
-                ConfigUtil.getExConfigFromDB()?.let {
-                    "get extension config succeed from db".log(packageName)
-                    readyExtensionHook(it)
-                } ?: run {
-                    "get extension config failed from db".log(packageName)
-                    internalCount++
-                }
-            }
-            // 特殊情况, 仅支持自定义hook功能
-            if (internalCount == 2) readyInternalConfigHook()
-        }
-    }
-
-    private fun readyInternalConfigHook() {
-        try {
-            HookHelper.enableRecord = false
-            val internalConfigs = AssetsUtil.getText(InitFields.moduleRes.assets.open("configs"))
-                ?.replace(Regex("<---.*--->"), "")?.trim()
-            if (internalConfigs?.isEmpty() == true) return
-            val jsonArray = JSONArray(internalConfigs)
-            for (i in 0 until jsonArray.length()) {
-                val jsonObject = jsonArray.getJSONObject(i)
-                if (jsonObject.optString("packageName") == hostPackageName) {
-                    readyHook(jsonObject.toString())
-                }
-            }
-        } catch (e: Throwable) {
-            //e.stackTraceToString().log(hostPackageName)
-        }
-
-    }
-
-    private fun readyXmlHook() {
-        prefHookConfig?.let { sp ->
-            sp.getString(hostPackageName, null)?.let {
-                readyHook(it)
-            } ?: "not have the custom config".log(hostPackageName)
-        } ?: "null: XSharedPreferences".log(hostPackageName)
-        prefExHookConfig?.let { sp ->
-            sp.getString(hostPackageName, null)?.let {
-                readyExtensionHook(it)
-            } ?: "not have the extension config".log(hostPackageName)
-        } ?: "null: XSharedPreferences".log(hostPackageName)
-    }
-
-    private fun readyHook(strConfig: String) {
+    fun readyHook(strConfig: String) {
         if (strConfig.trim().isEmpty()) return
         try {
             val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
@@ -385,7 +308,7 @@ object MainHook {
         }
     }
 
-    private fun readyExtensionHook(
+    fun readyExtensionHook(
         strConfig: String
     ) {
         try {
@@ -434,12 +357,6 @@ object MainHook {
             it.isInit
             it.startHook(configBean)
         }
-    }
-
-
-    private fun getPref(path: String): XSharedPreferences? {
-        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
-        return if (pref.file.canRead()) pref else null
     }
 
 }

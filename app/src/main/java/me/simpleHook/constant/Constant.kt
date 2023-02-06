@@ -43,8 +43,11 @@ object Constant {
     const val CLICK_TIME = 500L
 
     //Config: config.json、assistConfig.json
-    const val APP_CONFIG_NAME = "config.json"
+    const val CUSTOM_CONFIG_NAME = "config.json"
     const val EXTENSION_CONFIG_NAME = "assistConfig.json"
+
+    const val CUSTOM_CONFIG_NORMAL_NAME = "customConfig.json"
+    const val EXTENSION_CONFIG_NORMAL_NAME = "extensionConfig.json"
 
     //
     const val MODEL_EXTENSION_CONFIG = "模板配置"

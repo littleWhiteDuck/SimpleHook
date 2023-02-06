@@ -2,6 +2,7 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -26,7 +27,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.PrintLogAdapter
-import me.simpleHook.config.ConfigHelper
+import me.simpleHook.config.RecordsHelper
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
@@ -50,7 +52,7 @@ open class BaseActivity : AppCompatActivity() {
             handler.postDelayed(this, 500)
         }
     }
-    private val uri = Uri.parse("content://me.simplehook.provider/print_logs")
+    private val uri = Uri.parse(FlavorUtils.PROVIDER_RECORD_URI)
     private var stopPrint = false
     private var currentTime = ""
     private var startTime = ""
@@ -58,7 +60,14 @@ open class BaseActivity : AppCompatActivity() {
     private lateinit var assistConfigs: List<AssistConfig>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
-    private var tempLocalClassName = ""
+    protected val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            if (uri != Uri.EMPTY) {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
+            }
+        }
 
     @SuppressLint("RestrictedApi")
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
@@ -96,22 +105,18 @@ open class BaseActivity : AppCompatActivity() {
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
-                        val list = ConfigHelper.insertRecordsFromFile(it)
+                        val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
                         appViewModel.insertRecord(*list.toTypedArray())
                     }
                 } else {
                     needCheckPacks.forEach {
-                        val list = ConfigHelper.insertRecordsFromFile(it)
+                        val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
                         appViewModel.insertRecord(*list.toTypedArray())
                     }
                 }
 
             } catch (e: Exception) {
-                FileUtils.writeLogToFile(
-                    e.stackTraceToString(),
-                    filePath = "/storage/emulated/0/Android/data/me.simpleHook/files/log.txt",
-                    size = 512
-                )
+                LogUtils.outLog(e.stackTraceToString())
             }
         }
     }
