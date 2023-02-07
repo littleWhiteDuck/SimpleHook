@@ -25,11 +25,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
@@ -370,24 +370,24 @@ class RecordActivity : BaseActivity() {
         val loadingDialog =
             LoadingDialog(this, getString(R.string.record_loading_saving_marked_record))
         loadingDialog.show()
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             try {
-                contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
-                    val list =
-                        if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
-                            typeOrPackageName
-                        )
-                    list.forEach {
-                        val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
-                        FileOutputStream(parcel.fileDescriptor).use { output ->
-                            output.write(content.toByteArray())
+                withContext(Dispatchers.IO) {
+                    contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
+                        val list =
+                            if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
+                                typeOrPackageName
+                            )
+                        list.forEach {
+                            val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
+                            FileOutputStream(parcel.fileDescriptor).use { output ->
+                                output.write(content.toByteArray())
+                            }
                         }
                     }
                 }
                 loadingDialog.dismiss()
-                Looper.prepare()
                 getString(R.string.record_save_marked_record_tip).toast(this@RecordActivity)
-                Looper.loop()
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             } catch (e: IOException) {

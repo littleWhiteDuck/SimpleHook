@@ -528,6 +528,7 @@ class ExtensionActivity : BaseActivity() {
             saveConfig(assistConfig.packageName, config)
         }
         Handler(Looper.getMainLooper()).postDelayed({
+            getString(R.string.extension_save_success).snack(binding.toolbar)
             loadingDialog.quickDismiss()
             if (exit) finish()
         }, 500)
