@@ -370,4 +370,5 @@
     <string name="main_android_13_tip"><![CDATA[Because of your system version>=13, you need to authorize the directory of the target application before saving/deleting/importing the configuration (only need to authorize once). Configuration cannot be written without authorization, please do not treat such problems as BUG feedback, you can perform batch authorization on the settings page]]></string>
     <string name="main_not_activated">-not activated</string>
     <string name="extension_save_success">Saved successfully</string>
+    <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
 </resources>

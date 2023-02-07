@@ -2,6 +2,7 @@ package me.simpleHook.bean
 
 import androidx.annotation.Keep
 
+@kotlinx.serialization.Serializable
 @Keep
 data class ExtensionConfigBean(
     var all: Boolean = false,
@@ -32,6 +33,7 @@ data class ExtensionConfigBean(
     var disSensorSport: Boolean = false
 )
 
+@kotlinx.serialization.Serializable
 @Keep
 data class ExtensionItemConfig(
     var enable: Boolean = false, var info: String = ""

@@ -10,6 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Keep
 @Parcelize
 @Entity
+@kotlinx.serialization.Serializable
 data class AppConfig(
     @ColumnInfo(name = "packageName") var packageName: String,
     @ColumnInfo(name = "appName") var appName: String,

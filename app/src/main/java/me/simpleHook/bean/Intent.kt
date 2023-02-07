@@ -3,6 +3,7 @@ package me.simpleHook.bean
 import androidx.annotation.Keep
 
 @Keep
+@kotlinx.serialization.Serializable
 data class IntentBean(
     val packageName: String,
     val className: String,
@@ -12,4 +13,5 @@ data class IntentBean(
 )
 
 @Keep
+@kotlinx.serialization.Serializable
 data class ExtraBean(val type: String, val key: String, val value: String)

@@ -13,6 +13,7 @@ import androidx.annotation.Keep
  * @param resultValues 返回值/参数值/变量值
  * @param hookPoint before/after
  */
+@kotlinx.serialization.Serializable
 @Keep
 data class ConfigBean(
     val mode: Int = 0,

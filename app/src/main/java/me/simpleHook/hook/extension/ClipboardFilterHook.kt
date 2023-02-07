@@ -2,14 +2,13 @@ package me.simpleHook.hook.extension
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 
 object ClipboardFilterHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfigBean) {
@@ -32,9 +31,7 @@ object ClipboardFilterHook : BaseHook() {
                                     arrayListOf(Tip.getTip("clipboardInfo") + info) + items,
                                     HookHelper.hostPackageName
                                 )
-                                LogUtil.toLogMsg(
-                                    Gson().toJson(logBean), type
-                                )
+                                LogUtil.toLogMsg(logBean)
                                 return@forEach
                             }
                         }

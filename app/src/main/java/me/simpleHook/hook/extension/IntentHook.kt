@@ -2,9 +2,10 @@ package me.simpleHook.hook.extension
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
@@ -102,8 +103,8 @@ object IntentHook : BaseHook() {
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
         val logBean = LogBean(
-            "intent", listOf(configBean), packName
+            "intent", listOf(Json.encodeToString(configBean)), packName
         )
-        LogUtil.toLogMsg(Gson().toJson(logBean), "intent")
+        LogUtil.toLogMsg(logBean)
     }
 }

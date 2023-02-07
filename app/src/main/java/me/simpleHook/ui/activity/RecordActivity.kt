@@ -268,9 +268,10 @@ class RecordActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> onBackPressed()
+            android.R.id.home -> finish()
             R.id.delete_all -> {
-                warningDialog(this,
+                warningDialog(
+                    this,
                     title = getString(R.string.record_warning_dialog_title),
                     message = getString(
                         R.string.record_waring_dialog_message_delete_all

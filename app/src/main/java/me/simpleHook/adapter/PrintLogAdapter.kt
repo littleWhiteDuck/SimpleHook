@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
@@ -67,7 +68,7 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val printLog = getItem(position)
         holder.itemView.setTag(R.id.item_print_position, printLog)
-        val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
+        val logBean = Json.decodeFromString<LogBean>(printLog.log)
         holder.tvLog.text = logBean.type
     }
 

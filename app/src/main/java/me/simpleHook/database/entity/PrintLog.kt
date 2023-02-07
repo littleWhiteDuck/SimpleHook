@@ -10,6 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Keep
 @Parcelize
 @Entity
+@kotlinx.serialization.Serializable
 data class PrintLog(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "log") var log: String,

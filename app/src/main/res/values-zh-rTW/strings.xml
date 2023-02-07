@@ -369,4 +369,5 @@
     <string name="main_android_13_tip"><![CDATA[由於你的系統版本>=13，在配置的保存/刪除/導入前均需要對目標應用的目錄進行授權（僅需授權一次）沒有授權將無法寫入配置，請不要將此類問題當作BUG反饋，你可以在設置頁面進行批量授權]]></string>
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
+    <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
 </resources>

@@ -1,9 +1,8 @@
 package me.simpleHook.util
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -92,18 +91,13 @@ object JsonUtil {
         }
     }
 
-    fun importConfigs(configs: String): List<ConfigItem> = try {
-        val type = object : TypeToken<List<AppConfig>>() {}.type
-        val appConfigs = Gson().fromJson<List<AppConfig>>(configs, type)
+    fun importConfigs(configs: String): List<ConfigItem> = runCatching {
+        val appConfigs = Json.decodeFromString<List<AppConfig>>(configs)
         val dataList = ArrayList<ConfigItem>()
         appConfigs.forEach { appConfig ->
             appConfig.id = 0
-            if (appConfig.configs != null) {
-                dataList.add(ConfigItem(appConfig))
-            }
+            dataList.add(ConfigItem(appConfig))
         }
         dataList
-    } catch (e: java.lang.Exception) {
-        emptyList()
-    }
+    }.getOrDefault(emptyList())
 }

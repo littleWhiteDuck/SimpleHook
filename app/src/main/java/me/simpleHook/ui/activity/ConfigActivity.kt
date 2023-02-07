@@ -25,10 +25,11 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
@@ -219,8 +220,7 @@ class ConfigActivity : BaseActivity() {
                     refreshAppInfo(AppInfo(it.appName, it.packageName, it.versionName))
                 }
                 descStringEdit.setText(it.description)
-                val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-                configList = Gson().fromJson(it.configs, listType)
+                configList = Json.decodeFromString(it.configs)
                 mAdapter.submitList(configList)
                 mAdapter.notifyDataSetChanged()
 
@@ -303,17 +303,18 @@ class ConfigActivity : BaseActivity() {
         configList[position] = configList[position].copy(enable = checked)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val methodConfig = configList[longClickPosition]
         when (item.itemId) {
             R.id.menu_collect -> {
                 val tempList = getAllCollection(true)
                 tempList.add(methodConfig)
-                writeCollection(Gson().toJson(tempList))
+                writeCollection(Json.encodeToString(tempList))
                 getString(R.string.config_collect_success_tip).toast(this)
             }
             R.id.menu_copy -> {
-                ToolUtils.toClip(this, Gson().toJson(methodConfig))
+                ToolUtils.toClip(this, Json.encodeToString(methodConfig))
                 getString(R.string.main_home_export_configs_tip).toast(this)
             }
             R.id.menu_duplicate -> {
@@ -543,7 +544,7 @@ class ConfigActivity : BaseActivity() {
                 collectAdapter.submitList(collectConfigList)
                 collectAdapter.notifyItemChanged(modifyConfigPosition)
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val tempConfig = Gson().toJson(collectConfigList)
+                    val tempConfig = Json.encodeToString(collectConfigList)
                     writeCollection(tempConfig)
                 }
             } else {
@@ -570,7 +571,7 @@ class ConfigActivity : BaseActivity() {
             collectAdapter.submitList(collectConfigList)
             collectAdapter.notifyDataSetChanged()
             lifecycleScope.launch(Dispatchers.IO) {
-                val tempConfig = Gson().toJson(collectConfigList)
+                val tempConfig = Json.encodeToString(collectConfigList)
                 writeCollection(tempConfig)
             }
         } else {
@@ -592,8 +593,7 @@ class ConfigActivity : BaseActivity() {
         var tempList = mutableListOf<ConfigBean>()
         try {
             val strCollection = File(collectionFilePath).reader().use { it.readText() }
-            val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-            tempList = Gson().fromJson<ArrayList<ConfigBean>>(strCollection, listType)
+            tempList = Json.decodeFromString<ArrayList<ConfigBean>>(strCollection)
         } catch (e: FileNotFoundException) {
             if (!isWrite) getString(R.string.config_no_collection_tip).toast(this)
         } catch (e: Exception) {
@@ -703,7 +703,7 @@ class ConfigActivity : BaseActivity() {
             } else {
                 appViewModel.insertConfigs(appConfig)
             }
-            val configStr = Gson().toJson(appConfig)
+            val configStr = Json.encodeToString(appConfig)
             saveConfig(appConfig.packageName, configStr)
             if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
                 configSystem.deleteCustomConfig(tempPackageName)
@@ -754,7 +754,7 @@ class ConfigActivity : BaseActivity() {
         val appName = binding.appInfo.containerView.appName.text.toString()
         val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
-        val configs = Gson().toJson(configList)
+        val configs = Json.encodeToString(configList)
         return AppConfig(
             appName = appName,
             packageName = packageName,
@@ -840,9 +840,9 @@ class ConfigActivity : BaseActivity() {
             }
             JsonUtil.isJsonObject(string) -> {
                 try {
-                    configBean = Gson().fromJson(string, ConfigBean::class.java)
+                    configBean = Json.decodeFromString<ConfigBean>(string)
                 } catch (e: java.lang.Exception) {
-                    "识别到为json格式，但不符合复制出配置的格式".toast(this)
+                    getString(R.string.config_tip_error_config_format).toast(this)
                 }
                 configBean
             }

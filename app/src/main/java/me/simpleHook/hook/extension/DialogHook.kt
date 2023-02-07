@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
@@ -49,26 +48,24 @@ object DialogHook : BaseHook() {
                                 dialog.dismiss()
                                 val type =
                                     if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
-                                val log = Gson().toJson(
+                                LogUtil.toLogMsg(
                                     LogBean(
                                         type,
                                         list + LogUtil.getStackTrace(),
                                         HookHelper.hostPackageName
                                     )
                                 )
-                                LogUtil.toLogMsg(log, type)
                                 return
                             }
                         }
                     }
                     if (configBean.dialog) {
                         val type = if (isShowEnglish) "Dialog" else "弹窗"
-                        val log = Gson().toJson(
+                        LogUtil.toLogMsg(
                             LogBean(
                                 type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                             )
                         )
-                        LogUtil.toLogMsg(log, type)
                     }
                 }
             })

@@ -444,5 +444,15 @@
     <string name="main_android_13_tip"><![CDATA[由于你的系统版本>=13，在配置的保存/删除/导入前均需要对目标应用的目录进行授权（仅需授权一次），没有授权将无法写入配置，请不要将此类问题当作BUG反馈，你可以在设置页面进行批量授权]]></string>
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
+    <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
 
 </resources>

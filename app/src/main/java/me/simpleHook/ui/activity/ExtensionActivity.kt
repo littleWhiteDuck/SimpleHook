@@ -17,9 +17,11 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
 import me.simpleHook.adapter.BasicViewHolderFactory
@@ -96,9 +98,8 @@ class ExtensionActivity : BaseActivity() {
             dexPosition + "/data/local/tmp/simpleHook/${assistConfig.packageName}/dex/"
         }
         val config = assistConfig.config
-        configBean = if (config.isNotEmpty()) Gson().fromJson(
-            config, ExtensionConfigBean::class.java
-        ) else ExtensionConfigBean()
+        configBean =
+            if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfigBean()
         tempConfigStr = configBean.toString()
         itemList.apply {
             configBean.apply {
@@ -515,7 +516,7 @@ class ExtensionActivity : BaseActivity() {
         if (!checkPermission()) return false
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
         loadingDialog.show()
-        val config = Gson().toJson(configBean)
+        val config = Json.encodeToString(configBean)
         tempConfigStr = configBean.toString()
         assistConfig.config = config
         assistConfig.allSwitch = configBean.all

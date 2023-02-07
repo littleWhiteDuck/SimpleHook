@@ -25,9 +25,9 @@
         android:theme="@style/Theme.SimpleHook"
         tools:targetApi="n">
         <activity
-            android:label="@string/label_batch_grant"
             android:name=".ui.activity.A33PermissionActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/label_batch_grant" />
         <activity
             android:name=".ui.activity.RecordDetailActivity"
             android:exported="false"

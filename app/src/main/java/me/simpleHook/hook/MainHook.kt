@@ -5,10 +5,11 @@ import android.app.AndroidAppHelper
 import android.content.Context
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
@@ -30,14 +31,12 @@ import org.json.JSONObject
 
 object MainHook {
 
-
     fun readyHook(strConfig: String) {
         if (strConfig.trim().isEmpty()) return
         try {
-            val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+            val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
-            val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-            val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
+            val configs = Json.decodeFromString<List<ConfigBean>>(appConfig.configs)
             getTip("startCustomHook").log(hostPackageName)
             configs.forEach {
                 if (!it.enable) return@forEach
@@ -62,7 +61,7 @@ object MainHook {
             }
         } catch (e: Exception) {
             val configTemp = try {
-                val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+                val appConfig = Json.decodeFromString<AppConfig>(strConfig)
                 JsonUtil.formatJson(appConfig.configs)
             } catch (e: java.lang.Exception) {
                 strConfig
@@ -261,7 +260,7 @@ object MainHook {
         }
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        toLogMsg(logBean)
     }
 
     private fun recordReturnValue(
@@ -275,7 +274,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        toLogMsg(logBean)
     }
 
     private fun recordParamsAndReturn(
@@ -297,7 +296,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        toLogMsg(logBean)
     }
 
     private fun getObjectString(value: Any): String {
@@ -314,7 +313,7 @@ object MainHook {
         try {
             if (strConfig.trim().isEmpty()) return
             getTip("startExtensionHook").log(hostPackageName)
-            val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
+            val configBean = Json.decodeFromString<ExtensionConfigBean>(strConfig)
             if (!configBean.all) return
             if (configBean.tip) "SimpleHook: StartHook".toast(appContext)
             initExtensionHook(

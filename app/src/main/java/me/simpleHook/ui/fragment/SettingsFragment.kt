@@ -15,11 +15,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
@@ -56,7 +57,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         registerForActivityResult(ActivityResultContracts.CreateDocument("text/json")) { resultUri ->
             resultUri?.apply {
                 thread {
-                    alterDocument(this, JsonUtil.formatJson(Gson().toJson(viewModel.getConfigs())))
+                    alterDocument(
+                        this, JsonUtil.formatJson(Json.encodeToString(viewModel.getConfigs()))
+                    )
                 }
             }
         }
@@ -425,8 +428,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                 }
                 JsonUtil.isJsonObject(configs) -> {
-                    val appConfig = Gson().fromJson(configs, AppConfig::class.java)
-                    viewModel.insertConfigs(appConfig)
+                    runCatching {
+                        val appConfig = Json.decodeFromString<AppConfig>(configs)
+                        viewModel.insertConfigs(appConfig)
+                    }.onFailure {
+                        getString(R.string.main_home_import_incorrect_format_tip).toast(
+                            requireContext()
+                        )
+                    }
                 }
             }
         } catch (e: java.lang.Exception) {
