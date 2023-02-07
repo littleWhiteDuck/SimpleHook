@@ -706,7 +706,7 @@ class ConfigActivity : BaseActivity() {
             val configStr = Gson().toJson(appConfig)
             saveConfig(appConfig.packageName, configStr)
             if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
-                configSystem?.deleteCustomConfig(tempPackageName)
+                configSystem.deleteCustomConfig(tempPackageName)
             }
         }
         Handler(Looper.getMainLooper()).postDelayed({
@@ -719,7 +719,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun saveConfig(packageName: String, configStr: String) {
-        configSystem?.saveCustomConfig(packageName, configStr)
+        configSystem.saveCustomConfig(packageName, configStr)
     }
 
     @Deprecated("Deprecated in Java")
@@ -761,7 +761,8 @@ class ConfigActivity : BaseActivity() {
             description = description,
             versionName = tempVersionName,
             configs = configs,
-            id = configId
+            id = configId,
+            enable = configSystem.isEnableSave(packageName)
         )
     }
 
@@ -845,7 +846,7 @@ class ConfigActivity : BaseActivity() {
                 }
                 configBean
             }
-            else -> configBean
+            else -> null
         }
         config?.also {
             modifyConfig = false
@@ -946,14 +947,6 @@ class ConfigActivity : BaseActivity() {
         }
     }
 
-    private fun getClassSimpleName(classStr: String): String {
-        return if (classStr.contains(".")) {
-            val classStrNames = classStr.split(".")
-            classStrNames[classStrNames.size - 1]
-        } else {
-            classStr
-        }
-    }
 }
 
 data class AppInfo(val appName: String, val packageName: String, val versionName: String)

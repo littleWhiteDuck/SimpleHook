@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -495,8 +494,8 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 
-    fun checkPermission(): Boolean {
-        if (OSUtils.atLeastT() && assistConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
+    private fun checkPermission(): Boolean {
+        if (FlavorUtils.normalVersion && OSUtils.atLeastT() && assistConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
                 assistConfig.packageName
             )
         ) {
@@ -568,7 +567,7 @@ class ExtensionActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val isInstalled = AppUtils.isAppInstalled(this, assistConfig.packageName)
         menuInflater.inflate(R.menu.menu_assist, menu)
-        if (packageManager.getLaunchIntentForPackage(packageName) == null || Shell.isAppGrantedRoot() != true) {
+        if (packageManager.getLaunchIntentForPackage(packageName) == null) {
             menu.removeItem(R.id.menu_relaunch)
         }
         if (!isInstalled) {
@@ -584,16 +583,18 @@ class ExtensionActivity : BaseActivity() {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
             R.id.menu_force_stop -> {
-                if (Shell.isAppGrantedRoot() == true) {
+                if (FlavorUtils.rootVersion) {
                     SuUtil.forceStopApp(assistConfig.packageName)
                 } else {
                     AppUtils.jumpAppInfoPage(this, assistConfig.packageName)
                 }
             }
             R.id.menu_relaunch -> {
-                val intent = packageManager.getLaunchIntentForPackage(assistConfig.packageName)
-                intent?.component?.className?.let { className ->
-                    SuUtil.reLaunchApp(assistConfig.packageName, className)
+                if (FlavorUtils.rootVersion) {
+                    val intent = packageManager.getLaunchIntentForPackage(assistConfig.packageName)
+                    intent?.component?.className?.let { className ->
+                        SuUtil.reLaunchApp(assistConfig.packageName, className)
+                    }
                 }
             }
             R.id.menu_app_info -> AppUtils.jumpAppInfoPage(this, assistConfig.packageName)

@@ -192,7 +192,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             return
         }
         if (FlavorUtils.rootVersion) {
-            settingsViewModel.permStatus.value = if (Shell.isAppGrantedRoot() == true) {
+            settingsViewModel.permStatus.value = if (SuUtil.isGrantedRoot()) {
                 Constant.IS_GRANT
             } else {
                 Constant.NO_ROOT

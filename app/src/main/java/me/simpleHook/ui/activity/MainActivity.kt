@@ -28,6 +28,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
+    private val isActive by lazy { isModuleLive() }
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -35,14 +36,21 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
+        checkActive()
         checkUpdate()
         initPermission()
         super.onCreate(savedInstanceState)
     }
 
+    private fun checkActive() {
+        if (!isActive) {
+            supportActionBar?.title = BuildConfig.APP_NAME + getString(R.string.main_not_activated)
+        }
+    }
+
     private fun initPermission() {
         if (FlavorUtils.liteVersion) {
-            if (!isModuleLive()) {
+            if (!isActive) {
                 customDialog(this,
                     title = getString(R.string.module_not_activated),
                     message = getString(R.string.module_not_activated_message),

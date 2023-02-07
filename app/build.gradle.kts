@@ -14,8 +14,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val debug = false
-val beta = false
+val debug = true
+val beta = true
 
 android {
     val verCode = run {
@@ -77,12 +77,14 @@ android {
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.root"
             manifestPlaceholders["FLAVOR"] = "SimpleHookR"
             versionName = verName + if (beta) "_beta" else ""
+            buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHookR\"")
         }
         create("normal") {
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.normal"
             manifestPlaceholders["FLAVOR"] = "SimpleHook"
             applicationId = "me.simplehook.normal"
             versionName = verName + if (beta) "_beta" else ""
+            buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHook\"")
         }
         create("lite") {
             minSdk = 27
@@ -90,6 +92,7 @@ android {
             applicationId = "me.simplehook.lite"
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.lite"
             manifestPlaceholders["FLAVOR"] = "xposedsharedprefs"
+            buildConfigField(String::class.java.name, "APP_NAME", "\"SimpleHookL\"")
         }
     }
 

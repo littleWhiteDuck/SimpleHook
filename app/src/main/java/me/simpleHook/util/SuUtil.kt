@@ -23,7 +23,7 @@ object SuUtil {
                 "mkdir -p simpleHook/logTemp/",
                 "chmod -R 777 simpleHook"
             ).exec()
-            if (Shell.isAppGrantedRoot() != true) {
+            if (!isGrantedRoot()) {
                 Looper.prepare()
                 "拒绝或没有Root权限".toast(context)
                 Looper.loop()
@@ -47,6 +47,10 @@ object SuUtil {
 
     fun makeDirs(filePath: String): Boolean {
         return Shell.cmd("mkdir -p $filePath").exec().isSuccess
+    }
+
+    fun isGrantedRoot(): Boolean {
+        return Shell.isAppGrantedRoot() == true
     }
 
 }

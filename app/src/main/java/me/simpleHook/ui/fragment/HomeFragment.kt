@@ -23,6 +23,7 @@ import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
+import me.simpleHook.SystemServices
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
@@ -178,11 +179,14 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
 
     private fun onItemCreateContextMenu(appConfig: AppConfig, menu: ContextMenu) {
         configOfItemMenu = appConfig
-        val isInstalled = AppUtils.isAppInstalled(requireContext(), appConfig.packageName)
+        val isInstalled = AppUtils.isAppInstalled(appConfig.packageName)
         if (isInstalled) {
             requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
-            if (requireActivity().packageManager.getLaunchIntentForPackage(appConfig.packageName) == null || FlavorUtils.liteVersion || Shell.isAppGrantedRoot() != true) {
+            if (SystemServices.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
                 menu.removeItem(R.id.menu_launch)
+                menu.removeItem(R.id.menu_relaunch)
+            }
+            if (FlavorUtils.normalVersion || FlavorUtils.liteVersion) {
                 menu.removeItem(R.id.menu_relaunch)
             }
         } else {
@@ -341,17 +345,19 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         when (item.itemId) {
             R.id.menu_launch -> AppUtils.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
-                if (Shell.isAppGrantedRoot() == true) {
+                if (FlavorUtils.rootVersion) {
                     SuUtil.forceStopApp(configOfItemMenu.packageName)
                 } else {
                     AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
             }
             R.id.menu_relaunch -> {
-                val intent =
-                    requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
-                intent?.component?.className?.let { className ->
-                    SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
+                if (FlavorUtils.rootVersion) {
+                    val intent =
+                        requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
+                    intent?.component?.className?.let { className ->
+                        SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
+                    }
                 }
             }
             R.id.menu_app_info -> AppUtils.jumpAppInfoPage(

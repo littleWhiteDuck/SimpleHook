@@ -368,4 +368,5 @@
     <string name="permission_display_all_app">All app</string>
     <string name="extension_tip_dex_path_to_clip">dex存放目錄已復製到剪切板中</string>
     <string name="main_android_13_tip"><![CDATA[Because of your system version>=13, you need to authorize the directory of the target application before saving/deleting/importing the configuration (only need to authorize once). Configuration cannot be written without authorization, please do not treat such problems as BUG feedback, you can perform batch authorization on the settings page]]></string>
+    <string name="main_not_activated">未激活</string>
 </resources>

@@ -1,13 +1,12 @@
 package me.simpleHook.compat
 
-import android.util.Log
-import com.topjohnwu.superuser.Shell
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
+import me.simpleHook.util.SuUtil
 
 class SuConfigHelper : ConfigSystem {
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || Shell.isAppGrantedRoot() == true
+        return !AppUtils.isAppInstalled(packageName) || SuUtil.isGrantedRoot()
     }
 
     @Synchronized

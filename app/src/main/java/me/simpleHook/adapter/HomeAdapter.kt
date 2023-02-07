@@ -88,7 +88,7 @@ class HomeAdapter(
         override fun areContentsTheSame(
             oldItem: AppConfig, newItem: AppConfig
         ): Boolean {
-            return oldItem.appName == newItem.appName && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.description == newItem.description && oldItem.configs == newItem.configs
+            return oldItem.appName == newItem.appName && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.description == newItem.description && oldItem.configs == newItem.configs && oldItem.enable == newItem.enable
         }
     }
 }
