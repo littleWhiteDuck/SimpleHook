@@ -33,7 +33,7 @@ object JSONHook : BaseHook() {
                 val logBean = LogBean(
                     type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), type)
+                LogUtil.outLogMsg(logBean)
             }
         })
 
@@ -51,7 +51,7 @@ object JSONHook : BaseHook() {
                 val logBean = LogBean(
                     type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), type)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }
@@ -68,7 +68,7 @@ object JSONHook : BaseHook() {
                 val logBean = LogBean(
                     type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), type)
+                LogUtil.outLogMsg(logBean)
             }
         })
 
@@ -86,7 +86,7 @@ object JSONHook : BaseHook() {
                 val logBean = LogBean(
                     type, list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), type)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

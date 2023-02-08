@@ -1,7 +1,6 @@
 package me.simpleHook.hook.extension
 
 import android.util.Base64
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
@@ -31,9 +30,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(
-                        Gson().toJson(logBean), logBean.type
-                    )
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -53,9 +50,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(
-                        Gson().toJson(logBean), logBean.type
-                    )
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -85,7 +80,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -111,7 +106,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
     }

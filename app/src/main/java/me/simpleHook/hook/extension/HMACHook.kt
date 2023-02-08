@@ -1,6 +1,5 @@
 package me.simpleHook.hook.extension
 
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
@@ -81,7 +80,7 @@ object HMACHook : BaseHook() {
                 val logBean = LogBean(
                     hasMap["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
+                LogUtil.outLogMsg(logBean)
                 hasMap.clear()
             }
         })

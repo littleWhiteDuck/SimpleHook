@@ -1,7 +1,6 @@
 package me.simpleHook.hook
 
 import com.github.kyuubiran.ezxhelper.utils.*
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -107,7 +106,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
-        LogUtil.toLogMsg(Gson().toJson(logBean), type)
+        LogUtil.outLogMsg(logBean)
     }
 
     private fun hookStaticField(
@@ -143,7 +142,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
-        LogUtil.toLogMsg(Gson().toJson(logBean), type)
+        LogUtil.outLogMsg(logBean)
     }
 
     private fun hookInstanceField(

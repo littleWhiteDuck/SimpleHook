@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import com.google.gson.Gson
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.utils.HookHelper
@@ -35,7 +34,7 @@ object SignatureHook : BaseHook() {
                     "Signature(MD5): $md5", "Signature(SHA-1): $sha1", "Signature(SHA-256): $sha256"
                 )
                 val logBean = LogBean("Signature", list + items, HookHelper.hostPackageName)
-                LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
+                LogUtil.outLogMsg(logBean)
             }
         }
     }

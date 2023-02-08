@@ -3,15 +3,14 @@ package me.simpleHook.hook.extension
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.utils.getAllTextView
 import me.simpleHook.util.log
 
@@ -39,12 +38,12 @@ object ClickEventHook : BaseHook() {
                     } else if (view is ViewGroup) {
                         list += getAllTextView(view)
                     }
-                    val log = Gson().toJson(
+
+                    LogUtil.outLogMsg(
                         LogBean(
                             type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                         )
                     )
-                    LogUtil.toLogMsg(log, type)
                 } catch (e: Exception) {
                     "error: click".log(HookHelper.hostPackageName)
                 }

@@ -1,14 +1,14 @@
 package me.simpleHook.hook
 
-import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
@@ -22,7 +22,7 @@ import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.hook.utils.LogUtil.getStackTrace
 import me.simpleHook.hook.utils.LogUtil.noSuchMethod
 import me.simpleHook.hook.utils.LogUtil.notFoundClass
-import me.simpleHook.hook.utils.LogUtil.toLogMsg
+import me.simpleHook.hook.utils.LogUtil.outLogMsg
 import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
 import org.json.JSONObject
@@ -30,25 +30,23 @@ import org.json.JSONObject
 
 object MainHook {
 
-
     fun readyHook(strConfig: String) {
         if (strConfig.trim().isEmpty()) return
         try {
-            val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+            val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
-            val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-            val configs = Gson().fromJson<ArrayList<ConfigBean>>(appConfig.configs, listType)
+            val configs = Json.decodeFromString<List<ConfigBean>>(appConfig.configs)
             getTip("startCustomHook").log(hostPackageName)
-            configs.forEach {
-                if (!it.enable) return@forEach
-                it.apply {
-                    when (it.mode) {
-                        Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> FieldHook.hookStaticField(
-                            configBean = it
-                        )
-                        Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> FieldHook.hookInstanceField(
-                            it
-                        )
+            configs.forEach { configBean ->
+                if (!configBean.enable) return@forEach
+                configBean.apply {
+                    when (configBean.mode) {
+                        Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> {
+                            FieldHook.hookStaticField(configBean)
+                        }
+                        Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> {
+                            FieldHook.hookInstanceField(configBean)
+                        }
                         else -> specificHook(
                             className = className,
                             methodName = methodName,
@@ -62,12 +60,12 @@ object MainHook {
             }
         } catch (e: Exception) {
             val configTemp = try {
-                val appConfig = Gson().fromJson(strConfig, AppConfig::class.java)
+                val appConfig = Json.decodeFromString<AppConfig>(strConfig)
                 JsonUtil.formatJson(appConfig.configs)
             } catch (e: java.lang.Exception) {
                 strConfig
             }
-            LogUtil.toLog(
+            LogUtil.outLog(
                 arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: $configTemp",
@@ -178,7 +176,6 @@ object MainHook {
         }
     }
 
-    @SuppressLint("ApplySharedPref")
     private fun hookReturnValue(
         values: String, param: XC_MethodHook.MethodHookParam
     ) {
@@ -203,8 +200,8 @@ object MainHook {
                         val currentTime = System.currentTimeMillis() / 1000
                         if (currentTime - updateTime >= oldTime) {
                             val result = randomSeed.random(len)
-                            sp.edit().putString("random_$key", result).commit()
-                            sp.edit().putLong("time_$key", currentTime).commit()
+                            sp.edit().putString("random_$key", result).apply()
+                            sp.edit().putLong("time_$key", currentTime).apply()
                             param.result = result
                         } else {
                             param.result = oldRandom
@@ -240,7 +237,7 @@ object MainHook {
                 getTip("filledMethodParams") + "$methodName($params)",
                 getTip("detailReason") + e.stackTraceToString()
             )
-            LogUtil.toLog(list, "Error HookParamsError")
+            LogUtil.outLog(list, "Error HookParamsError")
         }
     }
 
@@ -261,7 +258,7 @@ object MainHook {
         }
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        outLogMsg(logBean)
     }
 
     private fun recordReturnValue(
@@ -275,7 +272,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        outLogMsg(logBean)
     }
 
     private fun recordParamsAndReturn(
@@ -297,7 +294,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(Gson().toJson(logBean), type)
+        outLogMsg(logBean)
     }
 
     private fun getObjectString(value: Any): String {
@@ -314,7 +311,7 @@ object MainHook {
         try {
             if (strConfig.trim().isEmpty()) return
             getTip("startExtensionHook").log(hostPackageName)
-            val configBean = Gson().fromJson(strConfig, ExtensionConfigBean::class.java)
+            val configBean = Json.decodeFromString<ExtensionConfigBean>(strConfig)
             if (!configBean.all) return
             if (configBean.tip) "SimpleHook: StartHook".toast(appContext)
             initExtensionHook(
@@ -339,7 +336,7 @@ object MainHook {
                 SensorMangerHook
             )
         } catch (e: java.lang.Exception) {
-            LogUtil.toLog(
+            LogUtil.outLog(
                 arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: ${JsonUtil.formatJson(strConfig)}",

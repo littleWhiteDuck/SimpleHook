@@ -52,8 +52,8 @@ import java.util.regex.Pattern.matches
 
 private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
 private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
-private const val pattern_basic = """(B|S|I|J|F|D|Z|C)(B|S|I|J|F|D|Z|C|L)"""
-private const val pattern_basic_array = """\[(B|S|I|J|F|D|Z|C)"""
+private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
+private const val pattern_basic_array = """\[([BSIJFDZC])"""
 private const val pattern_object_array = """\[L(.*)"""
 private const val CLASS_NAME_STATE = 1
 private const val METHOD_NAME_STATE = 1 shl 1
