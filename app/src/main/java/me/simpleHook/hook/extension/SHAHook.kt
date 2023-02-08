@@ -58,7 +58,7 @@ object SHAHook : BaseHook() {
                         Tip.getTip("encryptResult") + result
                     ) + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(logBean)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

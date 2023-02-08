@@ -17,7 +17,7 @@ object LogUtil {
     private const val filterClass =
         """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
     private val PRINT_URI = Uri.parse(PROVIDER_RECORD_URI)
-    fun toLogMsg(logBean: LogBean) {
+    fun outLogMsg(logBean: LogBean) {
         if (logBean.type == "null" || !HookHelper.enableRecord) return
         val log = Json.encodeToString(logBean)
         HookHelper.appContext.getExternalFilesDirs("")
@@ -89,11 +89,11 @@ object LogUtil {
     }
 
 
-    fun toLog(
+    fun outLog(
         list: List<String>, type: String
     ) {
         val logBean = LogBean(type = type, other = list, "error.hook.tip")
-        toLogMsg(logBean)
+        outLogMsg(logBean)
     }
 
     fun notFoundClass(
@@ -106,7 +106,7 @@ object LogUtil {
             Tip.getTip("filledMethodOrField") + methodName,
             Tip.getTip("detailReason") + error
         )
-        toLog(list, "Error ClassNotFoundError")
+        outLog(list, "Error ClassNotFoundError")
     }
 
     fun noSuchMethod(
@@ -119,6 +119,6 @@ object LogUtil {
             Tip.getTip("filledMethodParams") + methodName,
             Tip.getTip("detailReason") + error
         )
-        toLog(list, "Error NoSuchMethodError")
+        outLog(list, "Error NoSuchMethodError")
     }
 }

@@ -18,7 +18,7 @@ object ApplicationHook : BaseHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val className = param.thisObject.javaClass.name
                     val type = "Application"
-                    LogUtil.toLogMsg(
+                    LogUtil.outLogMsg(
                         LogBean(
                             type,
                             listOf(getTip("applicationName") + className),

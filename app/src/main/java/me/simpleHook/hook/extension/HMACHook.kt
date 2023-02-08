@@ -80,7 +80,7 @@ object HMACHook : BaseHook() {
                 val logBean = LogBean(
                     hasMap["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(logBean)
+                LogUtil.outLogMsg(logBean)
                 hasMap.clear()
             }
         })

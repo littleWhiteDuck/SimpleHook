@@ -109,7 +109,7 @@ object AESHook : BaseHook() {
                         val logBean = LogBean(
                             map["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
                         )
-                        LogUtil.toLogMsg(logBean)
+                        LogUtil.outLogMsg(logBean)
                         map.clear()
                     }
                 }

@@ -39,7 +39,7 @@ object ClickEventHook : BaseHook() {
                         list += getAllTextView(view)
                     }
 
-                    LogUtil.toLogMsg(
+                    LogUtil.outLogMsg(
                         LogBean(
                             type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                         )

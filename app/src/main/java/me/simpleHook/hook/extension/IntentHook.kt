@@ -105,6 +105,6 @@ object IntentHook : BaseHook() {
         val logBean = LogBean(
             "intent", listOf(Json.encodeToString(configBean)), packName
         )
-        LogUtil.toLogMsg(logBean)
+        LogUtil.outLogMsg(logBean)
     }
 }

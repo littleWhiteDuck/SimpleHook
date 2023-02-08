@@ -46,7 +46,7 @@ object ToastHook : BaseHook() {
                 val logBean = LogBean(
                     type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(logBean)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

@@ -30,7 +30,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(logBean)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -50,7 +50,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(logBean)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -80,7 +80,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("encryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(logBean)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
 
@@ -106,7 +106,7 @@ object Base64Hook : BaseHook() {
                             Tip.getTip("decryptResult") + result
                         ) + items, HookHelper.hostPackageName
                     )
-                    LogUtil.toLogMsg(logBean)
+                    LogUtil.outLogMsg(logBean)
                 }
             })
     }

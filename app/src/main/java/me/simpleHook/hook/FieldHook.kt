@@ -106,7 +106,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
-        LogUtil.toLogMsg(logBean)
+        LogUtil.outLogMsg(logBean)
     }
 
     private fun hookStaticField(
@@ -142,7 +142,7 @@ object FieldHook {
             getTip("fieldValue") + result
         )
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
-        LogUtil.toLogMsg(logBean)
+        LogUtil.outLogMsg(logBean)
     }
 
     private fun hookInstanceField(

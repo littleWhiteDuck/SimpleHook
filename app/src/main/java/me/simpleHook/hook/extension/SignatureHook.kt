@@ -34,7 +34,7 @@ object SignatureHook : BaseHook() {
                     "Signature(MD5): $md5", "Signature(SHA-1): $sha1", "Signature(SHA-256): $sha256"
                 )
                 val logBean = LogBean("Signature", list + items, HookHelper.hostPackageName)
-                LogUtil.toLogMsg(logBean)
+                LogUtil.outLogMsg(logBean)
             }
         }
     }

@@ -31,7 +31,7 @@ object ClipboardFilterHook : BaseHook() {
                                     arrayListOf(Tip.getTip("clipboardInfo") + info) + items,
                                     HookHelper.hostPackageName
                                 )
-                                LogUtil.toLogMsg(logBean)
+                                LogUtil.outLogMsg(logBean)
                                 return@forEach
                             }
                         }

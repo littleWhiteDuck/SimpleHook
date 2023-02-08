@@ -12,11 +12,11 @@ import kotlinx.parcelize.Parcelize
 @Entity
 @kotlinx.serialization.Serializable
 data class PrintLog(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @kotlinx.serialization.Transient @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "log") var log: String,
     @ColumnInfo(name = "packageName") var packageName: String,
-    @ColumnInfo(name = "read") var read: Boolean = false,
+    @kotlinx.serialization.Transient @ColumnInfo(name = "read") var read: Boolean = false,
     @ColumnInfo(name = "type") var type: String = "need_update",
-    var isMark: Boolean = false,
+    @kotlinx.serialization.Transient var isMark: Boolean = false,
     var time: String = "need_update"
 ) : Parcelable

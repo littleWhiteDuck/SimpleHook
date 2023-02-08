@@ -48,7 +48,7 @@ object DialogHook : BaseHook() {
                                 dialog.dismiss()
                                 val type =
                                     if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
-                                LogUtil.toLogMsg(
+                                LogUtil.outLogMsg(
                                     LogBean(
                                         type,
                                         list + LogUtil.getStackTrace(),
@@ -61,7 +61,7 @@ object DialogHook : BaseHook() {
                     }
                     if (configBean.dialog) {
                         val type = if (isShowEnglish) "Dialog" else "弹窗"
-                        LogUtil.toLogMsg(
+                        LogUtil.outLogMsg(
                             LogBean(
                                 type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                             )

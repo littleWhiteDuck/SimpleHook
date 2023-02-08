@@ -36,7 +36,7 @@ object WebHook : BaseHook() {
                     list.add("Header: $headers")
                 }
                 val logBean = LogBean(type, list, HookHelper.hostPackageName)
-                LogUtil.toLogMsg(logBean)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

@@ -58,7 +58,7 @@ object PopupWindowHook : BaseHook() {
                 if (it.isNotEmpty() && showText.contains(it)) {
                     val type =
                         if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
-                    LogUtil.toLogMsg(
+                    LogUtil.outLogMsg(
                         LogBean(
                             type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                         )
@@ -70,7 +70,7 @@ object PopupWindowHook : BaseHook() {
         }
         if (configBean.popup) {
             val type = "PopupWindow"
-            LogUtil.toLogMsg(
+            LogUtil.outLogMsg(
                 LogBean(
                     type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
                 )

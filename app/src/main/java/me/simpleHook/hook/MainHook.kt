@@ -1,6 +1,5 @@
 package me.simpleHook.hook
 
-import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
 import com.github.kyuubiran.ezxhelper.utils.*
@@ -23,7 +22,7 @@ import me.simpleHook.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.hook.utils.LogUtil.getStackTrace
 import me.simpleHook.hook.utils.LogUtil.noSuchMethod
 import me.simpleHook.hook.utils.LogUtil.notFoundClass
-import me.simpleHook.hook.utils.LogUtil.toLogMsg
+import me.simpleHook.hook.utils.LogUtil.outLogMsg
 import me.simpleHook.hook.utils.Type.getDataTypeValue
 import me.simpleHook.util.*
 import org.json.JSONObject
@@ -38,16 +37,16 @@ object MainHook {
             if (!appConfig.enable) return
             val configs = Json.decodeFromString<List<ConfigBean>>(appConfig.configs)
             getTip("startCustomHook").log(hostPackageName)
-            configs.forEach {
-                if (!it.enable) return@forEach
-                it.apply {
-                    when (it.mode) {
-                        Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> FieldHook.hookStaticField(
-                            configBean = it
-                        )
-                        Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> FieldHook.hookInstanceField(
-                            it
-                        )
+            configs.forEach { configBean ->
+                if (!configBean.enable) return@forEach
+                configBean.apply {
+                    when (configBean.mode) {
+                        Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> {
+                            FieldHook.hookStaticField(configBean)
+                        }
+                        Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> {
+                            FieldHook.hookInstanceField(configBean)
+                        }
                         else -> specificHook(
                             className = className,
                             methodName = methodName,
@@ -66,7 +65,7 @@ object MainHook {
             } catch (e: java.lang.Exception) {
                 strConfig
             }
-            LogUtil.toLog(
+            LogUtil.outLog(
                 arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: $configTemp",
@@ -177,7 +176,6 @@ object MainHook {
         }
     }
 
-    @SuppressLint("ApplySharedPref")
     private fun hookReturnValue(
         values: String, param: XC_MethodHook.MethodHookParam
     ) {
@@ -202,8 +200,8 @@ object MainHook {
                         val currentTime = System.currentTimeMillis() / 1000
                         if (currentTime - updateTime >= oldTime) {
                             val result = randomSeed.random(len)
-                            sp.edit().putString("random_$key", result).commit()
-                            sp.edit().putLong("time_$key", currentTime).commit()
+                            sp.edit().putString("random_$key", result).apply()
+                            sp.edit().putLong("time_$key", currentTime).apply()
                             param.result = result
                         } else {
                             param.result = oldRandom
@@ -239,7 +237,7 @@ object MainHook {
                 getTip("filledMethodParams") + "$methodName($params)",
                 getTip("detailReason") + e.stackTraceToString()
             )
-            LogUtil.toLog(list, "Error HookParamsError")
+            LogUtil.outLog(list, "Error HookParamsError")
         }
     }
 
@@ -260,7 +258,7 @@ object MainHook {
         }
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(logBean)
+        outLogMsg(logBean)
     }
 
     private fun recordReturnValue(
@@ -274,7 +272,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(logBean)
+        outLogMsg(logBean)
     }
 
     private fun recordParamsAndReturn(
@@ -296,7 +294,7 @@ object MainHook {
         list.add(getTip("returnValue") + result)
         val items = getStackTrace()
         val logBean = LogBean(type, list + items, hostPackageName)
-        toLogMsg(logBean)
+        outLogMsg(logBean)
     }
 
     private fun getObjectString(value: Any): String {
@@ -338,7 +336,7 @@ object MainHook {
                 SensorMangerHook
             )
         } catch (e: java.lang.Exception) {
-            LogUtil.toLog(
+            LogUtil.outLog(
                 arrayListOf(
                     getTip("errorType") + getTip("unknownError"),
                     "config: ${JsonUtil.formatJson(strConfig)}",

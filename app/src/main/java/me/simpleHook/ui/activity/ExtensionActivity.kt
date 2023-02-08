@@ -569,7 +569,7 @@ class ExtensionActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val isInstalled = AppUtils.isAppInstalled(this, assistConfig.packageName)
         menuInflater.inflate(R.menu.menu_assist, menu)
-        if (packageManager.getLaunchIntentForPackage(packageName) == null) {
+        if (packageManager.getLaunchIntentForPackage(packageName) == null || !FlavorUtils.rootVersion) {
             menu.removeItem(R.id.menu_relaunch)
         }
         if (!isInstalled) {
