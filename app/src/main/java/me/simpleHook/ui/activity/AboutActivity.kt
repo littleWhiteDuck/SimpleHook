@@ -1,291 +1,25 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.net.Uri
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
+import android.widget.ImageView
+import android.widget.TextView
+import com.drakeet.about.*
+import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.adapter.BasicViewHolder
-import me.simpleHook.adapter.BasicViewHolderFactory
-import me.simpleHook.adapter.MultiTypeAdapter
-import me.simpleHook.bean.Author
-import me.simpleHook.bean.OpenSource
-import me.simpleHook.bean.Title
-import me.simpleHook.databinding.ActivityAboutBinding
-import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.view.about.AuthorView
-import me.simpleHook.ui.view.about.OpenSourceView
-import me.simpleHook.util.AppUtils
 import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.dp
 import me.simpleHook.util.toast
-import kotlin.random.Random
 
-class AboutActivity : BaseActivity() {
-    private lateinit var binding: ActivityAboutBinding
-    private val itemList = ArrayList<Any>()
-    private var temp = false
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAboutBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        temp = false
-        val windowPreferencesManager = WindowPreferencesManager(this)
-        windowPreferencesManager.applyEdgeToEdgePreference(window)
-        initData()
-        initView()
-    }
 
-    private fun initData() {
-        itemList.apply {
-            add(Title(getString(R.string.about_title_author)))
-            add(
-                Author(
-                    getString(R.string.about_name_developer),
-                    getString(R.string.about_introduce_developer),
-                    R.drawable.author
-                )
-            )
-            add(
-                Author(
-                    "Source Code(Hook)", "https://github.com/littleWhiteDuck/SimpleHook", null
-                )
-            )
-            add(Title(getString(R.string.about_title_tester)))
-            add(
-                Author(
-                    getString(R.string.about_tester_zj),
-                    getString(R.string.about_introduce_test_bug),
-                    R.drawable.zhengji
-                )
-            )
-            add(
-                Author(
-                    getString(R.string.about_tester_j),
-                    getString(R.string.about_introduce_test_bug),
-                    R.drawable.jian
-                )
-            )
-            add(
-                Author(
-                    getString(R.string.about_tester_xn),
-                    getString(R.string.about_introduce_test_bug),
-                    R.drawable.xiaoniu
-                )
-            )
-            add(Title("其他推荐"))
-            add(
-                OpenSource(
-                    name = "JsHook",
-                    link = "https://github.com/Xposed-Modules-Repo/me.jsonet.jshook",
-                    License = getString(R.string.about_js_hook)
-                )
-            )
-            add(Title(getString(R.string.about_title_open_sources)))
-            add(
-                OpenSource(
-                    "kotlin - JetBrains",
-                    "https://github.com/JetBrains/Kotlin",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "AndroidX - Google",
-                    "https://source.google.com",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "Android Jetpack - Google",
-                    "https://source.google.com",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "material-components-android - Google",
-                    "https://github.com/material-components/material-components-android",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "EasyFloat - princekin-f",
-                    "https://github.com/princekin-f/EasyFloat",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "gson - Google",
-                    "https://github.com/google/gson",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "XposedBridge - rovo89",
-                    "https://github.com/rovo89/XposedBridge",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-            add(
-                OpenSource(
-                    "libsu - topjohnwu",
-                    "https://github.com/topjohnwu/libsu",
-                    getString(R.string.about_source_license_2)
-                )
-            )
+class AboutActivity : AbsAboutActivity() {
 
-            add(
-                OpenSource(
-                    "Glide - Sam sjudd",
-                    "https://github.com/bumptech/glide",
-                    "BSD, MIT and Apache 2.0"
-                )
-            )
-
-            add(
-                OpenSource(
-                    "SwipeDelMenuLayout - mcxtzhang",
-                    "https://github.com/mcxtzhang/SwipeDelMenuLayout",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-
-            add(
-                OpenSource(
-                    "EzXHelper - KyuubiRan",
-                    "https://github.com/KyuubiRan/EzXHelper",
-                    getString(R.string.about_source_license_2)
-                )
-            )
-
-            add(
-                OpenSource(
-                    "SimpleMenuPreference - RikkaX",
-                    "https://github.com/RikkaApps/RikkaX/tree/master/preference/simplemenu-preference",
-                    getString(R.string.about_source_license_mit)
-                )
-            )
-        }
-    }
-
-    private fun initView() {
-        binding.apply {
-            donateMe.setOnClickListener {
-                "感谢支持\nThanks for your support".toast(this@AboutActivity)
-            }
-            rev.adapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
-                override fun getItemViewType(position: Int, data: Any): Int {
-                    return when (data) {
-                        is Title -> 1
-                        is OpenSource -> 2
-                        is Author -> 3
-                        else -> throw IllegalArgumentException("unknown data: $data")
-                    }
-                }
-
-                override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
-                    1 -> AppCompatTextView(parent.context).apply {
-                        layoutParams = ViewGroup.MarginLayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                        ).also {
-                            it.setMargins(12.dp, 0, 0, 0)
-                        }
-                        setPadding(0, 5.dp, 0, 5.dp)
-                    }
-                    2 -> OpenSourceView(parent.context)
-                    3 -> AuthorView(parent.context)
-                    else -> throw IllegalArgumentException("unknown viewType: $viewType")
-                }
-
-                override fun onCreateViewHolder(
-                    parent: ViewGroup, itemView: View
-                ): BasicViewHolder<*> {
-
-                    return when (itemView) {
-                        is AppCompatTextView -> TitleHolder(itemView)
-                        is OpenSourceView -> OpenSourceHolder(itemView)
-                        is AuthorView -> AuthorHolder(itemView)
-                        else -> throw IllegalArgumentException("unknown itemView: $itemView")
-                    }
-                }
-
-            })
-            rev.layoutManager = LinearLayoutManager(this@AboutActivity)
-            rev.addItemDecoration(
-                DividerItemDecoration(
-                    this@AboutActivity, LinearLayoutManager.VERTICAL
-                )
-            )
-        }
-
-    }
-
-    class AuthorHolder(itemView: View) : BasicViewHolder<Author>(itemView) {
-        private val authorView = itemView as AuthorView
-        private val tvName = authorView.name
-        private val tvIntro = authorView.introduce
-        private val ivIcon = authorView.avatar
-        private val intent = Intent(Intent.ACTION_VIEW)
-        override fun onBindData(position: Int, data: Author) {
-            tvName.text = data.name
-            tvIntro.text = data.introduce
-            data.id?.let {
-                ivIcon.iconId = it
-                ivIcon.avatarWidth = 50f.dp
-            }
-            itemView.setOnClickListener {
-                if (data.name == "Source Code(Hook)") {
-                    intent.data = Uri.parse(data.introduce)
-                    itemView.context.startActivity(intent)
-                }
-            }
-        }
-
-    }
-
-    class OpenSourceHolder(itemView: View) : BasicViewHolder<OpenSource>(itemView) {
-        private val openSourceView = itemView as OpenSourceView
-        private val tvName = openSourceView.name
-        private val tvOpen = openSourceView.openSource
-        private val intent = Intent(Intent.ACTION_VIEW)
-        override fun onBindData(position: Int, data: OpenSource) {
-            tvName.text = data.name
-            val str = data.link + "\n" + data.License
-            tvOpen.text = str
-            itemView.setOnClickListener {
-                intent.data = Uri.parse(data.link)
-                itemView.context.startActivity(intent)
-            }
-        }
-
-    }
-
-    class TitleHolder(itemView: View) : BasicViewHolder<Title>(itemView) {
-        private val tvTitle = itemView as AppCompatTextView
-        override fun onBindData(position: Int, data: Title) {
-            tvTitle.text = data.title
-        }
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_about, menu)
-        if (AppUtils.isAppInstalled(this, "org.telegram.messenger")) {
-            menu.findItem(R.id.add_group).isVisible = Random.nextBoolean()
-        }
         return true
     }
 
@@ -304,6 +38,135 @@ class AboutActivity : BaseActivity() {
             }
         }
         return true
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onCreateHeader(icon: ImageView, slogan: TextView, version: TextView) {
+//        icon.setImageResource(R.drawable.ic_launcher)
+        slogan.text = BuildConfig.APP_NAME
+        version.text = "${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
+    }
+
+    override fun onItemsCreated(items: MutableList<Any>) {
+        items.add(Category("介绍与帮助"))
+        items.add(Card("https://github.com/littleWhiteDuck/SimpleHook"))
+
+        items.add(Category("Developers"))
+        items.add(Contributor(R.drawable.author, "littleWhiteDuck", "Developer & designer"))
+        items.add(
+            Contributor(
+                R.drawable.ic_github,
+                "Source Code (Hook)",
+                "https://github.com/littleWhiteDuck/SimpleHook",
+                "https://github.com/littleWhiteDuck/SimpleHook"
+            )
+        )
+
+        items.add(Category("Testers"))
+        items.add(Contributor(R.drawable.zhengji, "正己", "Tester"))
+        items.add(Contributor(R.drawable.jian, "简", "Tester"))
+        items.add(Contributor(R.drawable.xiaoniu, "快乐小牛", "Tester"))
+
+        items.add(Category("Open Source Licenses"))
+        items.add(
+            License(
+                "Kotlin", "JetBrains", License.APACHE_2, "https://github.com/JetBrains/Kotlin"
+            )
+        )
+        items.add(License("AndroidX", "Google", License.APACHE_2, "https://source.google.com"))
+        items.add(
+            License(
+                "Android Jetpack", "Google", License.APACHE_2, "https://source.google.com"
+            )
+        )
+        items.add(
+            License(
+                "material-components-android",
+                "Google",
+                License.APACHE_2,
+                "https://github.com/material-components/material-components-android"
+            )
+        )
+        items.add(
+            License(
+                "EasyFloat",
+                "princekin-f",
+                License.APACHE_2,
+                "https://github.com/princekin-f/EasyFloat"
+            )
+        )
+        items.add(License("gson", "Google", License.APACHE_2, "https://github.com/google/gson"))
+        items.add(
+            License(
+                "XposedBridge", "rovo89", License.APACHE_2, "https://github.com/rovo89/XposedBridge"
+            )
+        )
+        items.add(
+            License(
+                "libsu", "topjohnwu", License.APACHE_2, "https://github.com/topjohnwu/libsu"
+            )
+        )
+        items.add(
+            License(
+                "Glide",
+                "Sam Judd",
+                "BSD, part MIT and Apache 2.0",
+                "https://github.com/bumptech/glide"
+            )
+        )
+        items.add(
+            License(
+                "SwipeDelMenuLayout",
+                "mcxtzhang",
+                License.APACHE_2,
+                "https://github.com/mcxtzhang/SwipeDelMenuLayout"
+            )
+        )
+        items.add(
+            License(
+                "EzXHelper", "KyuubiRan", License.APACHE_2, "https://github.com/KyuubiRan/EzXHelper"
+            )
+        )
+        items.add(
+            License(
+                "SimpleMenuPreference",
+                "RikkaX",
+                License.MIT,
+                "https://github.com/RikkaApps/RikkaX/tree/master/preference/simplemenu-preference"
+            )
+        )
+        items.add(
+            License(
+                "MultiType", "drakeet", License.APACHE_2, "https://github.com/drakeet/MultiType"
+            )
+        )
+        items.add(
+            License(
+                "about-page",
+                "drakeet",
+                License.APACHE_2,
+                "https://github.com/PureWriter/about-page"
+            )
+        )
+        items.add(
+            License(
+                "Kotlin multiplatform / multi-format reflectionless serialization",
+                "JetBrains",
+                License.APACHE_2,
+                "https://github.com/Kotlin/kotlinx.serialization"
+            )
+        )
+
+
+        items.add(Category("Acknowledgement"))
+        items.add(
+            Card(
+                """
+            应用中部分图标来源于：
+            https://www.iconfont.cn/
+        """.trimIndent()
+            )
+        )
     }
 
 }

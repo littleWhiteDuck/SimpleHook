@@ -39,7 +39,7 @@
         <activity
             android:name=".ui.activity.AboutActivity"
             android:label="@string/app_about"
-            android:theme="@style/Theme.SimpleHook" />
+            android:theme="@style/AppTheme.About" />
         <activity
             android:name=".ui.activity.ExtensionActivity"
             android:label="@string/app_extension"

@@ -180,4 +180,8 @@ dependencies {
     // rikka
     implementation(files("libs/simplemenu-preference-release.aar"))
 
+    //darkeet
+    implementation("com.drakeet.about:about:2.5.2")
+    implementation("com.drakeet.multitype:multitype:4.3.0")
+
 }

@@ -445,14 +445,5 @@
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
     <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
 
 </resources>
