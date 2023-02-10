@@ -1,6 +1,7 @@
 package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -8,15 +9,15 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.drakeet.multitype.ViewDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
@@ -24,8 +25,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.adapter.BasicViewHolder
-import me.simpleHook.adapter.BasicViewHolderFactory
-import me.simpleHook.adapter.MultiTypeAdapter
 import me.simpleHook.bean.AssistItem
 import me.simpleHook.bean.AssistTitle
 import me.simpleHook.bean.ExtensionConfigBean
@@ -59,10 +58,11 @@ class ExtensionActivity : BaseActivity() {
     private val sp by lazy { SPUtils(this) }
     private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
-    private val itemList = ArrayList<Any>()
-    private lateinit var configBean: ExtensionConfigBean
+    private val items = ArrayList<Any>()
+    private var configBean: ExtensionConfigBean = ExtensionConfigBean()
     private var tempConfigStr = ""
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
+    private val adapter = com.drakeet.multitype.MultiTypeAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,12 +85,11 @@ class ExtensionActivity : BaseActivity() {
         assistConfig = bundle!!.getParcelable("assistConfig")!!
         supportActionBar?.title = assistConfig.appName
         supportActionBar?.subtitle = assistConfig.packageName
-        initData()
         initView()
     }
 
 
-    private fun initData() {
+    private fun initView() {
         val dexPosition = getString(R.string.extension_dex_position)
         val dexPath = if (FlavorUtils.normalVersion) {
             dexPosition + "/Android/data/${assistConfig.packageName}/simpleHook/dex/"
@@ -101,61 +100,56 @@ class ExtensionActivity : BaseActivity() {
         configBean =
             if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfigBean()
         tempConfigStr = configBean.toString()
-        itemList.apply {
-            configBean.apply {
-                add(AssistTitle(getString(R.string.extension_item_title_basic)))
+        adapter.register(TitleViewDelegate())
+        adapter.register(ExtensionItemViewDelete())
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        configBean.apply {
+            items.apply {
+                add(Title(getString(R.string.extension_item_title_basic)))
                 add(
-                    AssistItem(
-                        assistConfig.appName, false, TAG_START_APP, assistConfig.packageName, ""
+                    ExtensionItem(
+                        getString(R.string.extension_item_title_all_switch),
+                        all,
+                        "all",
+                        getString(R.string.extension_item_desc_all_switch)
                     )
                 )
                 add(
-                    AssistItem(
-                        getString(R.string.extension_item_title_all_switch), all, "all", getString(
-                            R.string.extension_item_desc_all_switch
-                        )
-                    )
-                )
-                add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_hook_success_tip),
                         tip,
                         "tip",
-                        getString(
-                            R.string.extension_item_desc_hook_success_tip
-                        )
+                        getString(R.string.extension_item_desc_hook_success_tip)
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_algorithm_analysis)))
+                add(Title(getString(R.string.extension_item_title_algorithm_analysis)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_base64),
                         base64,
                         "base64",
-                        getString(
-                            R.string.extension_item_desc_base64
-                        )
+                        getString(R.string.extension_item_desc_base64)
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_digest_algorithm),
                         digest,
                         "digest",
-                        getString(
-                            R.string.extension_item_desc_digest_algorithm
-                        )
+                        getString(R.string.extension_item_desc_digest_algorithm)
                     )
                 )
                 add(
-                    AssistItem(
-                        getString(R.string.extension_item_title_hmac), hmac, "hmac", getString(
-                            R.string.extension_item_desc_hmac
-                        )
+                    ExtensionItem(
+                        getString(R.string.extension_item_title_hmac),
+                        hmac,
+                        "hmac",
+                        getString(R.string.extension_item_desc_hmac)
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_encrypt_algorithm),
                         crypt,
                         "crypt",
@@ -166,7 +160,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_hot_fix)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_hot_fix_dex),
                         hotFix,
                         "hotFix",
@@ -175,7 +169,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_ui)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_dialog),
                         dialog,
                         "dialog",
@@ -185,7 +179,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_dialog_cancel),
                         diaCancel,
                         "diaCancel",
@@ -195,14 +189,14 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_toast), toast, "toast", getString(
                             R.string.extension_item_desc_toast
                         )
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_popup_window),
                         popup,
                         "popup",
@@ -212,7 +206,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_popup_window_cancel),
                         popCancel,
                         "popCancel",
@@ -222,7 +216,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_click_event),
                         click,
                         "click",
@@ -232,7 +226,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_block_dialog),
                         stopDialog.enable,
                         TAG_STOP_DIALOG,
@@ -243,7 +237,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_security)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
                         disSensorAG,
                         "disSensorAG",
@@ -251,7 +245,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
                         disSensorSport,
                         "disSensorSport",
@@ -259,7 +253,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = getString(R.string.extension_item_title_contact),
                         contact,
                         "contact",
@@ -268,7 +262,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle("JSON"))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_json_object),
                         jsonObject,
                         "jsonObject",
@@ -276,7 +270,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_json_array),
                         jsonArray,
                         "jsonArray",
@@ -285,7 +279,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle("WebView"))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = "loadUrl",
                         webLoadUrl,
                         "webLoadUrl",
@@ -293,7 +287,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = "Debug",
                         webDebug,
                         "webDebug",
@@ -302,7 +296,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_others)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_signature),
                         signature,
                         "signature",
@@ -310,7 +304,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_intent),
                         intent,
                         "intent",
@@ -320,7 +314,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = getString(R.string.extension_item_title_filter_clipboard),
                         filterClipboard.enable,
                         TAG_FILTER_CLIPBOARD,
@@ -328,7 +322,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         title = "Application",
                         application,
                         "application",
@@ -337,56 +331,17 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(AssistTitle(getString(R.string.extension_item_title_network)))
                 add(
-                    AssistItem(
+                    ExtensionItem(
                         getString(R.string.extension_item_title_vpn), vpn, "vpn", getString(
                             R.string.extension_item_desc_vpn
                         )
                     )
                 )
             }
-        }
-    }
-
-    private fun initView() {
-        val mAdapter = MultiTypeAdapter(itemList, object : BasicViewHolderFactory() {
-            override fun getItemViewType(position: Int, data: Any) = when (data) {
-                is AssistTitle -> 1
-                is AssistItem -> 2
-                else -> throw IllegalArgumentException("unknown data: $data")
-            }
-
-            override fun getItemView(parent: ViewGroup, viewType: Int) = when (viewType) {
-                1 -> ExtensionItemTitleView(parent.context)
-                2 -> ExtensionItemView(parent.context)
-                else -> throw IllegalArgumentException("unknown viewType: $viewType")
-            }
-
-            override fun onCreateViewHolder(
-                parent: ViewGroup, itemView: View
-            ): BasicViewHolder<*> {
-                return when (itemView) {
-                    is ExtensionItemTitleView -> TitleHolder(itemView)
-                    is ExtensionItemView -> ItemHolder(itemView, onChangeChecked = { checked, tag ->
-                        onChangeChecked(
-                            checked, tag
-                        )
-                    }, onClick = {
-                        onItemClick(it)
-                    })
-                    else -> throw IllegalArgumentException("unknown view: $itemView")
-                }
-            }
 
 
-        })
-        binding.recyclerView.apply {
-            adapter = mAdapter
-            layoutManager = LinearLayoutManager(this@ExtensionActivity)
-            addItemDecoration(
-                DividerItemDecoration(
-                    this@ExtensionActivity, LinearLayoutManager.VERTICAL
-                )
-            )
+            adapter.items = items
+            adapter.notifyDataSetChanged()
         }
     }
 
@@ -693,3 +648,47 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 }
+
+
+data class Title(val name: String)
+
+class TitleViewDelegate : ViewDelegate<Title, ExtensionItemTitleView>() {
+    override fun onBindView(view: ExtensionItemTitleView, item: Title) {
+        view.text = item.name
+    }
+
+    override fun onCreateView(context: Context): ExtensionItemTitleView {
+        return ExtensionItemTitleView(context)
+    }
+
+}
+
+data class ExtensionItem(
+    val title: String,
+    var isChecked: Boolean,
+    val tag: String,
+    val desc: String = "",
+    val other: String = ""
+)
+
+class ExtensionItemViewDelete : ViewDelegate<ExtensionItem, ExtensionItemView>() {
+    override fun onBindView(view: ExtensionItemView, item: ExtensionItem) {
+        view.apply {
+            title.text = item.title
+            desc.text = item.desc
+            if (item.isChecked) {
+                control.text = view.context.getString(R.string.extension_item_status_open)
+                control.setTextColor("#4F9BFA".toColorInt())
+            } else {
+                control.text = view.context.getString(R.string.extension_item_status_close)
+                control.setTextColor("#aaaaaa".toColorInt())
+            }
+        }
+    }
+
+    override fun onCreateView(context: Context): ExtensionItemView {
+        return ExtensionItemView(context)
+    }
+
+}
+

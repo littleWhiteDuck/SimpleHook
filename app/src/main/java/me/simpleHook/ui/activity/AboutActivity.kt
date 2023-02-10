@@ -48,7 +48,7 @@ class AboutActivity : AbsAboutActivity() {
     }
 
     override fun onItemsCreated(items: MutableList<Any>) {
-        items.add(Category("介绍与帮助"))
+        items.add(Category("Introduction"))
         items.add(Card("https://github.com/littleWhiteDuck/SimpleHook"))
 
         items.add(Category("Developers"))
@@ -66,6 +66,16 @@ class AboutActivity : AbsAboutActivity() {
         items.add(Contributor(R.drawable.zhengji, "正己", "Tester"))
         items.add(Contributor(R.drawable.jian, "简", "Tester"))
         items.add(Contributor(R.drawable.xiaoniu, "快乐小牛", "Tester"))
+
+        items.add(Category("App recommendations"))
+        items.add(
+            Contributor(
+                R.drawable.jshook,
+                "JsHook",
+                getString(R.string.about_js_hook),
+                "https://github.com/Xposed-Modules-Repo/me.jsonet.jshook"
+            )
+        )
 
         items.add(Category("Open Source Licenses"))
         items.add(
