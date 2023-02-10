@@ -2,20 +2,17 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.activity.viewModels
-import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.ViewDelegate
 import kotlinx.coroutines.Dispatchers
@@ -24,15 +21,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.adapter.BasicViewHolder
-import me.simpleHook.bean.AssistItem
-import me.simpleHook.bean.AssistTitle
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.compat.DocumentCompatUtils
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
-import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
@@ -42,11 +35,11 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ExtensionItemTitleView
-import me.simpleHook.ui.view.extension.ExtensionItemView
+import me.simpleHook.ui.view.extension.SelectItemView
+import me.simpleHook.ui.view.extension.SubSelectItemView
 import me.simpleHook.util.*
 import javax.crypto.Mac
 
-private const val TAG_START_APP = "start_app"
 private const val TAG_STOP_DIALOG = "stop_dialog"
 private const val TAG_FILTER_CLIPBOARD = "filter_clip_board"
 
@@ -85,10 +78,16 @@ class ExtensionActivity : BaseActivity() {
         assistConfig = bundle!!.getParcelable("assistConfig")!!
         supportActionBar?.title = assistConfig.appName
         supportActionBar?.subtitle = assistConfig.packageName
+        binding.toolbar.setOnClickListener {
+            if (saveConfig()) {
+                startAppAndFloat()
+            }
+        }
         initView()
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         val dexPosition = getString(R.string.extension_dex_position)
         val dexPath = if (FlavorUtils.normalVersion) {
@@ -100,10 +99,18 @@ class ExtensionActivity : BaseActivity() {
         configBean =
             if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfigBean()
         tempConfigStr = configBean.toString()
-        adapter.register(TitleViewDelegate())
-        adapter.register(ExtensionItemViewDelete())
+        adapter.register(Title::class.java, TitleViewDelegate())
+        adapter.register(ExtensionItem::class.java, ItemViewDelegate { tag, checked ->
+            onItemClick(tag, checked)
+        })
+        adapter.register(
+            ExtensionSubItem::class.java, SubItemViewDelegate(onClick = { tag, checked ->
+                onItemClick(tag, checked)
+            }, onSubClick = { tag, checked -> onSubItemClick(tag, checked) })
+        )
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
         configBean.apply {
             items.apply {
                 add(Title(getString(R.string.extension_item_title_basic)))
@@ -126,10 +133,7 @@ class ExtensionActivity : BaseActivity() {
                 add(Title(getString(R.string.extension_item_title_algorithm_analysis)))
                 add(
                     ExtensionItem(
-                        getString(R.string.extension_item_title_base64),
-                        base64,
-                        "base64",
-                        getString(R.string.extension_item_desc_base64)
+                        getString(R.string.extension_item_title_base64), base64, "base64", getString(R.string.extension_item_desc_base64)
                     )
                 )
                 add(
@@ -142,10 +146,7 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(
                     ExtensionItem(
-                        getString(R.string.extension_item_title_hmac),
-                        hmac,
-                        "hmac",
-                        getString(R.string.extension_item_desc_hmac)
+                        getString(R.string.extension_item_title_hmac), hmac, "hmac", getString(R.string.extension_item_desc_hmac)
                     )
                 )
                 add(
@@ -158,7 +159,7 @@ class ExtensionActivity : BaseActivity() {
                         )
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_hot_fix)))
+                add(Title(getString(R.string.extension_item_title_hot_fix)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_hot_fix_dex),
@@ -167,7 +168,7 @@ class ExtensionActivity : BaseActivity() {
                         dexPath
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_ui)))
+                add(Title(getString(R.string.extension_item_title_ui)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_dialog),
@@ -226,7 +227,7 @@ class ExtensionActivity : BaseActivity() {
                     )
                 )
                 add(
-                    ExtensionItem(
+                    ExtensionSubItem(
                         getString(R.string.extension_item_title_block_dialog),
                         stopDialog.enable,
                         TAG_STOP_DIALOG,
@@ -235,7 +236,7 @@ class ExtensionActivity : BaseActivity() {
                         )
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_security)))
+                add(Title(getString(R.string.extension_item_title_security)))
                 add(
                     ExtensionItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
@@ -260,7 +261,7 @@ class ExtensionActivity : BaseActivity() {
                         getString(R.string.extension_item_desc_contact)
                     )
                 )
-                add(AssistTitle("JSON"))
+                add(Title("JSON"))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_json_object),
@@ -277,7 +278,7 @@ class ExtensionActivity : BaseActivity() {
                         getString(R.string.extension_item_desc_json_array)
                     )
                 )
-                add(AssistTitle("WebView"))
+                add(Title("WebView"))
                 add(
                     ExtensionItem(
                         title = "loadUrl",
@@ -294,7 +295,7 @@ class ExtensionActivity : BaseActivity() {
                         getString(R.string.extension_item_desc_web_debug)
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_others)))
+                add(Title(getString(R.string.extension_item_title_others)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_signature),
@@ -305,16 +306,13 @@ class ExtensionActivity : BaseActivity() {
                 )
                 add(
                     ExtensionItem(
-                        getString(R.string.extension_item_title_intent),
-                        intent,
-                        "intent",
-                        getString(
+                        getString(R.string.extension_item_title_intent), intent, "intent", getString(
                             R.string.extension_item_desc_intent
                         )
                     )
                 )
                 add(
-                    ExtensionItem(
+                    ExtensionSubItem(
                         title = getString(R.string.extension_item_title_filter_clipboard),
                         filterClipboard.enable,
                         TAG_FILTER_CLIPBOARD,
@@ -329,7 +327,7 @@ class ExtensionActivity : BaseActivity() {
                         getString(R.string.extension_item_desc_application_name)
                     )
                 )
-                add(AssistTitle(getString(R.string.extension_item_title_network)))
+                add(Title(getString(R.string.extension_item_title_network)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_vpn), vpn, "vpn", getString(
@@ -345,8 +343,7 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 
-
-    private fun onItemClick(tag: String) {
+    private fun onSubItemClick(tag: String, checked: Boolean) {
         if (tag == TAG_STOP_DIALOG) {
             showEditStopDialogKeyWord()
         } else if (tag == TAG_FILTER_CLIPBOARD) {
@@ -354,23 +351,28 @@ class ExtensionActivity : BaseActivity() {
         }
     }
 
-
-    private fun onChangeChecked(checked: Boolean, tag: String) {
-        if (tag == TAG_START_APP) {
-            if (assistConfig.packageName == MODEL_EXTENSION_CONFIG) return
-            if (saveConfig()) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    startAppAndFloat()
-                }, 100)
+    private fun onItemClick(tag: String, checked: Boolean) {
+        if (tag == "hotFix") {
+            createDexDirectory()
+        }
+        when (tag) {
+            TAG_STOP_DIALOG -> {
+                configBean.stopDialog.enable = checked
             }
-            return
-        } else {
-            if (tag == "hotFix" && checked && assistConfig.packageName != MODEL_EXTENSION_CONFIG) {
-                createDexDirectory()
+            TAG_FILTER_CLIPBOARD -> {
+                configBean.filterClipboard.enable = checked
             }
-            refreshConfigBean(tag, checked)
+            else -> {
+                Class.forName(ExtensionConfigBean::class.java.name).apply {
+                    getDeclaredField(tag).apply {
+                        isAccessible = true
+                        setBoolean(configBean, checked)
+                    }
+                }
+            }
         }
     }
+
 
     private fun showEditStopDialogKeyWord() {
         val inputView = InputView(this)
@@ -431,24 +433,6 @@ class ExtensionActivity : BaseActivity() {
         AppUtils.startApp(assistConfig.packageName, this)
     }
 
-    private fun refreshConfigBean(tag: String, isChecked: Boolean) {
-        when (tag) {
-            TAG_STOP_DIALOG -> {
-                configBean.stopDialog.enable = isChecked
-            }
-            TAG_FILTER_CLIPBOARD -> {
-                configBean.filterClipboard.enable = isChecked
-            }
-            else -> {
-                Class.forName(ExtensionConfigBean::class.java.name).apply {
-                    getDeclaredField(tag).apply {
-                        isAccessible = true
-                        setBoolean(configBean, isChecked)
-                    }
-                }
-            }
-        }
-    }
 
     private fun checkPermission(): Boolean {
         if (FlavorUtils.normalVersion && OSUtils.atLeastT() && assistConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
@@ -538,6 +522,9 @@ class ExtensionActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
+            R.id.menu_launch -> {
+                AppUtils.startApp(assistConfig.packageName, this)
+            }
             R.id.save_config -> saveConfig()
             R.id.menu_force_stop -> {
                 if (FlavorUtils.rootVersion) {
@@ -559,96 +546,7 @@ class ExtensionActivity : BaseActivity() {
         return true
     }
 
-    class TitleHolder(itemView: View) : BasicViewHolder<AssistTitle>(itemView) {
-        private val tvTitle = itemView as ExtensionItemTitleView
-        override fun onBindData(position: Int, data: AssistTitle) {
-            tvTitle.text = data.title
-        }
-    }
-
-    class ItemHolder(
-        itemView: View,
-        val onChangeChecked: (Boolean, String) -> Unit,
-        val onClick: (String) -> Unit
-    ) : BasicViewHolder<AssistItem>(itemView) {
-        private val assistItemView = itemView as ExtensionItemView
-        private val tvTitle: TextView = assistItemView.title
-        private val tvDesc: TextView = assistItemView.desc
-        private val tvControl: TextView = assistItemView.control
-        private val lineView: View = assistItemView.lineView
-        override fun onBindData(position: Int, data: AssistItem) {
-            tvDesc.isVisible = data.desc.isNotEmpty()
-            tvTitle.text = data.title
-            tvDesc.text = data.desc
-            tvControl.isVisible = data.tag != TAG_START_APP
-            lineView.isVisible = data.tag == TAG_FILTER_CLIPBOARD || data.tag == TAG_STOP_DIALOG
-            when {
-                data.tag == TAG_START_APP -> tvControl.text = data.other
-                data.isChecked -> {
-                    tvControl.text = itemView.context.getString(R.string.extension_item_status_open)
-                    tvControl.setTextColor(Color.parseColor("#4F9BFA"))
-                }
-                else -> {
-                    tvControl.text =
-                        itemView.context.getString(R.string.extension_item_status_close)
-                    tvControl.setTextColor(Color.parseColor("#aaaaaa"))
-                }
-            }
-            if (data.tag == TAG_STOP_DIALOG || data.tag == TAG_FILTER_CLIPBOARD) {
-                tvControl.setOnClickListener {
-                    data.isChecked = !data.isChecked
-                    tvControl.apply {
-                        data.apply {
-                            when {
-                                isChecked -> {
-                                    text =
-                                        itemView.context.getString(R.string.extension_item_status_open)
-                                    setTextColor(Color.parseColor("#4F9BFA"))
-                                    onChangeChecked(true, tag)
-                                }
-                                else -> {
-                                    text =
-                                        itemView.context.getString(R.string.extension_item_status_close)
-                                    setTextColor(Color.parseColor("#aaaaaa"))
-                                    onChangeChecked(false, tag)
-                                }
-                            }
-                        }
-                    }
-                }
-                itemView.setOnClickListener {
-                    onClick(data.tag)
-                }
-            } else {
-                itemView.setOnClickListener {
-                    data.isChecked = !data.isChecked
-                    tvControl.apply {
-                        data.apply {
-                            when {
-                                tag == TAG_START_APP -> {
-                                    onChangeChecked(false, tag)
-                                }
-                                isChecked -> {
-                                    text =
-                                        itemView.context.getString(R.string.extension_item_status_open)
-                                    setTextColor(Color.parseColor("#4F9BFA"))
-                                    onChangeChecked(true, tag)
-                                }
-                                else -> {
-                                    text =
-                                        itemView.context.getString(R.string.extension_item_status_close)
-                                    setTextColor(Color.parseColor("#aaaaaa"))
-                                    onChangeChecked(false, tag)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
-
 
 data class Title(val name: String)
 
@@ -665,30 +563,86 @@ class TitleViewDelegate : ViewDelegate<Title, ExtensionItemTitleView>() {
 
 data class ExtensionItem(
     val title: String,
-    var isChecked: Boolean,
+    var checked: Boolean,
     val tag: String,
     val desc: String = "",
     val other: String = ""
 )
 
-class ExtensionItemViewDelete : ViewDelegate<ExtensionItem, ExtensionItemView>() {
-    override fun onBindView(view: ExtensionItemView, item: ExtensionItem) {
+data class ExtensionSubItem(
+    val title: String,
+    var checked: Boolean,
+    val tag: String,
+    val desc: String = "",
+    val other: String = ""
+)
+
+class ItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
+    ViewDelegate<ExtensionItem, SelectItemView>() {
+    override fun onBindView(view: SelectItemView, item: ExtensionItem) {
         view.apply {
             title.text = item.title
             desc.text = item.desc
-            if (item.isChecked) {
-                control.text = view.context.getString(R.string.extension_item_status_open)
-                control.setTextColor("#4F9BFA".toColorInt())
-            } else {
-                control.text = view.context.getString(R.string.extension_item_status_close)
-                control.setTextColor("#aaaaaa".toColorInt())
+            switch.isChecked = item.checked
+            setOnClickListener {
+                switch.isChecked = !switch.isChecked
+                onClick(item.tag, switch.isChecked)
             }
         }
     }
 
-    override fun onCreateView(context: Context): ExtensionItemView {
-        return ExtensionItemView(context)
+    override fun onCreateView(context: Context): SelectItemView {
+        return SelectItemView(context)
     }
-
 }
 
+
+class SubItemViewDelegate(
+    val onClick: (tag: String, checked: Boolean) -> Unit,
+    val onSubClick: (tag: String, checked: Boolean) -> Unit
+) : ViewDelegate<ExtensionSubItem, SubSelectItemView>() {
+    override fun onBindView(view: SubSelectItemView, item: ExtensionSubItem) {
+        view.apply {
+            containerView.title.text = item.title
+            containerView.desc.text = item.desc
+            switch.isChecked = item.checked
+            switch.setOnCheckedChangeListener { _, isChecked ->
+                onClick(item.tag, isChecked)
+            }
+            containerView.setOnClickListener {
+                onSubClick(item.tag, switch.isChecked)
+            }
+        }
+    }
+
+    override fun onCreateView(context: Context): SubSelectItemView {
+        return SubSelectItemView(context)
+    }
+}
+/*
+class DividerItemDecoration(private val adapter: MultiTypeAdapter) : DividerItemDecoration() {
+    private val dividerClasses = arrayOf(ExtensionItem::class.java, ExtensionSubItem::class.java)
+    override fun getItemOffsets(
+        outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
+    ) {
+        if (adapter.itemCount == 0) {
+            outRect.set(0, 0, 0 ,0)
+            return
+        }
+        val items: List<*> = adapter.items
+        val position = parent.getChildAdapterPosition(view)
+        var should = false
+        var i = 0
+        while (!should && i < dividerClasses.size) {
+            should = (position + 1 < items.size && items[position]!!.javaClass.isAssignableFrom(
+                dividerClasses[i]
+            ) && items[position + 1]!!.javaClass.isAssignableFrom(dividerClasses[i]))
+            i++
+        }
+        if (should) {
+            outRect.set(0, 0, 0 ,1)
+        } else {
+            outRect.set(0, 0, 0 ,1)
+        }
+    }
+}*/

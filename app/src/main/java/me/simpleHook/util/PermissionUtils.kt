@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import me.simpleHook.SimpleHookApp
+import me.simpleHook.App
 import me.simpleHook.compat.DocumentCompatUtils
 
 object PermissionUtils {
 
-    private val sp by lazy { SPUtils(SimpleHookApp.app) }
+    private val sp by lazy { SPUtils(App.app) }
 
     private const val DATA_URI =
         "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
@@ -32,7 +32,7 @@ object PermissionUtils {
 
     fun isGrantData(uri: String = DATA_URI): Boolean {
         return runCatching {
-            for (persistedUriPermission in SimpleHookApp.app.contentResolver.persistedUriPermissions) {
+            for (persistedUriPermission in App.app.contentResolver.persistedUriPermissions) {
                 if (persistedUriPermission.isReadPermission && persistedUriPermission.uri.toString() == uri) {
                     return true
                 }

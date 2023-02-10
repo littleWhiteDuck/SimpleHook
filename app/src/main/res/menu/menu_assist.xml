@@ -8,6 +8,9 @@
         android:title="@string/config_menu_save_config"
         app:showAsAction="always" />
     <item
+        android:id="@+id/menu_launch"
+        android:title="@string/launch_app" />
+    <item
         android:id="@+id/menu_force_stop"
         android:title="@string/force_stop" />
     <item

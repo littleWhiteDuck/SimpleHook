@@ -7,7 +7,7 @@ import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.ThemeModeUtil
 
-class SimpleHookApp : Application() {
+class App : Application() {
     private val sp by lazy { SPUtils(applicationContext) }
     override fun onCreate() {
         super.onCreate()

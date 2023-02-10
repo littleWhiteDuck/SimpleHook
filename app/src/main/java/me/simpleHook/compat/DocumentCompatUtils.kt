@@ -3,9 +3,8 @@ package me.simpleHook.compat
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import me.simpleHook.SimpleHookApp
+import me.simpleHook.App
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.OSUtils
 import java.io.FileOutputStream
@@ -50,7 +49,7 @@ object DocumentCompatUtils {
     fun deleteFile(filePath: String): Boolean {
         return runCatching {
             DocumentsContract.deleteDocument(
-                SimpleHookApp.app.contentResolver, Uri.parse(changeToUri(filePath))
+                App.app.contentResolver, Uri.parse(changeToUri(filePath))
             )
         }.getOrDefault(false)
     }

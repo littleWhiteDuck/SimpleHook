@@ -2,6 +2,7 @@ package me.simpleHook.hook.utils
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 object HookHelper {
@@ -9,6 +10,7 @@ object HookHelper {
     fun initFields(context: Context, lpparam: XC_LoadPackage.LoadPackageParam) {
         appContext = context
         appClassLoader = context.classLoader
+        EzXHelperInit.setEzClassLoader(appClassLoader)
         hostPackageName = lpparam.packageName
         appInfo = lpparam.appInfo
     }

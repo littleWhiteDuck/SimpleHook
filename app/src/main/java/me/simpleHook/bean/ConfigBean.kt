@@ -25,5 +25,6 @@ data class ConfigBean(
     val resultValues: String = "",
     val hookPoint: String = "after",
     val returnClassName: String = "",
+    val fieldType: String = "",
     var enable: Boolean = true
 )

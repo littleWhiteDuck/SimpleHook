@@ -3,6 +3,7 @@ package me.simpleHook.hook
 import android.app.Application
 import android.content.Context
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
+import com.github.kyuubiran.ezxhelper.init.InitFields
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant

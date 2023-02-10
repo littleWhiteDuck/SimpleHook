@@ -1,6 +1,6 @@
 package me.simpleHook.compat
 
-import me.simpleHook.SimpleHookApp
+import me.simpleHook.App
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.CONFIG_DIRECTORY
 import me.simpleHook.constant.Constant.CUSTOM_CONFIG_NORMAL_NAME
@@ -13,7 +13,7 @@ class FileConfigHelper : ConfigSystem {
 
     override fun isEnableSave(packageName: String): Boolean {
         return !AppUtils.isAppInstalled(packageName) || PermissionUtils.isGrantWritePermission(
-            SimpleHookApp.app
+            App.app
         )
     }
 

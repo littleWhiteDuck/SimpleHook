@@ -1,6 +1,6 @@
 package me.simpleHook.compat
 
-import me.simpleHook.SimpleHookApp
+import me.simpleHook.App
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.PermissionUtils
@@ -16,7 +16,7 @@ class DocumentConfigHelper : ConfigSystem {
     override fun saveCustomConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
         return DocumentCompatUtils.outTextToFile(
-            SimpleHookApp.app, packageName, Constant.CUSTOM_CONFIG_NORMAL_NAME, content
+            App.app, packageName, Constant.CUSTOM_CONFIG_NORMAL_NAME, content
         )
     }
 
@@ -30,7 +30,7 @@ class DocumentConfigHelper : ConfigSystem {
     override fun saveExConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
         return DocumentCompatUtils.outTextToFile(
-            SimpleHookApp.app, packageName, Constant.EXTENSION_CONFIG_NORMAL_NAME, content
+            App.app, packageName, Constant.EXTENSION_CONFIG_NORMAL_NAME, content
         )
     }
 

@@ -2,16 +2,16 @@ package me.simpleHook.compat
 
 import android.content.Context
 import android.content.SharedPreferences
-import me.simpleHook.SimpleHookApp
+import me.simpleHook.App
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 
 class PrefConfigHelper : ConfigSystem {
-    val customPref by lazy { getHookConfigPref(SimpleHookApp.app) }
+    val customPref by lazy { getHookConfigPref(App.app) }
 
     private val exPref by lazy {
         getHookConfigPref(
-            SimpleHookApp.app, Constant.EXTENSION_CONFIG_PREF
+            App.app, Constant.EXTENSION_CONFIG_PREF
         )
     }
 

@@ -9,7 +9,9 @@ import android.net.Uri
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
@@ -162,4 +164,12 @@ suspend fun fetchText(url: String) = withContext(Dispatchers.IO) {
     } catch (_: Throwable) {
         null
     }
+}
+
+
+fun ViewGroup.addViews(vararg views: View): ViewGroup {
+    views.forEach {
+        addView(it)
+    }
+    return this
 }
