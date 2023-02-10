@@ -18,5 +18,5 @@ data class AppConfig(
     @ColumnInfo(name = "description") var description: String,
     @ColumnInfo(name = "config") var configs: String,
     @ColumnInfo(name = "enable") var enable: Boolean = true,
-    @kotlinx.serialization.Transient @PrimaryKey(autoGenerate = true) var id: Int = 0
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
 ) : Parcelable

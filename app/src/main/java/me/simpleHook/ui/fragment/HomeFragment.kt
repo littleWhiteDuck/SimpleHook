@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonBuilder
 import me.simpleHook.R
 import me.simpleHook.SystemServices
 import me.simpleHook.adapter.HomeAdapter
