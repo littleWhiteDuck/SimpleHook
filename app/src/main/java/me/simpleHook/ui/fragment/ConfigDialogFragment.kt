@@ -13,10 +13,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigBean
@@ -116,7 +117,7 @@ class ConfigDialogFragment(
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
                                 configSystem.saveCustomConfig(
-                                    item.appConfig.packageName, Gson().toJson(item.appConfig)
+                                    item.appConfig.packageName, Json.encodeToString(item.appConfig)
                                 )
                             }
                             tempList.add(item.appConfig)
@@ -214,7 +215,7 @@ class ConfigDialogFragment(
             val appConfig = configItem.appConfig
             appConfigs.add(appConfig)
         }
-        Gson().toJson(appConfigs)
+        Json.encodeToString(appConfigs)
     } ?: ""
 
     private fun getStringJSConfig(list: List<ConfigItem>?) = list?.let {
@@ -230,8 +231,7 @@ class ConfigDialogFragment(
     } ?: ""
 
     private fun toJSConfig(configStr: String): String {
-        val listType = object : TypeToken<ArrayList<ConfigBean>>() {}.type
-        val configs = Gson().fromJson<ArrayList<ConfigBean>>(configStr, listType)
+        val configs = Json.decodeFromString<List<ConfigBean>>(configStr)
         var result = ""
         configs.forEach {
             it.apply {

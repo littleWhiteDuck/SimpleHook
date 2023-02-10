@@ -5,7 +5,8 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
@@ -47,7 +48,7 @@ class RecordAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val printLog = getItem(position) ?: return
-        val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
+        val logBean = Json.decodeFromString<LogBean>(printLog.log)
         holder.itemView.setTag(R.id.item_record_position, printLog)
         val context = holder.itemView.context
         holder.apply {

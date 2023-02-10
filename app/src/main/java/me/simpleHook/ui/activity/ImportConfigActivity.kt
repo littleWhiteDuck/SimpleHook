@@ -3,12 +3,14 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.compat.ConfigSystemUtil
@@ -76,15 +78,17 @@ class ImportConfigActivity : AppCompatActivity() {
                 }
             }
             JsonUtil.isJsonObject(configs) -> {
-                try {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        val appConfig = Gson().fromJson(configs, AppConfig::class.java)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    runCatching {
+                        val appConfig = Json.decodeFromString<AppConfig>(configs)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
                         configSystem.saveCustomConfig(appConfig.packageName, configs)
+                    }.onFailure {
+                        Looper.prepare()
+                        getString(R.string.main_home_import_incorrect_format_tip).toast(this@ImportConfigActivity)
+                        Looper.loop()
                     }
-                } catch (e: java.lang.Exception) {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(this)
                 }
             }
             else -> getString(R.string.main_home_import_incorrect_format_tip).toast(this)

@@ -2,9 +2,10 @@ package me.simpleHook.config
 
 import android.content.Context
 import android.provider.DocumentsContract
-import com.google.gson.Gson
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.compat.DocumentCompatUtils
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
@@ -30,7 +31,7 @@ object RecordsHelper {
                 SuFileInputStream.open(suFile).bufferedReader().useLines {
                     it.iterator().forEach { str ->
                         try {
-                            val printLog = Gson().fromJson(str, PrintLog::class.java)
+                            val printLog = Json.decodeFromString<PrintLog>(str)
                             list.add(printLog)
                         } catch (e: Throwable) {
                             e.printStackTrace()
@@ -50,7 +51,7 @@ object RecordsHelper {
                     bufferedReader.useLines {
                         it.iterator().forEach { str ->
                             try {
-                                list.add(Gson().fromJson(str, PrintLog::class.java))
+                                list.add(Json.decodeFromString(str))
                             } catch (e: java.lang.Exception) {
                                 e.printStackTrace()
                             }
@@ -64,7 +65,7 @@ object RecordsHelper {
                 File(filePath).useLines {
                     it.iterator().forEach { str ->
                         try {
-                            val printLog = Gson().fromJson(str, PrintLog::class.java)
+                            val printLog = Json.decodeFromString<PrintLog>(str)
                             list.add(printLog)
                         } catch (e: Throwable) {
                             e.printStackTrace()

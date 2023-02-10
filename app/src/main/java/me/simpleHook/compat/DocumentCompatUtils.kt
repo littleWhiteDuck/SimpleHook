@@ -3,6 +3,7 @@ package me.simpleHook.compat
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.SimpleHookApp
 import me.simpleHook.constant.Constant

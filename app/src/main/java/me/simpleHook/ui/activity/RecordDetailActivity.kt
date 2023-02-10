@@ -14,12 +14,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
+import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.bean.LogBean2
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
@@ -73,11 +74,10 @@ class RecordDetailActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch(Dispatchers.Main) {
-            val logBean = Gson().fromJson(printLog.log, LogBean::class.java)
+            val logBean = Json.decodeFromString<LogBean>(printLog.log)
             val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
             if (logBean.type.equals("intent", ignoreCase = true)) {
-                val logBean2 = Gson().fromJson(printLog.log, LogBean2::class.java)
-                val intentBean = logBean2.other[0]
+                val intentBean = Json.decodeFromString<IntentBean>(logBean.other[0])
                 val sb = StringBuilder()
                 sb.append("${foreStr + logBean.type}\n")
                     .append("packageName：${intentBean.packageName}\n")
@@ -89,7 +89,7 @@ class RecordDetailActivity : BaseActivity() {
                 }
                 currentText = sb.toString()
             } else {
-                val logList: List<String> = logBean.other as List<String>
+                val logList: List<String> = logBean.other
                 val sb = StringBuilder()
                 logList.forEach {
                     if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {

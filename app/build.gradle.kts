@@ -11,6 +11,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("kotlin-parcelize")
+    id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -128,6 +129,9 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.annotation:annotation:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
@@ -153,6 +157,7 @@ dependencies {
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
 
     //json
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
     implementation("com.google.code.gson:gson:2.9.1")
 
     //splashScreen
@@ -169,13 +174,14 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:$glideVersion")
 
     val libsuVersion = "5.0.4"
-    // The core module that provides APIs to a shell
     implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
-
     implementation("com.github.topjohnwu.libsu:io:${libsuVersion}")
 
     // rikka
     implementation(files("libs/simplemenu-preference-release.aar"))
-    //implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
+
+    //darkeet
+    implementation("com.drakeet.about:about:2.5.2")
+    implementation("com.drakeet.multitype:multitype:4.3.0")
 
 }

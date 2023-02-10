@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Looper
 import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -18,10 +19,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.SystemServices
 import me.simpleHook.adapter.HomeAdapter
@@ -196,11 +198,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
 
     private fun copyConfigs(config: AppConfig) {
-        config.apply {
-            config.configs = configs
-            ToolUtils.toClip(requireContext(), Gson().toJson(config))
-            getString(R.string.main_home_export_configs_tip).toast(requireContext())
-        }
+        val configs: AppConfig = config
+        ToolUtils.toClip(requireContext(), Json.encodeToString(configs))
+        getString(R.string.main_home_export_configs_tip).toast(requireContext())
     }
 
     private fun initView() {
@@ -302,15 +302,17 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 }
             }
             JsonUtil.isJsonObject(configs) -> {
-                try {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        val appConfig = Gson().fromJson(configs, AppConfig::class.java)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    runCatching {
+                        val appConfig = Json.decodeFromString<AppConfig>(configs)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
                         configSystem.saveCustomConfig(appConfig.packageName, configs)
+                    }.onFailure {
+                        Looper.prepare()
+                        getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
+                        Looper.loop()
                     }
-                } catch (e: java.lang.Exception) {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
                 }
             }
             else -> getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
@@ -321,7 +323,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         if (configSystem.isEnableSave(appConfig.packageName)) {
             appConfig.enable = isChecked
             viewModel.updateConfigs(appConfig)
-            val configStr = Gson().toJson(appConfig)
+            val configStr = Json.encodeToString(appConfig)
             configSystem.saveCustomConfig(appConfig.packageName, configStr)
         } else {
             requirePermission(appConfig.packageName)
@@ -332,7 +334,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         if (configSystem.isEnableSave(appConfig.packageName)) {
             lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.insertConfigs(appConfig)
-                val configStr = Gson().toJson(appConfig)
+                val configStr = Json.encodeToString(appConfig)
                 configSystem.saveCustomConfig(appConfig.packageName, configStr)
             }
         } else {

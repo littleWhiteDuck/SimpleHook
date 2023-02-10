@@ -25,9 +25,9 @@
         android:theme="@style/Theme.SimpleHook"
         tools:targetApi="n">
         <activity
-            android:label="@string/label_batch_grant"
             android:name=".ui.activity.A33PermissionActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/label_batch_grant" />
         <activity
             android:name=".ui.activity.RecordDetailActivity"
             android:exported="false"
@@ -39,7 +39,7 @@
         <activity
             android:name=".ui.activity.AboutActivity"
             android:label="@string/app_about"
-            android:theme="@style/Theme.SimpleHook" />
+            android:theme="@style/AppTheme.About" />
         <activity
             android:name=".ui.activity.ExtensionActivity"
             android:label="@string/app_extension"

@@ -6,11 +6,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.constant.Constant
@@ -73,7 +74,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             when (searchMode) {
                 Constant.RECORD_SEARCH_RESULT -> {
                     pagingData.filter {
-                        val logBean = Gson().fromJson(it.log, LogBean::class.java)
+                        val logBean = Json.decodeFromString<LogBean>(it.log)
                         val list: List<String> = logBean.other as List<String>
                         var result = ""
                         list.forEach { item ->
@@ -90,7 +91,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 Constant.RECORD_SEARCH_RAW_DATA -> {
                     pagingData.filter {
-                        val logBean = Gson().fromJson(it.log, LogBean::class.java)
+                        val logBean = Json.decodeFromString<LogBean>(it.log)
                         val list: List<String> = logBean.other as List<String>
                         var rawData = ""
                         list.forEach { item ->

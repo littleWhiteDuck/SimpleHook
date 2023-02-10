@@ -2,6 +2,7 @@ package me.simpleHook.compat
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.compat.DocumentCompatUtils.alterDocument
 import me.simpleHook.compat.DocumentCompatUtils.changeToUri
@@ -15,7 +16,7 @@ object DocumentTUtils {
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
         val baseString =
-            "${Constant.ANDROID_DATA_URI + packageName}/document/primary%3AAndroid%2Fdata%2F$packageName"
+            "${Constant.ANDROID_DATA_URI}%2F$packageName/document/primary%3AAndroid%2Fdata%2F$packageName"
         val path = filePath.replace(Constant.ANDROID_DATA_PATH + packageName, "")
         return Uri.parse(baseString + path.replace("/", "%2F"))
     }
