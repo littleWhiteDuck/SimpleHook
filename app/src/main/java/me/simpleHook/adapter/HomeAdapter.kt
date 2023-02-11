@@ -109,7 +109,7 @@ class HomeAdapter(
         ): Boolean {
             val oldItemConfig = oldItem.appConfig
             val newItemConfig = newItem.appConfig
-            return oldItemConfig.appName == newItemConfig.appName && oldItemConfig.packageName == newItemConfig.packageName && oldItemConfig.versionName == newItemConfig.versionName && oldItemConfig.description == newItemConfig.description && oldItemConfig.configs == newItemConfig.configs && oldItemConfig.enable == newItemConfig.enable
+            return oldItem.drag == newItem.drag && oldItemConfig.appName == newItemConfig.appName && oldItemConfig.packageName == newItemConfig.packageName && oldItemConfig.versionName == newItemConfig.versionName && oldItemConfig.description == newItemConfig.description && oldItemConfig.configs == newItemConfig.configs && oldItemConfig.enable == newItemConfig.enable
         }
     }
 }

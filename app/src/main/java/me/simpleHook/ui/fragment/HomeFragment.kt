@@ -9,6 +9,7 @@ import android.os.Looper
 import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,8 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.R
 import me.simpleHook.GlobalServices
+import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.ConfigItem
@@ -49,7 +50,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private val viewModel: AppViewModel by activityViewModels()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private var filterConfigs = ArrayList<AppConfigBean>()
+    private var filterConfigs: List<AppConfigBean> = ArrayList()
+    private var tempConfigs = ArrayList<AppConfigBean>()
     private lateinit var mContext: Context
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
@@ -71,6 +73,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
     private var isFabShow = true
     private var isDrag = false
+    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +92,6 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
 
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
             if (it.isEmpty()) {
@@ -96,17 +99,13 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             } else {
                 binding.emptyTip.visibility = View.GONE
             }
-            filterConfigs.clear()
+            val tempConfigs = ArrayList<AppConfigBean>()
             it.forEach { appConfig ->
-                filterConfigs.add(AppConfigBean(appConfig, isDrag))
+                tempConfigs.add(AppConfigBean(appConfig))
             }
+            filterConfigs = tempConfigs
             if (currentPattern.isEmpty()) {
-                if (mAdapter.currentList.size == filterConfigs.size) {
-                    mAdapter.submitList(filterConfigs)
-                    mAdapter.notifyDataSetChanged()
-                } else {
-                    mAdapter.submitList(filterConfigs)
-                }
+                mAdapter.submitList(filterConfigs)
                 if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility =
                     View.GONE
             } else {
@@ -157,12 +156,12 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             ): Boolean {
                 val fromPosition = viewHolder.bindingAdapterPosition
                 val finalPosition = target.bindingAdapterPosition
-                val tempConfig = filterConfigs[fromPosition]
-                filterConfigs[fromPosition] = filterConfigs[finalPosition]
-                filterConfigs[finalPosition] = tempConfig
-                val tempConfigId = filterConfigs[fromPosition].appConfig.id
-                filterConfigs[fromPosition].appConfig.id = filterConfigs[finalPosition].appConfig.id
-                filterConfigs[finalPosition].appConfig.id = tempConfigId
+                val tempConfig = tempConfigs[fromPosition]
+                tempConfigs[fromPosition] = tempConfigs[finalPosition]
+                tempConfigs[finalPosition] = tempConfig
+                val tempConfigId = tempConfigs[fromPosition].appConfig.id
+                tempConfigs[fromPosition].appConfig.id = tempConfigs[finalPosition].appConfig.id
+                tempConfigs[finalPosition].appConfig.id = tempConfigId
                 mAdapter.notifyItemMoved(
                     viewHolder.bindingAdapterPosition, target.bindingAdapterPosition
                 )
@@ -268,7 +267,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         val layoutParams2 = binding.sortDone.layoutParams as ViewGroup.MarginLayoutParams
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val isGesture = navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
+            val isGesture =
+                navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
             ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
             maybeABug = if (maybeABug == 0) {
                 bottomNavigationView.bottom - bottomNavigationView.top
@@ -300,7 +300,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 binding.fab.isVisible = true
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val appConfigs = ArrayList<AppConfig>()
-                    filterConfigs.forEach {
+                    tempConfigs.forEach {
                         appConfigs.add(it.appConfig)
                     }
                     viewModel.updateConfigs(*appConfigs.toTypedArray())
@@ -459,12 +459,12 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         binding.fab.isVisible = false
         binding.sortDone.isVisible = true
         isDrag = true
-        filterConfigs = filterConfigs.filter {
-            it.drag = true
-            true
-        } as ArrayList<AppConfigBean>
-        mAdapter.submitList(filterConfigs)
-        mAdapter.notifyDataSetChanged()
+        tempConfigs.clear()
+        filterConfigs.forEach {
+            tempConfigs.add(it.copy(drag = true))
+        }
+        mAdapter.submitList(tempConfigs)
+        //  mAdapter.notifyDataSetChanged()
     }
 
     private fun toAddConfig(bundle: Bundle?) {
@@ -504,6 +504,34 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onBackPressedCallback = object : OnBackPressedCallback(
+            true
+        ) {
+            override fun handleOnBackPressed() {
+                if (isDrag) {
+                    cancelDragSort()
+                } else {
+                    onBackPressedCallback.isEnabled = false
+                    dispatcher.onBackPressed()
+                }
+            }
+        }
+        dispatcher.addCallback(
+            this, onBackPressedCallback
+        )
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun cancelDragSort() {
+        isDrag = false
+        binding.sortDone.isVisible = false
+        binding.fab.isVisible = true
+        mAdapter.submitList(filterConfigs.toList())
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun onShow() {
