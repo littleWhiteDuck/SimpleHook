@@ -17,9 +17,9 @@ object Type {
     private const val FLOAT_PATTERN = """^-?\d+.?\d*[f|F]$"""
     private const val DOUBLE_PATTERN = """^-?\d+.?\d*[d|D]$"""
     private const val BOOLEAN_PATTERN = """(?i)true|false"""
-    private const val CHAR_PATTERN = """^.*[c|C]$"""
+    private const val CHAR_PATTERN = """^.[c|C]$"""
 
-    private const val STRING_PATTERN_NUMBER = """^-?\d+[l|L]?[s|S]$"""
+    private const val STRING_PATTERN_NUMBER = """^-?\d+[s|S]$"""
     private const val STRING_PATTERN_BOOLEAN = """^(?i)trues|falses$"""
     private const val STRING_PATTERN_NULL = """^(?i)nulls$"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
@@ -36,7 +36,7 @@ object Type {
         matches(STRING_EMPTY_PATTERN, value) -> ""
         matches(BYTE_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "").toByteValue
         matches(SHORT_PATTERN, value) -> value.replace(Regex("short"), "").toShortValue
-        matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "")[0]
+        matches(CHAR_PATTERN, value) -> value[0]
         matches(STRING_PATTERN_NUMBER, value) -> value.replace(Regex("""[s|S]"""), "")
         matches(STRING_PATTERN_BOOLEAN, value) -> value.removeRange(value.length - 1, value.length)
             .lowercase()
