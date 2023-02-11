@@ -14,6 +14,8 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
@@ -172,4 +174,9 @@ fun ViewGroup.addViews(vararg views: View): ViewGroup {
         addView(it)
     }
     return this
+}
+
+
+fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.updateList(list: List<T>?) {
+    this.submitList(if (list == this.currentList) list.toList() else list)
 }

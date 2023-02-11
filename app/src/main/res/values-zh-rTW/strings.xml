@@ -370,4 +370,6 @@
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
     <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
+    <string name="menu_drag_sort">排序</string>
+    <string name="main_sort_tip_exit_search">请先退出搜索</string>
 </resources>

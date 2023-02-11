@@ -3,13 +3,15 @@ v1.3.1
     - 增加: 禁用加速度传感器、陀螺仪传感器，如X信会提示传感器不可用
     - 增加: 禁用运动传感器，包括：加速度传感器、陀螺仪传感器等
     - 优化: 网络导入配置逻辑
-    - 适配: 安卓13
+    - 适配: 安卓13（normal 版）
+    - 增加: 长按首页配置item，可选择手动排序
 
     - Fix: bugs
     - Add: Disable acceleration sensor, gyroscope sensor
     - Add: Disable motion sensors, including: acceleration sensor, gyroscope sensor, etc.
     - Optimize: Network import configuration logic
-    - Adapt: Android 13
+    - Adapt: Android 13 (normal version)
+    - Add: Long press the homepage config item, you can choose to sort manually
 v1.3.0
     - 修复: hook实例变量
     - 增加: 长按首页配置item:【启动】、【强行停止】、【重新启动】、【应用信息】

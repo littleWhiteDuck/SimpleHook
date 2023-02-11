@@ -9,4 +9,7 @@
     <item
         android:id="@+id/menu_delete_config"
         android:title="@string/delete_config" />
+    <item
+        android:id="@+id/menu_drag_sort"
+        android:title="@string/menu_drag_sort" />
 </menu>

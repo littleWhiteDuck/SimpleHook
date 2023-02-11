@@ -46,11 +46,13 @@ object DocumentCompatUtils {
         return null
     }
 
-    fun deleteFile(filePath: String): Boolean {
+    fun deleteFile(packageName: String, filePath: String): Boolean {
         return runCatching {
-            DocumentsContract.deleteDocument(
-                App.app.contentResolver, Uri.parse(changeToUri(filePath))
-            )
+            val uri = generateFileUri(packageName, filePath)
+            if (isFileExists(App.app, uri)) {
+                DocumentsContract.deleteDocument(App.app.contentResolver, uri)
+            }
+            true
         }.getOrDefault(false)
     }
 

@@ -3,12 +3,14 @@ package me.simpleHook.ui.view.main
 import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.graphics.toColorInt
+import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
@@ -137,9 +139,19 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
         addView(this)
     }
 
+    val dragImage = ImageView(context).apply {
+        layoutParams = MarginLayoutParams(24.dp, 24.dp).apply {
+            setMargins(10.dp, 10.dp, 10.dp, 10.dp)
+        }
+        setImageResource(R.drawable.ic_drag_menu_24)
+        isVisible = false
+        addView(this)
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         icon.autoMeasure()
+        dragImage.autoMeasure()
         switch.measure(
             switch.defaultWidthMeasureSpec(this), switch.defaultHeightMeasureSpec(this)
         )
@@ -163,5 +175,6 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
         )
         desc.autoLayout(appName.left, appName.bottom + desc.marginTop)
         switch.autoLayout(switch.marginRight, switch.toVerticalCenter(this), fromRight = true)
+        dragImage.autoLayout(switch.marginRight, dragImage.toVerticalCenter(this), fromRight = true)
     }
 }

@@ -12,9 +12,11 @@ import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -24,10 +26,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonBuilder
 import me.simpleHook.R
 import me.simpleHook.SystemServices
 import me.simpleHook.adapter.HomeAdapter
+import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
@@ -47,22 +49,28 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private val viewModel: AppViewModel by activityViewModels()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private var filterConfigs: List<AppConfig> = ArrayList()
+    private var filterConfigs = ArrayList<AppConfigBean>()
     private lateinit var mContext: Context
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter(menuListener = { appConfig, menu ->
             onItemCreateContextMenu(appConfig, menu)
-        }, onClick = { appConfig, mode ->
-            onItemClick(mode, appConfig)
-        }, onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) })
+        },
+            onClick = { appConfig, mode ->
+                onItemClick(mode, appConfig)
+            },
+            onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
+            onDrag = { holder -> startDrag(holder) })
     }
+
+    private lateinit var itemTouchHelper: ItemTouchHelper
 
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private var isFabShow = true
+    private var isDrag = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +87,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         return binding.root
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+
+    @SuppressLint("NotifyDataSetChanged")
     private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
             if (it.isEmpty()) {
@@ -87,9 +96,17 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             } else {
                 binding.emptyTip.visibility = View.GONE
             }
-            filterConfigs = it
+            filterConfigs.clear()
+            it.forEach { appConfig ->
+                filterConfigs.add(AppConfigBean(appConfig, isDrag))
+            }
             if (currentPattern.isEmpty()) {
-                mAdapter.submitList(it)
+                if (mAdapter.currentList.size == filterConfigs.size) {
+                    mAdapter.submitList(filterConfigs)
+                    mAdapter.notifyDataSetChanged()
+                } else {
+                    mAdapter.submitList(filterConfigs)
+                }
                 if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility =
                     View.GONE
             } else {
@@ -125,6 +142,42 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             }
         })
         FastScrollerUtil.bind(binding.mainRecycler)
+        itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.Callback() {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                return makeMovementFlags(dragFlags, 0)
+            }
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val fromPosition = viewHolder.bindingAdapterPosition
+                val finalPosition = target.bindingAdapterPosition
+                val tempConfig = filterConfigs[fromPosition]
+                filterConfigs[fromPosition] = filterConfigs[finalPosition]
+                filterConfigs[finalPosition] = tempConfig
+                val tempConfigId = filterConfigs[fromPosition].appConfig.id
+                filterConfigs[fromPosition].appConfig.id = filterConfigs[finalPosition].appConfig.id
+                filterConfigs[finalPosition].appConfig.id = tempConfigId
+                mAdapter.notifyItemMoved(
+                    viewHolder.bindingAdapterPosition, target.bindingAdapterPosition
+                )
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+            }
+
+            override fun isLongPressDragEnabled(): Boolean {
+                return false
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.mainRecycler)
     }
 
     private fun deleteConfig(appConfig: AppConfig) {
@@ -157,6 +210,10 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         } else {
             requirePermission(appConfig.packageName)
         }
+    }
+
+    private fun startDrag(holder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(holder)
     }
 
 
@@ -204,13 +261,14 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         getString(R.string.main_home_export_configs_tip).toast(requireContext())
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         var maybeABug = 0
         val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
+        val layoutParams2 = binding.sortDone.layoutParams as ViewGroup.MarginLayoutParams
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val isGesture =
-                navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
+            val isGesture = navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
             ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
             maybeABug = if (maybeABug == 0) {
                 bottomNavigationView.bottom - bottomNavigationView.top
@@ -221,7 +279,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             val bottomMargin = if (isGesture) maybeABug + navigationInsets.bottom
             else maybeABug + navigationInsets.bottom / 5
             layoutParams.bottomMargin = bottomMargin
+            layoutParams2.bottomMargin = bottomMargin
             binding.fab.layoutParams = layoutParams
+            binding.sortDone.layoutParams = layoutParams2
             fabDistance = bottomMargin + binding.fab.height * 2
             windowInsets
         }
@@ -233,6 +293,20 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             shareConfigs.setOnClickListener { shareConfigs() }
             importConfigsFromInternet.setOnClickListener {
                 showInternetImportConfigDialog()
+            }
+            sortDone.setOnClickListener {
+                binding.progressBar2.isVisible = true
+                binding.sortDone.isVisible = false
+                binding.fab.isVisible = true
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val appConfigs = ArrayList<AppConfig>()
+                    filterConfigs.forEach {
+                        appConfigs.add(it.appConfig)
+                    }
+                    viewModel.updateConfigs(*appConfigs.toTypedArray())
+                    isDrag = false
+                }
+
             }
         }
     }
@@ -277,7 +351,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         if (filterConfigs.isNotEmpty()) {
             val dataList = ArrayList<ConfigItem>()
             for (config in filterConfigs) {
-                dataList.add(ConfigItem(config))
+                dataList.add(ConfigItem(config.appConfig))
             }
             ConfigDialogFragment(dataList, Constant.CONFIG_EXPORT_MODE).show(
                 requireActivity().supportFragmentManager, "export"
@@ -369,8 +443,28 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             R.id.menu_copy_config -> copyConfigs(configOfItemMenu)
             R.id.menu_delete_config -> deleteConfig(configOfItemMenu)
             R.id.menu_edit_config -> editConfig(configOfItemMenu)
+            R.id.menu_drag_sort -> {
+                if (currentPattern.isEmpty()) {
+                    startDragSort()
+                } else {
+                    getString(R.string.main_sort_tip_exit_search).toast(requireContext())
+                }
+            }
         }
         return super.onContextItemSelected(item)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun startDragSort() {
+        binding.fab.isVisible = false
+        binding.sortDone.isVisible = true
+        isDrag = true
+        filterConfigs = filterConfigs.filter {
+            it.drag = true
+            true
+        } as ArrayList<AppConfigBean>
+        mAdapter.submitList(filterConfigs)
+        mAdapter.notifyDataSetChanged()
     }
 
     private fun toAddConfig(bundle: Bundle?) {
@@ -381,6 +475,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
 
     override fun onQueryTextSubmit(query: String?) = false
     override fun onQueryTextChange(newText: String): Boolean {
+        if (isDrag) return true
         val pattern = newText.trim()
         currentPattern = pattern
         toFilterData(pattern)
@@ -389,17 +484,19 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
 
     private fun toFilterData(pattern: String) {
         val filter = filterConfigs.filter {
-            it.appName.contains(pattern) || it.packageName.contains(pattern)
+            it.appConfig.appName.contains(pattern) || it.appConfig.packageName.contains(pattern)
         }
         mAdapter.submitList(filter)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_home, menu)
-        val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
-        searchView.apply {
-            queryHint = context.getString(R.string.main_home_toolbar_search_hint)
-            setOnQueryTextListener(this@HomeFragment)
+        if (!isDrag) {
+            inflater.inflate(R.menu.menu_home, menu)
+            val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+            searchView.apply {
+                queryHint = context.getString(R.string.main_home_toolbar_search_hint)
+                setOnQueryTextListener(this@HomeFragment)
+            }
         }
         super.onCreateOptionsMenu(menu, inflater)
     }

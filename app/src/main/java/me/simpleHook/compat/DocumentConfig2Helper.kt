@@ -23,7 +23,7 @@ class DocumentConfig2Helper : ConfigSystem {
         if (!AppUtils.isAppInstalled(packageName)) return true
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + Constant.CONFIG_DIRECTORY + Constant.CUSTOM_CONFIG_NORMAL_NAME
-        return DocumentCompatUtils.deleteFile(filePath)
+        return DocumentCompatUtils.deleteFile(packageName, filePath)
     }
 
     override fun saveExConfig(packageName: String, content: String): Boolean {
@@ -37,6 +37,6 @@ class DocumentConfig2Helper : ConfigSystem {
         if (!AppUtils.isAppInstalled(packageName)) return true
         val filePath =
             Constant.ANDROID_DATA_PATH + packageName + Constant.CONFIG_DIRECTORY + Constant.EXTENSION_CONFIG_NORMAL_NAME
-        return DocumentCompatUtils.deleteFile(filePath)
+        return DocumentCompatUtils.deleteFile(packageName, filePath)
     }
 }
