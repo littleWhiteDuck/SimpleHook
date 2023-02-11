@@ -10,8 +10,8 @@ import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.ExtraBean
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
 
 private const val ACTIVITY = "android.app.Activity"
 private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"

@@ -77,6 +77,16 @@ class AboutActivity : AbsAboutActivity() {
             )
         )
 
+
+        items.add(Category("Contributions"))
+        items.add(
+            Card(
+                """
+                反馈BUG较多: @Hidarihitomi
+            """.trimIndent()
+            )
+        )
+
         items.add(Category("Open Source Licenses"))
         items.add(
             License(

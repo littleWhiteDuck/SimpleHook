@@ -7,8 +7,8 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
 import me.simpleHook.util.ToolUtils
 
 object SignatureHook : BaseHook() {

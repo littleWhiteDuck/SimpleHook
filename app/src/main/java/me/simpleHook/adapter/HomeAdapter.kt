@@ -32,6 +32,10 @@ class HomeAdapter(
                 val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
                 onClick(appConfig, Constant.HOME_ITEM_CLICK_NORMAL)
             }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
+                menuListener(appConfig, menu)
+            }
         }
         appConfigView.editConfig.setOnClickListener {
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
@@ -53,6 +57,12 @@ class HomeAdapter(
                 onChange(appConfig, isChecked)
             }
         }
+        viewHolder.dragImage.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                onDrag(viewHolder)
+            }
+            false
+        }
         return viewHolder
     }
 
@@ -72,21 +82,11 @@ class HomeAdapter(
             if (appConfigBean.drag) {
                 holder.ableSwitch.isVisible = false
                 holder.dragImage.isVisible = true
-                holder.dragImage.setOnTouchListener { _, event ->
-                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        onDrag(holder)
-                    }
-                    false
-                }
                 (holder.itemView as AppConfigView).isSwipeEnable = false
             } else {
                 holder.ableSwitch.isVisible = true
                 holder.dragImage.isVisible = false
                 (holder.itemView as AppConfigView).isSwipeEnable = true
-                holder.itemView.setOnCreateContextMenuListener { menu, _, _ ->
-                    menuListener(appConfigBean.appConfig, menu)
-                }
-
             }
         }
     }

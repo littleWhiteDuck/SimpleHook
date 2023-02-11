@@ -1,4 +1,4 @@
-package me.simpleHook.hook.utils
+package me.simpleHook.hook.util
 
 import android.net.Uri
 import android.os.Build.VERSION_CODES
@@ -9,13 +9,13 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.*
 import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI
 
 object LogUtil {
     private const val filterClass =
-        """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed"""
+        """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed|XposedBridge"""
     private val PRINT_URI = Uri.parse(PROVIDER_RECORD_URI)
     fun outLogMsg(logBean: LogBean) {
         if (logBean.type == "null" || !HookHelper.enableRecord) return

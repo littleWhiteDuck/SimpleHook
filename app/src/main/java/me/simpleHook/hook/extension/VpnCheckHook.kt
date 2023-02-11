@@ -3,7 +3,7 @@ package me.simpleHook.hook.extension
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
-import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.util.HookHelper
 
 object VpnCheckHook : BaseHook() {
 

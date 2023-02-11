@@ -6,8 +6,8 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
 import org.json.JSONArray
 import org.json.JSONObject
 

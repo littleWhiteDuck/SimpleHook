@@ -16,14 +16,14 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.extension.*
-import me.simpleHook.hook.utils.*
-import me.simpleHook.hook.utils.HookHelper.appContext
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
-import me.simpleHook.hook.utils.LogUtil.getStackTrace
-import me.simpleHook.hook.utils.LogUtil.noSuchMethod
-import me.simpleHook.hook.utils.LogUtil.notFoundClass
-import me.simpleHook.hook.utils.LogUtil.outLogMsg
-import me.simpleHook.hook.utils.Type.getDataTypeValue
+import me.simpleHook.hook.util.*
+import me.simpleHook.hook.util.HookHelper.appContext
+import me.simpleHook.hook.util.HookHelper.hostPackageName
+import me.simpleHook.hook.util.LogUtil.getStackTrace
+import me.simpleHook.hook.util.LogUtil.noSuchMethod
+import me.simpleHook.hook.util.LogUtil.notFoundClass
+import me.simpleHook.hook.util.LogUtil.outLogMsg
+import me.simpleHook.hook.util.Type.getDataTypeValue
 import me.simpleHook.util.*
 import org.json.JSONObject
 

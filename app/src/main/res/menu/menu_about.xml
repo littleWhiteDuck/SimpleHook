@@ -5,7 +5,6 @@
         android:id="@+id/add_group"
         android:icon="@drawable/ic_group_add_24"
         android:title="@string/about_menu_add_group"
-        android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/feedback"

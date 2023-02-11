@@ -5,9 +5,9 @@ import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
-import me.simpleHook.hook.utils.byte2Sting
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.byte2Sting
 import java.security.MessageDigest
 
 object SHAHook : BaseHook() {

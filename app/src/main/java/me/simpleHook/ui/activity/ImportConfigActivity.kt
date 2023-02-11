@@ -17,7 +17,6 @@ import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.databinding.ActivityImportConfigBinding
 import me.simpleHook.ui.fragment.ConfigDialogFragment
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.toast
@@ -27,12 +26,10 @@ import java.util.*
 
 class ImportConfigActivity : AppCompatActivity() {
     private val configSystem = ConfigSystemUtil.getConfigSystem()
-    private lateinit var binding: ActivityImportConfigBinding
+
     private val viewModel: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityImportConfigBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         initReceiveFile()
     }
 

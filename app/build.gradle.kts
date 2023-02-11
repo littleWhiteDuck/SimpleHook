@@ -15,8 +15,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val debug = true
-val beta = true
+val debug = false
+val beta = false
 
 android {
     val verCode = run {

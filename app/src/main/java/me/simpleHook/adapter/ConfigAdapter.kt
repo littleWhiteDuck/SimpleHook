@@ -14,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.utils.Type
-import me.simpleHook.ui.custom.PopupWindowList
+import me.simpleHook.hook.util.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.HookModeUtil
@@ -67,7 +66,6 @@ class ConfigAdapter(
             tvClassName.marquee()
             tvOtherName.marquee()
             itemView.apply {
-                PopupWindowList.Builder(parent.context).watchView(this)
                 setOnClickListener {
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
                     onClick(position)

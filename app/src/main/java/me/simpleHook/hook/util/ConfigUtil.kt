@@ -1,12 +1,12 @@
-package me.simpleHook.hook.utils
+package me.simpleHook.hook.util
 
 import android.annotation.SuppressLint
 import android.net.Uri
 import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.hook.utils.HookHelper.appContext
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.util.HookHelper.appContext
+import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.FlavorUtils.PROVIDER_CONFIG_URI
 import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI

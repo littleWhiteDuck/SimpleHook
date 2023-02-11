@@ -9,9 +9,9 @@ import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
-import me.simpleHook.hook.utils.getAllTextView
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.getAllTextView
 import me.simpleHook.util.log
 
 object ClickEventHook : BaseHook() {

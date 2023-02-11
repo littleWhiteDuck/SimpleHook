@@ -1,4 +1,4 @@
-package me.simpleHook.hook.utils
+package me.simpleHook.hook.util
 
 
 import android.content.Context

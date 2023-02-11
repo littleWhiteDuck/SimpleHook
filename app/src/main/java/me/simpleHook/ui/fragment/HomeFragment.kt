@@ -221,6 +221,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
 
     private fun editConfig(appConfig: AppConfig) {
+        if (isDrag) return
         val bundle = Bundle()
         bundle.putParcelable("appConfig", appConfig)
         toAddConfig(bundle)
@@ -237,6 +238,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
 
     private fun onItemCreateContextMenu(appConfig: AppConfig, menu: ContextMenu) {
+        if (isDrag) return
         configOfItemMenu = appConfig
         val isInstalled = AppUtils.isAppInstalled(appConfig.packageName)
         if (isInstalled) {

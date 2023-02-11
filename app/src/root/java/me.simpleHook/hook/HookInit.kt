@@ -10,8 +10,8 @@ import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.utils.ConfigUtil
-import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.util.ConfigUtil
+import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.util.log
 
 class HookInit : IXposedHookLoadPackage {
