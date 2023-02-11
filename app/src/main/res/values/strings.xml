@@ -71,8 +71,8 @@
     <string name="main_settings_title_custom">习惯设置</string>
     <string name="main_settings_summary_start_float">在扩展页面启动应用时同时打开悬浮窗</string>
     <string name="main_settings_title_start_float">悬浮窗</string>
-    <string name="main_settings_summary_bottom_config_dialog">配置弹窗</string>
-    <string name="main_settings_title_bottom_config_dialog">配置弹窗在底部</string>
+    <string name="main_settings_title_bottom_config_dialog">配置弹窗</string>
+    <string name="main_settings_summary_bottom_config_dialog">配置弹窗在底部</string>
     <string name="main_settings_left_config_summary">详细说明见常见问题第7条</string>
     <string name="main_settings_left_config_title">删除遗留配置</string>
     <string-array name="main_settings_clear_item_entries">
@@ -447,5 +447,8 @@
     <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
     <string name="menu_drag_sort">排序</string>
     <string name="main_sort_tip_exit_search">请先退出搜索</string>
+    <string name="main_settings_title_bottom_check_permission">检查权限</string>
+    <string name="main_settings_summary_check_permission">无必要权限时，无法更改配置</string>
+    <string name="main_settings_tip_close_check_permission">关闭后，在更改配置时将不会校验是否具有ROOT(root)/存储权限(normal)/被激活(lite)。\n若无权限，配置更改仅作用于SimpleHook内，而无法作用于目标app</string>
 
 </resources>

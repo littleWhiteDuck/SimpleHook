@@ -9,7 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import me.simpleHook.SystemServices
+import me.simpleHook.GlobalServices
 
 
 object AppUtils {
@@ -23,7 +23,7 @@ object AppUtils {
 
     fun isAppInstalled(packageName: String): Boolean {
         return runCatching {
-            SystemServices.packageManager.getPackageInfo(packageName, 0) != null
+            GlobalServices.packageManager.getPackageInfo(packageName, 0) != null
         }.getOrDefault(false)
     }
 

@@ -83,7 +83,6 @@ class ConfigDialogFragment(
         } 
     """.trimIndent()
     private var isAnti = false
-    private val sp by lazy { SPUtils(requireContext()) }
     private lateinit var mContext: Context
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -113,14 +112,15 @@ class ConfigDialogFragment(
                 if (mode == Constant.CONFIG_IMPORT_MODE) {
                     val tempList = mutableListOf<AppConfig>()
                     for (item in configsList) {
+                        val isEnableSave = configSystem.isEnableSave(item.appConfig.packageName)
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                configSystem.saveCustomConfig(
+                                if (isEnableSave) configSystem.saveCustomConfig(
                                     item.appConfig.packageName, Json.encodeToString(item.appConfig)
                                 )
                             }
-                            tempList.add(item.appConfig)
+                            tempList.add(item.appConfig.copy(enable = isEnableSave))
                         }
                     }
                     tempList.reverse()
@@ -159,7 +159,7 @@ class ConfigDialogFragment(
                 if (isAnti) {
                     antiSelect()
                 } else {
-                    isAnti = !isAnti
+                    isAnti = true
                     selectAll.text =
                         if (isAnti) getString(R.string.config_dialog_button_invert_selection) else getString(
                             R.string.config_dialog_button_select_all

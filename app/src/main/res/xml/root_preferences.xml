@@ -20,9 +20,14 @@
             app:title="@string/main_settings_title_start_float" />
         <CheckBoxPreference
             android:key="bottomConfigDialog"
-            android:title="@string/main_settings_summary_bottom_config_dialog"
+            android:title="@string/main_settings_title_bottom_config_dialog"
             app:defaultValue="false"
-            app:summary="@string/main_settings_title_bottom_config_dialog" />
+            app:summary="@string/main_settings_summary_bottom_config_dialog" />
+        <CheckBoxPreference
+            android:key="checkPermission"
+            android:title="@string/main_settings_title_bottom_check_permission"
+            app:defaultValue="true"
+            app:summary="@string/main_settings_summary_check_permission" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_experiment">
         <CheckBoxPreference

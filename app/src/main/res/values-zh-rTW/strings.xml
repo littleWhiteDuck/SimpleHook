@@ -275,8 +275,8 @@
     <string name="main_settings_title_custom">習慣設置</string>
     <string name="main_settings_summary_start_float">在擴展頁面啟動應用時同時打開懸浮窗</string>
     <string name="main_settings_title_start_float">懸浮窗</string>
-    <string name="main_settings_summary_bottom_config_dialog">配置彈窗</string>
-    <string name="main_settings_title_bottom_config_dialog">顯示在底部</string>
+    <string name="main_settings_title_bottom_config_dialog">配置彈窗</string>
+    <string name="main_settings_summary_bottom_config_dialog">顯示在底部</string>
     <string name="record_menu_search_by_result">從加密/解密結果中搜索</string>
     <string name="record_menu_search_by_raw_data">從原始數據中搜索</string>
     <string name="record_detail_menu_copy_raw_data">原始數據</string>
@@ -369,7 +369,10 @@
     <string name="main_android_13_tip"><![CDATA[由於你的系統版本>=13，在配置的保存/刪除/導入前均需要對目標應用的目錄進行授權（僅需授權一次）沒有授權將無法寫入配置，請不要將此類問題當作BUG反饋，你可以在設置頁面進行批量授權]]></string>
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
-    <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
+    <string name="config_tip_error_config_format">識別到為json格式，但不符合複製出配置的格式</string>
     <string name="menu_drag_sort">排序</string>
-    <string name="main_sort_tip_exit_search">请先退出搜索</string>
+    <string name="main_sort_tip_exit_search">請先退出搜索</string>
+    <string name="main_settings_title_bottom_check_permission">檢查權限</string>
+    <string name="main_settings_summary_check_permission">無必要權限時，無法更改配置</string>
+    <string name="main_settings_tip_close_check_permission">關閉後，在更改配置時將不會校驗是否具有ROOT(root)/存儲權限(normal)/被激活(lite)。 \n若無權限，配置更改僅作用於SimpleHook內，而無法作用於目標app</string>
 </resources>

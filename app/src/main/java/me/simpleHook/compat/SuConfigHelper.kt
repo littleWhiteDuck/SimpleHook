@@ -1,12 +1,13 @@
 package me.simpleHook.compat
 
+import me.simpleHook.GlobalServices
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.SuUtil
 
 class SuConfigHelper : ConfigSystem {
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || SuUtil.isGrantedRoot()
+        return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || SuUtil.isGrantedRoot()
     }
 
     @Synchronized

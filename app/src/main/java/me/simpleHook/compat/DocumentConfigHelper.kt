@@ -1,6 +1,7 @@
 package me.simpleHook.compat
 
 import me.simpleHook.App
+import me.simpleHook.GlobalServices
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.PermissionUtils
@@ -9,7 +10,9 @@ class DocumentConfigHelper : ConfigSystem {
 
 
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)
+        return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || PermissionUtils.isGrantData(
+            Constant.ANDROID_DATA_URI
+        )
     }
 
     @Synchronized

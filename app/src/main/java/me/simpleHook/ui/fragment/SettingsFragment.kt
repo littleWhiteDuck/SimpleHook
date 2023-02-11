@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,7 @@ import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
@@ -76,6 +78,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        findPreference<CheckBoxPreference>("checkPermission")?.apply {
+            setOnPreferenceChangeListener { _, newValue ->
+                if (!(newValue as Boolean)) {
+                    customDialog(
+                        requireContext(),
+                        title = "Tip",
+                        message = getString(R.string.main_settings_tip_close_check_permission),
+                        okText = "ok"
+                    ).show()
+                }
+                true
+            }
+        }
         findPreference<Preference>("batch_grant")?.apply {
             if (OSUtils.atLeastT() && FlavorUtils.normalVersion) isVisible = true
             setOnPreferenceClickListener {

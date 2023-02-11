@@ -1,6 +1,7 @@
 package me.simpleHook.compat
 
 import me.simpleHook.App
+import me.simpleHook.GlobalServices
 import me.simpleHook.constant.Constant.ANDROID_DATA_PATH
 import me.simpleHook.constant.Constant.CONFIG_DIRECTORY
 import me.simpleHook.constant.Constant.CUSTOM_CONFIG_NORMAL_NAME
@@ -12,7 +13,7 @@ import me.simpleHook.util.PermissionUtils
 class FileConfigHelper : ConfigSystem {
 
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || PermissionUtils.isGrantWritePermission(
+        return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || PermissionUtils.isGrantWritePermission(
             App.app
         )
     }

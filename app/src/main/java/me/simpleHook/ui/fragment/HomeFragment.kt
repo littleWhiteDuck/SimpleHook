@@ -27,7 +27,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.SystemServices
+import me.simpleHook.GlobalServices
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.AppConfigBean
 import me.simpleHook.bean.ConfigItem
@@ -242,7 +242,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         val isInstalled = AppUtils.isAppInstalled(appConfig.packageName)
         if (isInstalled) {
             requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
-            if (SystemServices.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
+            if (GlobalServices.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
                 menu.removeItem(R.id.menu_launch)
                 menu.removeItem(R.id.menu_relaunch)
             }

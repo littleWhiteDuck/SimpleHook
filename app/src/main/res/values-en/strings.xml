@@ -276,8 +276,8 @@
     <string name="main_settings_title_custom">Custom settings</string>
     <string name="main_settings_summary_start_float">Open the floating window at the same time when launching the application on the extension page</string>
     <string name="main_settings_title_start_float">Floating window</string>
-    <string name="main_settings_summary_bottom_config_dialog">Configure dialog</string>
-    <string name="main_settings_title_bottom_config_dialog">Show at bottom</string>
+    <string name="main_settings_title_bottom_config_dialog">Configure dialog</string>
+    <string name="main_settings_summary_bottom_config_dialog">Show at bottom</string>
     <string name="record_menu_search_by_raw_data">from raw data</string>
     <string name="record_menu_search_by_result">from encryption/decryption results</string>
     <string name="record_detail_menu_copy_raw_data">Raw data</string>
@@ -370,7 +370,12 @@
     <string name="main_android_13_tip"><![CDATA[Because of your system version>=13, you need to authorize the directory of the target application before saving/deleting/importing the configuration (only need to authorize once). Configuration cannot be written without authorization, please do not treat such problems as BUG feedback, you can perform batch authorization on the settings page]]></string>
     <string name="main_not_activated">-not activated</string>
     <string name="extension_save_success">Saved successfully</string>
-    <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>
-    <string name="menu_drag_sort">排序</string>
-    <string name="main_sort_tip_exit_search">请先退出搜索</string>
+    <string name="config_tip_error_config_format">Recognized as json format, but does not conform to the format of the copied configuration</string>
+    <string name="menu_drag_sort">sort</string>
+    <string name="main_sort_tip_exit_search">Please exit the search first</string>
+    <string name="main_settings_title_bottom_check_permission">Check permission</string>
+    <string name="main_settings_summary_check_permission">The config can\'t be changed without the necessary permissions</string>
+    <string name="main_settings_tip_close_check_permission">After closing, it will not check whether it has ROOT (root)/storage permission (normal)/activated (lite) when changing the configuration. \nIf there is no permission, the configuration changes will only be applied to SimpleHook, but not to the target app</string>
+
+
 </resources>
