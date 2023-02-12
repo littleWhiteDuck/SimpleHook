@@ -587,6 +587,7 @@ class ItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
             setOnClickListener {
                 switch.isChecked = !switch.isChecked
                 onClick(item.tag, switch.isChecked)
+                item.checked = switch.isChecked
             }
         }
     }
@@ -608,6 +609,7 @@ class SubItemViewDelegate(
             switch.isChecked = item.checked
             switch.setOnCheckedChangeListener { _, isChecked ->
                 onClick(item.tag, isChecked)
+                item.checked = isChecked
             }
             containerView.setOnClickListener {
                 onSubClick(item.tag, switch.isChecked)
