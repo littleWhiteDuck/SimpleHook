@@ -421,8 +421,7 @@ class RecordActivity : BaseActivity() {
                     }
                 }
                 dialogInterface.dismiss()
-            },
-            cancelText = getString(R.string.dialog_cancel)
+            }, cancelText = getString(R.string.dialog_cancel), cancelAble = false
         ).show()
     }
 

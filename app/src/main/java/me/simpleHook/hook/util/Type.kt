@@ -23,10 +23,11 @@ object Type {
     private const val STRING_PATTERN_BOOLEAN = """^(?i)trues|falses$"""
     private const val STRING_PATTERN_NULL = """^(?i)nulls$"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
+    private const val STRING_EMPTY_LIST = """empty_list_string"""
     private const val NULL_PATTERN = """(?i)null"""
 
 
-    fun getDataTypeValue(value: String) = when {
+    fun getDataTypeValue(value: String): Any? = when {
         matches(BOOLEAN_PATTERN, value) -> value.toBoolean()
         matches(INT_PATTERN, value) -> value.toIntValue
         matches(FLOAT_PATTERN, value) -> value.replace("f", "").toFloat()
@@ -41,6 +42,7 @@ object Type {
         matches(STRING_PATTERN_BOOLEAN, value) -> value.removeRange(value.length - 1, value.length)
             .lowercase()
         matches(STRING_PATTERN_NULL, value) -> value.replace(Regex("""[s|S]"""), "")
+        value == STRING_EMPTY_LIST -> emptyList<String>()
         else -> value
     }
 

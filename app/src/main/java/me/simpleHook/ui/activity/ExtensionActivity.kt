@@ -327,6 +327,11 @@ class ExtensionActivity : BaseActivity() {
                         getString(R.string.extension_item_desc_application_name)
                     )
                 )
+                add(
+                    ExtensionItem(
+                        title = "ADB", adb, "adb", getString(R.string.extension_item_desc_adb)
+                    )
+                )
                 add(Title(getString(R.string.extension_item_title_network)))
                 add(
                     ExtensionItem(

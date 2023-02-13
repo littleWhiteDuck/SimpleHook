@@ -376,6 +376,7 @@
     <string name="main_settings_title_bottom_check_permission">Check permission</string>
     <string name="main_settings_summary_check_permission">The config can\'t be changed without the necessary permissions</string>
     <string name="main_settings_tip_close_check_permission">After closing, it will not check whether it has ROOT (root)/storage permission (normal)/activated (lite) when changing the configuration. \nIf there is no permission, the configuration changes will only be applied to SimpleHook, but not to the target app</string>
+    <string name="extension_item_desc_adb">Disable ADB (USB debugging) detection</string>
 
 
 </resources>

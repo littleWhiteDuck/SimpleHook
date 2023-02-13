@@ -10,7 +10,7 @@ object SuFileUtils {
 
     fun deleteFile(filePath: String): Boolean {
         val suFile = SuFile.open(filePath)
-        if (suFile.exists()) return true
+        if (!suFile.exists()) return true
         return if (suFile.isDirectory) {
             deleteDir(suFile)
         } else {

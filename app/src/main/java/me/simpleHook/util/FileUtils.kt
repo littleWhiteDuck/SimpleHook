@@ -13,7 +13,7 @@ object FileUtils {
 
     fun deleteFile(file: File?): Boolean {
         file ?: return false
-        if (file.exists()) return true
+        if (!file.exists()) return true
         return if (file.isDirectory) {
             deleteDir(file)
         } else {

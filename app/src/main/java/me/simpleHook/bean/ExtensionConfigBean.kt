@@ -30,7 +30,8 @@ data class ExtensionConfigBean(
     var contact: Boolean = false,
     var tip: Boolean = false,
     var disSensorAG: Boolean = false,
-    var disSensorSport: Boolean = false
+    var disSensorSport: Boolean = false,
+    var adb: Boolean = false
 )
 
 @kotlinx.serialization.Serializable

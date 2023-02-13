@@ -27,7 +27,7 @@ class AboutActivity : AbsAboutActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.feedback -> {
-                ToolUtils.toClip(this, "484303285@qq.com")
+                ToolUtils.toClip(this, "feedback@fduck.life")
                 getString(R.string.about_clip_email_tip).toast(this)
             }
             R.id.add_group -> {

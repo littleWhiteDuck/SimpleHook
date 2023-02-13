@@ -15,8 +15,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val debug = false
-val beta = false
+val debug = true
+val beta = true
 
 android {
     val verCode = run {
@@ -24,7 +24,7 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.3.2"
+    val verName = "1.3.3"
     signingConfigs {
         create("keyStore") {
             keyAlias = prop.getProperty("alias")

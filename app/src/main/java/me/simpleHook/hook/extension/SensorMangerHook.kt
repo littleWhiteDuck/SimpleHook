@@ -2,6 +2,7 @@ package me.simpleHook.hook.extension
 
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.util.Log
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import me.simpleHook.bean.ExtensionConfigBean

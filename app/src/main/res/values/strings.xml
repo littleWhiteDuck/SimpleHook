@@ -450,5 +450,6 @@
     <string name="main_settings_title_bottom_check_permission">检查权限</string>
     <string name="main_settings_summary_check_permission">无必要权限时，无法更改配置</string>
     <string name="main_settings_tip_close_check_permission">关闭后，在更改配置时将不会校验是否具有ROOT(root)/存储权限(normal)/被激活(lite)。\n若无权限，配置更改仅作用于SimpleHook内，而无法作用于目标app</string>
+    <string name="extension_item_desc_adb">禁用ADB(USB 调式)检测</string>
 
 </resources>

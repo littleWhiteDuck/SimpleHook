@@ -1,3 +1,9 @@
+v1.3.3
+    - 修复: 无法删除配置问题（root 版）
+    - 增加: 禁用 USB调式检测
+
+    - Fix: Unable to delete config  (root version)
+    - Add: Disable USB debugging detection
 v1.3.1
     - 修复: 若干bug，提高稳定性
     - 增加: 禁用加速度传感器、陀螺仪传感器，如X信会提示传感器不可用

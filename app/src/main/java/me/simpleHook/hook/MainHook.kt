@@ -333,7 +333,8 @@ object MainHook {
                 ApplicationHook,
                 SignatureHook,
                 ContactHook,
-                SensorMangerHook
+                SensorMangerHook,
+                ADBHook
             )
         } catch (e: java.lang.Exception) {
             LogUtil.outLog(
