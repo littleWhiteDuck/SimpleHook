@@ -8,11 +8,11 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 
 class PrefConfigHelper : ConfigSystem {
-    val customPref by lazy { getHookConfigPref(App.app) }
+    val customPref by lazy { getHookConfigPref(App) }
 
     private val exPref by lazy {
         getHookConfigPref(
-            App.app, Constant.EXTENSION_CONFIG_PREF
+            App, Constant.EXTENSION_CONFIG_PREF
         )
     }
 

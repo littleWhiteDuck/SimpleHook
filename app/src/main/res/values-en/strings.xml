@@ -377,6 +377,12 @@
     <string name="main_settings_summary_check_permission">The config can\'t be changed without the necessary permissions</string>
     <string name="main_settings_tip_close_check_permission">After closing, it will not check whether it has ROOT (root)/storage permission (normal)/activated (lite) when changing the configuration. \nIf there is no permission, the configuration changes will only be applied to SimpleHook, but not to the target app</string>
     <string name="extension_item_desc_adb">Disable ADB (USB debugging) detection</string>
-
-
+    <string name="extension_guise_delete">Delete</string>
+    <string name="extension_guise_update">Change</string>
+    <string name="extension_guise_update_sign">Change application signature</string>
+    <string name="guise_signature">Guise signature</string>
+    <string name="extension_guise_replace_sign_by_apk">Select APK replace sign</string>
+    <string name="extension_item_title_guise_sign">Guise signature</string>
+    <string name="extension_item_desc_guise_sign">Return a guise signature when obtaining the signature of other apps</string>
+    <string name="extension_guise_tip">For testing only, do not use for illegal purposes\nOnly masquerade for system API calls</string>
 </resources>

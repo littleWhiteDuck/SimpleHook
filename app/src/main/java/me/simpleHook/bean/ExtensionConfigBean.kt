@@ -31,11 +31,18 @@ data class ExtensionConfigBean(
     var tip: Boolean = false,
     var disSensorAG: Boolean = false,
     var disSensorSport: Boolean = false,
-    var adb: Boolean = false
+    var adb: Boolean = false,
+    var guiseSign: ExtensionItemConfig = ExtensionItemConfig()
 )
 
 @kotlinx.serialization.Serializable
 @Keep
 data class ExtensionItemConfig(
     var enable: Boolean = false, var info: String = ""
+)
+
+@kotlinx.serialization.Serializable
+@Keep
+data class GuiseSignConfig(
+    val packageName: String, val signData: String, val enable: Boolean = false
 )

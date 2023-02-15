@@ -18,7 +18,7 @@ class DocumentConfig2Helper : ConfigSystem {
     override fun saveCustomConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
         return DocumentCompatUtils.outTextToFile(
-            App.app, packageName, Constant.CUSTOM_CONFIG_NORMAL_NAME, content
+            App, packageName, Constant.CUSTOM_CONFIG_NORMAL_NAME, content
         )
     }
 
@@ -32,7 +32,7 @@ class DocumentConfig2Helper : ConfigSystem {
     override fun saveExConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
         return DocumentCompatUtils.outTextToFile(
-            App.app, packageName, Constant.EXTENSION_CONFIG_NORMAL_NAME, content
+            App, packageName, Constant.EXTENSION_CONFIG_NORMAL_NAME, content
         )
     }
 

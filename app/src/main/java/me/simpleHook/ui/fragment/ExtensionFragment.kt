@@ -243,12 +243,7 @@ class ExtensionFragment : BaseFragment() {
     }
 
     private fun itemOnClick(assistConfig: AssistConfig) {
-        val bundle = Bundle()
-        bundle.putParcelable("assistConfig", assistConfig)
-        val intent = Intent(requireActivity(), ExtensionActivity::class.java).apply {
-            putExtra("bundle", bundle)
-        }
-        startActivity(intent)
+        ExtensionActivity.startActivity(requireContext(), assistConfig)
     }
 
     private fun addConfig() {
@@ -283,13 +278,7 @@ class ExtensionFragment : BaseFragment() {
                 val modelName = editText.text.toString()
                 if (modelName.isNotEmpty() && modelName.length < 10) {
                     assistConfig.appName = modelName
-                    val bundle = Bundle()
-                    bundle.putParcelable("assistConfig", assistConfig)
-                    val intent = Intent(requireActivity(), ExtensionActivity::class.java).apply {
-                        putExtra("bundle", bundle)
-                        putExtra("editMode", editMode)
-                    }
-                    startActivity(intent)
+                    ExtensionActivity.startActivity(requireContext(), assistConfig, editMode)
                 } else {
                     "不能为空或名字太长".toast(mContext)
                 }

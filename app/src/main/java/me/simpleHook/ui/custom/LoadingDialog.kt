@@ -17,6 +17,8 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
     //    private val progressBar: ProgressBar = ProgressBar(activity, null)
     private val loadingView = LoadingView(activity)
 
+    var parentView: View? = null
+
     init {
         loadingView.tip.text = loadingTip
         loadingView.measure(
@@ -40,7 +42,7 @@ class LoadingDialog(private val activity: Activity, loadingTip: String) {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
         popupWindow.isOutsideTouchable = false
-        popupWindow.showAtLocation(loadingView, Gravity.CENTER, 0, 0)
+        popupWindow.showAtLocation(parentView ?: loadingView, Gravity.CENTER, 0, 0)
     }
 
     fun dismiss() {

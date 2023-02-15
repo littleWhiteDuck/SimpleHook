@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_extension_graph"
+    app:startDestination="@id/extensionManagerFragment">
+
+    <fragment
+        android:id="@+id/extensionManagerFragment"
+        android:name="me.simpleHook.ui.fragment.extension.ManagerFragment"
+        android:label="fragment_extension_manager"
+        tools:layout="@layout/fragment_extension_manager">
+        <action
+            android:id="@+id/action_managerFragment_to_guiseSignFragment"
+            app:destination="@id/guiseSignFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="extension_config"
+            app:argType="me.simpleHook.database.entity.AssistConfig" />
+    </fragment>
+    <fragment
+        android:id="@+id/guiseSignFragment"
+        android:name="me.simpleHook.ui.fragment.extension.GuiseSignFragment"
+        android:label="@string/guise_signature"
+        tools:layout="@layout/fragment_guise_sign">
+        <argument
+            android:name="sign_data"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

@@ -409,7 +409,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
 
     private fun saveConfig(appConfig: AppConfig) {
         if (configSystem.isEnableSave(appConfig.packageName)) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.insertConfigs(appConfig)
                 val configStr = Json.encodeToString(appConfig)
                 configSystem.saveCustomConfig(appConfig.packageName, configStr)

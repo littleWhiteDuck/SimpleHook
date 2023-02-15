@@ -14,7 +14,7 @@ class FileConfigHelper : ConfigSystem {
 
     override fun isEnableSave(packageName: String): Boolean {
         return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || PermissionUtils.isGrantWritePermission(
-            App.app
+            App
         )
     }
 

@@ -9,7 +9,7 @@ import me.simpleHook.compat.DocumentCompatUtils
 
 object PermissionUtils {
 
-    private val sp by lazy { SPUtils(App.app) }
+    private val sp by lazy { SPUtils(App) }
 
     private const val DATA_URI =
         "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
@@ -32,7 +32,7 @@ object PermissionUtils {
 
     fun isGrantData(uri: String = DATA_URI): Boolean {
         return runCatching {
-            for (persistedUriPermission in App.app.contentResolver.persistedUriPermissions) {
+            for (persistedUriPermission in App.contentResolver.persistedUriPermissions) {
                 if (persistedUriPermission.isReadPermission && persistedUriPermission.uri.toString() == uri) {
                     return true
                 }

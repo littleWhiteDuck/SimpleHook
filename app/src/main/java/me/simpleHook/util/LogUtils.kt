@@ -6,7 +6,7 @@ object LogUtils {
     fun outLog(error: String) {
         FileUtils.outTextToFile(
             content = error,
-            filePath = App.app.getExternalFilesDir(null)!!.path + "/log.txt",
+            filePath = App.getExternalFilesDir(null)!!.path + "/log.txt",
             limitSize = 512,
             isNewLine = true,
             append = true

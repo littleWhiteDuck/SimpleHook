@@ -13,14 +13,14 @@ plugins {
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
-val debug = true
 val beta = true
 
 android {
     val verCode = run {
-        val sdf = SimpleDateFormat(if (debug) "ddHHmm" else "yyMMddHH")
+        val sdf = SimpleDateFormat("yyMMddHH")
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
@@ -59,6 +59,7 @@ android {
         }
         getByName("debug") {
             signingConfig = signConfig
+            versionNameSuffix = Random().nextInt(1000).toString()
         }
     }
     compileOptions {
@@ -149,9 +150,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
-    /* def(nav_version = "2.4.2")
-     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")*/
+    val nav_version = "2.5.3"
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 
     //悬浮窗
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
