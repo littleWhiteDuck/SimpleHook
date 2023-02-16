@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_extension_graph"
-    app:startDestination="@id/extensionManagerFragment">
+    app:startDestination="@id/managerFragment">
 
     <fragment
-        android:id="@+id/extensionManagerFragment"
+        android:id="@+id/managerFragment"
         android:name="me.simpleHook.ui.fragment.extension.ManagerFragment"
         android:label="fragment_extension_manager"
         tools:layout="@layout/fragment_extension_manager">
@@ -20,6 +20,13 @@
         <argument
             android:name="extension_config"
             app:argType="me.simpleHook.database.entity.AssistConfig" />
+        <action
+            android:id="@+id/action_managerFragment_to_clipboardFragment"
+            app:destination="@id/clipboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
@@ -28,6 +35,14 @@
         tools:layout="@layout/fragment_guise_sign">
         <argument
             android:name="sign_data"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/clipboardFragment"
+        android:name="me.simpleHook.ui.fragment.extension.ClipboardFragment"
+        android:label="@string/label_clipboard">
+        <argument
+            android:name="clipboard_config"
             app:argType="string" />
     </fragment>
 

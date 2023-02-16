@@ -100,10 +100,6 @@
     <string name="main_record_empty_tip">這裏是空的，可在擴展頁面添加配置、設置記錄項或者Hook配置頁選擇【打印參數值】、【打印返回值】</string>
 
     <!--about-->
-    <string name="about_title_author">開發者</string>
-    <string name="about_title_tester">測試人員</string>
-    <string name="about_introduce_test_bug">測試bug</string>
-    <string name="about_title_open_sources">開源相關</string>
     <string name="about_menu_add_group">加入TG群</string>
     <!--others-->
     <string name="search">搜索</string>
@@ -150,8 +146,6 @@
     <string name="settings_clear_warning_dialog_title">警告</string>
     <string name="settings_clear_warning_dialog_message">是否確定要刪除？</string>
     <string name="settings_clear_warning_dialog_confirm">確認</string>
-    <string name="extension_item_status_open">已開啟</string>
-    <string name="extension_item_status_close">未開啟</string>
     <string name="extension_item_title_basic">基本</string>
     <string name="extension_item_title_all_switch">總開關</string>
     <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
@@ -281,10 +275,8 @@
     <string name="record_menu_search_by_raw_data">從原始數據中搜索</string>
     <string name="record_detail_menu_copy_raw_data">原始數據</string>
     <string name="record_detail_menu_copy_crypt_result">加密/解密結果</string>
-    <string name="extension_filter_clipboard_helper">多個關鍵詞請換行輸入（支持正則）</string>
-    <string name="extension_filter_clipboard_title">過濾剪貼板</string>
-    <string name="extension_item_title_filter_clipboard">過濾剪貼板</string>
-    <string name="extension_item_desc_filter_clipboard">阻止帶有關鍵詞的文本寫入剪貼板</string>
+    <string name="extension_item_title_filter_clipboard">剪貼板</string>
+    <string name="extension_item_desc_filter_clipboard">記錄、阻止讀取、過濾寫入</string>
     <string name="config_mode_tip_record_static_field_value">記錄靜態變量</string>
     <string name="config_mode_tip_record_instance_field_value">記錄實例變量</string>
     <string name="config_mode_tip_static_field_value">靜態變量</string>
@@ -307,8 +299,6 @@
     <string name="extension_item_desc_application_name">記錄Application(入口)名</string>
     <string name="main_version_update">新版本</string>
     <string name="main_go_upgrade">更新</string>
-    <string name="xsp_not_save_config">未保存成功</string>
-    <string name="xsp_not_delete_config_succeed">未刪除成功</string>
     <string name="module_not_activated">模塊未激活</string>
     <string name="module_not_activated_message">由於配置寫入和刪除依賴於New XSharedPreferences, 必須在模塊被激活下操作配置。如果不激活模塊，將無法使用！！！</string>
     <string name="module_not_activated_ok">去激活</string>
@@ -384,4 +374,18 @@
     <string name="extension_item_title_guise_sign">偽裝簽名</string>
     <string name="extension_item_desc_guise_sign">獲取其他應用的簽名時返回偽裝的簽名</string>
     <string name="extension_guise_tip">僅用於測試，請勿用於非法用途\n僅對通過系統API調用的方式進行偽裝</string>
+    <string name="label_clipboard">剪貼板</string>
+    <string name="extension_clip_input_keyword">輸入關鍵詞</string>
+    <string name="extension_clip_input_test_text">輸入測試文本</string>
+    <string name="extension_clip_tip_regex_rule">匹配 = 測試文本包含關鍵詞</string>
+    <string name="extension_clip_not_match">不匹配</string>
+    <string name="extension_clip_illegal_format">非法表達式</string>
+    <string name="extension_clip_add_keyword">添加關鍵詞</string>
+    <string name="extension_clip_title_record">記錄</string>
+    <string name="extension_clip_summary_record">讀取或寫入時進行記錄</string>
+    <string name="extension_clip_prevent_read_clip">阻止讀取剪貼板</string>
+    <string name="extension_clip_prevent_write_clip">阻止寫入剪貼板</string>
+    <string name="extension_clip_summary_prevent_write_clip">通過關鍵詞阻止，支持正則表達式</string>
+    <string name="extension_clip_title_add_keyword">添加關鍵詞</string>
+    <string name="extension_clipboard">剪貼板</string>
 </resources>

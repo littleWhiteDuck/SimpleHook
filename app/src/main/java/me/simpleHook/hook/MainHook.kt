@@ -329,13 +329,12 @@ object MainHook {
                 AESHook,
                 JSONHook,
                 WebHook,
-                ClipboardFilterHook,
+                ClipboardHook,
                 ApplicationHook,
                 SignatureHook,
                 ContactHook,
                 SensorMangerHook,
-                ADBHook
-            )
+                ADBHook)
         } catch (e: java.lang.Exception) {
             LogUtil.outLog(
                 arrayListOf(

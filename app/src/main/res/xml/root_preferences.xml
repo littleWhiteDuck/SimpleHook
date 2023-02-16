@@ -44,29 +44,29 @@
     <PreferenceCategory app:title="@string/main_settings_title_normal">
 
         <rikka.preference.SimpleMenuPreference
+            app:defaultValue="system"
             app:entries="@array/main_settings_theme_mode_item_entries"
             app:entryValues="@array/main_settings_theme_mode_item_values"
             app:key="themeMode"
-            app:defaultValue="system"
             app:title="@string/main_settings_ui_mode_title" />
         <rikka.preference.SimpleMenuPreference
-            app:defaultValue="system"
             android:entries="@array/main_settings_language_item_entries"
-            app:key="language"
+            app:defaultValue="system"
             app:entryValues="@array/main_settings_language_item_values"
+            app:key="language"
             app:title="@string/main_settings_select_language_title" />
         <rikka.preference.SimpleMenuPreference
+            app:enableSelected="false"
             app:entries="@array/main_settings_clear_item_entries"
             app:entryValues="@array/main_settings_clear_item_values"
             app:key="clearConfigData"
-            app:enableSelected="false"
             app:summary="@string/main_settings_clear_data_summary"
             app:title="@string/main_settings_clear_data_title" />
         <rikka.preference.SimpleMenuPreference
+            app:enableSelected="false"
             app:entries="@array/main_settings_left_config_select_item"
             app:entryValues="@array/main_settings_left_config_select_values"
             app:key="leftConfig"
-            app:enableSelected="false"
             app:summary="@string/main_settings_left_config_summary"
             app:title="@string/main_settings_left_config_title" />
     </PreferenceCategory>

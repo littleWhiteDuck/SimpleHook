@@ -5,13 +5,11 @@ import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
-import android.net.Uri
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.ListAdapter

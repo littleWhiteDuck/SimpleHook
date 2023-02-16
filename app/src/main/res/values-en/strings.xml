@@ -29,12 +29,8 @@
     <string name="search_hint">app/package name</string>
     <string name="search">Search</string>
     <string name="about_menu_add_group">Join TG group</string>
-    <string name="about_title_open_sources">Open Source License</string>
-    <string name="about_introduce_test_bug">Test Bug</string>
-    <string name="about_title_author">Developers</string>
     <string name="main_record_name">Record</string>
     <string name="main_extension_undo_delete_config">undo</string>
-    <string name="about_title_tester">Tester</string>
     <string name="main_home_export_configs_tip">Copied to clipboard</string>
     <string name="main_home_import_incorrect_format_tip">format error</string>
     <string name="main_home_delete_config_tip">This configuration has been removed</string>
@@ -158,8 +154,6 @@
     <string name="settings_clear_warning_dialog_title">Warn</string>
     <string name="settings_clear_warning_dialog_message">Are you sure you want to delete?</string>
     <string name="settings_clear_warning_dialog_confirm">OK</string>
-    <string name="extension_item_status_open">Open</string>
-    <string name="extension_item_status_close">Close</string>
     <string name="extension_item_title_ui">UI</string>
     <string name="extension_item_title_dialog">Dialog</string>
     <string name="extension_item_desc_dialog">Record dialog call stack and info</string>
@@ -282,10 +276,8 @@
     <string name="record_menu_search_by_result">from encryption/decryption results</string>
     <string name="record_detail_menu_copy_raw_data">Raw data</string>
     <string name="record_detail_menu_copy_crypt_result">Encrypt/Decrypt result</string>
-    <string name="extension_filter_clipboard_helper">Please enter multiple keywords in a new line (support regex)</string>
-    <string name="extension_filter_clipboard_title">Filter clipboard</string>
-    <string name="extension_item_title_filter_clipboard">Filter clipboard</string>
-    <string name="extension_item_desc_filter_clipboard">Prevent text with keywords from being written to the clipboard</string>
+    <string name="extension_item_title_filter_clipboard">Clipboard</string>
+    <string name="extension_item_desc_filter_clipboard">Record, prevent read, filter write</string>
     <string name="config_mode_tip_record_instance_field_value">Record instance field</string>
     <string name="config_mode_tip_record_static_field_value">Record static field</string>
     <string name="config_mode_tip_static_field_value">Static field</string>
@@ -308,8 +300,6 @@
     <string name="extension_item_desc_application_name">Record Application name</string>
     <string name="main_version_update">New Version</string>
     <string name="main_go_upgrade">Go update</string>
-    <string name="xsp_not_save_config">Failed to save</string>
-    <string name="xsp_not_delete_config_succeed">Failed to delete</string>
     <string name="module_not_activated">Module not activated</string>
     <string name="module_not_activated_message">Due to write and delete configuration depends on the New XSharedPreferences, must under the modules are activated operating configuration. If the module is not activated, it cannot be used!!</string>
     <string name="module_not_activated_ok">To activated</string>
@@ -385,4 +375,18 @@
     <string name="extension_item_title_guise_sign">Guise signature</string>
     <string name="extension_item_desc_guise_sign">Return a guise signature when obtaining the signature of other apps</string>
     <string name="extension_guise_tip">For testing only, do not use for illegal purposes\nOnly masquerade for system API calls</string>
+    <string name="label_clipboard">Clipboard</string>
+    <string name="extension_clip_input_keyword">Enter keywords</string>
+    <string name="extension_clip_input_test_text">Input test text</string>
+    <string name="extension_clip_tip_regex_rule">Match = test text contains keywords</string>
+    <string name="extension_clip_not_match">No match</string>
+    <string name="extension_clip_illegal_format">Illegal expression</string>
+    <string name="extension_clip_add_keyword">Add keywords</string>
+    <string name="extension_clip_title_record">Record</string>
+    <string name="extension_clip_summary_record">Record when reading or writing</string>
+    <string name="extension_clip_prevent_read_clip">Prevent reading the clipboard</string>
+    <string name="extension_clip_prevent_write_clip">Prevent writing to the clipboard</string>
+    <string name="extension_clip_summary_prevent_write_clip">Prevent by keywords, support regular expressions</string>
+    <string name="extension_clip_title_add_keyword">Add keywords</string>
+    <string name="extension_clipboard">Clipboard</string>
 </resources>

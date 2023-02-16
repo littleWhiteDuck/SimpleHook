@@ -46,3 +46,13 @@ data class ExtensionItemConfig(
 data class GuiseSignConfig(
     val packageName: String, val signData: String, val enable: Boolean = false
 )
+
+
+@kotlinx.serialization.Serializable
+@Keep
+data class ClipboardConfig(
+    var record: Boolean = false,
+    var read: Boolean = false,
+    var write: Boolean = false,
+    var filter: String = ""
+)

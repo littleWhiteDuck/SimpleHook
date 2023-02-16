@@ -91,9 +91,13 @@ class ManagerFragment : Fragment() {
     private fun initData() {
         if (exViewModel.signInfo.value == null) {
             exViewModel.signInfo.value = configBean.guiseSign.info
+            exViewModel.clipboardInfo.value = configBean.filterClipboard.info
         }
         exViewModel.signInfo.observe(viewLifecycleOwner) {
             configBean.guiseSign.info = it
+        }
+        exViewModel.clipboardInfo.observe(viewLifecycleOwner) {
+            configBean.filterClipboard.info = it
         }
     }
 
@@ -157,7 +161,10 @@ class ManagerFragment : Fragment() {
                 showEditStopDialogKeyWord()
             }
             TAG_FILTER_CLIPBOARD -> {
-                showEditFilterClipboardKeyWord()
+                val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
+                val action =
+                    ManagerFragmentDirections.actionManagerFragmentToClipboardFragment(configBean.filterClipboard.info)
+                navController.navigate(action)
             }
             TAG_GUISE_SIGN -> {
                 val action =
@@ -212,23 +219,6 @@ class ManagerFragment : Fragment() {
         ).show()
     }
 
-    private fun showEditFilterClipboardKeyWord() {
-        val inputView = InputView(requireContext())
-        inputView.textInputLayout.helperText = getString(R.string.extension_filter_clipboard_helper)
-        inputView.editText.setText(configBean.filterClipboard.info)
-        customDialog(
-            requireContext(),
-            title = getString(R.string.extension_filter_clipboard_title),
-            contentView = inputView,
-            okText = getString(R.string.dialog_confirm),
-            okClick = { dialogInterface ->
-                val keyWords = inputView.editText.text.toString().trim()
-                configBean.filterClipboard.info = keyWords
-                dialogInterface.dismiss()
-            },
-            cancelText = getString(R.string.dialog_cancel)
-        ).show()
-    }
 
     private fun createDexDirectory() {
         val filePath = if (FlavorUtils.rootVersion) {
@@ -296,7 +286,7 @@ class ManagerFragment : Fragment() {
                 onBackPressedCallback.isEnabled = false
                 dispatcher.onBackPressed()
             }
-        }, 300)
+        }, 500)
         return true
     }
 

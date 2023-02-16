@@ -170,17 +170,6 @@
     <string name="record_detail_menu_copy_return_value">复制返回值</string>
 
     <!--about-->
-    <string name="about_title_author">开发者</string>
-    <string name="about_name_developer" translatable="false">littleWhiteDuck</string>
-    <string name="about_introduce_developer" translatable="false">CV Engineering major of Home University</string>
-    <string name="about_title_tester">测试人员</string>
-    <string name="about_introduce_test_bug">测试bug</string>
-    <string name="about_tester_zj" translatable="false">正己</string>
-    <string name="about_tester_j" translatable="false">简</string>
-    <string name="about_tester_xn" translatable="false">快乐小牛</string>
-    <string name="about_title_open_sources">开源相关</string>
-    <string name="about_source_license_2" translatable="false">Apache Software License 2.0</string>
-    <string name="about_source_license_mit" translatable="false">MIT License 2.0</string>
     <string name="about_menu_add_group">加入TG群</string>
     <string name="about_menu_feedback">反馈</string>
     <string name="about_clip_email_tip">邮箱地址已复制到剪切板</string>
@@ -189,8 +178,6 @@
 
     <!--extension-->
     <string name="extension_start_float_window">开启悬浮窗</string>
-    <string name="extension_item_status_open">已开启</string>
-    <string name="extension_item_status_close">未开启</string>
     <string name="extension_item_title_basic">基本</string>
     <string name="extension_item_title_all_switch">总开关</string>
     <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
@@ -245,10 +232,8 @@
     <string name="extension_item_title_disable_sensor">禁用传感器</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度传感器、陀螺仪传感器</string>
     <string name="extension_item_title_disable_sport_sensor">禁用运动传感器，包括：加速度传感器、陀螺仪传感器等</string>
-    <string name="extension_filter_clipboard_helper">多个关键词请换行输入（支持正则）</string>
-    <string name="extension_filter_clipboard_title">过滤剪贴板</string>
-    <string name="extension_item_title_filter_clipboard">过滤剪贴板</string>
-    <string name="extension_item_desc_filter_clipboard">阻止带有关键词的文本写入剪贴板</string>
+    <string name="extension_item_title_filter_clipboard">剪贴板</string>
+    <string name="extension_item_desc_filter_clipboard">记录、阻止读取、过滤写入</string>
 
     <!-- config -->
     <string name="config_dialog_title_import_config">导入配置</string>
@@ -340,8 +325,6 @@
     <string name="extension_item_desc_application_name">记录Application(入口)名</string>
     <string name="main_version_update">新版本</string>
     <string name="main_go_upgrade">更新</string>
-    <string name="xsp_not_save_config">未保存成功</string>
-    <string name="xsp_not_delete_config_succeed">未删除成功</string>
     <string name="module_not_activated">模块未激活</string>
     <string name="module_not_activated_message">由于配置写入和删除依赖于New XSharedPreferences, 必须在模块被激活下操作配置。如果不激活模块，将无法使用！！！</string>
     <string name="module_not_activated_ok">去激活</string>
@@ -402,7 +385,6 @@
     <string name="record_menu_delete">删除</string>
     <string name="record_menu_delete_all">删除全部</string>
     <string name="record_menu_delete_read">删除已读</string>
-    <string name="about_donate_me" translatable="false">donate me</string>
     <string name="app_record">记录</string>
     <string name="app_about">关于</string>
     <string name="app_extension">扩展</string>
@@ -459,5 +441,24 @@
     <string name="extension_item_title_guise_sign">伪装签名</string>
     <string name="extension_item_desc_guise_sign">获取其他应用的签名时返回伪装的签名</string>
     <string name="extension_guise_tip">仅用于测试，请勿用于非法用途\n仅对通过系统API调用的方式进行伪装</string>
+    <!-- Preference Titles -->
+
+    <!-- Messages Preferences -->
+
+    <!-- Sync Preferences -->
+    <string name="label_clipboard">剪贴板</string>
+    <string name="extension_clip_input_keyword">输入关键词</string>
+    <string name="extension_clip_input_test_text">输入测试文本</string>
+    <string name="extension_clip_tip_regex_rule">匹配 = 测试文本包含关键词</string>
+    <string name="extension_clip_not_match">不匹配</string>
+    <string name="extension_clip_illegal_format">非法表达式</string>
+    <string name="extension_clip_add_keyword">添加关键词</string>
+    <string name="extension_clip_title_record">记录</string>
+    <string name="extension_clip_summary_record">读取或写入时进行记录</string>
+    <string name="extension_clip_prevent_read_clip">阻止读取剪贴板</string>
+    <string name="extension_clip_prevent_write_clip">阻止写入剪贴板</string>
+    <string name="extension_clip_summary_prevent_write_clip">通过关键词阻止，支持正则表达式</string>
+    <string name="extension_clip_title_add_keyword">添加关键词</string>
+    <string name="extension_clipboard">剪贴板</string>
 
 </resources>

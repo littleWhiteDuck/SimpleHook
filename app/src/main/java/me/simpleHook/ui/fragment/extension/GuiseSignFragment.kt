@@ -299,10 +299,9 @@ class GuiseSignFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
-                    android.R.id.home -> dispatcher.onBackPressed()
                     R.id.menu_save -> saveGuiseInfo(exit = true)
                 }
-                return true
+                return false
             }
 
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)

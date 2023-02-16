@@ -8,7 +8,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.marginBottom
-import androidx.core.view.marginEnd
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
 import com.google.android.material.card.MaterialCardView
@@ -27,9 +26,8 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
     }
 
     init {
-        layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        ).also {
+        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
         addView(containerView)
@@ -38,7 +36,7 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
     class ContainerView(context: Context) : CustomViewGroup(context) {
         val icon = AppCompatImageView(context).apply {
             layoutParams = MarginLayoutParams(50.dp, 50.dp).apply {
-                setMargins(10.dp, 10.dp, 10.dp, 10.dp)
+                setMargins(5.dp, 10.dp, 5.dp, 10.dp)
             }
             addView(this)
         }
@@ -48,11 +46,8 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
                 addView(this)
                 marquee()
             }
-        val packageName = AppCompatTextView(
-            ContextThemeWrapper(
-                context, R.style.text_view_item_secondary
-            )
-        ).apply {
+        val packageName = AppCompatTextView(ContextThemeWrapper(context,
+            R.style.text_view_item_secondary)).apply {
             layoutParams =
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                     setMargins(0, 5.dp, 0, 0)
@@ -61,11 +56,8 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
             addView(this)
         }
 
-        val otherInfo = AppCompatTextView(
-            ContextThemeWrapper(
-                context, R.style.text_view_item_secondary
-            )
-        ).apply {
+        val otherInfo = AppCompatTextView(ContextThemeWrapper(context,
+            R.style.text_view_item_secondary)).apply {
             layoutParams =
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                     setMargins(0, 5.dp, 0, 0)
@@ -75,10 +67,7 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
         }
 
         val checkBox = CheckBox(context).apply {
-            layoutParams =
-                MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
-                    it.setMargins(0.dp, 0.dp, 5.dp, 0.dp)
-                }
+            layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
             setPadding(5.dp, 5.dp, 5.dp, 5.dp)
             addView(this)
         }
@@ -88,34 +77,26 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
             icon.autoMeasure()
             checkBox.autoMeasure()
             val textViewWidth =
-                measuredWidth - icon.measuredWidthWithMarginsPaddings - paddingStart - paddingEnd - checkBox.measuredWidthWithMargins
-            appName.measure(
-                textViewWidth.toExactlyMeasureSpec(), appName.defaultHeightMeasureSpec(this)
-            )
-            packageName.measure(
-                textViewWidth.toExactlyMeasureSpec(), packageName.defaultHeightMeasureSpec(this)
-            )
-            otherInfo.measure(
-                textViewWidth.toExactlyMeasureSpec(), otherInfo.defaultHeightMeasureSpec(this)
-            )
-            val height = max(
-                icon.marginTop + icon.measuredHeight + icon.marginBottom,
-                appName.measuredHeight + packageName.measuredHeightWithMargins + otherInfo.measuredHeightWithMargins
-            )
+                measuredWidth - icon.measuredWidthWithMarginsPaddings - paddingStart - paddingEnd - checkBox.measuredWidth
+            appName.measure(textViewWidth.toExactlyMeasureSpec(),
+                appName.defaultHeightMeasureSpec(this))
+            packageName.measure(textViewWidth.toExactlyMeasureSpec(),
+                packageName.defaultHeightMeasureSpec(this))
+            otherInfo.measure(textViewWidth.toExactlyMeasureSpec(),
+                otherInfo.defaultHeightMeasureSpec(this))
+            val height = max(icon.marginTop + icon.measuredHeight + icon.marginBottom,
+                appName.measuredHeight + packageName.measuredHeightWithMargins + otherInfo.measuredHeightWithMargins)
             setMeasuredDimension(measuredWidth, height + paddingTop + paddingEnd)
         }
 
         override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
 
             icon.autoLayout(icon.marginLeft + paddingStart, icon.toVerticalCenter(this))
-            appName.autoLayout(
-                icon.measuredWidthWithMargins + paddingStart, appName.marginTop + paddingTop
-            )
+            appName.autoLayout(icon.measuredWidthWithMargins + paddingStart,
+                appName.marginTop + paddingTop)
             packageName.autoLayout(appName.left, appName.bottom + packageName.marginTop)
             otherInfo.autoLayout(appName.left, packageName.bottom + otherInfo.marginTop)
-            checkBox.autoLayout(
-                checkBox.marginEnd + paddingEnd, checkBox.toVerticalCenter(this), true
-            )
+            checkBox.autoLayout(paddingEnd, checkBox.toVerticalCenter(this), true)
 
         }
     }

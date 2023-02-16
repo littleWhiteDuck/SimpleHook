@@ -20,21 +20,18 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
 
 
     val containerView = ContainerView(context).apply {
-        layoutParams = MarginLayoutParams(
-            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT
-        )
+        layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
 
     }
-    val lineView = View(context).apply {
+    private val lineView = View(context).apply {
         layoutParams = LayoutParams(2.dp, LayoutParams.WRAP_CONTENT)
-        setBackgroundColor(context.resources.getColor(R.color.line_background_color))
+        @Suppress("DEPRECATION") setBackgroundColor(context.resources.getColor(R.color.line_background_color))
     }
     val switch = SwitchCompat(context).apply {
-        layoutParams = MarginLayoutParams(
-            LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
-        ).also {
-            setPadding(5.dp, 10.dp, 15.dp, 10.dp)
-        }
+        layoutParams =
+            MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
+                setPadding(5.dp, 10.dp, 15.dp, 10.dp)
+            }
     }
 
     init {
@@ -50,7 +47,7 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
             (switch.measuredHeightWithMargins - 5.dp).toExactlyMeasureSpec()
         )
         val leftWidth =
-            measuredWidth - switch.measuredWidthWithMargins - lineView.measuredWidth - paddingStart - paddingEnd
+            measuredWidth - switch.measuredWidthWithMargins - lineView.measuredWidth * 3 - paddingStart - paddingEnd
         containerView.measure(
             leftWidth.toExactlyMeasureSpec(), containerView.defaultHeightMeasureSpec(this)
         )

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="config_dialog_input_layout_style">
         <item name="android:layout_width">0dp</item>
@@ -73,4 +73,7 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <style name="PreferenceFragment.Material" tools:ignore="PrivateResource">
+        <item name="android:divider">@drawable/preference_list_divider_material</item>
+    </style>
 </resources>
