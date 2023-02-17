@@ -110,7 +110,8 @@ class ClipboardFragment : PreferenceFragmentCompat() {
         }
         val result = Json.encodeToString(items)
         clipboardConfig.filter = result
-        exViewModel.clipboardInfo.value = Json.encodeToString(clipboardConfig)
+        exViewModel.extensionConfig.value!!.filterClipboard.info =
+            Json.encodeToString(clipboardConfig)
         if (exit) navController.navigateUp()
     }
 

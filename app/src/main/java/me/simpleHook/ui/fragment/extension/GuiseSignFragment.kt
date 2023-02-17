@@ -148,7 +148,7 @@ class GuiseSignFragment : Fragment() {
         appSignItems.forEach {
             signConfigs.add(GuiseSignConfig(it.packageName, it.signData, it.enable))
         }
-        viewModel.signInfo.value = Json.encodeToString(signConfigs)
+        viewModel.extensionConfig.value!!.guiseSign.info = Json.encodeToString(signConfigs)
         if (exit) navController.navigateUp()
     }
 

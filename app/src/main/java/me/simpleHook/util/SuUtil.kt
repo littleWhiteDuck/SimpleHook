@@ -1,33 +1,15 @@
 package me.simpleHook.util
 
 
-import android.content.Context
-import android.os.Looper
 import com.topjohnwu.superuser.Shell
-import kotlin.concurrent.thread
 
 object SuUtil {
     var isInit = false
-    fun init(context: Context) {
+    fun init() {
         if (!isInit) {
             isInit = true
-            Shell.setDefaultBuilder(
-                Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER).setTimeout(20)
-            )
-        }
-        thread {
-            Shell.cmd(
-                "su",
-                "mount -o remount /data",
-                "cd /data/local/tmp",
-                "mkdir -p simpleHook/logTemp/",
-                "chmod -R 777 simpleHook"
-            ).exec()
-            if (!isGrantedRoot()) {
-                Looper.prepare()
-                "拒绝或没有Root权限".toast(context)
-                Looper.loop()
-            }
+            Shell.setDefaultBuilder(Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER)
+                .setTimeout(20))
         }
     }
 

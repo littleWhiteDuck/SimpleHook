@@ -79,25 +79,21 @@ class ManagerFragment : Fragment() {
         return binding.root
     }
 
+    @Suppress("DEPRECATION")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        @Suppress("DEPRECATION") extensionConfig =
-            requireArguments().getParcelable("EXTENSION_CONFIG")!!
+        extensionConfig = requireArguments().getParcelable("EXTENSION_CONFIG")!!
         initMenu()
         initView()
         initData()
     }
 
     private fun initData() {
-        if (exViewModel.signInfo.value == null) {
-            exViewModel.signInfo.value = configBean.guiseSign.info
-            exViewModel.clipboardInfo.value = configBean.filterClipboard.info
+        if (exViewModel.extensionConfig.value == null) {
+            exViewModel.extensionConfig.value = configBean
         }
-        exViewModel.signInfo.observe(viewLifecycleOwner) {
-            configBean.guiseSign.info = it
-        }
-        exViewModel.clipboardInfo.observe(viewLifecycleOwner) {
-            configBean.filterClipboard.info = it
+        exViewModel.extensionConfig.observe(requireActivity()) {
+            configBean = it
         }
     }
 
@@ -137,16 +133,14 @@ class ManagerFragment : Fragment() {
                         showFloatWindow()
                         if (FlavorUtils.rootVersion) {
                             val intent = GlobalServices.packageManager.getLaunchIntentForPackage(
-                                extensionConfig.packageName
-                            )
+                                extensionConfig.packageName)
                             intent?.component?.className?.let { className ->
                                 SuUtil.reLaunchApp(extensionConfig.packageName, className)
                             }
                         }
                     }
-                    R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
-                        requireContext(), extensionConfig.packageName
-                    )
+                    R.id.menu_app_info -> AppUtils.jumpAppInfoPage(requireContext(),
+                        extensionConfig.packageName)
                 }
                 return true
             }
@@ -205,8 +199,7 @@ class ManagerFragment : Fragment() {
         val inputView = InputView(requireContext())
         inputView.textInputLayout.helperText = getString(R.string.extension_block_dialog_helper_tip)
         inputView.editText.setText(configBean.stopDialog.info)
-        customDialog(
-            requireContext(),
+        customDialog(requireContext(),
             title = getString(R.string.extension_block_dialog_title),
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
@@ -215,8 +208,7 @@ class ManagerFragment : Fragment() {
                 configBean.stopDialog.info = keyWords
                 dialogInterface.dismiss()
             },
-            cancelText = getString(R.string.dialog_cancel)
-        ).show()
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
 
@@ -248,12 +240,10 @@ class ManagerFragment : Fragment() {
 
     private fun checkPermission(): Boolean {
         if (FlavorUtils.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
-                extensionConfig.packageName
-            )
+                extensionConfig.packageName)
         ) {
-            requestPermissionDialog(
-                requireContext(), message = getString(R.string.android_13_no_permission)
-            ) {
+            requestPermissionDialog(requireContext(),
+                message = getString(R.string.android_13_no_permission)) {
                 val uri = DocumentCompatUtils.generateAppUri(extensionConfig.packageName)
                 startActivityForData.launch(uri)
             }
@@ -312,267 +302,138 @@ class ManagerFragment : Fragment() {
         adapter.register(ExtensionItem::class.java, ItemViewDelegate { tag, checked ->
             onItemClick(tag, checked)
         })
-        adapter.register(
-            ExtensionSubItem::class.java, SubItemViewDelegate(onClick = { tag, checked ->
+        adapter.register(ExtensionSubItem::class.java,
+            SubItemViewDelegate(onClick = { tag, checked ->
                 onItemClick(tag, checked)
-            }, onSubClick = { tag -> onSubItemClick(tag) })
-        )
+            }, onSubClick = { tag -> onSubItemClick(tag) }))
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.addItemDecoration(
-            DividerItemDecoration(
-                requireContext(), LinearLayout.VERTICAL
-            )
-        )
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
+            LinearLayout.VERTICAL))
         if (items.isNotEmpty()) return
         configBean.apply {
             items.apply {
                 add(Title(getString(R.string.extension_item_title_basic)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_all_switch),
-                        all,
-                        "all",
-                        getString(R.string.extension_item_desc_all_switch)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_hook_success_tip),
-                        tip,
-                        "tip",
-                        getString(R.string.extension_item_desc_hook_success_tip)
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_all_switch),
+                    all,
+                    "all",
+                    getString(R.string.extension_item_desc_all_switch)))
+                add(ExtensionItem(getString(R.string.extension_item_title_hook_success_tip),
+                    tip,
+                    "tip",
+                    getString(R.string.extension_item_desc_hook_success_tip)))
                 add(Title(getString(R.string.extension_item_title_algorithm_analysis)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_base64),
-                        base64,
-                        "base64",
-                        getString(R.string.extension_item_desc_base64)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_digest_algorithm),
-                        digest,
-                        "digest",
-                        getString(R.string.extension_item_desc_digest_algorithm)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_hmac),
-                        hmac,
-                        "hmac",
-                        getString(R.string.extension_item_desc_hmac)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_encrypt_algorithm),
-                        crypt,
-                        "crypt",
-                        getString(
-                            R.string.extension_item_desc_encrypt_algorithm
-                        )
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_base64),
+                    base64,
+                    "base64",
+                    getString(R.string.extension_item_desc_base64)))
+                add(ExtensionItem(getString(R.string.extension_item_title_digest_algorithm),
+                    digest,
+                    "digest",
+                    getString(R.string.extension_item_desc_digest_algorithm)))
+                add(ExtensionItem(getString(R.string.extension_item_title_hmac),
+                    hmac,
+                    "hmac",
+                    getString(R.string.extension_item_desc_hmac)))
+                add(ExtensionItem(getString(R.string.extension_item_title_encrypt_algorithm),
+                    crypt,
+                    "crypt",
+                    getString(R.string.extension_item_desc_encrypt_algorithm)))
                 add(Title(getString(R.string.extension_item_title_hot_fix)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_hot_fix_dex),
-                        hotFix,
-                        "hotFix",
-                        dexPath
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_hot_fix_dex),
+                    hotFix,
+                    "hotFix",
+                    dexPath))
                 add(Title(getString(R.string.extension_item_title_ui)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_dialog),
-                        dialog,
-                        "dialog",
-                        getString(
-                            R.string.extension_item_desc_dialog
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_dialog_cancel),
-                        diaCancel,
-                        "diaCancel",
-                        getString(
-                            R.string.extension_item_desc_dialog_cancel
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_toast), toast, "toast", getString(
-                            R.string.extension_item_desc_toast
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_popup_window),
-                        popup,
-                        "popup",
-                        getString(
-                            R.string.extension_item_desc_popup_window
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_popup_window_cancel),
-                        popCancel,
-                        "popCancel",
-                        getString(
-                            R.string.extension_item_desc_popup_window_cancel
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_click_event),
-                        click,
-                        "click",
-                        getString(
-                            R.string.extension_item_desc_click_event
-                        )
-                    )
-                )
-                add(
-                    ExtensionSubItem(
-                        getString(R.string.extension_item_title_block_dialog),
-                        stopDialog.enable,
-                        TAG_STOP_DIALOG,
-                        getString(
-                            R.string.extension_item_desc_block_dialog
-                        )
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_dialog),
+                    dialog,
+                    "dialog",
+                    getString(R.string.extension_item_desc_dialog)))
+                add(ExtensionItem(getString(R.string.extension_item_title_dialog_cancel),
+                    diaCancel,
+                    "diaCancel",
+                    getString(R.string.extension_item_desc_dialog_cancel)))
+                add(ExtensionItem(getString(R.string.extension_item_title_toast),
+                    toast,
+                    "toast",
+                    getString(R.string.extension_item_desc_toast)))
+                add(ExtensionItem(getString(R.string.extension_item_title_popup_window),
+                    popup,
+                    "popup",
+                    getString(R.string.extension_item_desc_popup_window)))
+                add(ExtensionItem(getString(R.string.extension_item_title_popup_window_cancel),
+                    popCancel,
+                    "popCancel",
+                    getString(R.string.extension_item_desc_popup_window_cancel)))
+                add(ExtensionItem(getString(R.string.extension_item_title_click_event),
+                    click,
+                    "click",
+                    getString(R.string.extension_item_desc_click_event)))
+                add(ExtensionSubItem(getString(R.string.extension_item_title_block_dialog),
+                    stopDialog.enable,
+                    TAG_STOP_DIALOG,
+                    getString(R.string.extension_item_desc_block_dialog)))
                 add(Title(getString(R.string.extension_item_title_security)))
-                add(
-                    ExtensionItem(
-                        title = getString(R.string.extension_item_title_disable_sensor),
-                        disSensorAG,
-                        "disSensorAG",
-                        getString(R.string.extension_item_title_disable_acceleration_gyroscope)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        title = getString(R.string.extension_item_title_disable_sensor),
-                        disSensorSport,
-                        "disSensorSport",
-                        getString(R.string.extension_item_title_disable_sport_sensor)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        title = getString(R.string.extension_item_title_contact),
-                        contact,
-                        "contact",
-                        getString(R.string.extension_item_desc_contact)
-                    )
-                )
+                add(ExtensionItem(title = getString(R.string.extension_item_title_disable_sensor),
+                    disSensorAG,
+                    "disSensorAG",
+                    getString(R.string.extension_item_title_disable_acceleration_gyroscope)))
+                add(ExtensionItem(title = getString(R.string.extension_item_title_disable_sensor),
+                    disSensorSport,
+                    "disSensorSport",
+                    getString(R.string.extension_item_title_disable_sport_sensor)))
+                add(ExtensionItem(title = getString(R.string.extension_item_title_contact),
+                    contact,
+                    "contact",
+                    getString(R.string.extension_item_desc_contact)))
                 add(Title("JSON"))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_json_object),
-                        jsonObject,
-                        "jsonObject",
-                        getString(R.string.extension_item_desc_json_object)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_json_array),
-                        jsonArray,
-                        "jsonArray",
-                        getString(R.string.extension_item_desc_json_array)
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_json_object),
+                    jsonObject,
+                    "jsonObject",
+                    getString(R.string.extension_item_desc_json_object)))
+                add(ExtensionItem(getString(R.string.extension_item_title_json_array),
+                    jsonArray,
+                    "jsonArray",
+                    getString(R.string.extension_item_desc_json_array)))
                 add(Title("WebView"))
-                add(
-                    ExtensionItem(
-                        title = "loadUrl",
-                        webLoadUrl,
-                        "webLoadUrl",
-                        getString(R.string.extension_item_desc_web_load_url)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        title = "Debug",
-                        webDebug,
-                        "webDebug",
-                        getString(R.string.extension_item_desc_web_debug)
-                    )
-                )
+                add(ExtensionItem(title = "loadUrl",
+                    webLoadUrl,
+                    "webLoadUrl",
+                    getString(R.string.extension_item_desc_web_load_url)))
+                add(ExtensionItem(title = "Debug",
+                    webDebug,
+                    "webDebug",
+                    getString(R.string.extension_item_desc_web_debug)))
                 add(Title(getString(R.string.extension_item_title_others)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_signature),
-                        signature,
-                        "signature",
-                        getString(R.string.extension_item_desc_signature)
-                    )
-                )
-                add(
-                    ExtensionSubItem(
-                        getString(R.string.extension_item_title_guise_sign),
-                        guiseSign.enable,
-                        TAG_GUISE_SIGN,
-                        getString(
-                            R.string.extension_item_desc_guise_sign
-                        )
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_intent),
-                        intent,
-                        "intent",
-                        getString(
-                            R.string.extension_item_desc_intent
-                        )
-                    )
-                )
-                add(
-                    ExtensionSubItem(
-                        title = getString(R.string.extension_item_title_filter_clipboard),
-                        filterClipboard.enable,
-                        TAG_FILTER_CLIPBOARD,
-                        getString(R.string.extension_item_desc_filter_clipboard)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        title = "Application",
-                        application,
-                        "application",
-                        getString(R.string.extension_item_desc_application_name)
-                    )
-                )
-                add(
-                    ExtensionItem(
-                        title = "ADB", adb, "adb", getString(R.string.extension_item_desc_adb)
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_signature),
+                    signature,
+                    "signature",
+                    getString(R.string.extension_item_desc_signature)))
+                add(ExtensionSubItem(getString(R.string.extension_item_title_guise_sign),
+                    guiseSign.enable,
+                    TAG_GUISE_SIGN,
+                    getString(R.string.extension_item_desc_guise_sign)))
+                add(ExtensionItem(getString(R.string.extension_item_title_intent),
+                    intent,
+                    "intent",
+                    getString(R.string.extension_item_desc_intent)))
+                add(ExtensionSubItem(title = getString(R.string.extension_item_title_filter_clipboard),
+                    filterClipboard.enable,
+                    TAG_FILTER_CLIPBOARD,
+                    getString(R.string.extension_item_desc_filter_clipboard)))
+                add(ExtensionItem(title = "Application",
+                    application,
+                    "application",
+                    getString(R.string.extension_item_desc_application_name)))
+                add(ExtensionItem(title = "ADB",
+                    adb,
+                    "adb",
+                    getString(R.string.extension_item_desc_adb)))
                 add(Title(getString(R.string.extension_item_title_network)))
-                add(
-                    ExtensionItem(
-                        getString(R.string.extension_item_title_vpn), vpn, "vpn", getString(
-                            R.string.extension_item_desc_vpn
-                        )
-                    )
-                )
+                add(ExtensionItem(getString(R.string.extension_item_title_vpn),
+                    vpn,
+                    "vpn",
+                    getString(R.string.extension_item_desc_vpn)))
             }
             adapter.items = items
             adapter.notifyDataSetChanged()
@@ -581,9 +442,7 @@ class ManagerFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(
-            true
-        ) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (tempConfigStr == configBean.toString()) {
                     onBackPressedCallback.isEnabled = false
@@ -608,9 +467,7 @@ class ManagerFragment : Fragment() {
                 }
             }
         }
-        dispatcher.addCallback(
-            this, onBackPressedCallback
-        )
+        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onDestroyView() {

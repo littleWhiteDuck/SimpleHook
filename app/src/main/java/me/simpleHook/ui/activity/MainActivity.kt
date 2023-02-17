@@ -63,7 +63,7 @@ class MainActivity : BaseActivity() {
                     cancelClick = { it.dismiss() }).show()
             }
         } else if (FlavorUtils.rootVersion) {
-            SuUtil.init(this)
+            SuUtil.init()
         } else if (OSUtils.atLeastT()) {
             if (sp.showA13Tip) {
                 customDialog(this,
