@@ -28,7 +28,7 @@ object FileUtils {
         for (file in files) {
             if (!deleteFile(file)) return false
         }
-        return true
+        return dir.delete()
     }
 
     fun makeDirs(pathFile: String): Boolean {

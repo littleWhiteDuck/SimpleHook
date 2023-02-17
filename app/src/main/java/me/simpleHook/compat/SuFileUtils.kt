@@ -18,6 +18,9 @@ object SuFileUtils {
         }
     }
 
+    fun deleteDir(dirPath: String): Boolean {
+        return deleteDir(SuFile(dirPath))
+    }
 
     fun deleteDir(dir: ExtendedFile): Boolean {
         if (!dir.isDirectory) return false
@@ -25,7 +28,7 @@ object SuFileUtils {
         for (file in files) {
             if (!deleteFile(file.path)) return false
         }
-        return true
+        return dir.delete()
     }
 
     fun makeDirs(pathFile: String): Boolean {
