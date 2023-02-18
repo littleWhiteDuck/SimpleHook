@@ -59,7 +59,7 @@ object DocumentRUtils {
         }.getOrDefault(false)
     }
 
-
+    @Suppress("unused")
     fun deleteDocumentDir(
         context: Context, path: String
     ): Boolean {
@@ -75,7 +75,7 @@ object DocumentRUtils {
         }.getOrDefault(false)
     }
 
-
+    @Suppress("UNUSED_PARAMETER")
     fun getFileUri(context: Context, packageName: String, path: String): Uri? {
         return runCatching {
             val rootUri = Uri.parse(Constant.ANDROID_DATA_URI)

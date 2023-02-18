@@ -30,9 +30,7 @@ object JSONHook : BaseHook() {
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
                 val items = LogUtil.getStackTrace()
-                val logBean = LogBean(
-                    type, list + items, HookHelper.hostPackageName
-                )
+                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
                 LogUtil.outLogMsg(logBean)
             }
         })
@@ -41,16 +39,15 @@ object JSONHook : BaseHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val type = if (isShowEnglish) "JSON creation" else "JSON 创建"
                 val jsonObject = param.thisObject
-                val map: LinkedHashMap<String, Any> = XposedHelpers.getObjectField(
-                    jsonObject, "nameValuePairs"
-                ) as LinkedHashMap<String, Any>
+
+                @Suppress("UNCHECKED_CAST")
+                val map = XposedHelpers.getObjectField(jsonObject,
+                    "nameValuePairs") as LinkedHashMap<String, Any>
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
                 val items = LogUtil.getStackTrace()
-                val logBean = LogBean(
-                    type, list + items, HookHelper.hostPackageName
-                )
+                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
                 LogUtil.outLogMsg(logBean)
             }
         })
@@ -65,9 +62,7 @@ object JSONHook : BaseHook() {
                 val value = getObjectString(param.args[1] ?: "null")
                 val list = arrayListOf("Name: $name", "Value: $value")
                 val items = LogUtil.getStackTrace()
-                val logBean = LogBean(
-                    type, list + items, HookHelper.hostPackageName
-                )
+                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
                 LogUtil.outLogMsg(logBean)
             }
         })
@@ -76,16 +71,14 @@ object JSONHook : BaseHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val type = if (isShowEnglish) "JSONArray creation" else "JSONArray 创建"
                 val jsonObject = param.thisObject
-                val map: List<Any> = XposedHelpers.getObjectField(
-                    jsonObject, "values"
-                ) as List<Any>
+
+                @Suppress("UNCHECKED_CAST")
+                val map = XposedHelpers.getObjectField(jsonObject, "values") as List<Any>
                 if (map.isEmpty()) return
                 val value = Gson().toJson(map)
                 val list = arrayListOf("Value: $value")
                 val items = LogUtil.getStackTrace()
-                val logBean = LogBean(
-                    type, list + items, HookHelper.hostPackageName
-                )
+                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
                 LogUtil.outLogMsg(logBean)
             }
         })

@@ -8,8 +8,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -59,10 +61,6 @@ class RecordSummaryFragment : Fragment() {
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -78,9 +76,8 @@ class RecordSummaryFragment : Fragment() {
         binding.progressBar.visibility = View.GONE
         appViewModel.getAllConfigs().observe(requireActivity()) {
             it.forEach { appConfig ->
-                if (appConfig.enable && AppUtils.isAppInstalled(
-                        requireContext(), appConfig.packageName
-                    )
+                if (appConfig.enable && AppUtils.isAppInstalled(requireContext(),
+                        appConfig.packageName)
                 ) {
                     needCheckPacks.add(appConfig.packageName)
                 }
@@ -88,9 +85,8 @@ class RecordSummaryFragment : Fragment() {
         }
         appViewModel.getAllAssistConfigs().observe(requireActivity()) {
             it.forEach { exConfig ->
-                if (exConfig.allSwitch && AppUtils.isAppInstalled(
-                        requireContext(), exConfig.packageName
-                    )
+                if (exConfig.allSwitch && AppUtils.isAppInstalled(requireContext(),
+                        exConfig.packageName)
                 ) {
                     needCheckPacks.add(exConfig.packageName)
                 }
@@ -188,63 +184,67 @@ class RecordSummaryFragment : Fragment() {
         refreshData(200, true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (menu.findItem(R.id.app_bar_search) == null) {
-            inflater.inflate(R.menu.menu_record_fragment, menu)
-            if (menu.findItem(R.id.search) != null) {
-                menu.removeItem(R.id.search)
-            }
-            if (sp.showByType) {
-                menu.findItem(R.id.toTypeShow).isChecked = true
-            } else {
-                menu.findItem(R.id.toAppShow).isChecked = true
-            }
-        }
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.delete_all -> {
-                warningDialog(requireContext(),
-                    title = getString(R.string.record_warn_dialog_title),
-                    message = getString(
-                        R.string.record_warn_dialog_message_delete_all
-                    ),
-                    okClick = {
-                        appViewModel.deleteAllLogs()
-                        refreshData()
-                    })
-            }
-            R.id.delete_read -> {
-                warningDialog(requireContext(),
-                    title = getString(R.string.record_warn_dialog_title),
-                    message = getString(R.string.record_warn_dialog_message_delete_read),
-                    okClick = {
-                        appViewModel.deleteRecordByRead(read = true)
-                        refreshData()
-                    })
-            }
-            R.id.toAppShow -> {
+    private fun initMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_record_fragment, menu)
+                if (menu.findItem(R.id.search) != null) {
+                    menu.removeItem(R.id.search)
+                }
                 if (sp.showByType) {
-                    refreshData(0)
-                    sp.showByType = false
+                    menu.findItem(R.id.toTypeShow).isChecked = true
+                } else {
+                    menu.findItem(R.id.toAppShow).isChecked = true
                 }
-                item.isChecked = !item.isChecked
             }
-            R.id.toTypeShow -> {
-                if (!sp.showByType) {
-                    refreshData(0)
-                    sp.showByType = true
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.delete_all -> {
+                        warningDialog(requireContext(),
+                            title = getString(R.string.record_warn_dialog_title),
+                            message = getString(R.string.record_warn_dialog_message_delete_all),
+                            okClick = {
+                                appViewModel.deleteAllLogs()
+                                refreshData()
+                            })
+                    }
+                    R.id.delete_read -> {
+                        warningDialog(requireContext(),
+                            title = getString(R.string.record_warn_dialog_title),
+                            message = getString(R.string.record_warn_dialog_message_delete_read),
+                            okClick = {
+                                appViewModel.deleteRecordByRead(read = true)
+                                refreshData()
+                            })
+                    }
+                    R.id.toAppShow -> {
+                        if (sp.showByType) {
+                            refreshData(0)
+                            sp.showByType = false
+                        }
+                        menuItem.isChecked = !menuItem.isChecked
+                    }
+                    R.id.toTypeShow -> {
+                        if (!sp.showByType) {
+                            refreshData(0)
+                            sp.showByType = true
+                        }
+                        menuItem.isChecked = !menuItem.isChecked
+                    }
+                    R.id.startFloat -> {
+                        (requireActivity() as MainActivity).initPrintFloat()
+                    }
                 }
-                item.isChecked = !item.isChecked
+                return true
             }
-            R.id.startFloat -> {
-                (requireActivity() as MainActivity).initPrintFloat()
-            }
-        }
-        return true
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun refreshData(time: Long = 500, showRefresh: Boolean = true) {
@@ -264,16 +264,14 @@ class RecordSummaryFragment : Fragment() {
                 if (!::assistConfigs.isInitialized) {
                     assistConfigs = appViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(
-                                requireContext(), it.packageName
-                            )
+                        if (it.allSwitch && AppUtils.isAppInstalled(requireContext(),
+                                it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appViewModel.getConfigs()
                     configs.forEach {
-                        if (it.enable && AppUtils.isAppInstalled(
-                                requireContext(), it.packageName
-                            )
+                        if (it.enable && AppUtils.isAppInstalled(requireContext(),
+                                it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {

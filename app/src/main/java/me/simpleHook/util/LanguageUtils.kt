@@ -21,6 +21,7 @@ import java.util.*
  * time   : 2021/11/26/16:08
  * desc   : 多语言适配方案，适配各种版本，核心未替换上下文Context中的Local
  */
+@Suppress("unused")
 object LanguageUtils {
     private const val TAG = "LanguageUtil"
 
@@ -118,7 +119,7 @@ object LanguageUtils {
      *
      * @return Locale
      */
-    val systemLocal: Locale
+    private val systemLocal: Locale
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Resources.getSystem().configuration.locales[0]
         } else {
@@ -132,6 +133,7 @@ object LanguageUtils {
      * @param language 语言
      * @return Context
      */
+    @Suppress("DEPRECATION")
     private fun updateConfiguration(context: Context, language: String): Context {
         val resources = context.resources
         val configuration = resources.configuration
@@ -215,9 +217,7 @@ object LanguageUtils {
             val configuration = context.resources.configuration
             return object : ContextThemeWrapper(context, R.style.Theme_AppCompat_Empty) {
                 override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
-                    if (overrideConfiguration != null) {
-                        overrideConfiguration.setTo(configuration)
-                    }
+                    overrideConfiguration.setTo(configuration)
                     super.applyOverrideConfiguration(overrideConfiguration)
                 }
             }
@@ -233,6 +233,7 @@ object LanguageUtils {
      * @param context context
      * @param newLanguage newLanguage
      */
+    @Suppress("DEPRECATION")
     fun updateApplicationLocale(context: Context, newLanguage: String) {
         val resources = context.resources
         val configuration = resources.configuration
@@ -245,6 +246,7 @@ object LanguageUtils {
         }
         val dm = resources.displayMetrics
         resources.updateConfiguration(configuration, dm)
+        //context.createConfigurationContext(configuration)
     }
 
     fun isNotChinese(): Boolean {

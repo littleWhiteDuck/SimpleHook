@@ -58,7 +58,7 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
             if (Build.VERSION.SDK_INT >= 26) {
                 dialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
             } else {
-                dialog.window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+                @Suppress("DEPRECATION") dialog.window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
             }
             dialog.show()
         }

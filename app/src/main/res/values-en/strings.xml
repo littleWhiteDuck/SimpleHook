@@ -290,10 +290,10 @@
     <string name="config_dialog_hook_point_input_helper">Input：before or after</string>
     <string name="config_dialog_return_class_name_helper">Example: me.simpleHook.bean.ConfigBean</string>
     <string name="config_dialog_return_class_name_tip">Class name of the return value</string>
-    <string-array name="main_settings_left_config_select_item">
-        <item>Check user application (slow)</item>
-        <item>Check system application (slow)</item>
-        <item>Check all applications (super slow)</item>
+    <string-array name="main_settings_left_config_select_item" formatted="false">
+        <item>Check user apps</item>
+        <item>Check system apps</item>
+        <item>Check all apps</item>
     </string-array>
     <string name="copied">copied!</string>
     <string name="record_item_swipe_delete_tip">Swipe to delete</string>

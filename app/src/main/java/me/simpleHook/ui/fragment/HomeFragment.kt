@@ -11,11 +11,13 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -78,7 +80,6 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mContext = requireContext()
     }
 
@@ -162,9 +163,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 val tempConfigId = tempConfigs[fromPosition].appConfig.id
                 tempConfigs[fromPosition].appConfig.id = tempConfigs[finalPosition].appConfig.id
                 tempConfigs[finalPosition].appConfig.id = tempConfigId
-                mAdapter.notifyItemMoved(
-                    viewHolder.bindingAdapterPosition, target.bindingAdapterPosition
-                )
+                mAdapter.notifyItemMoved(viewHolder.bindingAdapterPosition,
+                    target.bindingAdapterPosition)
                 return true
             }
 
@@ -184,11 +184,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.deleteConfigs(appConfig)
                 configSystem.deleteCustomConfig(appConfig.packageName)
-                Snackbar.make(
-                    binding.fab,
+                Snackbar.make(binding.fab,
                     getString(R.string.main_home_delete_config_tip),
-                    Snackbar.LENGTH_LONG
-                ).apply {
+                    Snackbar.LENGTH_LONG).apply {
                     anchorView = bottomNavigationView
                 }.addCallback(object : Snackbar.Callback() {
                     override fun onShown(sb: Snackbar?) {
@@ -216,10 +214,6 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     }
 
 
-    private fun itemOnLongClick(appConfig: AppConfig) {
-        //appInfo = AppUtils.appInfo(requireContext(), appConfig.packageName)
-    }
-
     private fun editConfig(appConfig: AppConfig) {
         if (isDrag) return
         val bundle = Bundle()
@@ -230,7 +224,6 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private fun onItemClick(mode: Int, appConfig: AppConfig) {
         when (mode) {
             Constant.HOME_ITEM_CLICK_NORMAL -> editConfig(appConfig)
-            Constant.HOME_ITEM_CLICK_LONG -> itemOnLongClick(appConfig)
             Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
             Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
             Constant.HOME_ITEM_CLICK_DELETE -> deleteConfig(appConfig)
@@ -325,8 +318,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 }
             }
         }
-        customDialog(
-            requireContext(),
+        customDialog(requireContext(),
             title = getString(R.string.please_input_url),
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
@@ -334,8 +326,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 importConfigsFromInternet(inputView.editText.text.toString().trim())
                 dialogInterface.dismiss()
             },
-            cancelText = getString(R.string.dialog_cancel)
-        ).show()
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
     private fun importConfigsFromInternet(urlString: String) {
@@ -355,9 +346,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             for (config in filterConfigs) {
                 dataList.add(ConfigItem(config.appConfig))
             }
-            ConfigDialogFragment(dataList, Constant.CONFIG_EXPORT_MODE).show(
-                requireActivity().supportFragmentManager, "export"
-            )
+            ConfigDialogFragment(dataList,
+                Constant.CONFIG_EXPORT_MODE).show(requireActivity().supportFragmentManager,
+                "export")
         }
     }
 
@@ -366,16 +357,12 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             JsonUtil.isJsonArray(configs) -> {
                 val dataList = JsonUtil.importConfigs(configs)
                 if (dataList.isEmpty()) {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(
-                        requireContext()
-                    )
+                    getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
                     return
                 } else {
-                    ConfigDialogFragment(
-                        dataList as ArrayList<ConfigItem>, Constant.CONFIG_IMPORT_MODE
-                    ).show(
-                        requireActivity().supportFragmentManager, "import"
-                    )
+                    ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
+                        Constant.CONFIG_IMPORT_MODE).show(requireActivity().supportFragmentManager,
+                        "import")
                 }
             }
             JsonUtil.isJsonObject(configs) -> {
@@ -439,9 +426,8 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                     }
                 }
             }
-            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
-                requireContext(), configOfItemMenu.packageName
-            )
+            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(requireContext(),
+                configOfItemMenu.packageName)
             R.id.menu_copy_config -> copyConfigs(configOfItemMenu)
             R.id.menu_delete_config -> deleteConfig(configOfItemMenu)
             R.id.menu_edit_config -> editConfig(configOfItemMenu)
@@ -491,28 +477,38 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         mAdapter.submitList(filter)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (!isDrag) {
-            inflater.inflate(R.menu.menu_home, menu)
-            val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
-            searchView.apply {
-                queryHint = context.getString(R.string.main_home_toolbar_search_hint)
-                setOnQueryTextListener(this@HomeFragment)
-            }
-        }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initMenu()
+    }
+
+    private fun initMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_home, menu)
+                val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+                searchView.apply {
+                    queryHint = context.getString(R.string.main_home_toolbar_search_hint)
+                    setOnQueryTextListener(this@HomeFragment)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(
-            true
-        ) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isDrag) {
                     cancelDragSort()
@@ -522,9 +518,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 }
             }
         }
-        dispatcher.addCallback(
-            this, onBackPressedCallback
-        )
+        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
     @SuppressLint("NotifyDataSetChanged")

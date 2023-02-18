@@ -9,7 +9,7 @@ import org.json.JSONObject
 
 object JsonUtil {
 
-    fun isJsonFormat(jsonStr: String): Boolean {
+    private fun isJsonFormat(jsonStr: String): Boolean {
         if (jsonStr.startsWith("{") && jsonStr.endsWith("}")) return true
         if (jsonStr.startsWith("[") && jsonStr.endsWith("]")) return true
         return false
@@ -33,16 +33,11 @@ object JsonUtil {
         false
     }
 
-    fun getElementString(jsonObject: JSONObject, name: String): String = try {
-        jsonObject.getString(name)
-    } catch (e: java.lang.Exception) {
-        ""
-    }
 
     fun formatJson(jsonStr: String?): String {
         if (null == jsonStr || "" == jsonStr) return ""
         val sb = StringBuilder()
-        var last = '\u0000'
+        var last: Char
         var current = '\u0000'
         var indent = 0
         var isInQuotationMarks = false

@@ -51,7 +51,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
                 tvAppName.marquee()
                 tvPackageName.text = packageName
                 tvPackageName.marquee()
-                tvOtherInfo.text = "$versionName($versionCode), $targetApi"
+                tvOtherInfo.text = "$versionName($versionCode), Target Api $targetApi"
                 tvOtherInfo.marquee()
             }
         }

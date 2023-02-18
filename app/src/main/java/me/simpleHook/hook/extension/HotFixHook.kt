@@ -43,29 +43,25 @@ object HotFixHook : BaseHook() {
                 val originalPathListObject = pathListField[originalLoader]
                 val originalDexElementsObject = dexElementsField[originalPathListObject]
 
-                val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
-                val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
-                val concatDexElementsObject = java.lang.reflect.Array.newInstance(
-                    dexElementsObject.javaClass.componentType, oldLength + newLength
-                )
+                val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject!!)
+                val newLength = java.lang.reflect.Array.getLength(dexElementsObject!!)
+                val concatDexElementsObject =
+                    java.lang.reflect.Array.newInstance(dexElementsObject.javaClass.componentType!!,
+                        oldLength + newLength)
                 for (i in 0 until newLength) {
-                    java.lang.reflect.Array.set(
-                        concatDexElementsObject,
+                    java.lang.reflect.Array.set(concatDexElementsObject,
                         i,
-                        java.lang.reflect.Array.get(dexElementsObject, i)
-                    )
+                        java.lang.reflect.Array.get(dexElementsObject, i))
                 }
                 for (i in 0 until oldLength) {
-                    java.lang.reflect.Array.set(
-                        concatDexElementsObject,
+                    java.lang.reflect.Array.set(concatDexElementsObject,
                         newLength + i,
-                        java.lang.reflect.Array.get(originalDexElementsObject, i)
-                    )
+                        java.lang.reflect.Array.get(originalDexElementsObject, i))
                 }
                 dexElementsField[originalPathListObject] = concatDexElementsObject
             }
 
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             "hot fix error".tip(HookHelper.hostPackageName)
         }
     }

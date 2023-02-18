@@ -15,6 +15,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -26,7 +28,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,11 +75,10 @@ class RecordActivity : BaseActivity() {
         }
 
     private val swipeDeleteIcon by lazy {
-        ContextCompat.getDrawable(
-            this, R.drawable.ic_delete_black_24
-        )
+        ContextCompat.getDrawable(this, R.drawable.ic_delete_black_24)
     }
 
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,13 +98,41 @@ class RecordActivity : BaseActivity() {
             supportActionBar?.apply {
                 title =
                     if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                        this@RecordActivity, typeOrPackageName
-                    )
+                        this@RecordActivity,
+                        typeOrPackageName)
                 subtitle = typeOrPackageName
             }
         }
         initView()
         initData()
+        initBack()
+    }
+
+    private fun initBack() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (appViewModel.queryPattern.value.isNullOrEmpty()) {
+                    onBackPressedCallback.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                } else {
+                    binding.swipeRefreshLayout.isRefreshing = true
+                    appViewModel.queryPattern.value = ""
+                    lifecycleScope.launch {
+                        appViewModel.getRecord(typeOrPackageName,
+                            isType,
+                            searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
+                            recordAdapter.addOnPagesUpdatedListener {
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    binding.swipeRefreshLayout.isRefreshing = false
+                                }, 800)
+                            }
+                            recordAdapter.submitData(it)
+                        }
+                    }
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -180,9 +208,13 @@ class RecordActivity : BaseActivity() {
                     actionState: Int,
                     isCurrentlyActive: Boolean
                 ) {
-                    super.onChildDraw(
-                        c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive
-                    )
+                    super.onChildDraw(c,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive)
                     val itemView = viewHolder.itemView
                     val iconMargin = (itemView.height - swipeDeleteIcon!!.intrinsicHeight) / 2
                     val iconLeft: Int
@@ -201,9 +233,7 @@ class RecordActivity : BaseActivity() {
                         swipeBackground.setBounds(backLeft, backTop, backRight, backBottom)
                         iconLeft = itemView.left + iconMargin
                         iconRight = iconLeft + swipeDeleteIcon!!.intrinsicWidth
-                        swipeDeleteIcon!!.setBounds(
-                            iconLeft, iconTop, iconRight, iconBottom
-                        )
+                        swipeDeleteIcon!!.setBounds(iconLeft, iconTop, iconRight, iconBottom)
 
                     } else {
                         swipeBackground.setBounds(0, 0, 0, 0)
@@ -216,12 +246,10 @@ class RecordActivity : BaseActivity() {
                         swipeTextPaint.getFontMetrics(fontMetrics)
                         val offsetFix =
                             (fontMetrics.descent - fontMetrics.ascent - fontMetrics.bottom + fontMetrics.top) * 1.5f
-                        c.drawText(
-                            swipeText,
+                        c.drawText(swipeText,
                             iconRight.toFloat(),
                             itemView.top.toFloat() + itemView.height / 2 + (fontMetrics.descent - fontMetrics.ascent) / 2 + offsetFix,
-                            swipeTextPaint
-                        )
+                            swipeTextPaint)
                     }
 
                 }
@@ -239,9 +267,9 @@ class RecordActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch {
-            appViewModel.getRecord(
-                typeOrPackageName, isType, searchMode = Constant.RECORD_SEARCH_GLOBAL
-            ).collectLatest {
+            appViewModel.getRecord(typeOrPackageName,
+                isType,
+                searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
                 recordAdapter.addOnPagesUpdatedListener {
                     binding.progressBar.isVisible = false
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -270,12 +298,9 @@ class RecordActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.delete_all -> {
-                warningDialog(
-                    this,
+                warningDialog(this,
                     title = getString(R.string.record_warning_dialog_title),
-                    message = getString(
-                        R.string.record_waring_dialog_message_delete_all
-                    ),
+                    message = getString(R.string.record_waring_dialog_message_delete_all),
                     okClick = {
                         if (isType) {
                             appViewModel.deleteRecordByType(typeOrPackageName)
@@ -288,18 +313,14 @@ class RecordActivity : BaseActivity() {
             R.id.delete_read -> {
                 warningDialog(this,
                     title = getString(R.string.record_warning_dialog_title),
-                    message = getString(
-                        R.string.record_waring_dialog_message_read
-                    ),
+                    message = getString(R.string.record_waring_dialog_message_read),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteReadRecordByType(
-                                type = typeOrPackageName, read = true
-                            )
+                            appViewModel.deleteReadRecordByType(type = typeOrPackageName,
+                                read = true)
                         } else {
-                            appViewModel.deleteReadRecordByPack(
-                                packageName = typeOrPackageName, read = true
-                            )
+                            appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
+                                read = true)
                         }
                         refreshData()
                     })
@@ -307,18 +328,14 @@ class RecordActivity : BaseActivity() {
             R.id.delete_un_read -> {
                 warningDialog(this,
                     title = getString(R.string.record_warning_dialog_title),
-                    message = getString(
-                        R.string.record_waring_dialog_message_unread
-                    ),
+                    message = getString(R.string.record_waring_dialog_message_unread),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteReadRecordByType(
-                                type = typeOrPackageName, read = false
-                            )
+                            appViewModel.deleteReadRecordByType(type = typeOrPackageName,
+                                read = false)
                         } else {
-                            appViewModel.deleteReadRecordByPack(
-                                packageName = typeOrPackageName, read = false
-                            )
+                            appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
+                                read = false)
                         }
                         refreshData()
                     })
@@ -326,9 +343,7 @@ class RecordActivity : BaseActivity() {
             R.id.delete_mark -> {
                 warningDialog(this,
                     title = getString(R.string.record_warning_dialog_title),
-                    message = getString(
-                        R.string.record_waring_dialog_message_marked
-                    ),
+                    message = getString(R.string.record_waring_dialog_message_marked),
                     okClick = {
                         if (isType) {
                             appViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
@@ -341,9 +356,7 @@ class RecordActivity : BaseActivity() {
             R.id.delete_not_mark -> {
                 warningDialog(this,
                     title = getString(R.string.record_warning_dialog_title),
-                    message = getString(
-                        R.string.record_warning_dialog_message_unmarked
-                    ),
+                    message = getString(R.string.record_warning_dialog_message_unmarked),
                     okClick = {
                         if (isType) {
                             appViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
@@ -377,8 +390,7 @@ class RecordActivity : BaseActivity() {
                     contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
                         val list =
                             if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
-                                typeOrPackageName
-                            )
+                                typeOrPackageName)
                         list.forEach {
                             val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
                             FileOutputStream(parcel.fileDescriptor).use { output ->
@@ -400,8 +412,7 @@ class RecordActivity : BaseActivity() {
 
     private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
         val inputView = InputView(this)
-        customDialog(
-            this,
+        customDialog(this,
             title = getString(R.string.record_search_dialog_title),
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
@@ -421,8 +432,9 @@ class RecordActivity : BaseActivity() {
                     }
                 }
                 dialogInterface.dismiss()
-            }, cancelText = getString(R.string.dialog_cancel), cancelAble = false
-        ).show()
+            },
+            cancelText = getString(R.string.dialog_cancel),
+            cancelAble = false).show()
     }
 
     override fun onResume() {
@@ -430,25 +442,4 @@ class RecordActivity : BaseActivity() {
         refreshData()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (appViewModel.queryPattern.value.isNullOrEmpty()) {
-            super.onBackPressed()
-        } else {
-            binding.swipeRefreshLayout.isRefreshing = true
-            appViewModel.queryPattern.value = ""
-            lifecycleScope.launch {
-                appViewModel.getRecord(
-                    typeOrPackageName, isType, searchMode = Constant.RECORD_SEARCH_GLOBAL
-                ).collectLatest {
-                    recordAdapter.addOnPagesUpdatedListener {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            binding.swipeRefreshLayout.isRefreshing = false
-                        }, 800)
-                    }
-                    recordAdapter.submitData(it)
-                }
-            }
-        }
-    }
 }

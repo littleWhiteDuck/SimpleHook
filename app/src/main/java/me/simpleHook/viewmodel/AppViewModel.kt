@@ -33,16 +33,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun loadData(sortSelected: Int, reverseChecked: Boolean) =
         withContext(Dispatchers.Default) {
-            val userAppList = getSortAppList(
-                getAppList(AppUtils.getInstalledUserApp(getApplication())),
-                sortSelected,
-                reverseChecked
-            )
-            val systemAppList = getSortAppList(
-                getAppList(AppUtils.getInstalledSystemApp(getApplication())),
-                sortSelected,
-                reverseChecked
-            )
+            val userAppList =
+                getSortAppList(getAppList(AppUtils.getInstalledUserApp(getApplication())),
+                    sortSelected,
+                    reverseChecked)
+            val systemAppList =
+                getSortAppList(getAppList(AppUtils.getInstalledSystemApp(getApplication())),
+                    sortSelected,
+                    reverseChecked)
             _userApps.postValue(userAppList)
             _systemApps.postValue(systemAppList)
         }
@@ -55,7 +53,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 APP_LIST_BY_NAME -> appItem.name
                 APP_LIST_BY_PACKAGE_NAME -> appItem.packageName
                 APP_LIST_BY_INSTALLED_TIME -> appItem.installedTime
-                else -> appItem.targetApi
+                else -> appItem.targetApi.toString()
             }
         }
         return if (reverseChecked) tempList.reversed() else tempList
@@ -66,16 +64,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         for (i in packageInfoList.indices) {
             if (blackList.contains(packageInfoList[i].packageName)) continue
             packageInfoList[i].apply {
-                appList.add(
-                    AppItem(
-                        AppUtils.getAppName(getApplication(), this),
-                        packageName,
-                        AppUtils.getAppVersionName(getApplication(), packageName),
-                        AppUtils.getAppVersionCode(getApplication(), packageName),
-                        TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                        AppUtils.getTargetSdkVersion(getApplication(), packageName)
-                    )
-                )
+                appList.add(AppItem(AppUtils.getAppName(getApplication(), this),
+                    packageName,
+                    AppUtils.getAppVersionName(getApplication(), packageName),
+                    AppUtils.getAppVersionCode(getApplication(), packageName),
+                    TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+                    AppUtils.getTargetSdkVersion(getApplication(), packageName)))
             }
         }
         return appList

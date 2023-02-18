@@ -19,6 +19,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 
+@Suppress("unused")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
     private val _filterAppConfig = MutableLiveData<List<AppConfig>>()
@@ -53,16 +54,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     // Record
     val queryPattern = MutableLiveData("")
-    private val pagingConfig = PagingConfig(
-        pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200
-    )
+    private val pagingConfig =
+        PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
 
     fun getRecord(
         typeOrPack: String, isType: Boolean, searchMode: Int
     ): Flow<PagingData<PrintLog>> {
-        return Pager(
-            config = pagingConfig
-        ) {
+        return Pager(config = pagingConfig) {
             if (isType) {
                 appRepository.getPrintLogDao()
                     .getRecordByType("%$typeOrPack%", "%${queryPattern.value}%")
@@ -75,12 +73,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 Constant.RECORD_SEARCH_RESULT -> {
                     pagingData.filter {
                         val logBean = Json.decodeFromString<LogBean>(it.log)
-                        val list: List<String> = logBean.other as List<String>
+                        val list: List<String> = logBean.other
                         var result = ""
                         list.forEach { item ->
                             if (item.startsWith("加密结果") || item.startsWith("解密结果") || item.startsWith(
-                                    "Encrypt result"
-                                ) || item.startsWith("Decrypt result")
+                                    "Encrypt result") || item.startsWith("Decrypt result")
                             ) {
                                 result = item
                                 return@forEach
@@ -92,7 +89,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 Constant.RECORD_SEARCH_RAW_DATA -> {
                     pagingData.filter {
                         val logBean = Json.decodeFromString<LogBean>(it.log)
-                        val list: List<String> = logBean.other as List<String>
+                        val list: List<String> = logBean.other
                         var rawData = ""
                         list.forEach { item ->
                             if (item.startsWith("原始数据") || item.startsWith("Raw Data")) {

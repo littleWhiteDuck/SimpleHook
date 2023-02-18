@@ -290,9 +290,9 @@
     <string name="config_dialog_return_class_name_helper">例如：me.simpleHook.bean.ConfigBean</string>
     <string name="config_dialog_return_class_name_tip">返回值的類名</string>
     <string-array name="main_settings_left_config_select_item">
-        <item>校驗用戶應用(慢)</item>
-        <item>校驗系統應用(慢)</item>
-        <item>校驗全部應用(超慢)</item>
+        <item>校驗用戶應用</item>
+        <item>校驗系統應用</item>
+        <item>校驗全部應用</item>
     </string-array>
     <string name="copied">已復制！</string>
     <string name="record_item_swipe_delete_tip">右滑刪除</string>

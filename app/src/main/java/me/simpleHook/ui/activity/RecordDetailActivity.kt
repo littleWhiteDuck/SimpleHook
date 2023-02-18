@@ -56,9 +56,8 @@ class RecordDetailActivity : BaseActivity() {
         }
         val recordPackageName = intent.getStringExtra("record_package_name")!!
         supportActionBar?.title =
-            if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                this, recordPackageName
-            )
+            if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(this,
+                recordPackageName)
         supportActionBar?.subtitle = recordPackageName
         initView()
     }
@@ -95,12 +94,11 @@ class RecordDetailActivity : BaseActivity() {
                     if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {
                         rawData = it.replaceFirst(Regex("""原始数据：|Raw data: """), "")
                     } else if (it.startsWith("加密结果：") || it.startsWith("解密结果：") || it.startsWith("Decrypt result: ") || it.startsWith(
-                            "Encrypt result: "
-                        )
+                            "Encrypt result: ")
                     ) {
-                        cryptResult = it.replaceFirst(
-                            Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """), ""
-                        )
+                        cryptResult =
+                            it.replaceFirst(Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """),
+                                "")
                         //返回值|参返|Param&Return Value|Return value
                     } else if (it.startsWith("返回值：") || it.startsWith("Return value: ")) {
                         returnValue = it.replaceFirst(Regex("""返回值：|Return value: """), "")
@@ -108,10 +106,11 @@ class RecordDetailActivity : BaseActivity() {
                     sb.append(it).append("\n")
                 }
                 val nLine: Int = -1
-                currentText = StringBuilder().lineFeesItem(
-                    logList, "${foreStr + logBean.type}\n", nLine = nLine, nLineString = ""
-                ).replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
-                    .replace("Method : ", "")
+                currentText = StringBuilder().lineFeesItem(logList,
+                    "${foreStr + logBean.type}\n",
+                    nLine = nLine,
+                    nLineString = "").replace("类：", "  ").replace("方法：", "")
+                    .replace("Class : ", "  ").replace("Method : ", "")
             }
             binding.record.text = currentText
             binding.progressBar.isVisible = false
@@ -150,13 +149,11 @@ class RecordDetailActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> onBackPressed()
+            android.R.id.home -> onBackPressedDispatcher.onBackPressed()
             R.id.help -> {
-                warningDialog(
-                    this,
+                warningDialog(this,
                     title = "可能出现的问题",
-                    message = "加解密过程中byte[]与string转换可能会采用不同的编码，会使获取到的数据乱码，造成结果的不准确"
-                )
+                    message = "加解密过程中byte[]与string转换可能会采用不同的编码，会使获取到的数据乱码，造成结果的不准确")
             }
             R.id.copy_text -> {
                 ToolUtils.toClip(this, currentText)
@@ -199,9 +196,10 @@ class RecordDetailActivity : BaseActivity() {
         while (matcher.find()) {
             val start: Int = matcher.start()
             val end: Int = matcher.end()
-            spannableString.setSpan(
-                ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            spannableString.setSpan(ForegroundColorSpan(color),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         return spannableString
     }

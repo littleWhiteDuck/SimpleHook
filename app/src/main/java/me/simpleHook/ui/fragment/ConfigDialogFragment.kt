@@ -371,7 +371,7 @@ class ConfigDialogFragment(
     override fun onResume() {
         val params: ViewGroup.LayoutParams = dialog!!.window!!.attributes
         params.width = WindowManager.LayoutParams.MATCH_PARENT
-        params.height = (PhoneUtils.getAppHeight(requireContext()) * 0.6).toInt()
+        params.height = (PhoneUtils.getAppHeight(requireActivity()) * 0.6).toInt()
         dialog!!.window!!.attributes = params as WindowManager.LayoutParams
         super.onResume()
     }

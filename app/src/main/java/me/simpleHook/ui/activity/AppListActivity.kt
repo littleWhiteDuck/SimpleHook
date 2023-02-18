@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.webkit.WebView
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -140,18 +139,16 @@ class AppListActivity : BaseActivity() {
 
     private fun filterUserList() {
         val filter1 = mViewModel.userApps.value?.filter {
-            !blackList.contains(it.packageName) && (it.packageName.contains(
-                currentQueryText, true
-            ) || it.name.contains(currentQueryText, true))
+            !blackList.contains(it.packageName) && (it.packageName.contains(currentQueryText,
+                true) || it.name.contains(currentQueryText, true))
         }
         userAdapter.submitList(filter1)
     }
 
     private fun filterSystemList() {
         val filter2 = mViewModel.systemApps.value?.filter {
-            it.packageName.contains(currentQueryText, true) || it.name.contains(
-                currentQueryText, true
-            )
+            it.packageName.contains(currentQueryText, true) || it.name.contains(currentQueryText,
+                true)
         }
         systemAdapter.submitList(filter2)
     }
@@ -209,9 +206,7 @@ class AppListActivity : BaseActivity() {
         reverseSort.isChecked = currentSortReverse
         customDialog(this,
             title = getString(R.string.app_list_sort_dialog_title),
-            okText = getString(
-                R.string.app_list_sort_dialog_confirm
-            ),
+            okText = getString(R.string.app_list_sort_dialog_confirm),
             okClick = {
                 sp.appListSortSelected = currentSortSelected
                 sp.appListReverse = currentSortReverse
@@ -224,7 +219,6 @@ class AppListActivity : BaseActivity() {
                 currentSortSelected = sp.appListSortSelected
             },
             contentView = contentView,
-            cancelAble = false
-        ).show()
+            cancelAble = false).show()
     }
 }

@@ -1,5 +1,6 @@
 package me.simpleHook.compat
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import me.simpleHook.App
@@ -11,9 +12,7 @@ class PrefConfigHelper : ConfigSystem {
     val customPref by lazy { getHookConfigPref(App) }
 
     private val exPref by lazy {
-        getHookConfigPref(
-            App, Constant.EXTENSION_CONFIG_PREF
-        )
+        getHookConfigPref(App, Constant.EXTENSION_CONFIG_PREF)
     }
 
     override fun isEnableSave(packageName: String): Boolean {
@@ -40,11 +39,12 @@ class PrefConfigHelper : ConfigSystem {
         return exPref?.edit()?.remove(packageName)?.commit() ?: false
     }
 
+    @SuppressLint("WorldReadableFiles")
     private fun getHookConfigPref(
         context: Context, name: String = Constant.CUSTOM_CONFIG_PREF
     ): SharedPreferences? {
         return try {
-            context.getSharedPreferences(name, Context.MODE_WORLD_READABLE)
+            @Suppress("DEPRECATION") context.getSharedPreferences(name, Context.MODE_WORLD_READABLE)
         } catch (e: SecurityException) {
             null
         }

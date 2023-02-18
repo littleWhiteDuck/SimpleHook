@@ -12,6 +12,7 @@ import android.os.Build
 import me.simpleHook.GlobalServices
 
 
+@Suppress("DEPRECATION")
 object AppUtils {
     fun isAppInstalled(context: Context, packageName: String): Boolean {
         return try {
@@ -27,11 +28,11 @@ object AppUtils {
         }.getOrDefault(false)
     }
 
+    @Suppress("unused")
     fun appInfo(context: Context, packageName: String): ApplicationInfo? {
         return try {
-            context.packageManager.getPackageInfo(
-                packageName, PackageManager.GET_CONFIGURATIONS
-            ).applicationInfo
+            context.packageManager.getPackageInfo(packageName,
+                PackageManager.GET_CONFIGURATIONS).applicationInfo
         } catch (_: Throwable) {
             null
         }
@@ -94,38 +95,16 @@ object AppUtils {
     }
 
 
-    fun getAppIcon(context: Context, packageInfo: PackageInfo): Drawable {
-        return packageInfo.applicationInfo.loadIcon(context.packageManager)
-    }
-
-    /**
-     * 仅用于显示APP列表
-     */
-    fun getTargetSdkVersion(context: Context, packageName: String): String {
-        return try {
-            "Target Api ${
-                context.packageManager.getPackageInfo(
-                    packageName, 0
-                ).applicationInfo.targetSdkVersion
-            }"
-        } catch (e: Exception) {
-            "Target Api -1"
-        }
-    }
-
-    fun getTargetSdkVer(context: Context, packageName: String): Int? {
-        return try {
+    fun getTargetSdkVersion(context: Context, packageName: String): Int {
+        return runCatching {
             context.packageManager.getPackageInfo(packageName, 0).applicationInfo.targetSdkVersion
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
-        }
+        }.getOrDefault(-1)
     }
 
     fun getAppName(context: Context, packageName: String): String {
         return try {
-            context.packageManager.getPackageInfo(packageName, 0).applicationInfo.loadLabel(
-                context.packageManager
-            ).toString()
+            context.packageManager.getPackageInfo(packageName,
+                0).applicationInfo.loadLabel(context.packageManager).toString()
         } catch (e: java.lang.Exception) {
             "未获取到"
         }
@@ -183,7 +162,7 @@ object AppUtils {
         val intent = Intent()
         intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
         intent.data = Uri.parse("package:$packageName")
-        context.startActivity(intent);
+        context.startActivity(intent)
     }
 
 }

@@ -114,12 +114,12 @@
     </string-array>
 
     <string-array name="main_settings_left_config_select_item">
-        <item>校验用户应用(慢)</item>
-        <item>校验系统应用(慢)</item>
-        <item>校验全部应用(超慢)</item>
+        <item>校验用户应用</item>
+        <item>校验系统应用</item>
+        <item>校验全部应用</item>
     </string-array>
 
-    <string-array name="main_settings_left_config_select_values">
+    <string-array name="main_settings_left_config_select_values" translatable="false">
         <item>user</item>
         <item>system</item>
         <item>all</item>
@@ -308,7 +308,6 @@
     <string name="extension_dex_position">dex放在</string>
 
     <string name="record_introduction_ok">去看看</string>
-
     <string name="float_window_title">记录</string>
     <string name="close_float_window" translatable="false">close window</string>
     <string name="minify_float_window" translatable="false">minify float window</string>
@@ -316,10 +315,7 @@
     <string name="float_window_drag_text">拖拽</string>
     <string name="float_window_require_permission">请授予悬浮窗权限</string>
     <string name="float_window_require_permission_failed">获取悬浮窗权限失败</string>
-
-
     <string name="main_delete_left_config_loading_tip">正在校验中</string>
-
     <string name="copied">已复制！</string>
     <string name="record_item_swipe_delete_tip">右滑删除</string>
     <string name="extension_item_desc_application_name">记录Application(入口)名</string>

@@ -31,6 +31,7 @@ object WebHook : BaseHook() {
                 val list = mutableListOf<String>()
                 list.add("Url: $url")
                 if (param.args.size == 2) {
+                    @Suppress("UNCHECKED_CAST")
                     val map = param.args[1] as Map<String, String>
                     val headers = Json.encodeToString(map)
                     list.add("Header: $headers")

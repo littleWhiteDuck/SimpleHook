@@ -14,5 +14,5 @@ data class AppItem(
     val versionName: String,
     val versionCode: String,
     val installedTime: String,
-    val targetApi: String
+    val targetApi: Int
 )

@@ -11,8 +11,8 @@ import androidx.documentfile.provider.DocumentFile
 
 class OpenDocumentTreeContract : ActivityResultContract<Uri, Uri>() {
 
-    override fun createIntent(context: Context, uri: Uri): Intent {
-        val documentFile = DocumentFile.fromTreeUri(context, uri)
+    override fun createIntent(context: Context, input: Uri): Intent {
+        val documentFile = DocumentFile.fromTreeUri(context, input)
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         intent.flags =
             (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)

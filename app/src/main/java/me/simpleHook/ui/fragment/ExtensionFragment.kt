@@ -10,10 +10,12 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -70,11 +72,8 @@ class ExtensionFragment : BaseFragment() {
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
                 if (currentModel == -1) {
-                    appViewModel.insertAssistConfigs(
-                        AssistConfig(
-                            appName = appName, packageName = packageName
-                        )
-                    )
+                    appViewModel.insertAssistConfigs(AssistConfig(appName = appName,
+                        packageName = packageName))
                 } else {
                     val modelConfig = modelList[currentModel]
                     modelConfig.appName = appName
@@ -92,7 +91,6 @@ class ExtensionFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mContext = requireActivity()
     }
 
@@ -207,11 +205,9 @@ class ExtensionFragment : BaseFragment() {
                 appViewModel.deleteAssistConfigs(assistConfig)
                 configSystem.deleteExConfig(assistConfig.packageName)
             }
-            Snackbar.make(
-                binding.addConfig,
+            Snackbar.make(binding.addConfig,
                 getString(R.string.main_extension_delete_config_tip),
-                Snackbar.LENGTH_LONG
-            ).apply {
+                Snackbar.LENGTH_LONG).apply {
                 anchorView = bottomNavigationView
             }.addCallback(object : Snackbar.Callback() {
                 override fun onShown(sb: Snackbar?) {
@@ -262,15 +258,14 @@ class ExtensionFragment : BaseFragment() {
     }
 
     private fun createModel(
-        editMode: Boolean = false, assistConfig: AssistConfig = AssistConfig(
-            appName = "", packageName = MODEL_EXTENSION_CONFIG
-        )
+        editMode: Boolean = false,
+        assistConfig: AssistConfig = AssistConfig(appName = "",
+            packageName = MODEL_EXTENSION_CONFIG)
     ) {
         val editText = AppCompatEditText(mContext)
         editText.hint = "给模板起个名字"
         if (editMode) editText.setText(assistConfig.appName)
-        customDialog(
-            mContext,
+        customDialog(mContext,
             title = if (editMode) "修改模板" else "创建模板",
             contentView = editText,
             okText = if (editMode) "去修改" else "去创建",
@@ -283,8 +278,7 @@ class ExtensionFragment : BaseFragment() {
                     "不能为空或名字太长".toast(mContext)
                 }
             },
-            cancelText = "取消"
-        ).show()
+            cancelText = "取消").show()
     }
 
     private fun showModelDialog() {
@@ -308,8 +302,7 @@ class ExtensionFragment : BaseFragment() {
             modelList.removeAt(position)
             true
         }
-        customDialog(
-            mContext,
+        customDialog(mContext,
             title = MODEL_EXTENSION_CONFIG,
             contentView = listView,
             okText = "确定",
@@ -319,8 +312,7 @@ class ExtensionFragment : BaseFragment() {
                 appViewModel.deleteAssistConfigs(*modelList.toTypedArray())
                 dialogInterface.dismiss()
             },
-            cancelAble = false
-        ).show()
+            cancelAble = false).show()
     }
 
     private fun showSelectModelDialog() {
@@ -348,40 +340,45 @@ class ExtensionFragment : BaseFragment() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (menu.findItem(R.id.app_bar_search) == null) {
-            inflater.inflate(R.menu.menu_assist_fragment, menu)
-            if (LanguageUtils.isNotChinese() || sp.language == Locale.ENGLISH.language) {
-                menu.removeItem(R.id.create_model)
-                menu.removeItem(R.id.show_model)
-                menu.removeItem(R.id.about_model)
-            }
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.startFloat -> {
-                (requireActivity() as MainActivity).initPrintFloat()
+    private fun initMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_assist_fragment, menu)
+                if (LanguageUtils.isNotChinese() || sp.language == Locale.ENGLISH.language) {
+                    menu.removeItem(R.id.create_model)
+                    menu.removeItem(R.id.show_model)
+                    menu.removeItem(R.id.about_model)
+                }
             }
-            R.id.create_model -> createModel()
-            R.id.show_model -> showModelDialog()
-            R.id.about_model -> showAboutModel()
-        }
-        return true
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.startFloat -> {
+                        (requireActivity() as MainActivity).initPrintFloat()
+                    }
+                    R.id.create_model -> createModel()
+                    R.id.show_model -> showModelDialog()
+                    R.id.about_model -> showAboutModel()
+                }
+                return true
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun showAboutModel() {
-        warningDialog(
-            mContext, title = "关于模板", message = """
+        warningDialog(mContext, title = "关于模板", message = """
             创建模板后，在创建配置的时候可以选择模板，所创建的配置中的选中状态和模板一样，简化操作
             查看模板：
                 ->点击模板（进入编辑模式）
                 ->长按模板（删除模板）
             长按加号按钮：不使用模板选择App
-        """.trimIndent()
-        )
+        """.trimIndent())
     }
 
 
