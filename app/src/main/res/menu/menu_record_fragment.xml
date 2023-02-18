@@ -7,9 +7,7 @@
         android:icon="@drawable/ic_start_float_24"
         android:title="@string/extension_start_float_window"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/toShow"
-        android:title="@string/record_menu_show_method">
+    <item android:title="@string/record_menu_show_method">
         <menu>
             <group android:checkableBehavior="single">
                 <item

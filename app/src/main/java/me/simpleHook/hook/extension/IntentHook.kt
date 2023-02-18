@@ -81,7 +81,7 @@ object IntentHook : BaseHook() {
             })
     }
 
-
+    @Suppress("DEPRECATION")
     fun saveLog(intent: Intent, packName: String) {
         val className = intent.component?.className ?: ""
         val packageName = intent.component?.packageName ?: ""
@@ -102,9 +102,7 @@ object IntentHook : BaseHook() {
             extraList.add(ExtraBean(type, it, extras.get(it).toString()))
         }
         val configBean = IntentBean(packageName, className, action, data, extraList)
-        val logBean = LogBean(
-            "intent", listOf(Json.encodeToString(configBean)), packName
-        )
+        val logBean = LogBean("intent", listOf(Json.encodeToString(configBean)), packName)
         LogUtil.outLogMsg(logBean)
     }
 }

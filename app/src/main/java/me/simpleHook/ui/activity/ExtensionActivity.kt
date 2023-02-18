@@ -14,6 +14,7 @@ import me.simpleHook.R
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.util.getCompatParcelable
 
 class ExtensionActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
@@ -29,7 +30,7 @@ class ExtensionActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle = intent.getBundleExtra(KEY_CONFIG)
-        extensionConfig = bundle!!.getParcelable(KEY_CONFIG)!!
+        extensionConfig = bundle!!.getCompatParcelable(KEY_CONFIG, AssistConfig::class.java)!!
         initView()
     }
 

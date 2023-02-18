@@ -51,49 +51,6 @@ import java.lang.reflect.Field
 import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
 
-private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
-private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
-private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
-private const val pattern_basic_array = """\[([BSIJFDZC])"""
-private const val pattern_object_array = """\[L(.*)"""
-private const val CLASS_NAME_STATE = 1
-private const val METHOD_NAME_STATE = 1 shl 1
-private const val PARAMS_STATE = 1 shl 2
-private const val RESULT_VALUE_STATE = 1 shl 3
-private const val FIELD_NAME_STATE = 1 shl 4
-private const val FIELD_CLASS_NAME_STATE = 1 shl 5
-private const val HOOK_POINT_STATE = 1 shl 6
-private const val RETURN_CLASS_NAME = 1 shl 7
-private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
-private const val HOOK_RETURN2_CHECK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
-private const val HOOK_PARAM_CHECK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-private const val HOOK_STATIC_FIELD_CHECK =
-    FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
-private const val HOOK_RECORD_STATIC_FIELD_CHECK = FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
-private const val HOOK_FIELD_CHECK =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
-private const val HOOK_RECORD_FIELD_CHECK =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
-private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RETURN_PARAMS =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-private const val SHOW_RETURN2 =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
-private const val SHOW_STATIC_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-
-private const val SHOW_RECORD_STATIC_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RECORD_INSTANCE_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
 
 class ConfigActivity : BaseActivity() {
@@ -155,7 +112,7 @@ class ConfigActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val bundle = intent.getBundleExtra("bundle")
-        appConfig = bundle?.getParcelable("appConfig")
+        appConfig = bundle?.getCompatParcelable("appConfig", AppConfig::class.java)
         tempPackageName = appConfig?.packageName ?: ""
         initView()
     }
@@ -945,6 +902,56 @@ class ConfigActivity : BaseActivity() {
         } else {
             Constant.HOOK_RETURN
         }
+    }
+
+    companion object {
+        private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
+        private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
+        private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
+        private const val pattern_basic_array = """\[([BSIJFDZC])"""
+        private const val pattern_object_array = """\[L(.*)"""
+        private const val CLASS_NAME_STATE = 1
+        private const val METHOD_NAME_STATE = 1 shl 1
+        private const val PARAMS_STATE = 1 shl 2
+        private const val RESULT_VALUE_STATE = 1 shl 3
+        private const val FIELD_NAME_STATE = 1 shl 4
+        private const val FIELD_CLASS_NAME_STATE = 1 shl 5
+        private const val HOOK_POINT_STATE = 1 shl 6
+        private const val RETURN_CLASS_NAME = 1 shl 7
+        private const val HOOK_RETURN_CHECK =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
+        private const val HOOK_RETURN2_CHECK =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
+        private const val HOOK_PARAM_CHECK =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+        private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
+        private const val HOOK_STATIC_FIELD_CHECK =
+            FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
+        private const val HOOK_RECORD_STATIC_FIELD_CHECK =
+            FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
+        private const val HOOK_FIELD_CHECK =
+            CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
+        private const val HOOK_RECORD_FIELD_CHECK =
+            CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
+        private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
+        private const val RECORD_PARAMS_CHECK =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+        private const val SHOW_RETURN_PARAMS =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
+        private const val SHOW_RETURN2 =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
+        private const val SHOW_STATIC_FIELD =
+            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+        private const val SHOW_FIELD =
+            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
+        private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
+            CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
+        private const val SHOW_RECORD_STATIC_FIELD =
+            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+        private const val SHOW_RECORD_INSTANCE_FIELD =
+            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+
     }
 
 }

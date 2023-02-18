@@ -16,7 +16,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -87,8 +86,11 @@ class RecordActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
-        val bundle = intent.getBundleExtra("bundle")
-        val recordSummary: RecordSummary = bundle!!.getParcelable("recordSummary")!!
+        val bundle =
+            intent.getBundleExtra("bundle") ?: throw NullPointerException("Bundle  is null")
+        val recordSummary: RecordSummary =
+            bundle.getCompatParcelable("recordSummary", RecordSummary::class.java)
+                ?: throw NullPointerException("Record summary is null")
         isType = recordSummary.type.isNotEmpty()
         typeOrPackageName = if (isType) recordSummary.type else recordSummary.packageName
         if (isType) {

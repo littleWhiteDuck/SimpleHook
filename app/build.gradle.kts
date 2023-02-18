@@ -1,4 +1,6 @@
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -53,9 +55,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signConfig
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro")
         }
         getByName("debug") {
             signingConfig = signConfig
@@ -72,7 +73,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    buildToolsVersion = "31.0.0"
+    buildToolsVersion = "33.0.1"
     namespace = "me.simpleHook"
     productFlavors {
         create("root") {
@@ -98,9 +99,17 @@ android {
         }
     }
 
-    packagingOptions.resources.excludes += setOf(
-        "META-INF/**", "okhttp3/**", "kotlin/**", "org/**", "**.properties", "**.bin", "**.json"
-    )
+    packagingOptions.resources.excludes += setOf("META-INF/**",
+        "okhttp3/**",
+        "kotlin/**",
+        "org/**",
+        "**.properties",
+        "**.bin",
+        "**.json")
+
+    lint {
+        disable += "AppCompatResource"
+    }
 
     dependenciesInfo.includeInApk = false
 
@@ -114,6 +123,31 @@ android {
             }
             val tempVerName = verName + if (beta) "_beta" else ""
             it.outputFileName.set("$name-${variant.flavorName}-${tempVerName}-${verCode}.apk")
+        }
+    }
+
+    tasks.matching {
+        it.name.contains("optimize(.*)ReleaseRes".toRegex())
+    }.configureEach {
+        notCompatibleWithConfigurationCache("optimizeReleaseRes tasks haven't support CC.")
+        val flavor = name.removeSurrounding("optimize", "ReleaseResources").toLowerCaseAsciiOnly()
+        doLast {
+            val aapt2 = File(androidComponents.sdkComponents.sdkDirectory.get().asFile,
+                "build-tools/${project.android.buildToolsVersion}/aapt2")
+            val zip = Paths.get(buildDir.path,
+                "intermediates",
+                "optimized_processed_res",
+                "${flavor}Release",
+                "resources-${flavor}-release-optimize.ap_")
+            val optimized = File("${zip}.opt")
+            val cmd = exec {
+                commandLine(aapt2, "optimize", "--collapse-resource-names", "-o", optimized, zip)
+                isIgnoreExitValue = false
+            }
+            if (cmd.exitValue == 0) {
+                delete(zip)
+                optimized.renameTo(zip.toFile())
+            }
         }
     }
 

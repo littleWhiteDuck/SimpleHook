@@ -5,6 +5,8 @@ import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
+import android.os.Bundle
+import android.os.Parcelable
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
@@ -12,8 +14,6 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
@@ -67,21 +67,23 @@ fun TextView.marquee() {
 }
 
 val Float.dp
-    get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this, Resources.getSystem().displayMetrics
-    )
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        this,
+        Resources.getSystem().displayMetrics)
 
 val Int.dp
     get() = this.toFloat().dp.toInt()
 
 val Float.px
-    get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_PX, this, Resources.getSystem().displayMetrics
-    )
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX,
+        this,
+        Resources.getSystem().displayMetrics)
 
+@Suppress("unused")
 val Int.px
     get() = this.toFloat().px
 
+@Suppress("unused")
 fun px2dp(pxValue: Int): Int {
     val scale = Resources.getSystem().displayMetrics.density
     return (pxValue / scale + 0.5f).toInt()
@@ -89,9 +91,9 @@ fun px2dp(pxValue: Int): Int {
 
 
 val Float.sp
-    get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_SP, this, Resources.getSystem().displayMetrics
-    )
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+        this,
+        Resources.getSystem().displayMetrics)
 
 
 fun ViewPager2.setCurrentItem(
@@ -175,6 +177,11 @@ fun ViewGroup.addViews(vararg views: View): ViewGroup {
 }
 
 
-fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.updateList(list: List<T>?) {
-    this.submitList(if (list == this.currentList) list.toList() else list)
+@Suppress("DEPRECATION")
+fun <T : Parcelable?> Bundle.getCompatParcelable(key: String, clazz: Class<T>): T? {
+    return if (OSUtils.atLeastT()) {
+        getParcelable(key, clazz)
+    } else {
+        getParcelable(key)
+    }
 }

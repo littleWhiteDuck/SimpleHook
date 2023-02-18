@@ -9,9 +9,7 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
-    <item
-        android:id="@+id/copy"
-        android:title="@string/record_detail_menu_copy">
+    <item android:title="@string/record_detail_menu_copy">
         <menu>
             <item
                 android:icon="@drawable/ic_copy"
