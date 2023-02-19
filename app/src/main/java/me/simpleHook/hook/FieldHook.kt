@@ -24,7 +24,11 @@ object FieldHook {
         configBean.apply {
             if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
                 // 直接hook
-                hookStaticField(fieldClassName, resultValues, fieldName)
+                if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
+                    recordStaticField(fieldClassName, fieldName)
+                } else {
+                    hookStaticField(fieldClassName, resultValues, fieldName)
+                }
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {

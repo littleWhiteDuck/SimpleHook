@@ -341,7 +341,7 @@ class ConfigActivity : BaseActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         modifyConfig =
-            if (isSmali2Config) false else configBean.className.isNotEmpty() || (configBean.className.isEmpty() && configBean.mode == Constant.HOOK_STATIC_FIELD)
+            if (isSmali2Config) false else configBean.className.isNotEmpty() || (configBean.className.isEmpty() && configBean.mode == Constant.HOOK_STATIC_FIELD || configBean.mode == Constant.HOOK_RECORD_STATIC_FIELD)
         val okText = if (modifyConfig) getString(R.string.config_dialog_alter_this) else getString(
             R.string.config_dialog_add_a_new
         )
