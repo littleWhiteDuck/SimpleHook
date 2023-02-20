@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation.findNavController
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -89,6 +90,19 @@ class FileMonitorFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        val seekBarPreference = SeekBarPreference(requireContext()).apply {
+            isPersistent = false
+            title = getString(R.string.extension_file_set_cache_size)
+            summary = getString(R.string.extension_file_summary_set_cache_size)
+            isIconSpaceReserved = false
+            max = 512
+            value = tempConfig.cacheSize
+            showSeekBarValue = true
+            setOnPreferenceChangeListener { _, newValue ->
+                tempConfig.cacheSize = newValue as Int
+                true
+            }
+        }
 
         val preferenceCategory = PreferenceCategory(requireContext()).apply {
             title = getString(R.string.extension_file_operation)
@@ -96,7 +110,12 @@ class FileMonitorFragment : PreferenceFragmentCompat() {
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.addPreferences(createFile, deleteFile, inputFile, outputFile, assetsFile)
+        preferenceCategory.addPreferences(createFile,
+            deleteFile,
+            inputFile,
+            outputFile,
+            assetsFile,
+            seekBarPreference)
         setPreferenceScreen(preferenceScreen)
     }
 

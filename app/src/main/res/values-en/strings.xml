@@ -398,4 +398,6 @@
     <string name="extension_file_read_file">Monitor: read file</string>
     <string name="extension_file_read_assets_file">Monitor: read Assets file</string>
     <string name="extension_file_operation">File operation</string>
+    <string name="extension_file_set_cache_size">Set cache information size</string>
+    <string name="extension_file_summary_set_cache_size">Read or write the content of the file, SimpleHook will cache part of the content for show</string>
 </resources>

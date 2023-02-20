@@ -25,6 +25,8 @@ object RecordType {
         type.contains("变量") -> "变量"
         type.contains("field") -> "Field"
         type == "Signature" -> "Sign"
+        type.contains("文件") -> "文件"
+        type.contains("file") -> "File"
         else -> type
     }
 

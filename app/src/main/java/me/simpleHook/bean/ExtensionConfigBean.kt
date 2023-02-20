@@ -65,5 +65,6 @@ data class FileMonitorConfig(
     var deleteFile: Boolean = false,
     var inputFile: Boolean = false,
     var outputFile: Boolean = false,
-    var assetsFile: Boolean = false
+    var assetsFile: Boolean = false,
+    var cacheSize: Int = 0
 )

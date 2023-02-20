@@ -461,9 +461,11 @@
     <string name="extension_item_desc_file">记录文件创建、删除、输入等操作的调用堆栈</string>
     <string name="extension_file_create_file">监听创建文件</string>
     <string name="extension_file_delete_file">监听删除文件</string>
-    <string name="extension_file_write_file">监听写出文件</string>
+    <string name="extension_file_write_file">监听写入文件</string>
     <string name="extension_file_read_file">监听读取文件</string>
     <string name="extension_file_read_assets_file">监听读取Assets文件</string>
     <string name="extension_file_operation">文件操作</string>
+    <string name="extension_file_set_cache_size">设置缓存信息大小</string>
+    <string name="extension_file_summary_set_cache_size">读取文件或写入文件的内容，SimpleHook将缓存部分内容用以展示</string>
 
 </resources>
