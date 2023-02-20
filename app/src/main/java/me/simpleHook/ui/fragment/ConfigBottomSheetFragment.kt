@@ -18,6 +18,7 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.util.isContainState
 import me.simpleHook.util.toast
 import java.util.regex.Pattern
@@ -237,9 +238,11 @@ class ConfigBottomSheetFragment(
         paramStr = paramStr.replace("[]", "防止加逗号")
         paramStr = paramStr.replace("[", ",[")
         paramStr = paramStr.replace("防止加逗号", "[]")
+        paramStr = paramStr.replace("VERSION", "防止加逗号")
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
+        paramStr = paramStr.replace("防止加逗号", "VERSION")
         paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
         val paramArray = paramStr.split(Regex("[,;]"))
         val sb = StringBuilder()

@@ -839,9 +839,11 @@ class ConfigActivity : BaseActivity() {
         paramStr = paramStr.replace("[]", "防止加逗号")
         paramStr = paramStr.replace("[", ",[")
         paramStr = paramStr.replace("防止加逗号", "[]")
+        paramStr = paramStr.replace("VERSION", "防止加逗号")
         while (paramStr.contains(Regex(pattern_basic))) {
             paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
         }
+        paramStr = paramStr.replace("防止加逗号", "VERSION")
         paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
         val paramArray = paramStr.split(Regex("[,;]"))
         val sb = StringBuilder()
