@@ -409,7 +409,8 @@ class ManagerFragment : Fragment() {
                     getString(R.string.extension_item_desc_web_load_url)))
                 add(ExtensionItem(title = "Debug",
                     webDebug,
-                    "webDebug", getString(R.string.extension_item_desc_web_debug)))
+                    "webDebug",
+                    getString(R.string.extension_item_desc_web_debug)))
                 add(Title(getString(R.string.extension_item_title_others)))
                 add(ExtensionItem(getString(R.string.extension_item_title_signature),
                     signature,
@@ -435,7 +436,8 @@ class ManagerFragment : Fragment() {
                     application,
                     "application",
                     getString(R.string.extension_item_desc_application_name)))
-                add(ExtensionItem(title = "ADB", adb,
+                add(ExtensionItem(title = "ADB",
+                    adb,
                     "adb",
                     getString(R.string.extension_item_desc_adb)))
                 add(Title(getString(R.string.extension_item_title_network)))

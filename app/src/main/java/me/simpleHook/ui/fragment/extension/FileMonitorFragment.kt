@@ -28,8 +28,7 @@ import me.simpleHook.viewmodel.ExViewModel
 class FileMonitorFragment : PreferenceFragmentCompat() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
-        findNavController(requireActivity(),
-            R.id.nav_host_fragment)
+        findNavController(requireActivity(), R.id.nav_host_fragment)
     }
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
@@ -170,7 +169,7 @@ class FileMonitorFragment : PreferenceFragmentCompat() {
                 }
             }
         }
-        dispatcher.addCallback(onBackPressedCallback)
+        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
     private fun saveConfig(exit: Boolean) {
