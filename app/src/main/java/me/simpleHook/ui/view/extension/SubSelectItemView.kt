@@ -47,7 +47,7 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
             (switch.measuredHeightWithMargins - 5.dp).toExactlyMeasureSpec()
         )
         val leftWidth =
-            measuredWidth - switch.measuredWidthWithMargins - lineView.measuredWidth * 3 - paddingStart - paddingEnd
+            measuredWidth - switch.measuredWidthWithMargins - lineView.measuredWidth - paddingStart - paddingEnd
         containerView.measure(
             leftWidth.toExactlyMeasureSpec(), containerView.defaultHeightMeasureSpec(this)
         )
@@ -79,7 +79,7 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
         val attribute = intArrayOf(R.attr.selectableItemBackground)
         val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
         background = typedArray.getDrawable(0)
-        setPadding(16.dp, 5.dp, 0, 5.dp)
+        setPadding(16.dp, 5.dp, 5.dp, 5.dp)
     }
 
     val title = AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_item)).apply {
@@ -100,8 +100,9 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        title.autoMeasure()
-        desc.autoMeasure()
+        val leftWidth = measuredWidth - paddingStart - paddingEnd
+        title.measure(leftWidth.toExactlyMeasureSpec(), title.defaultHeightMeasureSpec(this))
+        desc.measure(leftWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
         val height =
             title.measuredHeight + desc.measuredHeightWithMargins + paddingTop + paddingBottom
         setMeasuredDimension(measuredWidth, height)

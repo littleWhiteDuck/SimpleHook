@@ -14,6 +14,9 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
+import androidx.preference.DialogPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceGroup
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
@@ -183,5 +186,11 @@ fun <T : Parcelable?> Bundle.getCompatParcelable(key: String, clazz: Class<T>): 
         getParcelable(key, clazz)
     } else {
         getParcelable(key)
+    }
+}
+
+fun PreferenceGroup.addPreferences(vararg preferences: Preference) {
+    preferences.forEach {
+        addPreference(it)
     }
 }

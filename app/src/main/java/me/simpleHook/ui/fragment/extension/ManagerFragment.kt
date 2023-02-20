@@ -166,6 +166,10 @@ class ManagerFragment : Fragment() {
                 val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
                 navController.navigate(action)
             }
+            TAG_FILE_MONITOR -> {
+                val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
+                navController.navigate(R.id.action_managerFragment_to_fileMonitorFragment)
+            }
         }
     }
 
@@ -182,6 +186,9 @@ class ManagerFragment : Fragment() {
             }
             TAG_GUISE_SIGN -> {
                 configBean.guiseSign.enable = checked
+            }
+            TAG_FILE_MONITOR -> {
+                configBean.fileMonitor.enable = checked
             }
             else -> {
                 Class.forName(ExtensionConfigBean::class.java.name).apply {
@@ -402,8 +409,7 @@ class ManagerFragment : Fragment() {
                     getString(R.string.extension_item_desc_web_load_url)))
                 add(ExtensionItem(title = "Debug",
                     webDebug,
-                    "webDebug",
-                    getString(R.string.extension_item_desc_web_debug)))
+                    "webDebug", getString(R.string.extension_item_desc_web_debug)))
                 add(Title(getString(R.string.extension_item_title_others)))
                 add(ExtensionItem(getString(R.string.extension_item_title_signature),
                     signature,
@@ -413,20 +419,23 @@ class ManagerFragment : Fragment() {
                     guiseSign.enable,
                     TAG_GUISE_SIGN,
                     getString(R.string.extension_item_desc_guise_sign)))
-                add(ExtensionItem(getString(R.string.extension_item_title_intent),
-                    intent,
-                    "intent",
-                    getString(R.string.extension_item_desc_intent)))
                 add(ExtensionSubItem(title = getString(R.string.extension_item_title_filter_clipboard),
                     filterClipboard.enable,
                     TAG_FILTER_CLIPBOARD,
                     getString(R.string.extension_item_desc_filter_clipboard)))
+                add(ExtensionSubItem(getString(R.string.extension_item_title_file),
+                    fileMonitor.enable,
+                    TAG_FILE_MONITOR,
+                    getString(R.string.extension_item_desc_file)))
+                add(ExtensionItem(getString(R.string.extension_item_title_intent),
+                    intent,
+                    "intent",
+                    getString(R.string.extension_item_desc_intent)))
                 add(ExtensionItem(title = "Application",
                     application,
                     "application",
                     getString(R.string.extension_item_desc_application_name)))
-                add(ExtensionItem(title = "ADB",
-                    adb,
+                add(ExtensionItem(title = "ADB", adb,
                     "adb",
                     getString(R.string.extension_item_desc_adb)))
                 add(Title(getString(R.string.extension_item_title_network)))
@@ -479,6 +488,7 @@ class ManagerFragment : Fragment() {
         private const val TAG_STOP_DIALOG = "stop_dialog"
         private const val TAG_FILTER_CLIPBOARD = "filter_clip_board"
         private const val TAG_GUISE_SIGN = "guise_sign"
+        private const val TAG_FILE_MONITOR = "file_monitor"
     }
 
 }

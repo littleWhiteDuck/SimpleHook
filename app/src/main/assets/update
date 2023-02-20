@@ -3,11 +3,13 @@ v1.3.3
     - 增加: 禁用 USB调式检测
     - 增加: 伪装签名 （系统API）
     - 增加: 阻止读取剪贴板、过滤写入剪贴板，支持记录读写剪贴板
+    - 增加: 监听文件操作
 
     - Fix: Unable to delete config  (root version)
     - Add: Disable USB debugging detection
     - Add: Masquerading Signature (System API)
     - Add: Prevent reading the clipboard, filter write to the clipboard, support record read and write clipboard
+    - Add: Monitor file operations
 v1.3.1
     - 修复: 若干bug，提高稳定性
     - 增加: 禁用加速度传感器、陀螺仪传感器，如X信会提示传感器不可用

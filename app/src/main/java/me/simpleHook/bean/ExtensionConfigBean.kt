@@ -24,7 +24,7 @@ data class ExtensionConfigBean(
     var webLoadUrl: Boolean = false,
     var webDebug: Boolean = false,
     val stopDialog: ExtensionItemConfig = ExtensionItemConfig(),
-    val filterClipboard: ExtensionItemConfig = ExtensionItemConfig(),
+    val filterClipboard: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
     var application: Boolean = false,
     var signature: Boolean = false,
     var contact: Boolean = false,
@@ -32,7 +32,8 @@ data class ExtensionConfigBean(
     var disSensorAG: Boolean = false,
     var disSensorSport: Boolean = false,
     var adb: Boolean = false,
-    var guiseSign: ExtensionItemConfig = ExtensionItemConfig()
+    var guiseSign: ExtensionItemConfig = ExtensionItemConfig(info = "[]"),
+    var fileMonitor: ExtensionItemConfig = ExtensionItemConfig(info = "{}")
 )
 
 @kotlinx.serialization.Serializable
@@ -55,4 +56,14 @@ data class ClipboardConfig(
     var read: Boolean = false,
     var write: Boolean = false,
     var filter: String = ""
+)
+
+@kotlinx.serialization.Serializable
+@Keep
+data class FileMonitorConfig(
+    var createFile: Boolean = false,
+    var deleteFile: Boolean = false,
+    var inputFile: Boolean = false,
+    var outputFile: Boolean = false,
+    var assetsFile: Boolean = false
 )

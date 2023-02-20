@@ -389,4 +389,13 @@
     <string name="extension_clip_summary_prevent_write_clip">Prevent by keywords, support regular expressions</string>
     <string name="extension_clip_title_add_keyword">Add keywords</string>
     <string name="extension_clipboard">Clipboard</string>
+    <string name="label_file">File</string>
+    <string name="extension_item_title_file">File</string>
+    <string name="extension_item_desc_file">Record the call stack of file creation, deletion, input, etc.</string>
+    <string name="extension_file_create_file">Monitor: create file</string>
+    <string name="extension_file_delete_file">Monitor: delete file</string>
+    <string name="extension_file_write_file">Monitor: write file</string>
+    <string name="extension_file_read_file">Monitor: read file</string>
+    <string name="extension_file_read_assets_file">Monitor: read Assets file</string>
+    <string name="extension_file_operation">File operation</string>
 </resources>

@@ -47,14 +47,12 @@ object MainHook {
                         Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> {
                             FieldHook.hookInstanceField(configBean)
                         }
-                        else -> specificHook(
-                            className = className,
+                        else -> specificHook(className = className,
                             methodName = methodName,
                             values = resultValues,
                             params = params,
                             mode = mode,
-                            returnClassName = returnClassName
-                        )
+                            returnClassName = returnClassName)
                     }
                 }
             }
@@ -65,13 +63,9 @@ object MainHook {
             } catch (e: java.lang.Exception) {
                 strConfig
             }
-            LogUtil.outLog(
-                arrayListOf(
-                    getTip("errorType") + getTip("unknownError"),
-                    "config: $configTemp",
-                    getTip("detailReason") + e.stackTraceToString()
-                ), "Error Unknown Error"
-            )
+            LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
+                "config: $configTemp",
+                getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
             "config error".log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         }
@@ -137,27 +131,19 @@ object MainHook {
                 }
             }
         } catch (e: NoSuchMethodError) {
-            noSuchMethod(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
+            noSuchMethod(className, "$methodName($params)", e.stackTraceToString())
             getTip("noSuchMethod").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: NoSuchMethodException) {
-            noSuchMethod(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
+            noSuchMethod(className, "$methodName($params)", e.stackTraceToString())
             getTip("noSuchMethod").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: XposedHelpers.ClassNotFoundError) {
-            notFoundClass(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
+            notFoundClass(className, "$methodName($params)", e.stackTraceToString())
             getTip("notFoundClass").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         } catch (e: ClassNotFoundException) {
-            notFoundClass(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
+            notFoundClass(className, "$methodName($params)", e.stackTraceToString())
             getTip("notFoundClass").log(hostPackageName)
             XposedBridge.log(e.stackTraceToString())
         }
@@ -230,13 +216,11 @@ object MainHook {
                 param.args[i] = targetValue
             }
         } catch (e: java.lang.Exception) {
-            val list = listOf(
-                getTip("errorType") + "HookParamsError",
+            val list = listOf(getTip("errorType") + "HookParamsError",
                 getTip("solution") + getTip("paramsNotEqualValues"),
                 getTip("filledClassName") + className,
                 getTip("filledMethodParams") + "$methodName($params)",
-                getTip("detailReason") + e.stackTraceToString()
-            )
+                getTip("detailReason") + e.stackTraceToString())
             LogUtil.outLog(list, "Error HookParamsError")
         }
     }
@@ -314,8 +298,7 @@ object MainHook {
             val configBean = Json.decodeFromString<ExtensionConfigBean>(strConfig)
             if (!configBean.all) return
             if (configBean.tip) "SimpleHook: StartHook".toast(appContext)
-            initExtensionHook(
-                configBean,
+            initExtensionHook(configBean,
                 DialogHook,
                 PopupWindowHook,
                 ToastHook,
@@ -334,15 +317,12 @@ object MainHook {
                 SignatureHook,
                 ContactHook,
                 SensorMangerHook,
-                ADBHook)
+                ADBHook,
+                FileHook)
         } catch (e: java.lang.Exception) {
-            LogUtil.outLog(
-                arrayListOf(
-                    getTip("errorType") + getTip("unknownError"),
-                    "config: ${JsonUtil.formatJson(strConfig)}",
-                    getTip("detailReason") + e.stackTraceToString()
-                ), "Error Unknown Error"
-            )
+            LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
+                "config: ${JsonUtil.formatJson(strConfig)}",
+                getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
         }
     }
 

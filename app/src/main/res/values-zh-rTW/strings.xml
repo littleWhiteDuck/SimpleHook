@@ -388,4 +388,13 @@
     <string name="extension_clip_summary_prevent_write_clip">通過關鍵詞阻止，支持正則表達式</string>
     <string name="extension_clip_title_add_keyword">添加關鍵詞</string>
     <string name="extension_clipboard">剪貼板</string>
+    <string name="label_file">文件</string>
+    <string name="extension_item_title_file">文件</string>
+    <string name="extension_item_desc_file">記錄文件創建、刪除、輸入等操作的調用堆棧</string>
+    <string name="extension_file_create_file">監聽創建文件</string>
+    <string name="extension_file_delete_file">監聽刪除文件</string>
+    <string name="extension_file_write_file">監聽寫出文件</string>
+    <string name="extension_file_read_file">監聽讀取文件</string>
+    <string name="extension_file_read_assets_file">監聽讀取Assets文件</string>
+    <string name="extension_file_operation">文件操作</string>
 </resources>
