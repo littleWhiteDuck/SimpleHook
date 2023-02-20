@@ -100,8 +100,7 @@ class MainActivity : BaseActivity() {
             if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
                 val body = result.optString("body").substringAfterLast("更新记录").trim()
                 val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
-                customDialog(
-                    this@MainActivity,
+                customDialog(this@MainActivity,
                     title = getString(R.string.main_version_update) + versionName,
                     message = message,
                     okText = getString(R.string.main_go_upgrade),
@@ -116,8 +115,7 @@ class MainActivity : BaseActivity() {
                     cancelClick = {
                         it.dismiss()
                     },
-                    cancelAble = false
-                ).show()
+                    cancelAble = false).show()
             }
         }
     }

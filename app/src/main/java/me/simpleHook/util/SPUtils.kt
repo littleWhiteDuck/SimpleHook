@@ -25,6 +25,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var permissionReverseSort by SharedPreferenceDelegates.boolean(false)
     var showA13Tip by SharedPreferenceDelegates.boolean(true)
     var checkPermission by SharedPreferenceDelegates.boolean(true)
+    var lspScope by SharedPreferenceDelegates.boolean(false)
     fun remove(key: String) {
         preferences.edit().remove(key).apply()
     }

@@ -9,12 +9,12 @@ import me.simpleHook.util.ThemeModeUtil
 
 
 lateinit var App: Application
-
+lateinit var sp: SPUtils
 class SimpleHookApp : Application() {
-    private val sp by lazy { SPUtils(applicationContext) }
     override fun onCreate() {
         super.onCreate()
         App = this
+        sp = SPUtils(App)
         AppCompatDelegate.setDefaultNightMode(ThemeModeUtil.getDarkMode(sp.themeMode))
     }
 

@@ -31,6 +31,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
@@ -59,9 +60,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         registerForActivityResult(ActivityResultContracts.CreateDocument("text/json")) { resultUri ->
             resultUri?.apply {
                 thread {
-                    alterDocument(
-                        this, JsonUtil.formatJson(Json.encodeToString(viewModel.getConfigs()))
-                    )
+                    alterDocument(this,
+                        JsonUtil.formatJson(Json.encodeToString(viewModel.getConfigs())))
                 }
             }
         }
@@ -78,15 +78,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        if (FlavorUtils.rootVersion) findPreference<CheckBoxPreference>("lspScope")?.isVisible =
+            true
         findPreference<CheckBoxPreference>("checkPermission")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (!(newValue as Boolean)) {
-                    customDialog(
-                        requireContext(),
+                    customDialog(requireContext(),
                         title = "Tip",
                         message = getString(R.string.main_settings_tip_close_check_permission),
-                        okText = "ok"
-                    ).show()
+                        okText = "ok").show()
                 }
                 true
             }
@@ -138,15 +138,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<SimpleMenuPreference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                warningDialog(
-                    requireContext(),
+                warningDialog(requireContext(),
                     getString(R.string.settings_clear_warning_dialog_title),
-                    getString(
-                        R.string.settings_clear_warning_dialog_message
-                    ),
-                    okText = getString(
-                        R.string.settings_clear_warning_dialog_confirm
-                    ),
+                    getString(R.string.settings_clear_warning_dialog_message),
+                    okText = getString(R.string.settings_clear_warning_dialog_confirm),
                     okClick = {
                         when (newValue as String) {
                             "hook" -> clearHookConfig(0)
@@ -174,9 +169,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val languagePreference = findPreference<SimpleMenuPreference>("language")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
-                    LanguageUtils.switchLanguage(
-                        newValue, requireActivity(), MainActivity::class.java
-                    )
+                    LanguageUtils.switchLanguage(newValue,
+                        requireActivity(),
+                        MainActivity::class.java)
                 }
                 true
             }
@@ -237,9 +232,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 
     private fun deleteLeftConfigs(mode: String) {
-        val loadingDialog = LoadingDialog(
-            requireActivity(), getString(R.string.main_delete_left_config_loading_tip)
-        )
+        val loadingDialog = LoadingDialog(requireActivity(),
+            getString(R.string.main_delete_left_config_loading_tip))
         loadingDialog.show()
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
@@ -269,11 +263,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             viewModel.getConfigs().forEach {
                 configItems.add(ConfigItem(it))
             }
-            ConfigDialogFragment(
-                configItems, Constant.CONFIG_EXPORT_JS_MODE
-            ).show(
-                requireActivity().supportFragmentManager, "toJS"
-            )
+            ConfigDialogFragment(configItems,
+                Constant.CONFIG_EXPORT_JS_MODE).show(requireActivity().supportFragmentManager,
+                "toJS")
         }
     }
 
@@ -282,20 +274,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
             when (mode) {
                 0 -> {
                     val configs = viewModel.getConfigs()
+                    val exConfigs = viewModel.getAllExtensionPackageNames()
+                    val packNames = ArrayList<String>()
                     configs.forEach {
+                        if (!exConfigs.contains(it.packageName)) packNames.add(it.packageName)
                         if (configSystem.isEnableDelete(it.packageName)) {
                             configSystem.deleteCustomConfig(it.packageName)
                             viewModel.deleteConfigs(it)
                         }
                     }
+                    if (FlavorUtils.rootVersion && sp.lspScope) {
+                        LSPosedHelper.removeScope(packNames.toTypedArray())
+                    }
                 }
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
+                    val customPackageNames = viewModel.getAllPackageNames()
+                    val packNames = ArrayList<String>()
                     configs.forEach {
+                        if (!customPackageNames.contains(it.packageName)) packNames.add(it.packageName)
                         if (configSystem.isEnableDelete(it.packageName)) {
                             configSystem.deleteExConfig(it.packageName)
                             viewModel.deleteAssistConfigs(it)
                         }
+                    }
+                    if (FlavorUtils.rootVersion && sp.lspScope) {
+                        LSPosedHelper.removeScope(packNames.toTypedArray())
                     }
                 }
                 2 -> {
@@ -431,15 +435,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     val dataList = JsonUtil.importConfigs(configs)
                     if (dataList.isEmpty()) {
                         getString(R.string.main_home_import_incorrect_format_tip).toast(
-                            requireContext()
-                        )
+                            requireContext())
                         return
                     } else {
-                        ConfigDialogFragment(
-                            dataList as ArrayList<ConfigItem>, Constant.CONFIG_IMPORT_MODE
-                        ).show(
-                            requireActivity().supportFragmentManager, "import"
-                        )
+                        ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
+                            Constant.CONFIG_IMPORT_MODE).show(requireActivity().supportFragmentManager,
+                            "import")
                     }
                 }
                 JsonUtil.isJsonObject(configs) -> {
@@ -448,8 +449,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         viewModel.insertConfigs(appConfig)
                     }.onFailure {
                         getString(R.string.main_home_import_incorrect_format_tip).toast(
-                            requireContext()
-                        )
+                            requireContext())
                     }
                 }
             }

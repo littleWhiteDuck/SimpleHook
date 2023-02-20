@@ -400,4 +400,7 @@
     <string name="extension_file_operation">File operation</string>
     <string name="extension_file_set_cache_size">Set cache information size</string>
     <string name="extension_file_summary_set_cache_size">Read or write the content of the file, SimpleHook will cache part of the content for show</string>
+    <string name="main_settings_title_lsp_scope">LSPosed manager</string>
+    <string name="main_settings_summary_lsp_scope">After adding the config, the target app will also be enabled in the LSPosed manager, you need to manually disable and enable SimpleHook to take effect</string>
+
 </resources>

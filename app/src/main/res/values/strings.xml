@@ -467,5 +467,7 @@
     <string name="extension_file_operation">文件操作</string>
     <string name="extension_file_set_cache_size">设置缓存信息大小</string>
     <string name="extension_file_summary_set_cache_size">读取文件或写入文件的内容，SimpleHook将缓存部分内容用以展示</string>
+    <string name="main_settings_title_lsp_scope">LSPosed协同配置</string>
+    <string name="main_settings_summary_lsp_scope">增加配置后，在LSPosed管理器中也会启用目标应用，你需要手动禁用再启用本模块方能生效</string>
 
 </resources>

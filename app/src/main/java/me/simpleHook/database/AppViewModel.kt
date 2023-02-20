@@ -12,12 +12,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import me.simpleHook.App
+import me.simpleHook.SimpleHookApp
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.lsposed.LSPosedHelper
+import me.simpleHook.sp
+import me.simpleHook.util.FlavorUtils
 
 @Suppress("unused")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
@@ -29,6 +34,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
         appRepository.insertConfigs(*appConfig)
+        if (FlavorUtils.rootVersion && sp.lspScope) {
+            val pkgNames = ArrayList<String>()
+            appConfig.forEach {
+                pkgNames.add(it.packageName)
+            }
+            LSPosedHelper.addScope(pkgNames.toTypedArray())
+        }
     }
 
     fun updateConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
@@ -173,6 +185,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     // Assist
     fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.insertAssistConfigs(*assistConfig)
+        if (FlavorUtils.rootVersion && sp.lspScope) {
+            val pkgNames = ArrayList<String>()
+            assistConfig.forEach {
+                pkgNames.add(it.packageName)
+            }
+            LSPosedHelper.addScope(pkgNames.toTypedArray())
+        }
     }
 
     fun updateAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
