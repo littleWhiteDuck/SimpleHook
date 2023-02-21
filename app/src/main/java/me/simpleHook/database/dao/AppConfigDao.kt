@@ -30,4 +30,7 @@ interface AppConfigDao {
     @Query("SELECT packageName FROM AppConfig ORDER BY ID DESC")
     fun getAllPackageNames(): List<String>
 
+    @Query("SELECT count(*) from AppConfig where packageName = :packageName")
+    suspend fun getCountByPackageName(packageName: String): Int
+
 }

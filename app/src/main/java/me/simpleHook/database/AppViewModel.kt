@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.App
-import me.simpleHook.SimpleHookApp
 import me.simpleHook.bean.LogBean
 import me.simpleHook.bean.RecordBean
 import me.simpleHook.constant.Constant
@@ -35,7 +33,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
         appRepository.insertConfigs(*appConfig)
         if (FlavorUtils.rootVersion && sp.lspScope) {
-            val pkgNames = ArrayList<String>()
+            val pkgNames = HashSet<String>()
             appConfig.forEach {
                 pkgNames.add(it.packageName)
             }
@@ -49,11 +47,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
         appRepository.deleteConfigs(*appConfig)
+        if (FlavorUtils.rootVersion && sp.lspScope) {
+            val pkgNames = HashSet<String>()
+            appConfig.forEach {
+                val count = getExCountByPackageName(it.packageName)
+                if (count < 1) {
+                    pkgNames.add(it.packageName)
+                }
+            }
+            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+        }
     }
 
     fun deleteAllConfigs() = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteAllConfigs()
     }
+
+    private suspend fun getCustomCountByPackageName(packageName: String) =
+        appRepository.getCustomCountByPackageName(packageName)
 
     fun getAllConfigs() = appRepository.getAllConfigs()
     fun getConfigs() = appRepository.getConfigs()
@@ -186,7 +197,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.insertAssistConfigs(*assistConfig)
         if (FlavorUtils.rootVersion && sp.lspScope) {
-            val pkgNames = ArrayList<String>()
+            val pkgNames = HashSet<String>()
             assistConfig.forEach {
                 pkgNames.add(it.packageName)
             }
@@ -200,6 +211,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.deleteAssistConfigs(*assistConfig)
+        if (FlavorUtils.rootVersion && sp.lspScope) {
+            val pkgNames = HashSet<String>()
+            assistConfig.forEach {
+                val count = getCustomCountByPackageName(it.packageName)
+                if (count < 1) {
+                    pkgNames.add(it.packageName)
+                }
+            }
+            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+        }
     }
 
     suspend fun queryDefaultExConfig() = appRepository.queryDefaultExConfig()
@@ -216,5 +237,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun getAssistConfigs() = appRepository.getAssistConfigs()
 
     fun getFilterAssistConfigs(pattern: String) = appRepository.getFilterAssistConfigs(pattern)
+
+    suspend fun getExCountByPackageName(packageName: String) =
+        appRepository.getExCountByPackageName(packageName)
 
 }

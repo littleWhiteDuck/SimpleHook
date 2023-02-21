@@ -35,4 +35,8 @@ interface AssistConfigDao {
 
     @Query("SELECT * FROM AssistConfig WHERE packageName = '模板配置'")
     suspend fun queryDefaultExConfig(): List<AssistConfig>
+
+
+    @Query("SELECT count(*) from AssistConfig where packageName = :packageName")
+    suspend fun getCountByPackageName(packageName: String): Int
 }

@@ -25,6 +25,10 @@ class AppRepository(context: Context) {
 
     }
 
+    suspend fun getCustomCountByPackageName(packageName: String): Int {
+        return appConfigDao.getCountByPackageName(packageName)
+    }
+
     fun deleteAllConfigs() {
         appConfigDao.deleteAllConfigs()
     }
@@ -130,4 +134,8 @@ class AppRepository(context: Context) {
     fun getFilterAssistConfigs(pattern: String) = assistConfigDao.getFilterConfigs(pattern)
 
     suspend fun queryDefaultExConfig(): List<AssistConfig> = assistConfigDao.queryDefaultExConfig()
+
+    suspend fun getExCountByPackageName(packageName: String): Int {
+        return assistConfigDao.getCountByPackageName(packageName)
+    }
 }

@@ -31,6 +31,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
@@ -44,6 +45,8 @@ import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
 import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -274,33 +277,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
             when (mode) {
                 0 -> {
                     val configs = viewModel.getConfigs()
-                    val exConfigs = viewModel.getAllExtensionPackageNames()
-                    val packNames = ArrayList<String>()
+                    val tempConfigs = ArrayList<AppConfig>()
                     configs.forEach {
-                        if (!exConfigs.contains(it.packageName)) packNames.add(it.packageName)
                         if (configSystem.isEnableDelete(it.packageName)) {
                             configSystem.deleteCustomConfig(it.packageName)
-                            viewModel.deleteConfigs(it)
+                            tempConfigs.add(it)
                         }
                     }
-                    if (FlavorUtils.rootVersion && sp.lspScope) {
-                        LSPosedHelper.removeScope(packNames.toTypedArray())
-                    }
+                    viewModel.deleteConfigs(*tempConfigs.toTypedArray())
                 }
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
-                    val customPackageNames = viewModel.getAllPackageNames()
-                    val packNames = ArrayList<String>()
+                    val tempConfigs = ArrayList<AssistConfig>()
                     configs.forEach {
-                        if (!customPackageNames.contains(it.packageName)) packNames.add(it.packageName)
                         if (configSystem.isEnableDelete(it.packageName)) {
                             configSystem.deleteExConfig(it.packageName)
+                            tempConfigs.add(it)
                             viewModel.deleteAssistConfigs(it)
                         }
                     }
-                    if (FlavorUtils.rootVersion && sp.lspScope) {
-                        LSPosedHelper.removeScope(packNames.toTypedArray())
-                    }
+                    viewModel.deleteAssistConfigs(*tempConfigs.toTypedArray())
                 }
                 2 -> {
                     viewModel.deleteAllLogs()
