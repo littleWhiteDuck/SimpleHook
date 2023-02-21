@@ -317,6 +317,7 @@ class ManagerFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
             LinearLayout.VERTICAL))
+        binding.recyclerView.isVerticalScrollBarEnabled = false
         if (items.isNotEmpty()) return
         configBean.apply {
             items.apply {

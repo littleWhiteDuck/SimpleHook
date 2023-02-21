@@ -28,10 +28,8 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
         @Suppress("DEPRECATION") setBackgroundColor(context.resources.getColor(R.color.line_background_color))
     }
     val switch = SwitchCompat(context).apply {
-        layoutParams =
-            MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
-                setPadding(5.dp, 10.dp, 15.dp, 10.dp)
-            }
+        layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        setPadding(5.dp, 10.dp, 15.dp, 10.dp)
     }
 
     init {
@@ -42,31 +40,24 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         switch.autoMeasure()
-        lineView.measure(
-            2.dp.toExactlyMeasureSpec(),
-            (switch.measuredHeightWithMargins - 5.dp).toExactlyMeasureSpec()
-        )
         val leftWidth =
             measuredWidth - switch.measuredWidthWithMargins - lineView.measuredWidth - paddingStart - paddingEnd
-        containerView.measure(
-            leftWidth.toExactlyMeasureSpec(), containerView.defaultHeightMeasureSpec(this)
-        )
-        val height = maxOf(containerView.measuredHeightWithMargins, 0)
-        setMeasuredDimension(
-            measuredWidth, height
-        )
+        containerView.measure(leftWidth.toExactlyMeasureSpec(),
+            containerView.defaultHeightMeasureSpec(this))
+        val height =
+            maxOf(containerView.measuredHeightWithMargins, switch.measuredHeightWithMargins)
+        lineView.measure(2.dp.toExactlyMeasureSpec(), (height - 5.dp).toExactlyMeasureSpec())
+        setMeasuredDimension(measuredWidth, height)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         containerView.autoLayout(paddingStart, containerView.toVerticalCenter(this))
-        switch.autoLayout(
-            paddingEnd + switch.marginEnd, switch.toVerticalCenter(this), fromRight = true
-        )
-        lineView.autoLayout(
-            switch.measuredWidthWithMargins + paddingEnd,
+        switch.autoLayout(paddingEnd + switch.marginEnd,
+            switch.toVerticalCenter(this),
+            fromRight = true)
+        lineView.autoLayout(switch.measuredWidthWithMargins + paddingEnd,
             lineView.toVerticalCenter(this),
-            fromRight = true
-        )
+            fromRight = true)
     }
 
 }
@@ -86,17 +77,14 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         addView(this)
     }
-    val desc = AppCompatTextView(
-        ContextThemeWrapper(
-            context, R.style.text_view_item_secondary
-        )
-    ).apply {
-        layoutParams =
-            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
-                it.setMargins(0, 2.dp, 0, 0)
-            }
-        addView(this)
-    }
+    val desc =
+        AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_item_secondary)).apply {
+            layoutParams =
+                MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
+                    it.setMargins(0, 2.dp, 0, 0)
+                }
+            addView(this)
+        }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
