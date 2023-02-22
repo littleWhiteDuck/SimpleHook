@@ -37,7 +37,7 @@ import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.dp
-import me.simpleHook.util.toast
+import me.simpleHook.util.showToast
 import java.util.*
 import kotlin.math.min
 
@@ -275,7 +275,7 @@ class ExtensionFragment : BaseFragment() {
                     assistConfig.appName = modelName
                     ExtensionActivity.startActivity(requireContext(), assistConfig, editMode)
                 } else {
-                    "不能为空或名字太长".toast(mContext)
+                    requireActivity().showToast("不能为空或名字太长")
                 }
             },
             cancelText = "取消").show()
@@ -283,7 +283,7 @@ class ExtensionFragment : BaseFragment() {
 
     private fun showModelDialog() {
         if (modelList.isEmpty()) {
-            "请先创建".toast(mContext)
+            requireActivity().showToast("请先创建")
             return
         }
         val showList = mutableListOf<String>()

@@ -1,31 +1,24 @@
 package me.simpleHook.hook.extension
 
 import android.app.Application
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfigBean
+import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.hookAfter
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.HookHelper.hostPackageName
+import me.simpleHook.hook.util.LogUtil.outLogMsg
 
 object ApplicationHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.application) return
-        XposedHelpers.findAndHookMethod(
-            Application::class.java, "onCreate", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val className = param.thisObject.javaClass.name
-                    val type = "Application"
-                    LogUtil.outLogMsg(
-                        LogBean(
-                            type,
-                            listOf(getTip("applicationName") + className),
-                            HookHelper.hostPackageName
-                        )
-                    )
-                }
-            })
+        findMethod(Application::class.java) {
+            name == "onCreate"
+        }.hookAfter {
+            val className = it.thisObject.javaClass.name
+            val type = "Application"
+            outLogMsg(LogBean(type, listOf(getTip("applicationName") + className), hostPackageName))
+        }
     }
 }

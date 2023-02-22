@@ -341,7 +341,7 @@
     <string name="sort">sort</string>
     <string name="select_all">Select all</string>
     <string name="invert_selection">Invert selection</string>
-    <string name="android_13_no_permission">The change has not taken effect: there is no permission for this app directory, you need to apply for granting this APP directory permission (you can batch authorize it on the settings page)</string>
+    <string name="android_13_no_permission">The change has not taken effect: there is no permission for this app directory, you need to apply for granting this APP directory permission (you can batch authorize it on the settings page). Some applications have no directory under Android/data and need to be created manually, or after SimpleHook increases the scope of the target application, restarting the application will automatically create it. Then re-apply for permission</string>
     <string name="lite_version_not_active">Changes not active: module not active or other error</string>
     <string name="root_version_no_permission">The change does not take effect: please manually grant ROOT permission and restart the APP</string>
     <string name="permission_tip">Due to the limitation of Android 13, only one application can be authorized for one application\nSome applications have no directory files under Android/data/, and you need to manually create them to apply for authorization\nDisplayed here Both are unauthorized applications</string>

@@ -7,7 +7,7 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.util.HookHelper
@@ -17,7 +17,7 @@ import me.simpleHook.util.ToolUtils
 
 object SignatureHook : BaseHook() {
     @Suppress("DEPRECATION")
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.signature || (configBean.guiseSign.enable && configBean.guiseSign.info.isNotEmpty())) {
             findMethod("android.app.ApplicationPackageManager") {
                 name == "getPackageInfo" && parameterTypes[0] == String::class.java
@@ -27,7 +27,8 @@ object SignatureHook : BaseHook() {
                 val packInfo = it.result as PackageInfo
                 if (configBean.signature) {
                     val items = LogUtil.getStackTrace()
-                    val byteArray = if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
+                    val byteArray =
+                        if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
                         packInfo.signingInfo.apkContentsSigners[0].toByteArray()
                     } else {
                         @Suppress("DEPRECATION") packInfo.signatures[0].toByteArray()

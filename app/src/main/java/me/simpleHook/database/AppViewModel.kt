@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
-import me.simpleHook.bean.RecordBean
+import me.simpleHook.bean.Record
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
@@ -26,8 +26,8 @@ import me.simpleHook.util.FlavorUtils
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
     private val _filterAppConfig = MutableLiveData<List<AppConfig>>()
-    private var _filterRecordPT = MutableLiveData<List<RecordBean>>()
-    val filterRecordPT: LiveData<List<RecordBean>> get() = _filterRecordPT
+    private var _filterRecordPT = MutableLiveData<List<Record>>()
+    val filterRecordPT: LiveData<List<Record>> get() = _filterRecordPT
 
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
@@ -238,7 +238,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getFilterAssistConfigs(pattern: String) = appRepository.getFilterAssistConfigs(pattern)
 
-    suspend fun getExCountByPackageName(packageName: String) =
+    private suspend fun getExCountByPackageName(packageName: String) =
         appRepository.getExCountByPackageName(packageName)
 
 }

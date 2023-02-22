@@ -6,7 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import me.simpleHook.bean.RecordBean
+import me.simpleHook.bean.Record
 import me.simpleHook.database.entity.PrintLog
 
 @Dao
@@ -52,7 +52,7 @@ interface PrintLogDao {
     suspend fun filterRecord(pattern: String): List<PrintLog>
 
     @Query("SELECT packageName,type FROM PrintLog")
-    suspend fun getAllRecord(): List<RecordBean>
+    suspend fun getAllRecord(): List<Record>
 
     @Query("SELECT * FROM PrintLog WHERE packageName = :packageName and log like :pattern ORDER BY time DESC")
     suspend fun filterRecordByPack(packageName: String, pattern: String): List<PrintLog>

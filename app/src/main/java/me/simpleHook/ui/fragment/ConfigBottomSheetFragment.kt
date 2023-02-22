@@ -18,9 +18,8 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.util.isContainState
-import me.simpleHook.util.toast
+import me.simpleHook.util.showToast
 import java.util.regex.Pattern
 
 
@@ -97,9 +96,7 @@ class ConfigBottomSheetFragment(
         _binding = ConfigDialogBinding.inflate(inflater, container, false)
 
         dialog?.window?.let {
-            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(
-                it
-            )
+            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
         }
         initView()
         return binding.root
@@ -150,9 +147,8 @@ class ConfigBottomSheetFragment(
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
         val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
-        binding.modeSelectSpinner.adapter = ArrayAdapter(
-            requireContext(), android.R.layout.simple_spinner_dropdown_item, list
-        )
+        binding.modeSelectSpinner.adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
         val realPosition = listValue.indexOf(configBean.mode)
         binding.modeSelectSpinner.setSelection(realPosition)
         binding.modeSelectSpinner.onItemSelectedListener =
@@ -191,10 +187,9 @@ class ConfigBottomSheetFragment(
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                getString(R.string.config_hook_constructor_tip).toast(requireContext())
+                requireActivity().showToast(getString(R.string.config_hook_constructor_tip))
             }
-            val configBean = ConfigBean(
-                this.hookMode,
+            val configBean = ConfigBean(this.hookMode,
                 className,
                 methodName,
                 params,
@@ -203,12 +198,11 @@ class ConfigBottomSheetFragment(
                 results,
                 hookPoint = hookPoint,
                 returnClassName = returnClassName,
-                enable = configEnable
-            )
+                enable = configEnable)
             saveConfig(configBean)
             dismiss()
         } else {
-            getString(R.string.config_info_not_match_mode).toast(requireContext())
+            requireActivity().showToast(getString(R.string.config_info_not_match_mode))
         }
     }
 
@@ -271,9 +265,9 @@ class ConfigBottomSheetFragment(
         val paramArray = paramStr.split(",")
         for (i in paramArray.indices) {
             if (paramArray[i].trim().isEmpty()) continue
-            isSmali = paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
-                Regex(pattern_basic_array)
-            ) || paramArray[i].isEmpty()
+            isSmali =
+                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(Regex(
+                    pattern_basic_array)) || paramArray[i].isEmpty()
         }
         return isSmali
     }
@@ -281,25 +275,21 @@ class ConfigBottomSheetFragment(
     private fun onModeChange() {
         val checkStateMode = getShowStateMode(hookMode)
         binding.apply {
-            showView(
-                checkStateMode isContainState METHOD_NAME_STATE, methodNameInput, methodNameEdit
-            )
+            showView(checkStateMode isContainState METHOD_NAME_STATE,
+                methodNameInput,
+                methodNameEdit)
             showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
             showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
-            showView(
-                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+            showView(checkStateMode isContainState FIELD_CLASS_NAME_STATE,
                 fieldClassNameInput,
-                fieldClassNameEdit
-            )
-            showView(
-                checkStateMode isContainState RESULT_VALUE_STATE, resultValueInput, resultValueEdit
-            )
+                fieldClassNameEdit)
+            showView(checkStateMode isContainState RESULT_VALUE_STATE,
+                resultValueInput,
+                resultValueEdit)
             showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
-            showView(
-                checkStateMode isContainState RETURN_CLASS_NAME,
+            showView(checkStateMode isContainState RETURN_CLASS_NAME,
                 returnClassNameInput,
-                returnClassNameEdit
-            )
+                returnClassNameEdit)
         }
     }
 

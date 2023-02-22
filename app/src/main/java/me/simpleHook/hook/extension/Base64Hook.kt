@@ -3,7 +3,7 @@ package me.simpleHook.hook.extension
 import android.util.Base64
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper
@@ -12,7 +12,7 @@ import java.nio.charset.Charset
 
 object Base64Hook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.base64) return
         XposedHelpers.findAndHookMethod("java.util.Base64.Encoder",
             HookHelper.appClassLoader,

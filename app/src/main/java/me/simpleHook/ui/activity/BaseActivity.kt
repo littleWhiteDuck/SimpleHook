@@ -155,13 +155,13 @@ open class BaseActivity : AppCompatActivity() {
         if (PermissionUtils.checkPermission(this)) {
             showPrintFloat()
         } else {
-            getString(R.string.float_window_require_permission).toast(this)
+            showToast(message = getString(R.string.float_window_require_permission))
             PermissionUtils.requestPermission(this, object : OnPermissionResult {
                 override fun permissionResult(isOpen: Boolean) {
                     if (isOpen) {
                         showPrintFloat()
                     } else {
-                        getString(R.string.float_window_require_permission_failed).toast(this@BaseActivity)
+                        showToast(message = getString(R.string.float_window_require_permission_failed))
                     }
                 }
             })

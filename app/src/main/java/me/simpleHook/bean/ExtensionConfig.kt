@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 
 @kotlinx.serialization.Serializable
 @Keep
-data class ExtensionConfigBean(
+data class ExtensionConfig(
     var all: Boolean = false,
     var dialog: Boolean = false,
     var diaCancel: Boolean = false,

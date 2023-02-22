@@ -28,7 +28,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalServices
 import me.simpleHook.R
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.ConfigSystemUtil
 import me.simpleHook.compat.DocumentCompatUtils
 import me.simpleHook.constant.Constant
@@ -57,7 +57,7 @@ class ManagerFragment : Fragment() {
     private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
     private val items = ArrayList<Any>()
-    private var configBean: ExtensionConfigBean = ExtensionConfigBean()
+    private var configBean: ExtensionConfig = ExtensionConfig()
     private var tempConfigStr = ""
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
     private val adapter = MultiTypeAdapter()
@@ -191,7 +191,7 @@ class ManagerFragment : Fragment() {
                 configBean.fileMonitor.enable = checked
             }
             else -> {
-                Class.forName(ExtensionConfigBean::class.java.name).apply {
+                Class.forName(ExtensionConfig::class.java.name).apply {
                     getDeclaredField(tag).apply {
                         isAccessible = true
                         setBoolean(configBean, checked)
@@ -234,7 +234,7 @@ class ManagerFragment : Fragment() {
             path
         }
         ToolUtils.toClip(requireContext(), filePath)
-        getString(R.string.extension_tip_dex_path_to_clip).toast(requireContext())
+        requireActivity().showToast(getString(R.string.extension_tip_dex_path_to_clip))
     }
 
     private fun showFloatWindow() {
@@ -302,8 +302,7 @@ class ManagerFragment : Fragment() {
             dexPosition + "/data/local/tmp/simpleHook/${extensionConfig.packageName}/dex/"
         }
         val config = extensionConfig.config
-        configBean =
-            if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfigBean()
+        configBean = if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfig()
         tempConfigStr = configBean.toString()
         adapter.register(Title::class.java, TitleViewDelegate())
         adapter.register(ExtensionItem::class.java, ItemViewDelegate { tag, checked ->

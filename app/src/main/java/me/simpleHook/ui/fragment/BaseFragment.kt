@@ -29,14 +29,13 @@ open class BaseFragment : Fragment() {
 
     protected fun requirePermission(packageName: String) {
         if (FlavorUtils.liteVersion) {
-            getString(R.string.lite_version_not_active).toast(requireContext())
+            requireActivity().showToast(getString(R.string.lite_version_not_active))
         } else if (FlavorUtils.rootVersion) {
-            getString(R.string.root_version_no_permission).toast(requireContext())
+            requireActivity().showToast(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
-                requestPermissionDialog(
-                    requireContext(), message = getString(R.string.android_13_no_permission)
-                ) {
+                requestPermissionDialog(requireContext(),
+                    message = getString(R.string.android_13_no_permission)) {
                     val uri = DocumentCompatUtils.generateAppUri(packageName)
                     startActivityForData.launch(uri)
                 }

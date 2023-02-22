@@ -19,7 +19,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.fragment.ConfigDialogFragment
 import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.toast
+import me.simpleHook.util.showToast
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
@@ -55,7 +55,7 @@ class ImportConfigActivity : AppCompatActivity() {
                 }
             }
         } catch (e: java.lang.Exception) {
-            "error".toast(this)
+            showToast("error")
         }
 
         return stringBuilder.toString()
@@ -66,12 +66,12 @@ class ImportConfigActivity : AppCompatActivity() {
             JsonUtil.isJsonArray(configs) -> {
                 val dataList = JsonUtil.importConfigs(configs)
                 if (dataList.isEmpty()) {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(this)
+                    showToast(getString(R.string.main_home_import_incorrect_format_tip))
                     return
                 } else {
-                    ConfigDialogFragment(
-                        dataList as ArrayList<ConfigItem>, Constant.CONFIG_IMPORT_MODE
-                    ).show(supportFragmentManager, "from text import")
+                    ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
+                        Constant.CONFIG_IMPORT_MODE).show(supportFragmentManager,
+                        "from text import")
                 }
             }
             JsonUtil.isJsonObject(configs) -> {
@@ -83,12 +83,12 @@ class ImportConfigActivity : AppCompatActivity() {
                         configSystem.saveCustomConfig(appConfig.packageName, configs)
                     }.onFailure {
                         Looper.prepare()
-                        getString(R.string.main_home_import_incorrect_format_tip).toast(this@ImportConfigActivity)
+                        showToast(getString(R.string.main_home_import_incorrect_format_tip))
                         Looper.loop()
                     }
                 }
             }
-            else -> getString(R.string.main_home_import_incorrect_format_tip).toast(this)
+            else -> showToast(getString(R.string.main_home_import_incorrect_format_tip))
         }
     }
 

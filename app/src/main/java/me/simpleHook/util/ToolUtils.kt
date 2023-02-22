@@ -10,15 +10,10 @@ import java.security.NoSuchAlgorithmException
 object ToolUtils {
     fun getClipboardContent(context: Context): String? {
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val data = cm.primaryClip
-        if (data != null && data.itemCount > 0) {
-            val item = data.getItemAt(0)
-            if (item != null) {
-                val sequence = item.coerceToText(context)
-                if (sequence != null) {
-                    return sequence.toString()
-                }
-            }
+        val data = cm.primaryClip ?: return null
+        if (data.itemCount > 0) {
+            val item = data.getItemAt(0) ?: return null
+            return item.text?.toString()
         }
         return null
     }

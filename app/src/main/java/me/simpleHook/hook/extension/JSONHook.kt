@@ -4,16 +4,17 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.HookUtils.getObjectString
 import me.simpleHook.hook.util.LogUtil
 import org.json.JSONArray
 import org.json.JSONObject
 
 object JSONHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.jsonObject) {
             hookJSONObject()
         }
@@ -84,11 +85,4 @@ object JSONHook : BaseHook() {
         })
     }
 
-    private fun getObjectString(value: Any): String {
-        return if (value is String) value else try {
-            Gson().toJson(value)
-        } catch (e: java.lang.Exception) {
-            value.javaClass.name
-        }
-    }
 }

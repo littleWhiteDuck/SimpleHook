@@ -402,7 +402,7 @@ class RecordActivity : BaseActivity() {
                     }
                 }
                 loadingDialog.dismiss()
-                getString(R.string.record_save_marked_record_tip).toast(this@RecordActivity)
+                showToast(getString(R.string.record_save_marked_record_tip))
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             } catch (e: IOException) {

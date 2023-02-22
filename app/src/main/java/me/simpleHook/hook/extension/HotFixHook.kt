@@ -3,7 +3,7 @@ package me.simpleHook.hook.extension
 
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.util.FlavorUtils
@@ -13,7 +13,7 @@ import java.io.File
 
 object HotFixHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.hotFix) return
         val dexFilePaths: MutableList<String> = mutableListOf()
         val pathName = if (FlavorUtils.normalVersion) {

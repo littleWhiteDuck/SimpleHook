@@ -1,5 +1,6 @@
 package me.simpleHook.lsposed
 
+import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
 import androidx.core.content.contentValuesOf
 import com.topjohnwu.superuser.io.SuFile
@@ -69,6 +70,8 @@ object LSPosedHelper {
         }
     }
 
+    @Suppress("SameParameterValue")
+    @SuppressLint("Recycle")
     private fun getModuleId(db: SQLiteDatabase, packageName: String): Int {
         val cursor = db.query("modules",
             arrayOf("mid"),

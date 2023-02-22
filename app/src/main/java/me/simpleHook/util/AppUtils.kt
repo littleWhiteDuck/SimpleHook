@@ -28,15 +28,15 @@ object AppUtils {
         }.getOrDefault(false)
     }
 
-    @Suppress("unused")
-    fun appInfo(context: Context, packageName: String): ApplicationInfo? {
+
+/*    fun appInfo(context: Context, packageName: String): ApplicationInfo? {
         return try {
             context.packageManager.getPackageInfo(packageName,
                 PackageManager.GET_CONFIGURATIONS).applicationInfo
         } catch (_: Throwable) {
             null
         }
-    }
+    }*/
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon(context: Context, packageName: String): Drawable {
@@ -143,7 +143,7 @@ object AppUtils {
                 context.apply { startActivity(packageManager.getLaunchIntentForPackage(packageName)) }
             }
         } catch (e: java.lang.Exception) {
-            "可能应用被停用了,或者其他错误".toast(context)
+            context.showToast("可能应用被停用了,或者其他错误")
         }
 
     }

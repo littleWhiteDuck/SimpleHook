@@ -16,10 +16,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.dp
-import me.simpleHook.util.toast
+import me.simpleHook.util.*
 
 class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(RecordCallback) {
 
@@ -51,7 +48,7 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
             val dialog = MaterialAlertDialogBuilder(parent.context).setMessage(message)
                 .setPositiveButton(parent.context.getString(R.string.record_detail_menu_copy)) { dialog, _ ->
                     ToolUtils.toClip(parent.context, message)
-                    parent.context.getString(R.string.copied).toast(parent.context)
+                    parent.context.showToast(parent.context.getString(R.string.copied))
                     dialog.dismiss()
                 }.setNegativeButton(itemView.context.getString(R.string.dialog_cancel), null)
                 .create()

@@ -8,65 +8,32 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PointF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import kotlin.math.abs
 
-
-/**
- * 【Item侧滑删除菜单】
- * 继承自ViewGroup，实现滑动出现删除等选项的效果，
- * 思路：跟随手势将item向左滑动，
- * 在onMeasure时 将第一个Item设为屏幕宽度
- * 【解决屏幕上多个侧滑删除菜单】：内设一个类静态View类型变量 ViewCache，存储的是当前正处于右滑状态的CstSwipeMenuItemViewGroup，
- * 每次Touch时对比，如果两次Touch的不是一个View，那么令ViewCache恢复普通状态，并且设置新的CacheView
- * 只要有一个侧滑菜单处于打开状态， 就不给外层布局上下滑动了
- *
- *
- * 平滑滚动使用的是Scroller,20160811，最新平滑滚动又用属性动画做了，因为这样更酷炫(设置加速器不同)
- *
- *
- * 20160824,fix 【多指一起滑我的情况】：只接第一个客人(使用一个类静态布尔变量)
- * other:
- * 1 菜单处于侧滑时，拦截长按事件
- * 2 解决侧滑时 点击 的冲突
- * 3 通过 isIos 变量控制是否是IOS阻塞式交互，默认是打开的。
- * 4 通过 isSwipeEnable 变量控制是否开启右滑菜单，默认打开。（某些场景，复用item，没有编辑权限的用户不能右滑）
- * 5 2016 09 29 add,，通过开关 isLeftSwipe支持左滑右滑
- * 6 2016 10 21 add , 增加viewChache 的 get()方法，可以用在：当点击外部空白处时，关闭正在展开的侧滑菜单。
- * 7 2016 10 22 fix , 当父控件宽度不是全屏时的bug。
- * 2016 10 22 add , 仿QQ，侧滑菜单展开时，点击除侧滑菜单之外的区域，关闭侧滑菜单。
- * 8 2016 11 03 add,判断手指起始落点，如果距离属于滑动了，就屏蔽一切点击事件。
- * 9 2016 11 04 fix 长按事件和侧滑的冲突。
- * 10 2016 11 09 add,适配GridLayoutManager，将以第一个子Item(即ContentItem)的宽度为控件宽度。
- * 11 2016 11 14 add,支持padding,且后续计划加入上滑下滑，因此不再支持ContentItem的margin属性。
- * 2016 11 14 add,修改回弹的动画，更平滑。
- * 2016 11 14 fix,微小位移的move不回回弹的bug
- * 2016 11 18,fix 当ItemView存在高度可变的情况
- * 2016 12 07,fix 禁止侧滑时(isSwipeEnable false)，点击事件不受干扰。
- * 2016 12 09,fix ListView快速滑动快速删除时，偶现菜单不消失的bug。
- * Created by zhangxutong .
- * Date: 16/04/24
- */
 class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
+    //为了处理单击事件的冲突
+    private var mScaleTouchSlop = 0
 
-    private var mScaleTouchSlop //为了处理单击事件的冲突
-            = 0
-    private var mMaxVelocity //计算滑动速度用
-            = 0
-    private var mPointerId //多点触摸只算第一根手指的速度
-            = 0
-    private var mHeight //自己的高度
-            = 0
+    //计算滑动速度用
+    private var mMaxVelocity = 0
+
+    //多点触摸只算第一根手指的速度
+    private var mPointerId = 0
+
+    //自己的高度
+    private var mHeight = 0
 
     //右侧菜单宽度总和(最大滑动距离)
     private var mRightMenuWidths = 0
 
     //滑动判定临界值（右侧菜单宽度的40%） 手指抬起时，超过了展开，没超过收起menu
     private var mLimit = 0
-    private var mContentView //2016 11 13 add ，存储contentView(第一个View)
-            : View? = null
+
+    //存储contentView(第一个View)
+    private var mContentView: View? = null
 
     //private Scroller mScroller;//以前item的滑动动画靠它做，现在用属性动画做
     //上一次的xy
@@ -81,14 +48,10 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
     //up-down的坐标，判断是否是滑动，如果是，则屏蔽一切点击事件
     private val mFirstP = PointF()
     private var isUserSwiped = false
-    private var mVelocityTracker //滑动速度变量
-            : VelocityTracker? = null
-    private val LogUtils: Log? = null
-    /**
-     * 设置侧滑功能开关
-     *
-     * @param swipeEnable
-     */
+
+    //滑动速度变量
+    private var mVelocityTracker: VelocityTracker? = null
+
     /**
      * 右滑删除功能的开关,默认开
      */
@@ -99,8 +62,9 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
      */
     var isIos = false
         private set
-    private var iosInterceptFlag //IOS类型下，是否拦截事件的flag
-            = false
+
+    //IOS类型下，是否拦截事件的flag
+    private var iosInterceptFlag = false
 
     /**
      * 20160929add 左滑右滑的开关,默认左滑打开菜单
@@ -167,9 +131,8 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
 
                 //measureChildWithMargins(childView, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 val lp = childView.layoutParams as MarginLayoutParams
-                mHeight = Math.max(
-                    mHeight, childView.measuredHeight /* + lp.topMargin + lp.bottomMargin*/
-                )
+                mHeight = /* + lp.topMargin + lp.bottomMargin*/
+                    mHeight.coerceAtLeast(childView.measuredHeight)
                 if (measureMatchParentChildren && lp.height == LayoutParams.MATCH_PARENT) {
                     isNeedMeasureChildHeight = true
                 }
@@ -181,9 +144,8 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
                 }
             }
         }
-        setMeasuredDimension(
-            paddingLeft + paddingRight + contentWidth, mHeight + paddingTop + paddingBottom
-        ) //宽度取第一个Item(Content)的宽度
+        setMeasuredDimension(paddingLeft + paddingRight + contentWidth,
+            mHeight + paddingTop + paddingBottom) //宽度取第一个Item(Content)的宽度
         mLimit = mRightMenuWidths * 4 / 10 //滑动判断的临界值
         //Log.d(TAG, "onMeasure() called with: " + "mRightMenuWidths = [" + mRightMenuWidths);
         if (isNeedMeasureChildHeight) { //如果子View的height有MatchParent属性的，设置子View高度
@@ -206,9 +168,8 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
         // Pretend that the linear layout has an exact size. This is the measured height of
         // ourselves. The measured height should be the max height of the children, changed
         // to accommodate the heightMeasureSpec from the parent
-        val uniformMeasureSpec = MeasureSpec.makeMeasureSpec(
-            measuredHeight, MeasureSpec.EXACTLY
-        ) //以父布局高度构建一个Exactly的测量参数
+        val uniformMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight,
+            MeasureSpec.EXACTLY) //以父布局高度构建一个Exactly的测量参数
         for (i in 0 until count) {
             val child = getChildAt(i)
             if (child.visibility != GONE) {
@@ -235,30 +196,24 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
             val childView = getChildAt(i)
             if (childView.visibility != GONE) {
                 if (i == 0) { //第一个子View是内容 宽度设置为全屏
-                    childView.layout(
-                        left,
+                    childView.layout(left,
                         paddingTop,
                         left + childView.measuredWidth,
-                        paddingTop + childView.measuredHeight
-                    )
-                    left = left + childView.measuredWidth
+                        paddingTop + childView.measuredHeight)
+                    left += childView.measuredWidth
                 } else {
                     if (isLeftSwipe) {
-                        childView.layout(
-                            left,
+                        childView.layout(left,
                             paddingTop,
                             left + childView.measuredWidth,
-                            paddingTop + childView.measuredHeight
-                        )
-                        left = left + childView.measuredWidth
+                            paddingTop + childView.measuredHeight)
+                        left += childView.measuredWidth
                     } else {
-                        childView.layout(
-                            right - childView.measuredWidth,
+                        childView.layout(right - childView.measuredWidth,
                             paddingTop,
                             right,
-                            paddingTop + childView.measuredHeight
-                        )
-                        right = right - childView.measuredWidth
+                            paddingTop + childView.measuredHeight)
+                        right -= childView.measuredWidth
                     }
                 }
             }
@@ -302,11 +257,11 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
                     if (!iosInterceptFlag) {
                         val gap = mLastP.x - ev.rawX
                         //为了在水平滑动中禁止父类ListView等再竖直滑动
-                        if (Math.abs(gap) > 10 || Math.abs(scrollX) > 10) { //2016 09 29 修改此处，使屏蔽父布局滑动更加灵敏，
+                        if (abs(gap) > 10 || abs(scrollX) > 10) { //2016 09 29 修改此处，使屏蔽父布局滑动更加灵敏，
                             parent.requestDisallowInterceptTouchEvent(true)
                         }
                         //2016 10 22 add , 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。begin
-                        if (Math.abs(gap) > mScaleTouchSlop) {
+                        if (abs(gap) > mScaleTouchSlop) {
                             isUnMoved = false
                         }
                         //2016 10 22 add , 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。end
@@ -335,7 +290,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     //2016 11 03 add,判断手指起始落点，如果距离属于滑动了，就屏蔽一切点击事件。
-                    if (Math.abs(ev.rawX - mFirstP.x) > mScaleTouchSlop) {
+                    if (abs(ev.rawX - mFirstP.x) > mScaleTouchSlop) {
                         isUserSwiped = true
                     }
 
@@ -344,7 +299,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
                         //求伪瞬时速度
                         verTracker!!.computeCurrentVelocity(1000, mMaxVelocity.toFloat())
                         val velocityX = verTracker.getXVelocity(mPointerId)
-                        if (Math.abs(velocityX) > 1000) { //滑动速度超过阈值
+                        if (abs(velocityX) > 1000) { //滑动速度超过阈值
                             if (velocityX < -1000) {
                                 if (isLeftSwipe) { //左滑
                                     //平滑展开Menu
@@ -363,7 +318,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
                                 }
                             }
                         } else {
-                            if (Math.abs(scrollX) > mLimit) { //否则就判断滑动距离
+                            if (abs(scrollX) > mLimit) { //否则就判断滑动距离
                                 //平滑展开Menu
                                 smoothExpand()
                             } else {
@@ -390,7 +345,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
         if (isSwipeEnable) {
             when (ev.action) {
                 MotionEvent.ACTION_MOVE ->                     //屏蔽滑动时的事件
-                    if (Math.abs(ev.rawX - mFirstP.x) > mScaleTouchSlop) {
+                    if (abs(ev.rawX - mFirstP.x) > mScaleTouchSlop) {
                         return true
                     }
                 MotionEvent.ACTION_UP -> {
@@ -456,9 +411,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
         mExpandAnim =
             ValueAnimator.ofInt(scrollX, if (isLeftSwipe) mRightMenuWidths else -mRightMenuWidths)
         mExpandAnim?.addUpdateListener(AnimatorUpdateListener { animation ->
-            scrollTo(
-                (animation.animatedValue as Int), 0
-            )
+            scrollTo((animation.animatedValue as Int), 0)
         })
         mExpandAnim?.interpolator = OvershootInterpolator()
         mExpandAnim?.addListener(object : AnimatorListenerAdapter() {
@@ -497,11 +450,9 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
         cancelAnim()
         mCloseAnim = ValueAnimator.ofInt(scrollX, 0)
         mCloseAnim?.addUpdateListener(AnimatorUpdateListener { animation ->
-            scrollTo(
-                (animation.animatedValue as Int), 0
-            )
+            scrollTo((animation.animatedValue as Int), 0)
         })
-        mCloseAnim?.setInterpolator(AccelerateInterpolator())
+        mCloseAnim?.interpolator = AccelerateInterpolator()
         mCloseAnim?.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 isExpand = false
@@ -550,7 +501,7 @@ class SwipeMenuLayout(context: Context) : CustomViewGroup(context) {
 
     //展开时，禁止长按
     override fun performLongClick(): Boolean {
-        return if (Math.abs(scrollX) > mScaleTouchSlop) {
+        return if (abs(scrollX) > mScaleTouchSlop) {
             false
         } else super.performLongClick()
     }

@@ -8,14 +8,14 @@ import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ClipboardConfig
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 
 object ClipboardHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.filterClipboard.enable) return
         val configInfo = configBean.filterClipboard.info
         // old config

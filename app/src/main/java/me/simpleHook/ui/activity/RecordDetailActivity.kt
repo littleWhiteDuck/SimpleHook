@@ -157,23 +157,23 @@ class RecordDetailActivity : BaseActivity() {
             }
             R.id.copy_text -> {
                 ToolUtils.toClip(this, currentText)
-                getString(R.string.main_home_export_configs_tip).toast(this)
+                showToast(getString(R.string.main_home_export_configs_tip))
             }
             R.id.copy_json -> {
                 ToolUtils.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
-                getString(R.string.main_home_export_configs_tip).toast(this)
+                showToast(getString(R.string.main_home_export_configs_tip))
             }
             R.id.copy_raw_data -> {
                 ToolUtils.toClip(this, rawData)
-                getString(R.string.main_home_export_configs_tip).toast(this)
+                showToast(getString(R.string.main_home_export_configs_tip))
             }
             R.id.copy_crypt_result -> {
                 ToolUtils.toClip(this, cryptResult)
-                getString(R.string.main_home_export_configs_tip).toast(this)
+                showToast(getString(R.string.main_home_export_configs_tip))
             }
             R.id.copy_return_value -> {
                 ToolUtils.toClip(this, returnValue)
-                getString(R.string.main_home_export_configs_tip).toast(this)
+                showToast(getString(R.string.main_home_export_configs_tip))
             }
         }
         return true

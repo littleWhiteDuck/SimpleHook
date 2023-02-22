@@ -32,7 +32,6 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity
@@ -45,8 +44,6 @@ import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
 import java.io.*
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -382,7 +379,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
                     Constant.NO_ROOT -> {
-                        getString(R.string.not_root_tip).toast(requireContext())
+                        requireActivity().showToast(getString(R.string.not_root_tip))
                     }
                     Constant.NO_STORAGE -> {
                         if (OSUtils.atR2T()) {
@@ -418,7 +415,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         } catch (e: java.lang.Exception) {
-            "error".toast(requireContext())
+            requireActivity().showToast("error")
         }
 
         return stringBuilder.toString()
@@ -430,8 +427,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 JsonUtil.isJsonArray(configs) -> {
                     val dataList = JsonUtil.importConfigs(configs)
                     if (dataList.isEmpty()) {
-                        getString(R.string.main_home_import_incorrect_format_tip).toast(
-                            requireContext())
+                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
                         return
                     } else {
                         ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
@@ -444,13 +440,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         val appConfig = Json.decodeFromString<AppConfig>(configs)
                         viewModel.insertConfigs(appConfig)
                     }.onFailure {
-                        getString(R.string.main_home_import_incorrect_format_tip).toast(
-                            requireContext())
+                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
                     }
                 }
             }
         } catch (e: java.lang.Exception) {
-            getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
+            requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
         }
     }
 

@@ -5,12 +5,11 @@ import android.content.Context
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigBean
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
@@ -19,19 +18,22 @@ import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.util.*
 import me.simpleHook.hook.util.HookHelper.appContext
 import me.simpleHook.hook.util.HookHelper.hostPackageName
+import me.simpleHook.hook.util.HookUtils.getObjectString
 import me.simpleHook.hook.util.LogUtil.getStackTrace
-import me.simpleHook.hook.util.LogUtil.noSuchMethod
-import me.simpleHook.hook.util.LogUtil.notFoundClass
+import me.simpleHook.hook.util.LogUtil.outHookError
 import me.simpleHook.hook.util.LogUtil.outLogMsg
 import me.simpleHook.hook.util.Type.getDataTypeValue
-import me.simpleHook.util.*
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.log
+import me.simpleHook.util.random
 import org.json.JSONObject
 
 
 object MainHook {
 
     fun readyHook(strConfig: String) {
-        if (strConfig.trim().isEmpty()) return
+        if (strConfig.isBlank()) return
         try {
             val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
@@ -56,18 +58,17 @@ object MainHook {
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             val configTemp = try {
                 val appConfig = Json.decodeFromString<AppConfig>(strConfig)
                 JsonUtil.formatJson(appConfig.configs)
-            } catch (e: java.lang.Exception) {
+            } catch (e: Throwable) {
                 strConfig
             }
             LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
                 "config: $configTemp",
                 getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
             "config error".log(hostPackageName)
-            XposedBridge.log(e.stackTraceToString())
         }
     }
 
@@ -103,7 +104,7 @@ object MainHook {
                 { recordParamsAndReturn(className, it) }
             }
             else -> {
-                throw Exception("读不懂配置")
+                throw java.lang.IllegalStateException("读不懂配置")
             }
         }
         try {
@@ -130,22 +131,8 @@ object MainHook {
                     }.hook(mode, hooker)
                 }
             }
-        } catch (e: NoSuchMethodError) {
-            noSuchMethod(className, "$methodName($params)", e.stackTraceToString())
-            getTip("noSuchMethod").log(hostPackageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: NoSuchMethodException) {
-            noSuchMethod(className, "$methodName($params)", e.stackTraceToString())
-            getTip("noSuchMethod").log(hostPackageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: XposedHelpers.ClassNotFoundError) {
-            notFoundClass(className, "$methodName($params)", e.stackTraceToString())
-            getTip("notFoundClass").log(hostPackageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: ClassNotFoundException) {
-            notFoundClass(className, "$methodName($params)", e.stackTraceToString())
-            getTip("notFoundClass").log(hostPackageName)
-            XposedBridge.log(e.stackTraceToString())
+        } catch (e: Throwable) {
+            outHookError(className, "$methodName($params)", e)
         }
 
     }
@@ -281,13 +268,7 @@ object MainHook {
         outLogMsg(logBean)
     }
 
-    private fun getObjectString(value: Any): String {
-        return if (value is String) value else try {
-            Gson().toJson(value)
-        } catch (e: Throwable) {
-            value.javaClass.name
-        }
-    }
+
 
     fun readyExtensionHook(
         strConfig: String
@@ -295,9 +276,9 @@ object MainHook {
         try {
             if (strConfig.trim().isEmpty()) return
             getTip("startExtensionHook").log(hostPackageName)
-            val configBean = Json.decodeFromString<ExtensionConfigBean>(strConfig)
+            val configBean = Json.decodeFromString<ExtensionConfig>(strConfig)
             if (!configBean.all) return
-            if (configBean.tip) "SimpleHook: StartHook".toast(appContext)
+            if (configBean.tip) appContext.showToast(msg = "SimpleHook: StartHook")
             initExtensionHook(configBean,
                 DialogHook,
                 PopupWindowHook,
@@ -319,7 +300,7 @@ object MainHook {
                 SensorMangerHook,
                 ADBHook,
                 FileHook)
-        } catch (e: java.lang.Exception) {
+        } catch (e: Throwable) {
             LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
                 "config: ${JsonUtil.formatJson(strConfig)}",
                 getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
@@ -327,7 +308,7 @@ object MainHook {
     }
 
     private fun initExtensionHook(
-        configBean: ExtensionConfigBean, vararg hooks: BaseHook
+        configBean: ExtensionConfig, vararg hooks: BaseHook
     ) {
         hooks.forEach {
             if (it.isInit) return@forEach

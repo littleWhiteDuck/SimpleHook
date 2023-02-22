@@ -2,7 +2,6 @@ package me.simpleHook.hook
 
 import com.github.kyuubiran.ezxhelper.utils.*
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
@@ -12,7 +11,6 @@ import me.simpleHook.hook.util.*
 import me.simpleHook.hook.util.HookHelper.appClassLoader
 import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.log
 
 object FieldHook {
     /**
@@ -70,31 +68,8 @@ object FieldHook {
                     }.hook(isBeforeHook, hooker)
                 }
             }
-        } catch (e: NoSuchMethodError) {
-            LogUtil.noSuchMethod(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("noSuchMethod").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-
-        } catch (e: NoSuchMethodException) {
-            LogUtil.noSuchMethod(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("noSuchMethod").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: XposedHelpers.ClassNotFoundError) {
-            LogUtil.notFoundClass(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("notFoundClass").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
-        } catch (e: ClassNotFoundException) {
-            LogUtil.notFoundClass(
-                className, "$methodName($params)", e.stackTraceToString()
-            )
-            getTip("notFoundClass").log(packageName)
-            XposedBridge.log(e.stackTraceToString())
+        } catch (e: Throwable) {
+            LogUtil.outHookError(className, "$methodName($params)", e)
         }
     }
 
@@ -104,11 +79,9 @@ object FieldHook {
         val type = if (LanguageUtils.isNotChinese()) "Static field" else "静态变量"
         val hookClass = XposedHelpers.findClass(fieldClassName, appClassLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, fieldName)
-        val list = listOf(
-            getTip("className") + fieldClassName,
+        val list = listOf(getTip("className") + fieldClassName,
             getTip("fieldName") + fieldName,
-            getTip("fieldValue") + result
-        )
+            getTip("fieldValue") + result)
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
         LogUtil.outLogMsg(logBean)
     }
@@ -140,11 +113,9 @@ object FieldHook {
         val type = if (LanguageUtils.isNotChinese()) "Instance field" else "实例变量"
         val thisObj = param.thisObject
         val result = XposedHelpers.getObjectField(thisObj, fieldName)
-        val list = listOf(
-            getTip("className") + className,
+        val list = listOf(getTip("className") + className,
             getTip("fieldName") + fieldName,
-            getTip("fieldValue") + result
-        )
+            getTip("fieldValue") + result)
         val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
         LogUtil.outLogMsg(logBean)
     }

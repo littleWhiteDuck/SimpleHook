@@ -7,7 +7,7 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.paramCount
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.FileMonitorConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
@@ -19,7 +19,7 @@ import java.io.FileOutputStream
 import java.nio.charset.Charset
 
 object FileHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.fileMonitor.enable && configBean.fileMonitor.info.contains("true")) {
             val fileMonitorConfig =
                 Json.decodeFromString<FileMonitorConfig>(configBean.fileMonitor.info)

@@ -353,7 +353,7 @@
     <string name="sort">排序</string>
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
-    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)</string>
+    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)，部分应用在Android/data下无目录，需要你手动创建，或者SimpleHook增加目标应用作用域后，重启应用会自动创建。然后再重新申请授予权限</string>
     <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
     <string name="permission_tip">由于安卓13的限制，所以只能一个应用一个应用的授权\n部分应用在Android/data/下无目录文件，需要你手动创建才能申请授权\n在此显示的均是未授权的应用</string>

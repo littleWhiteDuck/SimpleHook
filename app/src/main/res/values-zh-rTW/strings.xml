@@ -340,7 +340,7 @@
     <string name="sort">排序</string>
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
-    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)</string>
+    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)，部分應用在Android/data下無目錄，需要你手動創建，或者SimpleHook增加目標應用作用域後，重啟應用會自動創建。然後再重新申請授予權限</string>
     <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
     <string name="permission_tip">qqq</string>

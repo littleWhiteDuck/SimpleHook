@@ -12,6 +12,7 @@ import com.drakeet.about.*
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.util.ToolUtils
+import me.simpleHook.util.showToast
 import me.simpleHook.util.toast
 
 
@@ -28,7 +29,7 @@ class AboutActivity : AbsAboutActivity() {
             android.R.id.home -> finish()
             R.id.feedback -> {
                 ToolUtils.toClip(this, "feedback@fduck.life")
-                getString(R.string.about_clip_email_tip).toast(this)
+                showToast(message = getString(R.string.about_clip_email_tip))
             }
             R.id.add_group -> {
                 val intent = Intent(ACTION_VIEW).also {

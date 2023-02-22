@@ -2,7 +2,7 @@ package me.simpleHook.hook.extension
 
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper
@@ -13,7 +13,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 object AESHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.crypt) return
         val map: HashMap<String, String> = HashMap()
         XposedBridge.hookAllConstructors(IvParameterSpec::class.java, object : XC_MethodHook() {

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.bean.AppConfigBean
+import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.view.main.AppConfigView
@@ -21,7 +21,7 @@ class HomeAdapter(
     private val onClick: (AppConfig, mode: Int) -> Unit,
     private val onChange: (AppConfig, Boolean) -> Unit,
     private val onDrag: (holder: RecyclerView.ViewHolder) -> Unit
-) : ListAdapter<AppConfigBean, HomeAdapter.ViewHolder>(AppDiffCallback) {
+) : ListAdapter<CustomConfigItem, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -100,12 +100,12 @@ class HomeAdapter(
         val dragImage = containerView.dragImage
     }
 
-    object AppDiffCallback : DiffUtil.ItemCallback<AppConfigBean>() {
-        override fun areItemsTheSame(oldItem: AppConfigBean, newItem: AppConfigBean) =
+    object AppDiffCallback : DiffUtil.ItemCallback<CustomConfigItem>() {
+        override fun areItemsTheSame(oldItem: CustomConfigItem, newItem: CustomConfigItem) =
             oldItem.appConfig.id == newItem.appConfig.id
 
         override fun areContentsTheSame(
-            oldItem: AppConfigBean, newItem: AppConfigBean
+            oldItem: CustomConfigItem, newItem: CustomConfigItem
         ): Boolean {
             val oldItemConfig = oldItem.appConfig
             val newItemConfig = newItem.appConfig

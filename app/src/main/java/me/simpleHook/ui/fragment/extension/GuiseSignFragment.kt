@@ -33,16 +33,13 @@ import me.simpleHook.GlobalServices
 import me.simpleHook.R
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
-import me.simpleHook.hook.util.byte2Sting
+import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.extension.EditSignatureView
 import me.simpleHook.ui.view.extension.GuiseSignatureItem
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.toast
+import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
 import java.io.IOException
 import java.io.InputStream
@@ -96,9 +93,7 @@ class GuiseSignFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(
-            true
-        ) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (tempConfig == appSignItems.toString()) {
                     onBackPressedCallback.isEnabled = false
@@ -123,9 +118,7 @@ class GuiseSignFragment : Fragment() {
                 }
             }
         }
-        dispatcher.addCallback(
-            this, onBackPressedCallback
-        )
+        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onCreateView(
@@ -161,14 +154,10 @@ class GuiseSignFragment : Fragment() {
         }
         val guiseSigns = Json.decodeFromString<List<GuiseSignConfig>>(signInfo.signData)
         guiseSigns.forEach {
-            appSignItems.add(
-                AppInfo(
-                    AppUtils.getAppName(requireContext(), it.packageName),
-                    it.packageName,
-                    it.signData,
-                    it.enable
-                )
-            )
+            appSignItems.add(AppInfo(AppUtils.getAppName(requireContext(), it.packageName),
+                it.packageName,
+                it.signData,
+                it.enable))
         }
         tempConfig = appSignItems.toString()
         notifyDataSetChanged()
@@ -181,9 +170,8 @@ class GuiseSignFragment : Fragment() {
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             add.setOnClickListener {
-                startActivityForAppInfo.launch(
-                    Intent(requireContext(), AppListActivity::class.java)
-                )
+                startActivityForAppInfo.launch(Intent(requireContext(),
+                    AppListActivity::class.java))
             }
         }
         val navHostFragment =
@@ -227,7 +215,7 @@ class GuiseSignFragment : Fragment() {
             }
 
         }.onFailure {
-            "失败".toast(requireContext())
+            requireActivity().showToast("失败")
         }.recoverCatching {
             FileUtils.deleteDir(cacheFile)
         }
@@ -281,11 +269,9 @@ class GuiseSignFragment : Fragment() {
         @Suppress("DEPRECATION")
         val packInfo =
             GlobalServices.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-        appSignItems.add(
-            @Suppress("DEPRECATION") AppInfo(
-                appName, packageName, packInfo.signatures[0].toCharsString()
-            )
-        )
+        appSignItems.add(@Suppress("DEPRECATION") AppInfo(appName,
+            packageName,
+            packInfo.signatures[0].toCharsString()))
         notifyDataSetChanged(appSignItems.size)
         binding.tip.isVisible = false
     }

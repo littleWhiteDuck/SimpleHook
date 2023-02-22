@@ -3,6 +3,7 @@ package me.simpleHook.hook.util
 import android.net.Uri
 import android.os.Build.VERSION_CODES
 import androidx.core.content.contentValuesOf
+import de.robv.android.xposed.XposedHelpers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
@@ -43,9 +44,11 @@ object LogUtil {
             val printLogStr = Json.encodeToString(printLog)
             val filePath =
                 Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-            FileUtils.outTextToFile(
-                filePath, printLogStr, isNewLine = true, limitSize = 4096, append = true
-            )
+            FileUtils.outTextToFile(filePath,
+                printLogStr,
+                isNewLine = true,
+                limitSize = 4096,
+                append = true)
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip(hostPackageName)
             log.log(hostPackageName)
@@ -56,14 +59,12 @@ object LogUtil {
         log: String, tempPackageName: String, type: String, time: String
     ) {
         try {
-            val contentValues = contentValuesOf(
-                "packageName" to tempPackageName,
+            val contentValues = contentValuesOf("packageName" to tempPackageName,
                 "log" to log,
                 "read" to 0,
                 "type" to type,
                 "time" to time,
-                "isMark" to 0
-            )
+                "isMark" to 0)
             HookHelper.appContext.contentResolver?.insert(PRINT_URI, contentValues)
         } catch (e: Exception) {
             "error occurred while saving log to the database".tip(hostPackageName)
@@ -96,29 +97,38 @@ object LogUtil {
         outLogMsg(logBean)
     }
 
-    fun notFoundClass(
+    private fun notFoundClass(
         className: String, methodName: String, error: String
     ) {
-        val list = listOf(
-            Tip.getTip("errorType") + "ClassNotFoundError",
+        Tip.getTip("notFoundClass").log(hostPackageName)
+        val list = listOf(Tip.getTip("errorType") + "ClassNotFoundError",
             Tip.getTip("solution") + Tip.getTip("notFoundClass"),
             Tip.getTip("filledClassName") + className,
             Tip.getTip("filledMethodOrField") + methodName,
-            Tip.getTip("detailReason") + error
-        )
+            Tip.getTip("detailReason") + error)
         outLog(list, "Error ClassNotFoundError")
     }
 
-    fun noSuchMethod(
+    private fun noSuchMethod(
         className: String, methodName: String, error: String
     ) {
-        val list = listOf(
-            Tip.getTip("errorType") + "NoSuchMethodError",
+        Tip.getTip("noSuchMethod").log(hostPackageName)
+        val list = listOf(Tip.getTip("errorType") + "NoSuchMethodError",
             Tip.getTip("solution") + Tip.getTip("useSmali2Config"),
             Tip.getTip("filledClassName") + className,
             Tip.getTip("filledMethodParams") + methodName,
-            Tip.getTip("detailReason") + error
-        )
+            Tip.getTip("detailReason") + error)
         outLog(list, "Error NoSuchMethodError")
+    }
+
+    fun outHookError(className: String, methodName: String, exception: Throwable) {
+        when (exception) {
+            is NoSuchMethodError, is NoSuchMethodException -> {
+                noSuchMethod(className, methodName, exception.stackTraceToString())
+            }
+            is XposedHelpers.ClassNotFoundError, is ClassNotFoundException -> {
+                notFoundClass(className, methodName, exception.stackTraceToString())
+            }
+        }
     }
 }

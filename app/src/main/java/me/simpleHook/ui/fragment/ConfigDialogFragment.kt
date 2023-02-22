@@ -39,9 +39,7 @@ class ConfigDialogFragment(
     private val viewModel by activityViewModels<AppViewModel>()
     private val mAdapter by lazy {
         ImExportAdapter { checked: Boolean, position: Int ->
-            onCheckedChange(
-                checked, position
-            )
+            onCheckedChange(checked, position)
         }
     }
     private val configSystem = ConfigSystemUtil.getConfigSystem()
@@ -116,9 +114,8 @@ class ConfigDialogFragment(
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                if (isEnableSave) configSystem.saveCustomConfig(
-                                    item.appConfig.packageName, Json.encodeToString(item.appConfig)
-                                )
+                                if (isEnableSave) configSystem.saveCustomConfig(item.appConfig.packageName,
+                                    Json.encodeToString(item.appConfig))
                             }
                             tempList.add(item.appConfig.copy(enable = isEnableSave))
                         }
@@ -126,9 +123,9 @@ class ConfigDialogFragment(
                     tempList.reverse()
                     viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
-                        "为空".toast(mContext)
+                        requireActivity().showToast("为空")
                     } else {
-                        "导入成功".toast(mContext)
+                        requireActivity().showToast("导入成功")
                         this@ConfigDialogFragment.dismiss()
                     }
                     if (tag == "from text import") {
@@ -143,14 +140,13 @@ class ConfigDialogFragment(
                         }
                     }
                     if (checkIsZero) {
-                        "为空".toast(mContext)
+                        requireActivity().showToast("为空")
                     } else {
                         val strConfig =
                             if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else getStringJSConfig(
-                                tempList
-                            )
+                                tempList)
                         ToolUtils.toClip(mContext, strConfig)
-                        getString(R.string.main_home_export_configs_tip).toast(mContext)
+                        requireActivity().showToast(getString(R.string.main_home_export_configs_tip))
                         this@ConfigDialogFragment.dismiss()
                     }
                 }
@@ -162,8 +158,7 @@ class ConfigDialogFragment(
                     isAnti = true
                     selectAll.text =
                         if (isAnti) getString(R.string.config_dialog_button_invert_selection) else getString(
-                            R.string.config_dialog_button_select_all
-                        )
+                            R.string.config_dialog_button_select_all)
                     setAllSelect()
                 }
             }
@@ -240,9 +235,8 @@ class ConfigDialogFragment(
                     Constant.HOOK_STATIC_FIELD -> {
                         val staticFieldStr =
                             staticField.replace("类名", fieldClassName).replace("变量名", fieldName)
-                                .replace(
-                                    "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
-                                )
+                                .replace("变量值",
+                                    getValue(Type.getDataTypeValue(resultValues)).toString())
                         val thisResult =
                             hookMode.replace("afterHook", staticFieldStr).replace("beforeHook", "")
                                 .replace("类名", className).replace("方法名", methodName)
@@ -250,9 +244,9 @@ class ConfigDialogFragment(
                         "\n${thisResult}\n"
                     }
                     Constant.HOOK_FIELD -> {
-                        val instanceFieldStr = instanceField.replace("变量名", fieldName).replace(
-                            "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
-                        )
+                        val instanceFieldStr = instanceField.replace("变量名", fieldName)
+                            .replace("变量值",
+                                getValue(Type.getDataTypeValue(resultValues)).toString())
                         val thisResult = hookMode.replace("afterHook", instanceFieldStr)
                             .replace("beforeHook", "").replace("类名", className)
                             .replace("方法名", methodName).replace("params", transParams(params))

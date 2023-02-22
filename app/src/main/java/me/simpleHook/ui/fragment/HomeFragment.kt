@@ -32,7 +32,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalServices
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
-import me.simpleHook.bean.AppConfigBean
+import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
@@ -52,18 +52,17 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private val viewModel: AppViewModel by activityViewModels()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private var filterConfigs: List<AppConfigBean> = ArrayList()
-    private var tempConfigs = ArrayList<AppConfigBean>()
+    private var filterConfigs: List<CustomConfigItem> = ArrayList()
+    private var tempConfigs = ArrayList<CustomConfigItem>()
     private lateinit var mContext: Context
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter(menuListener = { appConfig, menu ->
             onItemCreateContextMenu(appConfig, menu)
+        }, onClick = { appConfig, mode ->
+            onItemClick(mode, appConfig)
         },
-            onClick = { appConfig, mode ->
-                onItemClick(mode, appConfig)
-            },
             onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             onDrag = { holder -> startDrag(holder) })
     }
@@ -100,9 +99,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             } else {
                 binding.emptyTip.visibility = View.GONE
             }
-            val tempConfigs = ArrayList<AppConfigBean>()
+            val tempConfigs = ArrayList<CustomConfigItem>()
             it.forEach { appConfig ->
-                tempConfigs.add(AppConfigBean(appConfig))
+                tempConfigs.add(CustomConfigItem(appConfig))
             }
             filterConfigs = tempConfigs
             if (currentPattern.isEmpty()) {
@@ -252,7 +251,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private fun copyConfigs(config: AppConfig) {
         val configs: AppConfig = config
         ToolUtils.toClip(requireContext(), Json.encodeToString(configs))
-        getString(R.string.main_home_export_configs_tip).toast(requireContext())
+        requireActivity().showToast(getString(R.string.main_home_export_configs_tip))
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -335,7 +334,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             fetchText(urlString)?.let {
                 importConfigs(it)
-            } ?: getString(R.string.error_get_config_from_internet).toast(requireContext())
+            } ?: requireActivity().showToast(getString(R.string.error_get_config_from_internet))
             loadingDialog.dismiss()
         }
     }
@@ -357,7 +356,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
             JsonUtil.isJsonArray(configs) -> {
                 val dataList = JsonUtil.importConfigs(configs)
                 if (dataList.isEmpty()) {
-                    getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
+                    requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
                     return
                 } else {
                     ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
@@ -374,12 +373,12 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                         configSystem.saveCustomConfig(appConfig.packageName, configs)
                     }.onFailure {
                         Looper.prepare()
-                        getString(R.string.main_home_import_incorrect_format_tip).toast(mContext)
+                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
                         Looper.loop()
                     }
                 }
             }
-            else -> getString(R.string.main_home_import_incorrect_format_tip).toast(requireContext())
+            else -> requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
         }
     }
 
@@ -435,7 +434,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
                 if (currentPattern.isEmpty()) {
                     startDragSort()
                 } else {
-                    getString(R.string.main_sort_tip_exit_search).toast(requireContext())
+                    requireActivity().showToast(getString(R.string.main_sort_tip_exit_search))
                 }
             }
         }

@@ -4,7 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 
 object SensorMangerHook : BaseHook() {
     private val sensorTypes =
@@ -17,7 +17,7 @@ object SensorMangerHook : BaseHook() {
         Sensor.TYPE_STEP_COUNTER)
     // Sensor.TYPE_ACCELEROMETER_UNCALIBRATED
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.disSensorAG || configBean.disSensorSport) {
             findAllMethods(SensorManager::class.java) {
                 name == "getSensorList" || name == "getDynamicSensorList"

@@ -6,17 +6,17 @@ import android.widget.TextView
 import android.widget.Toast
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.hook.util.getAllTextView
 import me.simpleHook.util.log
 
 object ToastHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.toast) return
         XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
@@ -43,9 +43,8 @@ object ToastHook : BaseHook() {
                     }
                 }
                 val type = "Toast"
-                val logBean = LogBean(
-                    type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
-                )
+                val logBean =
+                    LogBean(type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName)
                 LogUtil.outLogMsg(logBean)
             }
         })
