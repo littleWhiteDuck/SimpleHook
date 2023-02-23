@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordSummaryItemView
 import me.simpleHook.util.*
 

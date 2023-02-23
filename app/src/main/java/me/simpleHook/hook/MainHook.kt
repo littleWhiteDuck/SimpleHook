@@ -25,8 +25,8 @@ import me.simpleHook.hook.util.LogUtil.outLogMsg
 import me.simpleHook.hook.util.Type.getDataTypeValue
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.log
-import me.simpleHook.util.random
+import me.simpleHook.extension.log
+import me.simpleHook.extension.random
 import org.json.JSONObject
 
 

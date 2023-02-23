@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.toColorInt
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class ExtensionItemTitleView(context: Context) : AppCompatTextView(context) {
     init {

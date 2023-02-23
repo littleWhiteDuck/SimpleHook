@@ -34,12 +34,16 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
-import me.simpleHook.compat.ConfigSystemUtil
+import me.simpleHook.compat.BundleCompat
+import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.isContainState
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
 import me.simpleHook.ui.fragment.ConfigBottomSheetFragment
@@ -108,7 +112,7 @@ class ConfigActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val bundle = intent.getBundleExtra("bundle")
-        appConfig = bundle?.getCompatParcelable("appConfig", AppConfig::class.java)
+        appConfig = bundle?.let { BundleCompat.getParcelable(it, "appConfig") }
         tempPackageName = appConfig?.packageName ?: ""
         initView()
     }

@@ -29,10 +29,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
+import me.simpleHook.extension.showToast
 import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -268,7 +269,7 @@ class GuiseSignFragment : Fragment() {
     private fun addApp(appName: String, packageName: String) {
         @Suppress("DEPRECATION")
         val packInfo =
-            GlobalServices.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            GlobalValue.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
         appSignItems.add(@Suppress("DEPRECATION") AppInfo(appName,
             packageName,
             packInfo.signatures[0].toCharsString()))

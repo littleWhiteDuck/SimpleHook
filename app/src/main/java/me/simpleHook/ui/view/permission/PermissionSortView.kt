@@ -8,7 +8,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class PermissionSortView(context: Context) : CustomViewGroup(context) {
 

@@ -1,31 +1,28 @@
-package me.simpleHook.compat
+package me.simpleHook.util
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import me.simpleHook.compat.DocumentCompatUtils.alterDocument
-import me.simpleHook.compat.DocumentCompatUtils.changeToUri
-import me.simpleHook.compat.DocumentCompatUtils.generateAppUri
-import me.simpleHook.compat.DocumentCompatUtils.getDocumentFile
-import me.simpleHook.compat.DocumentCompatUtils.isChildExists
+import me.simpleHook.compat.DocumentCompat.alterDocument
+import me.simpleHook.compat.DocumentCompat.isChildExists
+import me.simpleHook.compat.DocumentCompat.getDocumentFile
 import me.simpleHook.constant.Constant
 
-object DocumentTUtils {
+object DocumentRUtils {
 
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
         val baseString =
-            "${Constant.ANDROID_DATA_URI}%2F$packageName/document/primary%3AAndroid%2Fdata%2F$packageName"
+            "${Constant.ANDROID_DATA_URI}/document/primary%3AAndroid%2Fdata%2F$packageName"
         val path = filePath.replace(Constant.ANDROID_DATA_PATH + packageName, "")
         return Uri.parse(baseString + path.replace("/", "%2F"))
     }
 
 
-    fun makeDirs(context: Context, path: String, packageName: String): Boolean {
+    fun makeDirs(context: Context, path: String): Boolean {
         return runCatching {
-            val paths = path.replace(Constant.ANDROID_DATA_PATH + packageName, "").split("/")
-            val rootUri = generateAppUri(packageName)
+            val paths = path.replace(Constant.ANDROID_DATA_PATH, "").split("/")
+            val rootUri = Uri.parse(Constant.ANDROID_DATA_URI)
             var documentFile = DocumentFile.fromTreeUri(context, rootUri)
             for (i in paths.indices) {
                 if (paths[i].isEmpty()) continue
@@ -45,8 +42,8 @@ object DocumentTUtils {
         mimiType: String = "application/json"
     ): Boolean {
         return runCatching {
-            val paths = "simpleHook/config".split("/")
-            val rootUri = Uri.parse(changeToUri(Constant.ANDROID_DATA_PATH + packageName))
+            val paths = "$packageName/simpleHook/config".split("/")
+            val rootUri = Uri.parse(Constant.ANDROID_DATA_URI)
             var documentFile = DocumentFile.fromTreeUri(context, rootUri)
             for (i in paths.indices) {
                 if (paths[i].isEmpty()) continue
@@ -62,11 +59,27 @@ object DocumentTUtils {
         }.getOrDefault(false)
     }
 
+    @Suppress("unused")
+    fun deleteDocumentDir(
+        context: Context, path: String
+    ): Boolean {
+        return runCatching {
+            val paths = path.replace(Constant.ANDROID_DATA_PATH, "").split("/")
+            val dataUri = Uri.parse(Constant.ANDROID_DATA_URI)
+            var documentFile = DocumentFile.fromTreeUri(context, dataUri)
+            for (i in paths.indices) {
+                if (paths[i].isEmpty()) continue
+                documentFile = getDocumentFile(documentFile!!, paths[i])
+            }
+            documentFile?.delete() ?: false
+        }.getOrDefault(false)
+    }
 
+    @Suppress("UNUSED_PARAMETER")
     fun getFileUri(context: Context, packageName: String, path: String): Uri? {
         return runCatching {
-            val rootUri = generateAppUri(packageName)
-            val paths = path.replace(Constant.ANDROID_DATA_PATH + packageName, "").split("/")
+            val rootUri = Uri.parse(Constant.ANDROID_DATA_URI)
+            val paths = path.replace(Constant.ANDROID_DATA_PATH, "").split("/")
             var documentFile = DocumentFile.fromTreeUri(context, rootUri) ?: return null
             for (i in paths.indices) {
                 if (paths[i].isEmpty()) continue
@@ -75,6 +88,5 @@ object DocumentTUtils {
             if (documentFile.uri != rootUri) return documentFile.uri else return null
         }.getOrNull()
     }
-
 
 }

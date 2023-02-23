@@ -7,7 +7,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 import kotlin.math.max
 
 class ShareItemView(context: Context) : CustomViewGroup(context) {

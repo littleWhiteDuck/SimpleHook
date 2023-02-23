@@ -9,8 +9,8 @@ import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.GlideApp
-import me.simpleHook.util.dp
-import me.simpleHook.util.marquee
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.marquee
 
 class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
     private lateinit var listener: OnItemClickListener

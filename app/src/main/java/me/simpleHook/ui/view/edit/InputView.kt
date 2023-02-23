@@ -5,7 +5,7 @@ import android.widget.LinearLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class InputView(context: Context) : CustomViewGroup(context) {
 

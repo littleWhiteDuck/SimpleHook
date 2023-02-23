@@ -17,7 +17,7 @@ import androidx.core.view.marginTop
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomSwipeCardViewGroup
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 import kotlin.math.max
 
 class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {

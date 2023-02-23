@@ -12,8 +12,8 @@ import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.addViews
-import me.simpleHook.util.dp
+import me.simpleHook.extension.addViews
+import me.simpleHook.extension.dp
 
 
 class SubSelectItemView(context: Context) : CustomViewGroup(context) {

@@ -6,10 +6,12 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.App
 import me.simpleHook.constant.Constant
+import me.simpleHook.util.DocumentRUtils
+import me.simpleHook.util.DocumentTUtils
 import me.simpleHook.util.OSUtils
 import java.io.FileOutputStream
 
-object DocumentCompatUtils {
+object DocumentCompat {
 
     fun generateAppUri(packageName: String): Uri {
         return Uri.parse(Constant.ANDROID_DATA_URI + "%2F" + packageName)

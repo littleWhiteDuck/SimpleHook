@@ -8,7 +8,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.graphics.toColorInt
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomSwipeCardViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 
 class RecordItemView(context: Context) :

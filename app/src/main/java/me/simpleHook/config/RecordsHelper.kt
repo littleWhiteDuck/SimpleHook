@@ -6,7 +6,7 @@ import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.compat.DocumentCompatUtils
+import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.util.FileUtils
@@ -41,11 +41,9 @@ object RecordsHelper {
                 suFile.delete()
             } else if (OSUtils.atLeastR()) {
 //                val fileUri = Uri.parse(changeToUri())
-                val fileUri = DocumentCompatUtils.generateFileUri(
-                    packageName,
-                    Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-                )
-                if (!DocumentCompatUtils.isFileExists(context, fileUri)) return emptyList()
+                val fileUri = DocumentCompat.generateFileUri(packageName,
+                    Constant.ANDROID_DATA_PATH + packageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY)
+                if (!DocumentCompat.isFileExists(context, fileUri)) return emptyList()
                 context.contentResolver.openInputStream(fileUri)!!.also { inputStream ->
                     val bufferedReader = BufferedReader(InputStreamReader(inputStream))
                     bufferedReader.useLines {

@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
-import me.simpleHook.compat.DocumentCompatUtils
+import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract2
 import me.simpleHook.databinding.ActivityA33PermissionBinding
@@ -51,7 +51,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                     val takeFlags: Int =
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    if (uri == DocumentCompatUtils.generateAppUri(needApplyApps.first())) {
+                    if (uri == DocumentCompat.generateAppUri(needApplyApps.first())) {
                         needApplyApps.remove(needApplyApps.first())
                         batchGrant()
                         if (needApplyApps.isEmpty()) {
@@ -179,7 +179,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
 
     private fun batchGrant() {
         if (needApplyApps.isNotEmpty()) {
-            startActivityForData.launch(DocumentCompatUtils.generateAppUri(needApplyApps.first()))
+            startActivityForData.launch(DocumentCompat.generateAppUri(needApplyApps.first()))
         }
     }
 

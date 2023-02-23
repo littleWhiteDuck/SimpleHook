@@ -8,7 +8,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class EditSignatureView(context: Context) : CustomViewGroup(context) {
     val editText = TextInputEditText(context).apply {

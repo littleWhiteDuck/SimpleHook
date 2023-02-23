@@ -1,4 +1,4 @@
-package me.simpleHook.compat
+package me.simpleHook.config
 
 import me.simpleHook.util.AppUtils
 

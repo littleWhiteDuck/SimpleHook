@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
 import me.simpleHook.bean.CustomConfigItem
@@ -38,6 +38,9 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.fetchText
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -235,7 +238,7 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         val isInstalled = AppUtils.isAppInstalled(appConfig.packageName)
         if (isInstalled) {
             requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
-            if (GlobalServices.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
+            if (GlobalValue.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
                 menu.removeItem(R.id.menu_launch)
                 menu.removeItem(R.id.menu_relaunch)
             }

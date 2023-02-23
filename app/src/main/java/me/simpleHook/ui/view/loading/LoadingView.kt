@@ -6,7 +6,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.widget.AppCompatTextView
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 
 class LoadingView(context: Context) : CustomViewGroup(context) {

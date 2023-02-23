@@ -11,6 +11,8 @@ import android.view.*
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -26,16 +28,19 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.compat.ConfigSystemUtil
-import me.simpleHook.compat.DocumentCompatUtils
+import me.simpleHook.compat.DocumentCompat
+import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentExtensionManagerBinding
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.showToast
+import me.simpleHook.extension.snack
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -103,7 +108,7 @@ class ManagerFragment : Fragment() {
                 val isInstalled =
                     AppUtils.isAppInstalled(requireContext(), extensionConfig.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
-                if (GlobalServices.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtils.rootVersion) {
+                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtils.rootVersion) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
                 if (!isInstalled) {
@@ -132,8 +137,8 @@ class ManagerFragment : Fragment() {
                     R.id.menu_relaunch -> {
                         showFloatWindow()
                         if (FlavorUtils.rootVersion) {
-                            val intent = GlobalServices.packageManager.getLaunchIntentForPackage(
-                                extensionConfig.packageName)
+                            val intent =
+                                GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName)
                             intent?.component?.className?.let { className ->
                                 SuUtil.reLaunchApp(extensionConfig.packageName, className)
                             }
@@ -227,7 +232,7 @@ class ManagerFragment : Fragment() {
         } else {
             val path = Constant.ANDROID_DATA_PATH + extensionConfig.packageName + "/simpleHook/dex"
             if (OSUtils.atLeastR()) {
-                DocumentCompatUtils.makeDirs(requireContext(), path, extensionConfig.packageName)
+                DocumentCompat.makeDirs(requireContext(), path, extensionConfig.packageName)
             } else {
                 FileUtils.makeDirs(path)
             }
@@ -251,7 +256,7 @@ class ManagerFragment : Fragment() {
         ) {
             requestPermissionDialog(requireContext(),
                 message = getString(R.string.android_13_no_permission)) {
-                val uri = DocumentCompatUtils.generateAppUri(extensionConfig.packageName)
+                val uri = DocumentCompat.generateAppUri(extensionConfig.packageName)
                 startActivityForData.launch(uri)
             }
             return false
@@ -317,6 +322,21 @@ class ManagerFragment : Fragment() {
         binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
             LinearLayout.VERTICAL))
         binding.recyclerView.isVerticalScrollBarEnabled = false
+        var paddingBottom = 0
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val isGesture =
+                navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
+            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            if (navigationInsets.bottom == 0) paddingBottom += 10.dp
+            paddingBottom = if (isGesture) {
+                paddingBottom + navigationInsets.bottom
+            } else {
+                paddingBottom + navigationInsets.bottom
+            }
+            binding.recyclerView.setPadding(0, 0, 0, paddingBottom)
+            windowInsets
+        }
         if (items.isNotEmpty()) return
         configBean.apply {
             items.apply {
@@ -402,15 +422,6 @@ class ManagerFragment : Fragment() {
                     jsonArray,
                     "jsonArray",
                     getString(R.string.extension_item_desc_json_array)))
-                add(Title("WebView"))
-                add(ExtensionItem(title = "loadUrl",
-                    webLoadUrl,
-                    "webLoadUrl",
-                    getString(R.string.extension_item_desc_web_load_url)))
-                add(ExtensionItem(title = "Debug",
-                    webDebug,
-                    "webDebug",
-                    getString(R.string.extension_item_desc_web_debug)))
                 add(Title(getString(R.string.extension_item_title_others)))
                 add(ExtensionItem(getString(R.string.extension_item_title_signature),
                     signature,
@@ -445,6 +456,15 @@ class ManagerFragment : Fragment() {
                     vpn,
                     "vpn",
                     getString(R.string.extension_item_desc_vpn)))
+                add(Title("WebView"))
+                add(ExtensionItem(title = "loadUrl",
+                    webLoadUrl,
+                    "webLoadUrl",
+                    getString(R.string.extension_item_desc_web_load_url)))
+                add(ExtensionItem(title = "Debug",
+                    webDebug,
+                    "webDebug",
+                    getString(R.string.extension_item_desc_web_debug)))
             }
             adapter.items = items
             adapter.notifyDataSetChanged()

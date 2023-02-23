@@ -14,7 +14,7 @@ import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.databinding.FragmentAppListBinding
 import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 
 class AppListFragment(private val tagFragment: String = "user") : Fragment() {

@@ -12,7 +12,7 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.ConfigUtil
 import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.util.log
+import me.simpleHook.extension.log
 
 class HookInit : IXposedHookLoadPackage {
 

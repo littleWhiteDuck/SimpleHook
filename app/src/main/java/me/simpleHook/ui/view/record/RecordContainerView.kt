@@ -10,7 +10,7 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 import kotlin.math.max
 
 class RecordContainerView(context: Context) : CustomViewGroup(context) {

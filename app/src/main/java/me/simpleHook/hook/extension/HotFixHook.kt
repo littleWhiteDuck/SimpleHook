@@ -7,8 +7,8 @@ import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.log
-import me.simpleHook.util.tip
+import me.simpleHook.extension.log
+import me.simpleHook.extension.tip
 import java.io.File
 
 object HotFixHook : BaseHook() {

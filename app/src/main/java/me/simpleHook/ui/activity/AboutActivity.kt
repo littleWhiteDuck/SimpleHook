@@ -12,8 +12,7 @@ import com.drakeet.about.*
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.showToast
-import me.simpleHook.util.toast
+import me.simpleHook.extension.showToast
 
 
 class AboutActivity : AbsAboutActivity() {

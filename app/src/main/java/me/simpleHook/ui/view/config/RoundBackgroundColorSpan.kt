@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
 import android.graphics.RectF
 import android.text.style.ReplacementSpan
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 
 class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: Int) :

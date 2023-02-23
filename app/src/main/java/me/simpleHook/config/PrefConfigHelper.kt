@@ -1,10 +1,10 @@
-package me.simpleHook.compat
+package me.simpleHook.config
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import me.simpleHook.App
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 
@@ -16,7 +16,7 @@ class PrefConfigHelper : ConfigSystem {
     }
 
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || customPref != null
+        return !AppUtils.isAppInstalled(packageName) || !GlobalValue.sp.checkPermission || customPref != null
     }
 
     override fun saveCustomConfig(packageName: String, content: String): Boolean {

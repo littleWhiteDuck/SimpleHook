@@ -13,8 +13,8 @@ import androidx.core.view.marginTop
 import com.google.android.material.card.MaterialCardView
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
-import me.simpleHook.util.marquee
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.marquee
 import kotlin.math.max
 
 class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :

@@ -14,7 +14,7 @@ import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class RecordAdapter(
     val isType: Boolean = false,

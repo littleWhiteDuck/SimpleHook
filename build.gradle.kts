@@ -3,6 +3,8 @@ buildscript {
     extra["kotlin_version"] = "1.5.30"
 
     repositories {
+        maven("https://maven.aliyun.com/repository/public")
+        maven("https://maven.aliyun.com/repository/google")
         google()
         mavenCentral()
         maven("https://jitpack.io")
@@ -10,7 +12,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:7.4.1")
         val kotlinVersion = "1.8.10"
-        classpath(kotlin("gradle-plugin", version = kotlinVersion))
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20-Beta")
         classpath(kotlin("serialization", version = kotlinVersion))
         val nav_version = "2.5.3"
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
@@ -21,6 +23,8 @@ buildscript {
 
 allprojects {
     repositories {
+        maven("https://maven.aliyun.com/repository/public")
+        maven("https://maven.aliyun.com/repository/google")
         google()
         mavenCentral()
         maven("https://jitpack.io")

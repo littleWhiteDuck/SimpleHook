@@ -1,4 +1,4 @@
-package me.simpleHook.util
+package me.simpleHook.extension
 
 import android.animation.Animator
 import android.animation.TimeInterpolator
@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
-import androidx.preference.DialogPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import androidx.viewpager2.widget.ViewPager2
@@ -22,6 +21,8 @@ import com.google.android.material.snackbar.Snackbar
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.OSUtils
 import org.json.JSONObject
 import java.net.URL
 import kotlin.math.roundToInt
@@ -188,15 +189,6 @@ fun ViewGroup.addViews(vararg views: View): ViewGroup {
     return this
 }
 
-
-@Suppress("DEPRECATION")
-fun <T : Parcelable?> Bundle.getCompatParcelable(key: String, clazz: Class<T>): T? {
-    return if (OSUtils.atLeastT()) {
-        getParcelable(key, clazz)
-    } else {
-        getParcelable(key)
-    }
-}
 
 fun PreferenceGroup.addPreferences(vararg preferences: Preference) {
     preferences.forEach {

@@ -10,7 +10,7 @@ import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.FlavorUtils.PROVIDER_CONFIG_URI
 import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI
-import me.simpleHook.util.log
+import me.simpleHook.extension.log
 import java.io.File
 
 object ConfigUtil {

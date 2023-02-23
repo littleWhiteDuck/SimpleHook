@@ -9,12 +9,12 @@ import androidx.core.view.isVisible
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.simpleHook.R
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 @SuppressLint("ResourceType")
 class FloatingActionButton(context: Context, attrs: AttributeSet) :
     CustomViewGroup(context, attrs) {
-    var actionViewAlpha = 0f
+    private var actionViewAlpha = 0f
         set(value) {
             field = value
             refreshShowState()

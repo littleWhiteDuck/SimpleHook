@@ -9,7 +9,8 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
+import me.simpleHook.extension.showToast
 
 
 @Suppress("DEPRECATION")
@@ -24,7 +25,7 @@ object AppUtils {
 
     fun isAppInstalled(packageName: String): Boolean {
         return runCatching {
-            GlobalServices.packageManager.getPackageInfo(packageName, 0) != null
+            GlobalValue.packageManager.getPackageInfo(packageName, 0) != null
         }.getOrDefault(false)
     }
 

@@ -25,13 +25,14 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.compat.ConfigSystemUtil
-import me.simpleHook.compat.PrefConfigHelper
+import me.simpleHook.config.ConfigSystemUtil
+import me.simpleHook.config.PrefConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.MainActivity

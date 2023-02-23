@@ -11,13 +11,10 @@ object AssetsUtil {
     }
 
     fun getText(inputStream: InputStream): String? {
-        val bufferedReader = BufferedReader(InputStreamReader(inputStream))
-        return try {
-            bufferedReader.readText()
-        } catch (e: Exception) {
-            null
-        } finally {
-            bufferedReader.close()
-        }
+        return runCatching {
+            BufferedReader(InputStreamReader(inputStream)).use {
+                it.readText()
+            }
+        }.getOrNull()
     }
 }

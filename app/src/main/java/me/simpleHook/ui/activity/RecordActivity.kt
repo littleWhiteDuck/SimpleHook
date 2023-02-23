@@ -33,9 +33,12 @@ import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordAdapter
 import me.simpleHook.bean.RecordSummary
+import me.simpleHook.compat.BundleCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -88,9 +91,8 @@ class RecordActivity : BaseActivity() {
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle =
             intent.getBundleExtra("bundle") ?: throw NullPointerException("Bundle  is null")
-        val recordSummary: RecordSummary =
-            bundle.getCompatParcelable("recordSummary", RecordSummary::class.java)
-                ?: throw NullPointerException("Record summary is null")
+        val recordSummary: RecordSummary = BundleCompat.getParcelable(bundle, "recordSummary")
+            ?: throw NullPointerException("Record summary is null")
         isType = recordSummary.type.isNotEmpty()
         typeOrPackageName = if (isType) recordSummary.type else recordSummary.packageName
         if (isType) {

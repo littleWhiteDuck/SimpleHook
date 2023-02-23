@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.View
 import android.view.ViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class ControlView(context: Context) : View(context) {
     init {

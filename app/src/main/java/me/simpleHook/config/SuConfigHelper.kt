@@ -1,6 +1,7 @@
-package me.simpleHook.compat
+package me.simpleHook.config
 
-import me.simpleHook.GlobalServices
+import me.simpleHook.GlobalValue
+import me.simpleHook.util.SuFileUtils
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FileUtils
@@ -8,7 +9,7 @@ import me.simpleHook.util.SuUtil
 
 class SuConfigHelper : ConfigSystem {
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || !GlobalServices.sp.checkPermission || SuUtil.isGrantedRoot()
+        return !AppUtils.isAppInstalled(packageName) || !GlobalValue.sp.checkPermission || SuUtil.isGrantedRoot()
     }
 
     @Synchronized

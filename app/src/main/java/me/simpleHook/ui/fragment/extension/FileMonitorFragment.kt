@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.FileMonitorConfig
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.util.addPreferences
+import me.simpleHook.extension.addPreferences
 import me.simpleHook.viewmodel.ExViewModel
 
 

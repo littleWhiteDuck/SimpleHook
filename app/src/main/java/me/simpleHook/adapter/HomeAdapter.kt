@@ -14,7 +14,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.view.main.AppConfigView
 import me.simpleHook.util.GlideApp
-import me.simpleHook.util.marquee
+import me.simpleHook.extension.marquee
 
 class HomeAdapter(
     private val menuListener: (AppConfig, menu: ContextMenu) -> Unit,

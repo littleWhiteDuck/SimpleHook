@@ -13,13 +13,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
-import me.simpleHook.compat.ConfigSystemUtil
+import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.fragment.ConfigDialogFragment
 import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.showToast
+import me.simpleHook.extension.showToast
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*

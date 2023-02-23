@@ -34,12 +34,12 @@ object FieldHook {
             } else {
                 { hookStaticField(fieldClassName, resultValues, fieldName) }
             }
-            hookField(hooker, hostPackageName)
+            hookField(hooker)
         }
     }
 
     private fun ConfigBean.hookField(
-        hooker: Hooker, packageName: String
+        hooker: Hooker
     ) {
         val isBeforeHook = hookPoint == "before"
         try {
@@ -103,7 +103,7 @@ object FieldHook {
             } else {
                 { hookInstanceField(it, resultValues, fieldName) }
             }
-            hookField(hooker, hostPackageName)
+            hookField(hooker)
         }
     }
 

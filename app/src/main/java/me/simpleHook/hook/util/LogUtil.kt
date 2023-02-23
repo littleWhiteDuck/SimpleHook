@@ -9,6 +9,8 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.extension.log
+import me.simpleHook.extension.tip
 import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.*

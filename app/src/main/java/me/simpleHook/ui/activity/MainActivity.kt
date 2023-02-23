@@ -14,6 +14,8 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ActivityMainBinding
+import me.simpleHook.extension.fetchJson
+import me.simpleHook.extension.setCurrentItem
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog

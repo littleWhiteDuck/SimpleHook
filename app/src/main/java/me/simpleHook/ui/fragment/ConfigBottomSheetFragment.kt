@@ -18,8 +18,8 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.util.isContainState
-import me.simpleHook.util.showToast
+import me.simpleHook.extension.isContainState
+import me.simpleHook.extension.showToast
 import java.util.regex.Pattern
 
 

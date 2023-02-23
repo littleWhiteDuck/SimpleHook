@@ -2,7 +2,6 @@ package me.simpleHook.ui.activity
 
 import android.content.res.Configuration
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -24,6 +23,8 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
+import me.simpleHook.extension.lineFeesItem
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
@@ -49,7 +50,7 @@ class RecordDetailActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
-        darkMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        darkMode = if (OSUtils.atLeastO()) {
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         } else {
             false
@@ -178,16 +179,6 @@ class RecordDetailActivity : BaseActivity() {
         }
         return true
     }
-
-/*     private fun findSearch(text: String, keyword: String, color: String = "red"): String {
-         if (keyword.isEmpty()) return text
-         var tempText = text
-         if (tempText.contains(Regex("(?i)$keyword"))) {
-             tempText =
-                 tempText.replace(Regex("(?i)$keyword"), "<font color = \"$color\">$0</font>")
-         }
-         return tempText
-     }*/
 
     private fun findSearch(text: String, keyword: String, color: Int = Color.RED): SpannableString {
         val spannableString = SpannableString(text)

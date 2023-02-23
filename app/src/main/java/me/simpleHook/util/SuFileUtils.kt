@@ -1,4 +1,4 @@
-package me.simpleHook.compat
+package me.simpleHook.util
 
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileOutputStream

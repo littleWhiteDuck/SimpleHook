@@ -3,7 +3,7 @@ package me.simpleHook.ui.custom
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.toColorInt
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class CircleTextDrawable(
     private val size: Float,

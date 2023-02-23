@@ -33,6 +33,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.*
 

@@ -12,7 +12,7 @@ import me.simpleHook.hook.Tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.util.log
+import me.simpleHook.extension.log
 
 object ToastHook : BaseHook() {
 

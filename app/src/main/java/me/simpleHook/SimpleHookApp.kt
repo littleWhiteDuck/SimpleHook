@@ -14,8 +14,7 @@ class SimpleHookApp : Application() {
     override fun onCreate() {
         super.onCreate()
         App = this
-        sp = SPUtils(App)
-        AppCompatDelegate.setDefaultNightMode(ThemeModeUtil.getDarkMode(sp.themeMode))
+        AppCompatDelegate.setDefaultNightMode(ThemeModeUtil.getDarkMode(GlobalValue.sp.themeMode))
     }
 
     override fun attachBaseContext(base: Context) {

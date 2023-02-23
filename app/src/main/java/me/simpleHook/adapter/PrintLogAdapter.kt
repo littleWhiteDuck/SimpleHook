@@ -16,6 +16,8 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.showToast
 import me.simpleHook.util.*
 
 class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(RecordCallback) {

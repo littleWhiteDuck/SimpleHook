@@ -5,10 +5,11 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import me.simpleHook.R
-import me.simpleHook.compat.ConfigSystemUtil
-import me.simpleHook.compat.DocumentCompatUtils
+import me.simpleHook.config.ConfigSystemUtil
+import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.util.*
 
@@ -36,7 +37,7 @@ open class BaseFragment : Fragment() {
             if (OSUtils.atLeastT()) {
                 requestPermissionDialog(requireContext(),
                     message = getString(R.string.android_13_no_permission)) {
-                    val uri = DocumentCompatUtils.generateAppUri(packageName)
+                    val uri = DocumentCompat.generateAppUri(packageName)
                     startActivityForData.launch(uri)
                 }
             } else if (OSUtils.atLeastR()) {

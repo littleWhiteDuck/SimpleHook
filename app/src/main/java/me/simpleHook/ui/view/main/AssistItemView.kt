@@ -10,7 +10,7 @@ import androidx.core.view.marginTop
 import com.google.android.material.card.MaterialCardView
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.util.dp
+import me.simpleHook.extension.dp
 
 class AssistItemView(context: Context) : MaterialCardView(context) {
     val containerView = ContainerView(context)

@@ -18,9 +18,9 @@ import me.simpleHook.hook.util.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.HookModeUtil
-import me.simpleHook.util.dp
-import me.simpleHook.util.marquee
-import me.simpleHook.util.random
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.marquee
+import me.simpleHook.extension.random
 import org.json.JSONObject
 
 class ConfigAdapter(

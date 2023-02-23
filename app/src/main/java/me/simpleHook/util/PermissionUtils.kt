@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import me.simpleHook.App
-import me.simpleHook.compat.DocumentCompatUtils
+import me.simpleHook.compat.DocumentCompat
 
 object PermissionUtils {
 
@@ -42,7 +42,7 @@ object PermissionUtils {
     }
 
     fun isGrantPackage(packageName: String): Boolean {
-        return isGrantData(DocumentCompatUtils.generateAppUri(packageName).toString())
+        return isGrantData(DocumentCompat.generateAppUri(packageName).toString())
     }
 
 }

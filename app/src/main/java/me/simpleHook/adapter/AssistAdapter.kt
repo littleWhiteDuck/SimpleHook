@@ -11,7 +11,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.GlideApp
-import me.simpleHook.util.marquee
+import me.simpleHook.extension.marquee
 
 class AssistAdapter(
     private val onClick: (AssistConfig) -> Unit, private val onLongClick: (AssistConfig) -> Unit

@@ -36,8 +36,8 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.dp
-import me.simpleHook.util.showToast
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.showToast
 import java.util.*
 import kotlin.math.min
 
