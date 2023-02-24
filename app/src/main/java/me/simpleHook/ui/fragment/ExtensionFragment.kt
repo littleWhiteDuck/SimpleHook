@@ -29,6 +29,8 @@ import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentAssistBinding
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
@@ -36,8 +38,7 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.extension.dp
-import me.simpleHook.extension.showToast
+import me.simpleHook.util.LogUtils
 import java.util.*
 import kotlin.math.min
 
@@ -56,21 +57,13 @@ class ExtensionFragment : BaseFragment() {
             { assistConfig -> itemOnLongClick(assistConfig) })
     }
 
-    /*  private val startActivityForData =
-          registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-              uri?.also {
-                  val contentResolver = requireActivity().contentResolver
-                  val takeFlags: Int =
-                      Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                  contentResolver.takePersistableUriPermission(it, takeFlags)
-              }
-          }*/
     private val startActivityForModelCreate =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 val data = it.data!!
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
+                LogUtils.outLog("$appName, $packageName, ${System.currentTimeMillis()}")
                 if (currentModel == -1) {
                     appViewModel.insertAssistConfigs(AssistConfig(appName = appName,
                         packageName = packageName))

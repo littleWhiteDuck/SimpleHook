@@ -1,11 +1,11 @@
-package me.simpleHook.ui.fragment
+package me.simpleHook.ui.fragment.config
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -16,16 +16,16 @@ import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.databinding.ConfigDialogBinding
-import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
+import me.simpleHook.ui.WindowPreferencesManager
 import java.util.regex.Pattern
 
 
 private const val smaliPattern = """^L.*;"""
-private const val pattern_basic = """(B|S|I|J|F|D|Z|C)(B|S|I|J|F|D|Z|C|L)"""
-private const val pattern_basic_array = """\[(B|S|I|J|F|D|Z|C)"""
+private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
+private const val pattern_basic_array = """\[([BSIJFDZC])"""
 private const val pattern_object_array = """\[L(.*)"""
 private const val CLASS_NAME_STATE = 1
 private const val METHOD_NAME_STATE = 1 shl 1
@@ -66,14 +66,13 @@ private const val SHOW_RECORD_STATIC_FIELD =
 private const val SHOW_RECORD_INSTANCE_FIELD =
     HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
-
 class ConfigBottomSheetFragment(
     private val configBean: ConfigBean,
     private val saveConfig: (ConfigBean) -> Unit,
     private val deleteConfig: () -> Unit
 ) : BottomSheetDialogFragment() {
 
-    private var _binding: ConfigDialogBinding? = null
+    private var _binding: FragemntConfigDialogBinding? = null
     private val binding get() = _binding!!
     private val behavior by lazy { BottomSheetBehavior.from(binding.root.parent as View) }
     private var hookMode = Constant.HOOK_RETURN
@@ -93,8 +92,7 @@ class ConfigBottomSheetFragment(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = ConfigDialogBinding.inflate(inflater, container, false)
-
+        _binding = FragemntConfigDialogBinding.inflate(inflater, container, false)
         dialog?.window?.let {
             WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
         }
@@ -115,7 +113,6 @@ class ConfigBottomSheetFragment(
                 deleteConfig.isVisible = false
             }
         }
-        /*modifyConfig = if (isSmali2Config) false else configBean.className.isNotEmpty()*/
     }
 
     override fun onStart() {
@@ -128,6 +125,7 @@ class ConfigBottomSheetFragment(
         behavior.removeBottomSheetCallback(bottomSheetCallback)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
@@ -147,21 +145,32 @@ class ConfigBottomSheetFragment(
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
         val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
-        binding.modeSelectSpinner.adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
         val realPosition = listValue.indexOf(configBean.mode)
-        binding.modeSelectSpinner.setSelection(realPosition)
-        binding.modeSelectSpinner.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
-                ) {
-                    hookMode = listValue[position]
-                    onModeChange()
-                }
+        binding.modeSelectButton.text = list[realPosition] + ">"
+        Log.d("littleWhiteDuck", "onViewCreated:${binding.modeSelectButton.textSize} ")
+        binding.modeSelectButton.setOnClickListener {
+            HookModeFragment(list) {
+                binding.modeSelectButton.text = "$it>"
+                val position = list.indexOf(it)
+                hookMode = listValue[position]
+                onModeChange()
+            }.show(requireActivity().supportFragmentManager, "config")
+        }
+        /* binding.modeSelectSpinner.adapter =
+             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
+         val realPosition = listValue.indexOf(configBean.mode)
+         binding.modeSelectSpinner.setSelection(realPosition)
+         binding.modeSelectSpinner.onItemSelectedListener =
+             object : AdapterView.OnItemSelectedListener {
+                 override fun onItemSelected(
+                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                 ) {
+                     hookMode = listValue[position]
+                     onModeChange()
+                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
+                 override fun onNothingSelected(parent: AdapterView<*>?) {}
+             }*/
     }
 
     private fun toCheck() {

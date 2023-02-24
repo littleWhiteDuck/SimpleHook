@@ -8,15 +8,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.ContextMenu
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.view.isVisible
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,7 +44,7 @@ import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
-import me.simpleHook.ui.fragment.ConfigBottomSheetFragment
+import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.util.*
 import java.io.File
@@ -146,10 +144,8 @@ class ConfigActivity : BaseActivity() {
                 true
             }
             toolbar.setOnClickListener {
-                if (!visibleFab) {
-                    visibleFab = true
-                    addMethodConfig.show()
-                }
+                visibleFab = true
+                addMethodConfig.show()
             }
             appBar.addOnOffsetChangedListener(object : AppBarStateChangeListener() {
                 override fun onStateChanged(appBarLayout: AppBarLayout, state: State) {
@@ -189,6 +185,24 @@ class ConfigActivity : BaseActivity() {
         }
         showIntroductionDialog()
         tempConfigStr = getAppConfig().copy(enable = true).toString()
+
+        var paddingBottom = 0
+        val layoutParams = binding.addMethodConfig.layoutParams as ViewGroup.MarginLayoutParams
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val isGesture = navigationInsets.bottom <= 20 * resources.displayMetrics.density
+            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            if (navigationInsets.bottom == 0) paddingBottom += 10.dp
+            layoutParams.bottomMargin = paddingBottom + navigationInsets.bottom + 10.dp
+            paddingBottom = if (isGesture) {
+                paddingBottom + navigationInsets.bottom
+            } else {
+                paddingBottom + navigationInsets.bottom
+            }
+            binding.configRV.setPadding(0, 0, 0, paddingBottom)
+            binding.addMethodConfig.layoutParams = layoutParams
+            windowInsets
+        }
     }
 
     private fun refreshAppInfo(appInfo: AppInfo) {
@@ -296,8 +310,6 @@ class ConfigActivity : BaseActivity() {
     ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
-            saveConfig.isVisible = false
-            deleteConfig.isVisible = false
             configBean.apply {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)

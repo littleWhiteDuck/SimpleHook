@@ -5,4 +5,5 @@
     <color name="background_gray">@color/black</color>
     <color name="background_record">#FF1E1E1E</color>
     <color name="windowSplashScreenBackground">@color/black</color>
+    <color name="bottom_dialog_background_color">#141414</color>
 </resources>

@@ -90,7 +90,7 @@ class RecordActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle =
-            intent.getBundleExtra("bundle") ?: throw NullPointerException("Bundle  is null")
+            intent.getBundleExtra("bundle") ?: throw NullPointerException("Bundle is null")
         val recordSummary: RecordSummary = BundleCompat.getParcelable(bundle, "recordSummary")
             ?: throw NullPointerException("Record summary is null")
         isType = recordSummary.type.isNotEmpty()

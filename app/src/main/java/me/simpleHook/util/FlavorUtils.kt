@@ -1,6 +1,5 @@
 package me.simpleHook.util
 
-import android.os.Build
 import me.simpleHook.BuildConfig
 
 object FlavorUtils {
@@ -13,4 +12,5 @@ object FlavorUtils {
         "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/print_logs"
     const val PROVIDER_CONFIG_URI =
         "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/app_configs"
+    const val betaVersion = BuildConfig.IS_BETA
 }

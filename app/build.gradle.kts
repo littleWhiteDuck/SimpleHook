@@ -97,6 +97,9 @@ android {
             manifestPlaceholders["FLAVOR"] = "xposedsharedprefs"
             buildConfigField(String::class.java.name, "APP_NAME", "\"SimpleHookL\"")
         }
+        this.forEach {
+            it.buildConfigField(Boolean::class.java.name, "IS_BETA", beta.toString())
+        }
     }
 
     packagingOptions.resources.excludes += setOf("META-INF/**",
