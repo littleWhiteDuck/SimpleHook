@@ -40,4 +40,9 @@
     <item
         android:id="@+id/help"
         android:title="@string/record_detail_menu_help" />
+    <item
+        android:id="@+id/menu_word_wrap"
+        android:title="@string/record_detail_word_wrap"
+        android:checkable="true"
+        android:checked="false" />
 </menu>

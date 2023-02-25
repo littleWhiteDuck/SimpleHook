@@ -7,15 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
-import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.ui.WindowPreferencesManager
 
 abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
 
@@ -43,21 +41,13 @@ abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
             override fun onAttachedToWindow() {
                 super.onAttachedToWindow()
                 window?.let {
-                    WindowCompat.setDecorFitsSystemWindows(it, false)
-                    WindowInsetsControllerCompat(it, it.decorView).isAppearanceLightNavigationBars =
-                        GlobalValue.sp.themeMode == "light"
-
+                    WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                        it.attributes.blurBehindRadius = 64
                         it.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                        it.attributes.blurBehindRadius = 64
                     }
                 }
-
-                findViewById<View>(com.google.android.material.R.id.container)?.fitsSystemWindows =
-                    false
-                findViewById<View>(com.google.android.material.R.id.coordinator)?.fitsSystemWindows =
-                    false
             }
         }
 

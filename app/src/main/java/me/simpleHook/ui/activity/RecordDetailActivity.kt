@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
@@ -41,6 +42,7 @@ class RecordDetailActivity : BaseActivity() {
     private var rawData = ""
     private var cryptResult = ""
     private var returnValue = ""
+    private var currentPattern = ""
     private lateinit var printLog: PrintLog
 
     // private var showReturnValue = false
@@ -109,35 +111,58 @@ class RecordDetailActivity : BaseActivity() {
                 }
                 val nLine: Int = -1
                 currentText = StringBuilder().lineFeesItem(logList,
-                    "${foreStr + logBean.type}\n",
-                    nLine = nLine,
-                    nLineString = "").replace("类：", "  ").replace("方法：", "")
-                    .replace("Class : ", "  ").replace("Method : ", "")
+                    "${foreStr + logBean.type}\n", nLine = nLine, nLineString = "")
+                    .replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
+                    .replace("Method : ", "")
             }
-            binding.record.text = currentText
+            updateView(currentPattern)
             binding.progressBar.isVisible = false
+        }
+    }
+
+
+    private fun updateView(keyword: String) {
+        val color = if (darkMode) "#9C786C".toColorInt() else Color.RED
+        if (GlobalValue.sp.wordWrap) {
+            binding.wordWrapScrollView.isVisible = true
+            binding.normalRecord.isVisible = false
+            binding.wordWrapRecord.apply {
+                text = if (keyword.isBlank()) {
+                    currentText
+                } else {
+                    val result = findSearch(currentText, keyword, color)
+                    result
+                }
+            }
+            binding.normalRecord.text = ""
+        } else {
+            binding.normalRecord.isVisible = true
+            binding.wordWrapScrollView.isVisible = false
+            binding.normalRecord.apply {
+                text = if (keyword.isBlank()) {
+                    currentText
+                } else {
+                    val result = findSearch(currentText, keyword, color)
+                    result
+                }
+            }
+            binding.wordWrapRecord.text = ""
         }
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_record_detail, menu)
+        menu.findItem(R.id.menu_word_wrap).isChecked = GlobalValue.sp.wordWrap
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.apply {
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?) = false
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    val keyword = newText?.trim() ?: ""
-                    val color = if (darkMode) "#9C786C".toColorInt() else Color.RED
-                    if (keyword.isEmpty()) {
-                        binding.record.text = currentText
-                    } else {
-                        val result = findSearch(currentText, keyword, color)
-                        binding.record.text = result
-                    }
-
+                override fun onQueryTextChange(newText: String): Boolean {
+                    currentPattern = newText.trim()
+                    updateView(currentPattern)
                     return true
                 }
 
@@ -176,6 +201,11 @@ class RecordDetailActivity : BaseActivity() {
             R.id.copy_return_value -> {
                 ToolUtils.toClip(this, returnValue)
                 showToast(getString(R.string.main_home_export_configs_tip))
+            }
+            R.id.menu_word_wrap -> {
+                item.isChecked = !item.isChecked
+                GlobalValue.sp.wordWrap = item.isChecked
+                updateView(currentPattern)
             }
         }
         return true

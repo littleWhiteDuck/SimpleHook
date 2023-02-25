@@ -401,4 +401,5 @@
     <string name="extension_file_summary_set_cache_size">讀取文件或寫入文件的內容，SimpleHook將緩存部分內容用以展示</string>
     <string name="main_settings_title_lsp_scope">LSPosed協同配置</string>
     <string name="main_settings_summary_lsp_scope">增加配置後，在LSPosed管理器中也會啟用目標應用，你需要手動禁用再啟用本模塊方能生效</string>
+    <string name="record_detail_word_wrap">自动换行</string>
 </resources>

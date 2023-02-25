@@ -39,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
+        android:fillViewport="true"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:paddingBottom="20dp"
@@ -47,12 +48,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBar">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/record"
-            style="@style/text_view_item_secondary"
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textIsSelectable="true" />
+            android:orientation="vertical">
+
+            <HorizontalScrollView
+                android:id="@+id/word_wrap_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:visibility="gone">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/word_wrap_record"
+                    style="@style/text_view_item_secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textIsSelectable="true" />
+
+            </HorizontalScrollView>
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/normal_record"
+                style="@style/text_view_item_secondary"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textIsSelectable="true" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
     </androidx.core.widget.NestedScrollView>
 
 

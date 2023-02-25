@@ -1,5 +1,8 @@
 package me.simpleHook.util
 
+import android.content.res.Configuration
+import android.content.res.Resources
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.*
 
 object ThemeModeUtil {
@@ -13,6 +16,23 @@ object ThemeModeUtil {
             "light" -> MODE_NIGHT_NO
             "dark" -> MODE_NIGHT_YES
             else -> MODE_NIGHT_FOLLOW_SYSTEM
+        }
+    }
+
+    fun isDarkMode(): Boolean {
+        return when (getDefaultNightMode()) {
+            MODE_NIGHT_YES -> true
+            MODE_NIGHT_NO -> false
+            MODE_NIGHT_FOLLOW_SYSTEM, MODE_NIGHT_AUTO_BATTERY, MODE_NIGHT_UNSPECIFIED -> isDarkModeOnSystem()
+            else -> false
+        }
+    }
+
+    fun isDarkModeOnSystem(): Boolean {
+        return when (Resources.getSystem().configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            Configuration.UI_MODE_NIGHT_NO -> false
+            else -> false
         }
     }
 }
