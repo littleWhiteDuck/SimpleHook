@@ -135,13 +135,8 @@ fun runThread(block: () -> Unit) {
     Thread(block).start()
 }
 
-lateinit var toast: Toast
 fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, message, duration).run {
-        if (::toast.isInitialized) toast.cancel()
-        show()
-        toast = this
-    }
+    Toast.makeText(this, message, duration).show()
 }
 
 fun StringBuilder.lineFeesItem(

@@ -6,10 +6,10 @@
     android:background="@color/background_gray">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:fitsSystemWindows="true"
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing"
@@ -24,10 +24,10 @@
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
                 android:orientation="vertical"
                 android:paddingTop="?actionBarSize"
-                app:layout_collapseMode="parallax"
-                android:layout_marginBottom="5dp">
+                app:layout_collapseMode="parallax">
 
                 <me.simpleHook.ui.view.applist.AppItemView
                     android:id="@+id/appInfo"
@@ -45,9 +45,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 android:background="@color/colorPrimary"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                android:theme="@style/ToolBarTheme"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/Theme.AppCompat.NoActionBar"
+                app:subtitleTextColor="@color/white"
                 app:titleTextColor="@color/white" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

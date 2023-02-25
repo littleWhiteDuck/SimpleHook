@@ -33,4 +33,9 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@android:color/black</item>
     </style>
+
+    <style name="ToolBarTheme" parent="Theme.SimpleHook">
+        <item name="colorButtonNormal">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+    </style>
 </resources>
