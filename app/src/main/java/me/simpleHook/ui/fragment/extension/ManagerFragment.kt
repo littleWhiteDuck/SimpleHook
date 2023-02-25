@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
@@ -13,7 +12,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -31,8 +29,8 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.DocumentCompat
-import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
@@ -42,8 +40,10 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.extension.snack
 import me.simpleHook.ui.activity.ExtensionActivity
+import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ExtensionItemTitleView
@@ -53,18 +53,17 @@ import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
 
 
-class ManagerFragment : Fragment() {
-    private var _binding: FragmentExtensionManagerBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var extensionConfig: AssistConfig
+class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
+
+    private val extensionConfig: AssistConfig by lazy {
+        BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!
+    }
     private val exViewModel by activityViewModels<ExViewModel>()
-    private val sp by lazy { SPUtils(requireContext()) }
     private var editMode = true
     private val appViewModel by viewModels<AppViewModel>()
     private val items = ArrayList<Any>()
     private var configBean: ExtensionConfig = ExtensionConfig()
     private var tempConfigStr = ""
-    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
     private val adapter = MultiTypeAdapter()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
@@ -77,17 +76,8 @@ class ManagerFragment : Fragment() {
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentExtensionManagerBinding.inflate(inflater)
-        return binding.root
-    }
 
-    @Suppress("DEPRECATION")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        extensionConfig = requireArguments().getParcelable("EXTENSION_CONFIG")!!
+    override fun init() {
         initMenu()
         initView()
         initData()
@@ -479,31 +469,16 @@ class ManagerFragment : Fragment() {
                     onBackPressedCallback.isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
-                    customDialog(requireContext(),
-                        title = getString(R.string.save_config_warning),
-                        message = getString(R.string.save_config_warning_message),
-                        okText = getString(R.string.save_and_exit),
-                        okClick = {
-                            saveConfig(exit = true)
-                        },
-                        neutralText = getString(R.string.exit),
-                        neutralClick = {
-                            onBackPressedCallback.isEnabled = false
-                            dispatcher.onBackPressed()
-                        },
-                        cancelText = getString(R.string.only_save),
-                        cancelClick = {
-                            saveConfig()
-                        }).show()
+                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
+                        onBackPressedCallback.isEnabled = false
+                        dispatcher.onBackPressed()
+                    }, cancelClick = {
+                        saveConfig(false)
+                    })
                 }
             }
         }
         dispatcher.addCallback(this, onBackPressedCallback)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

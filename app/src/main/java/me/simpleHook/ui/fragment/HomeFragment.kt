@@ -32,8 +32,8 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
-import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
@@ -42,6 +42,7 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ConfigActivity
+import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.edit.InputView
@@ -49,12 +50,11 @@ import me.simpleHook.util.*
 import kotlin.math.min
 
 
-class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollListener {
+class HomeFragment : BaseFragment<FragmentHomeBinding>(), SearchView.OnQueryTextListener,
+    HideScrollListener {
 
     private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
     private var filterConfigs: List<CustomConfigItem> = ArrayList()
     private var tempConfigs = ArrayList<CustomConfigItem>()
     private lateinit var mContext: Context
@@ -63,9 +63,10 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
     private val mAdapter: HomeAdapter by lazy {
         HomeAdapter(menuListener = { appConfig, menu ->
             onItemCreateContextMenu(appConfig, menu)
-        }, onClick = { appConfig, mode ->
-            onItemClick(mode, appConfig)
         },
+            onClick = { appConfig, mode ->
+                onItemClick(mode, appConfig)
+            },
             onChange = { appConfigEntity, isChecked -> switchOnChange(appConfigEntity, isChecked) },
             onDrag = { holder -> startDrag(holder) })
     }
@@ -84,16 +85,6 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         super.onCreate(savedInstanceState)
         mContext = requireContext()
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        initView()
-        initData()
-        return binding.root
-    }
-
 
     private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
@@ -479,14 +470,9 @@ class HomeFragment : BaseFragment(), SearchView.OnQueryTextListener, HideScrollL
         mAdapter.submitList(filter)
     }
 
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
+        initView()
+        initData()
         initMenu()
     }
 

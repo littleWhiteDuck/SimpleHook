@@ -221,4 +221,7 @@ dependencies {
     implementation("com.drakeet.about:about:2.5.2")
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
+    //leakcanary
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
+
 }

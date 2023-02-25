@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import me.simpleHook.R
-import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.bean.AppItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
@@ -23,18 +22,16 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.base.BaseActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.SPUtils
+import me.simpleHook.viewmodel.AppViewModel
 
 class AppListActivity : BaseActivity() {
-    private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
     private lateinit var binding: ActivityAppListBinding
-    private var currentQueryText = ""
-    private val userAdapter by lazy { AppListAdapter.getAppSelectAdapter1() }
-    private val systemAdapter by lazy { AppListAdapter.getAppSelectAdapter2() }
     private var isFromAssist = false
-    private val mViewModel by viewModels<me.simpleHook.viewmodel.AppViewModel>()
+    private val appViewModel by viewModels<AppViewModel>()
     private val sp by lazy { SPUtils(this) }
     private var currentSortSelected = 0
     private var currentSortReverse = false
@@ -55,23 +52,7 @@ class AppListActivity : BaseActivity() {
     private fun initData() {
         currentSortSelected = sp.appListSortSelected
         currentSortReverse = sp.appListReverse
-        mViewModel.userApps.observe(this) {
-            if (currentQueryText.isNotEmpty()) {
-                filterUserList()
-            } else {
-                userAdapter.submitList(it)
-            }
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
-        mViewModel.systemApps.observe(this) {
-            if (currentQueryText.isNotEmpty()) {
-                filterUserList()
-            } else {
-                systemAdapter.submitList(it)
-            }
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
-        mViewModel.fetchData(currentSortSelected, currentSortReverse)
+        appViewModel.fetchData(currentSortSelected, currentSortReverse)
     }
 
     private fun initView() {
@@ -83,14 +64,16 @@ class AppListActivity : BaseActivity() {
             }
         }
         binding.swipeRefreshLayout.isRefreshing = true
-        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun getItemCount() = 2
+        binding.viewPager.adapter =
+            object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+                override fun getItemCount() = 2
 
-            override fun createFragment(position: Int) = when (position) {
-                0 -> AppListFragment()
-                else -> AppListFragment("system")
+                override fun createFragment(position: Int) = when (position) {
+                    0 -> AppListFragment("user")
+                    else -> AppListFragment("system")
+                }
             }
-        }
+        binding.viewPager.offscreenPageLimit = 1
         binding.apply {
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 run {
@@ -102,19 +85,12 @@ class AppListActivity : BaseActivity() {
             }.attach()
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
-            mViewModel.fetchData(currentSortSelected, currentSortReverse)
+            appViewModel.fetchData(currentSortSelected, currentSortReverse)
+        }
+        appViewModel.selectAppItem.observe(this) {
+            if (it != null) clickResponse(it)
         }
 
-        userAdapter.setOnClickListener(object : AppListAdapter.OnItemClickListener {
-            override fun onItemClickListener(appItem: AppItem) {
-                clickResponse(appItem)
-            }
-        })
-        systemAdapter.setOnClickListener(object : AppListAdapter.OnItemClickListener {
-            override fun onItemClickListener(appItem: AppItem) {
-                clickResponse(appItem)
-            }
-        })
     }
 
     private fun clickResponse(appItem: AppItem) {
@@ -137,23 +113,6 @@ class AppListActivity : BaseActivity() {
     }
 
 
-    private fun filterUserList() {
-        val filter1 = mViewModel.userApps.value?.filter {
-            !blackList.contains(it.packageName) && (it.packageName.contains(currentQueryText,
-                true) || it.name.contains(currentQueryText, true))
-        }
-        userAdapter.submitList(filter1)
-    }
-
-    private fun filterSystemList() {
-        val filter2 = mViewModel.systemApps.value?.filter {
-            it.packageName.contains(currentQueryText, true) || it.name.contains(currentQueryText,
-                true)
-        }
-        systemAdapter.submitList(filter2)
-    }
-
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_app_list, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
@@ -161,9 +120,8 @@ class AppListActivity : BaseActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String): Boolean {
-                currentQueryText = newText.trim()
-                filterUserList()
-                filterSystemList()
+                appViewModel.queryPattern.value = newText.trim()
+                appViewModel.filerAppItems(newText.trim())
                 return true
             }
 
@@ -210,7 +168,7 @@ class AppListActivity : BaseActivity() {
             okClick = {
                 sp.appListSortSelected = currentSortSelected
                 sp.appListReverse = currentSortReverse
-                mViewModel.fetchData(currentSortSelected, currentSortReverse)
+                appViewModel.fetchData(currentSortSelected, currentSortReverse)
                 binding.swipeRefreshLayout.isRefreshing = true
             },
             cancelText = getString(R.string.app_list_sort_dialog_cancel),

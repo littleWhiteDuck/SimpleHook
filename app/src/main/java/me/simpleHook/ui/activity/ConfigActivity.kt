@@ -11,6 +11,7 @@ import android.os.Looper
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
@@ -43,6 +44,7 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.base.BaseActivity
 import me.simpleHook.ui.custom.*
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
@@ -100,6 +102,7 @@ class ConfigActivity : BaseActivity() {
     private var tempVersionName: String = ""
     private var longClickPosition = 0
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +116,7 @@ class ConfigActivity : BaseActivity() {
         appConfig = bundle?.let { BundleCompat.getParcelable(it, "appConfig") }
         tempPackageName = appConfig?.packageName ?: ""
         initView()
+        initBack()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -185,15 +189,14 @@ class ConfigActivity : BaseActivity() {
         }
         showIntroductionDialog()
         tempConfigStr = getAppConfig().copy(enable = true).toString()
-
-        var paddingBottom = 0
         val layoutParams = binding.addMethodConfig.layoutParams as ViewGroup.MarginLayoutParams
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val isGesture = navigationInsets.bottom <= 20 * resources.displayMetrics.density
             ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            var paddingBottom = 0
             if (navigationInsets.bottom == 0) paddingBottom += 10.dp
-            layoutParams.bottomMargin = paddingBottom + navigationInsets.bottom + 10.dp
+            layoutParams.bottomMargin = paddingBottom + navigationInsets.bottom + 5.dp
             paddingBottom = if (isGesture) {
                 paddingBottom + navigationInsets.bottom
             } else {
@@ -653,31 +656,29 @@ class ConfigActivity : BaseActivity() {
         configSystem.saveCustomConfig(packageName, configStr)
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (configList.size == 0) {
-            finish()
-            return
+    private fun initBack() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (configList.size == 0) {
+                    onBackPressedCallback.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                } else if (tempConfigStr != getAppConfig().copy(enable = true).toString()) {
+                    exitDialog(this@ConfigActivity,
+                        okClick = { saveConfig(exit = true) },
+                        neutralClick = {
+                            onBackPressedCallback.isEnabled = false
+                            onBackPressedDispatcher.onBackPressed()
+                        },
+                        cancelClick = {
+                            saveConfig(false)
+                        })
+                } else {
+                    onBackPressedCallback.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
         }
-        if (tempConfigStr != getAppConfig().copy(enable = true).toString()) {
-            customDialog(this,
-                title = getString(R.string.save_config_warning),
-                message = getString(R.string.save_config_warning_message),
-                okText = getString(R.string.save_and_exit),
-                okClick = {
-                    saveConfig()
-                },
-                neutralText = getString(R.string.exit),
-                neutralClick = {
-                    finish()
-                },
-                cancelText = getString(R.string.only_save),
-                cancelClick = {
-                    saveConfig(exit = false)
-                }).show()
-        } else {
-            finish()
-        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     private fun getAppConfig(): AppConfig {
@@ -685,9 +686,7 @@ class ConfigActivity : BaseActivity() {
         val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
         val configs = Json.encodeToString(configList)
-        return AppConfig(appName = appName,
-            packageName = packageName,
-            description = description,
+        return AppConfig(appName = appName, packageName = packageName, description = description,
             versionName = tempVersionName,
             configs = configs,
             id = configId,
@@ -865,6 +864,7 @@ class ConfigActivity : BaseActivity() {
         } else {
             Constant.HOOK_RETURN
         }
+
     }
 
     companion object {

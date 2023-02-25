@@ -20,14 +20,43 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
-    val userApps: LiveData<List<AppItem>>
-        get() = _userApps
-    val systemApps: LiveData<List<AppItem>>
-        get() = _systemApps
+
+    val userApps = MutableLiveData<List<AppItem>>(emptyList())
+    val systemApps = MutableLiveData<List<AppItem>>(emptyList())
+
+    val queryPattern = MutableLiveData("")
+
+    private val _selectAppItem = MutableLiveData<AppItem>()
+    val selectAppItem: LiveData<AppItem>
+        get() = _selectAppItem
+
+    fun updateSelectApp(appItem: AppItem) {
+        _selectAppItem.value = appItem
+    }
 
     fun fetchData(sortSelected: Int, reverseChecked: Boolean) {
         viewModelScope.launch {
             loadData(sortSelected, reverseChecked)
+        }
+    }
+
+    fun filerAppItems(pattern: String) = viewModelScope.launch(Dispatchers.IO) {
+        if (pattern.isEmpty()) {
+            withContext(Dispatchers.Main) {
+                userApps.value = _userApps.value
+                systemApps.value = _systemApps.value
+            }
+        } else {
+            val filter1 = _userApps.value?.filter {
+                it.packageName.contains(pattern) || it.name.contains(pattern, true)
+            }
+            val filter2 = _systemApps.value?.filter {
+                it.packageName.contains(pattern) || it.name.contains(pattern, true)
+            }
+            withContext(Dispatchers.Main) {
+                userApps.value = filter1 ?: emptyList()
+                systemApps.value = filter2 ?: emptyList()
+            }
         }
     }
 
@@ -43,6 +72,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     reverseChecked)
             _userApps.postValue(userAppList)
             _systemApps.postValue(systemAppList)
+            filerAppItems(queryPattern.value!!)
         }
 
     private fun getSortAppList(

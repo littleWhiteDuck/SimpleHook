@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
-import me.simpleHook.ui.view.applist.AppItemView
-import me.simpleHook.util.GlideApp
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.marquee
+import me.simpleHook.ui.view.applist.AppItemView
+import me.simpleHook.util.GlideApp
 
-class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
-    private lateinit var listener: OnItemClickListener
+class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
+    ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
 
     inner class ViewHolder(appItem: AppItemView) : RecyclerView.ViewHolder(appItem) {
         private val containerView = appItem.containerView
@@ -21,10 +21,6 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         val tvAppName = containerView.appName
         val tvPackageName = containerView.packageName
         val tvOtherInfo = containerView.otherInfo
-    }
-
-    fun setOnClickListener(listener: OnItemClickListener) {
-        this.listener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,7 +31,7 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
         val holder = ViewHolder(appItemView)
         holder.itemView.setOnClickListener {
             val appItem: AppItem = holder.itemView.getTag(R.id.item_select_position) as AppItem
-            listener.onItemClickListener(appItem)
+            onItemClick(appItem)
         }
         return holder
     }
@@ -54,26 +50,6 @@ class AppListAdapter : ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCa
                 tvOtherInfo.text = "$versionName($versionCode), Target Api $targetApi"
                 tvOtherInfo.marquee()
             }
-        }
-    }
-
-    interface OnItemClickListener {
-        fun onItemClickListener(appItem: AppItem)
-    }
-
-    companion object {
-        private var instance1: AppListAdapter? = null
-
-        @Synchronized
-        fun getAppSelectAdapter1(): AppListAdapter = instance1 ?: AppListAdapter().also {
-            instance1 = it
-        }
-
-        private var instance2: AppListAdapter? = null
-
-        @Synchronized
-        fun getAppSelectAdapter2(): AppListAdapter = instance2 ?: AppListAdapter().also {
-            instance2 = it
         }
     }
 

@@ -7,14 +7,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.net.Uri
-import android.os.Bundle
 import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -36,8 +34,10 @@ import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.showToast
 import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
+import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.extension.EditSignatureView
 import me.simpleHook.ui.view.extension.GuiseSignatureItem
 import me.simpleHook.util.*
@@ -51,9 +51,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 
-class GuiseSignFragment : Fragment() {
-    private var _binding: FragmentGuiseSignBinding? = null
-    private val binding get() = _binding!!
+class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
     private val viewModel by activityViewModels<ExViewModel>()
     private val signInfo: GuiseSignFragmentArgs by navArgs()
     private val appSignItems = ArrayList<AppInfo>()
@@ -100,37 +98,19 @@ class GuiseSignFragment : Fragment() {
                     onBackPressedCallback.isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
-                    customDialog(requireContext(),
-                        title = getString(R.string.save_config_warning),
-                        message = getString(R.string.save_config_warning_message),
-                        okText = getString(R.string.save_and_exit),
-                        okClick = {
-                            saveGuiseInfo(exit = true)
-                        },
-                        neutralText = getString(R.string.exit),
-                        neutralClick = {
-                            onBackPressedCallback.isEnabled = false
-                            dispatcher.onBackPressed()
-                        },
-                        cancelText = getString(R.string.only_save),
-                        cancelClick = {
-                            saveGuiseInfo(exit = false)
-                        }).show()
+                    exitDialog(context, okClick = { saveGuiseInfo(exit = true) }, neutralClick = {
+                        onBackPressedCallback.isEnabled = false
+                        dispatcher.onBackPressed()
+                    }, cancelClick = {
+                        saveGuiseInfo(false)
+                    })
                 }
             }
         }
         dispatcher.addCallback(this, onBackPressedCallback)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentGuiseSignBinding.inflate(inflater)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
         initMenu()
         initView()
         initData()

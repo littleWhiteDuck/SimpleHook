@@ -40,6 +40,7 @@ import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.base.BaseActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog

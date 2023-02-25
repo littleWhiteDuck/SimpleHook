@@ -1,35 +1,50 @@
 package me.simpleHook.ui.fragment
 
-import android.annotation.SuppressLint
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.databinding.FragmentAppListBinding
-import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.extension.dp
+import me.simpleHook.ui.base.BaseFragment
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.viewmodel.AppViewModel
 
 
-class AppListFragment(private val tagFragment: String = "user") : Fragment() {
+class AppListFragment(private val label: String) : BaseFragment<FragmentAppListBinding>() {
 
-    private var _binding: FragmentAppListBinding? = null
-    private val binding get() = _binding!!
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAppListBinding.inflate(inflater, container, false)
-        initView()
-        return binding.root
+    private val appViewModel by activityViewModels<AppViewModel>()
+    private val mAdapter = AppListAdapter {
+        appViewModel.updateSelectApp(it)
+    }
+    private val swipeRefreshLayout by lazy {
+        requireActivity().findViewById(R.id.swipeRefreshLayout) as SwipeRefreshLayout
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    override fun init() {
+        initData()
+        initView()
+    }
+
+    private fun initData() {
+        if (label == "user") {
+            appViewModel.userApps.observe(viewLifecycleOwner) {
+                mAdapter.submitList(it)
+                if (it.isNotEmpty()) swipeRefreshLayout.isRefreshing = false
+            }
+        } else {
+            appViewModel.systemApps.observe(viewLifecycleOwner) {
+                mAdapter.submitList(it)
+                if (it.isNotEmpty()) swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
+
     private fun initView() {
         ViewCompat.setOnApplyWindowInsetsListener(requireActivity().window.decorView) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
@@ -37,18 +52,13 @@ class AppListFragment(private val tagFragment: String = "user") : Fragment() {
             binding.recyclerView.updatePadding(bottom = navigationInsets.bottom + 20.dp)
             windowInsets
         }
-        val appAdapter =
-            if (tagFragment == "user") AppListAdapter.getAppSelectAdapter1() else AppListAdapter.getAppSelectAdapter2()
+        val appAdapter = mAdapter
         binding.recyclerView.apply {
             adapter = appAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
         val myFastScroller = FastScrollerUtil.bind(binding.recyclerView)
-        myFastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
+        //myFastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

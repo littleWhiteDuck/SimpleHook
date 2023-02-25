@@ -8,18 +8,40 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.simpleHook.R
 
 
+fun exitDialog(
+    context: Context,
+    okClick: (DialogInterface) -> Unit,
+    neutralClick: (DialogInterface) -> Unit,
+    cancelClick: (DialogInterface) -> Unit
+) {
+    customDialog(context,
+        title = context.getString(R.string.save_config_warning),
+        message = context.getString(R.string.save_config_warning_message),
+        okText = context.getString(R.string.save_and_exit),
+        okClick = {
+            okClick(it)
+        },
+        neutralText = context.getString(R.string.exit),
+        neutralClick = {
+            neutralClick(it)
+        },
+        cancelText = context.getString(R.string.only_save),
+        cancelClick = {
+            cancelClick(it)
+        }).show()
+}
+
+
 fun requestPermissionDialog(
     context: Context,
     message: String = context.getString(R.string.main_request_storage_permission_message),
     okClick: () -> Unit
 ) {
-    warningDialog(
-        context,
+    warningDialog(context,
         context.getString(R.string.main_request_storage_permission_title),
         message,
         okText = context.getString(R.string.main_request_storage_permission_okText),
-        okClick = okClick
-    )
+        okClick = okClick)
 }
 
 fun warningDialog(
@@ -29,14 +51,12 @@ fun warningDialog(
     okClick: () -> Unit = {},
     okText: String = context.getString(R.string.dialog_confirm)
 ) {
-    customDialog(
-        context,
+    customDialog(context,
         title = title,
         message = message,
         okText = okText,
         okClick = { okClick() },
-        cancelText = context.getString(R.string.dialog_cancel)
-    ).show()
+        cancelText = context.getString(R.string.dialog_cancel)).show()
 }
 
 fun customDialog(

@@ -9,7 +9,6 @@ import android.os.Looper
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,15 +28,12 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
+import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 
 
-class RecordSummaryFragment : Fragment() {
-
-
-    private var _binding: FragmentRecordSummaryBinding? = null
-    private val binding get() = _binding!!
+class RecordSummaryFragment : BaseFragment<FragmentRecordSummaryBinding>() {
     private val appViewModel: AppViewModel by activityViewModels()
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -54,21 +50,10 @@ class RecordSummaryFragment : Fragment() {
             deleteRecord(it)
         })
     }
-    private val sp by lazy { SPUtils(requireContext()) }
-
 
     private lateinit var assistConfigs: List<AssistConfig>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentRecordSummaryBinding.inflate(inflater, container, false)
-        initView()
-        return binding.root
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
@@ -184,9 +169,9 @@ class RecordSummaryFragment : Fragment() {
         refreshData(200, true)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
         initMenu()
+        initView()
     }
 
     private fun initMenu() {
@@ -290,17 +275,11 @@ class RecordSummaryFragment : Fragment() {
         }
     }
 
-
     override fun onResume() {
         super.onResume()
         refreshData(100, false)
         val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
         val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior
         bottomViewNavigationBehavior.slideUp(bottomNavigationView)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

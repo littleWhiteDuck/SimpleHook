@@ -73,4 +73,9 @@
     static void checkNotNullParameter(java.lang.Object, java.lang.String);
 }
 
+# ViewBinding
+-keep,allowoptimization class * extends androidx.viewbinding.ViewBinding {
+  public static * inflate(...);
+}
+
 -printmapping mapping.txt

@@ -15,6 +15,7 @@ import me.simpleHook.compat.BundleCompat
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.ui.base.BaseActivity
 
 class ExtensionActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding

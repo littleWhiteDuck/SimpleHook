@@ -1,4 +1,4 @@
-package me.simpleHook.ui.activity
+package me.simpleHook.ui.base
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.Menu
 import android.widget.CheckBox
 import android.widget.ImageButton
@@ -17,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
@@ -36,6 +38,7 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.*
+import java.lang.reflect.ParameterizedType
 
 @Keep
 open class BaseActivity : AppCompatActivity() {

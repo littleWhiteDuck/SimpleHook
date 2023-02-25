@@ -29,6 +29,7 @@ import me.simpleHook.bean.ClipboardConfig
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.ui.custom.ChipPreference
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
 class ClipboardFragment : PreferenceFragmentCompat() {
@@ -161,22 +162,12 @@ class ClipboardFragment : PreferenceFragmentCompat() {
                     onBackPressedCallback.isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
-                    customDialog(requireContext(),
-                        title = getString(R.string.save_config_warning),
-                        message = getString(R.string.save_config_warning_message),
-                        okText = getString(R.string.save_and_exit),
-                        okClick = {
-                            saveConfig(exit = true)
-                        },
-                        neutralText = getString(R.string.exit),
-                        neutralClick = {
-                            onBackPressedCallback.isEnabled = false
-                            dispatcher.onBackPressed()
-                        },
-                        cancelText = getString(R.string.only_save),
-                        cancelClick = {
-                            saveConfig(false)
-                        }).show()
+                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
+                        onBackPressedCallback.isEnabled = false
+                        dispatcher.onBackPressed()
+                    }, cancelClick = {
+                        saveConfig(false)
+                    })
                 }
             }
         }

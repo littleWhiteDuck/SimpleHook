@@ -147,7 +147,6 @@ class ConfigBottomSheetFragment(
         val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
         val realPosition = listValue.indexOf(configBean.mode)
         binding.modeSelectButton.text = list[realPosition] + ">"
-        Log.d("littleWhiteDuck", "onViewCreated:${binding.modeSelectButton.textSize} ")
         binding.modeSelectButton.setOnClickListener {
             HookModeFragment(list) {
                 binding.modeSelectButton.text = "$it>"

@@ -34,6 +34,7 @@ import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
+import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.FastScrollerUtil
@@ -42,13 +43,12 @@ import me.simpleHook.util.LogUtils
 import java.util.*
 import kotlin.math.min
 
-class ExtensionFragment : BaseFragment() {
+class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
+
     private val appViewModel by activityViewModels<AppViewModel>()
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
-    private var _binding: FragmentAssistBinding? = null
-    private val binding get() = _binding!!
     private lateinit var mContext: Context
     private var isFabShow = true
     private var fabHideDistance = 0f
@@ -87,14 +87,12 @@ class ExtensionFragment : BaseFragment() {
         mContext = requireActivity()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAssistBinding.inflate(inflater, container, false)
+    override fun init() {
+        initMenu()
         initView()
         initData()
-        return binding.root
     }
+
 
     private fun initData() {
         appViewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
@@ -333,11 +331,6 @@ class ExtensionFragment : BaseFragment() {
 
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initMenu()
-    }
-
     private fun initMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -372,12 +365,6 @@ class ExtensionFragment : BaseFragment() {
                 ->长按模板（删除模板）
             长按加号按钮：不使用模板选择App
         """.trimIndent())
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
 

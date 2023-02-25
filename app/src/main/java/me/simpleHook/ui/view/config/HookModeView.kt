@@ -23,7 +23,6 @@ class HookModeView(context: Context) : MaterialCardView(context) {
         }
         radius = 5f.dp
         cardElevation = 10f
-        elevation = 10f
     }
 
 }
