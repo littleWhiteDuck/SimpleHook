@@ -44,7 +44,7 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.base.BaseActivity
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.*
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener

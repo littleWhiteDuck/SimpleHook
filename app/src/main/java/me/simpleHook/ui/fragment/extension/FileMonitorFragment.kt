@@ -1,37 +1,32 @@
 package me.simpleHook.ui.fragment.extension
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation.findNavController
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
+import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.FileMonitorConfig
 import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
 
-class FileMonitorFragment : PreferenceFragmentCompat() {
+class FileMonitorFragment : BasePreferenceFragment() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
         findNavController(requireActivity(), R.id.nav_host_fragment)
     }
-    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     //    private val tempConfig by lazy { exViewModel.extensionConfig.value?.fileMonitor ?: throw NullPointerException("FileMonitorConfig is null...") }
     private lateinit var tempConfig: FileMonitorConfig
@@ -111,17 +106,25 @@ class FileMonitorFragment : PreferenceFragmentCompat() {
         preferenceScreen.addPreference(preferenceCategory)
         preferenceCategory.addPreferences(createFile,
             deleteFile,
-            inputFile,
-            outputFile,
-            assetsFile,
-            seekBarPreference)
+            inputFile, outputFile, assetsFile, seekBarPreference)
         setPreferenceScreen(preferenceScreen)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
         setDividerHeight(0)
         initMenu()
+    }
+
+    override fun canBack(): Boolean {
+        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.fileMonitor.info
+    }
+
+    override fun notBackTip() {
+        exitDialog(requireContext(), okClick = { saveConfig(exit = true) }, neutralClick = {
+            backPressed()
+        }, cancelClick = {
+            saveConfig(false)
+        })
     }
 
     private fun initMenu() {
@@ -142,25 +145,6 @@ class FileMonitorFragment : PreferenceFragmentCompat() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.fileMonitor.info) {
-                    isEnabled = false
-                    dispatcher.onBackPressed()
-                } else {
-                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
-                        onBackPressedCallback.isEnabled = false
-                        dispatcher.onBackPressed()
-                    }, cancelClick = {
-                        saveConfig(false)
-                    })
-                }
-            }
-        }
-        dispatcher.addCallback(this, onBackPressedCallback)
-    }
 
     private fun saveConfig(exit: Boolean) {
         exViewModel.extensionConfig.value!!.fileMonitor.info = Json.encodeToString(tempConfig)

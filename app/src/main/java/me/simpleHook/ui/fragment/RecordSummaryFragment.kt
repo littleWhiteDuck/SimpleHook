@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.RecordSummaryAdapter
+import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.RecordSummary
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.database.AppViewModel
@@ -28,12 +29,11 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
-import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 
 
-class RecordSummaryFragment : BaseFragment<FragmentRecordSummaryBinding>() {
+class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding>() {
     private val appViewModel: AppViewModel by activityViewModels()
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -168,6 +168,20 @@ class RecordSummaryFragment : BaseFragment<FragmentRecordSummaryBinding>() {
         }
         refreshData(200, true)
     }
+
+    override fun canBack(): Boolean {
+        return true
+    }
+
+    override fun performBack() {
+
+    }
+
+    override fun notBackTip() {
+
+    }
+
+    override fun enableCallback() = false
 
     override fun init() {
         initMenu()

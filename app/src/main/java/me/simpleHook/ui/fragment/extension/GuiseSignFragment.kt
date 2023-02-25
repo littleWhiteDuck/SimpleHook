@@ -34,7 +34,7 @@ import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.showToast
 import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
-import me.simpleHook.ui.base.BaseFragment
+import me.simpleHook.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog

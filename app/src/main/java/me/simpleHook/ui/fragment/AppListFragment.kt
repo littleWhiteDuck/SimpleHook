@@ -10,7 +10,7 @@ import me.simpleHook.R
 import me.simpleHook.adapter.AppListAdapter
 import me.simpleHook.databinding.FragmentAppListBinding
 import me.simpleHook.extension.dp
-import me.simpleHook.ui.base.BaseFragment
+import me.simpleHook.base.BaseFragment
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.viewmodel.AppViewModel
 

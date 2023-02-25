@@ -1,13 +1,10 @@
-package me.simpleHook.ui.base
+package me.simpleHook.base
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
-import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import me.simpleHook.R
 import me.simpleHook.compat.DocumentCompat
@@ -20,29 +17,36 @@ import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.OSUtils
 import me.simpleHook.util.PermissionUtils
 import me.simpleHook.util.SPUtils
-import java.lang.reflect.ParameterizedType
 
 
-abstract class BaseFragment<VB : ViewBinding> : Fragment(), IBinding<VB> {
+abstract class BaseExtensionFragment<VB : ViewBinding> : BaseFragment<VB>() {
 
-    private var _binding: VB? = null
+    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
-    override val binding: VB get() = _binding!!
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = inflateBinding(layoutInflater)
-        return binding.root
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onBackPressedCallback = object : OnBackPressedCallback(enableCallback()) {
+            override fun handleOnBackPressed() {
+                if (canBack()) {
+                    performBack()
+                } else {
+                    notBackTip()
+                }
+            }
+        }
+        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        init()
-    }
+    abstract fun canBack(): Boolean
+    abstract fun performBack()
+    abstract fun notBackTip()
+    abstract fun enableCallback(): Boolean
 
-    abstract fun init()
+    protected fun backPressed() {
+        onBackPressedCallback.isEnabled = false
+        dispatcher.onBackPressed()
+    }
 
     protected val sp by lazy { SPUtils(requireContext()) }
 
@@ -80,13 +84,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment(), IBinding<VB> {
                 }
             }
         }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T : ViewBinding> Any.inflateBinding(inflater: LayoutInflater): T {
-        return (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments.filterIsInstance<Class<T>>()
-            .first().getDeclaredMethod("inflate", LayoutInflater::class.java)
-            .also { it.isAccessible = true }.invoke(null, inflater) as T
     }
 
 }

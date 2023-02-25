@@ -2,12 +2,12 @@ package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
 import androidx.fragment.app.viewModels
+import me.simpleHook.base.BaseBottomFragment
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ExtensionActivity
-import me.simpleHook.ui.base.BaseBottomFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.config.HookModeAdapter
 import me.simpleHook.ui.view.edit.InputView

@@ -1,4 +1,4 @@
-package me.simpleHook.ui.base
+package me.simpleHook.base
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
 import android.view.Menu
 import android.widget.CheckBox
 import android.widget.ImageButton
@@ -18,7 +17,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
@@ -38,7 +36,6 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.*
-import java.lang.reflect.ParameterizedType
 
 @Keep
 open class BaseActivity : AppCompatActivity() {
@@ -96,16 +93,14 @@ open class BaseActivity : AppCompatActivity() {
                 if (!::assistConfigs.isInitialized) {
                     assistConfigs = appViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(
-                                this@BaseActivity, it.packageName
-                            )
+                        if (it.allSwitch && AppUtils.isAppInstalled(this@BaseActivity,
+                                it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appViewModel.getConfigs()
                     configs.forEach {
-                        if (it.enable && AppUtils.isAppInstalled(
-                                this@BaseActivity, it.packageName
-                            )
+                        if (it.enable && AppUtils.isAppInstalled(this@BaseActivity,
+                                it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
@@ -128,18 +123,12 @@ open class BaseActivity : AppCompatActivity() {
     @SuppressLint("Range", "NotifyDataSetChanged")
     private fun updateData() {
         if (stopPrint) return
-        contentResolver.query(
-            uri, null, "time > ?", arrayOf(currentTime), null
-        )?.apply {
+        contentResolver.query(uri, null, "time > ?", arrayOf(currentTime), null)?.apply {
             while (moveToNext()) {
                 val log = getString(getColumnIndex("log"))
                 val packageName = getString(getColumnIndex("packageName"))
                 val time = getString(getColumnIndex("time"))
-                list.add(
-                    PrintLog(
-                        log = log, packageName = packageName, time = time
-                    )
-                )
+                list.add(PrintLog(log = log, packageName = packageName, time = time))
                 currentTime = time
             }
             close()
@@ -194,11 +183,8 @@ open class BaseActivity : AppCompatActivity() {
             recyclerView.apply {
                 adapter = mAdapter
                 layoutManager = LinearLayoutManager(this@BaseActivity)
-                addItemDecoration(
-                    DividerItemDecoration(
-                        this@BaseActivity, DividerItemDecoration.VERTICAL
-                    )
-                )
+                addItemDecoration(DividerItemDecoration(this@BaseActivity,
+                    DividerItemDecoration.VERTICAL))
             }
             val dragCheckBox = it.findViewById<CheckBox>(R.id.dragEnable)
             dragCheckBox.setOnCheckedChangeListener { _, isChecked ->

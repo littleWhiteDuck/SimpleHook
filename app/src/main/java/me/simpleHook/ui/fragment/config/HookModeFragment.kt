@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.extension.dp
-import me.simpleHook.ui.base.BaseBottomFragment
+import me.simpleHook.base.BaseBottomFragment
 import me.simpleHook.ui.view.config.HookModeView
 
 class HookModeFragment(val items: Array<String>, onItemClick: (Int) -> Unit) :

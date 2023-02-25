@@ -1,4 +1,4 @@
-package me.simpleHook.ui.fragment
+package me.simpleHook.ui.fragment.extension
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
+import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
@@ -33,17 +34,15 @@ import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
-import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.ui.fragment.extension.ModelBottomFragment
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
 import java.util.*
 import kotlin.math.min
 
-class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
+class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
 
     private val appViewModel by activityViewModels<AppViewModel>()
     private val bottomNavigationView by lazy {
@@ -84,6 +83,20 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
         super.onCreate(savedInstanceState)
         mContext = requireActivity()
     }
+
+    override fun canBack(): Boolean {
+        return true
+    }
+
+    override fun performBack() {
+
+    }
+
+    override fun notBackTip() {
+
+    }
+
+    override fun enableCallback() = false
 
     override fun init() {
         initMenu()

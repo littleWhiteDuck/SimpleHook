@@ -9,7 +9,6 @@ import android.os.Looper
 import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
@@ -32,6 +31,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.adapter.HomeAdapter
+import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.constant.Constant
@@ -42,7 +42,6 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ConfigActivity
-import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.edit.InputView
@@ -50,7 +49,7 @@ import me.simpleHook.util.*
 import kotlin.math.min
 
 
-class HomeFragment : BaseFragment<FragmentHomeBinding>(), SearchView.OnQueryTextListener,
+class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), SearchView.OnQueryTextListener,
     HideScrollListener {
 
     private var fabDistance = 0
@@ -78,8 +77,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), SearchView.OnQueryText
     }
     private var isFabShow = true
     private var isDrag = false
-    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -494,20 +491,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), SearchView.OnQueryText
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (isDrag) {
-                    cancelDragSort()
-                } else {
-                    onBackPressedCallback.isEnabled = false
-                    dispatcher.onBackPressed()
-                }
-            }
-        }
-        dispatcher.addCallback(this, onBackPressedCallback)
+    override fun canBack() = isDrag
+
+    override fun notBackTip() {
+        backPressed()
     }
+
+    override fun performBack() {
+        cancelDragSort()
+    }
+
+    override fun enableCallback() = true
 
     @SuppressLint("NotifyDataSetChanged")
     private fun cancelDragSort() {

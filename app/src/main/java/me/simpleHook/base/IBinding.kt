@@ -1,4 +1,4 @@
-package me.simpleHook.ui.base
+package me.simpleHook.base
 
 import androidx.viewbinding.ViewBinding
 

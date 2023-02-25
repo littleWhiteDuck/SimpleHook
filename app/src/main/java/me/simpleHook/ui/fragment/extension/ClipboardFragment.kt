@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
@@ -18,13 +16,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.chip.Chip
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
+import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.ClipboardConfig
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.ui.custom.ChipPreference
@@ -32,11 +30,9 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
-class ClipboardFragment : PreferenceFragmentCompat() {
+class ClipboardFragment : BasePreferenceFragment() {
     private lateinit var clipboardConfig: ClipboardConfig
     private val args: ClipboardFragmentArgs by navArgs()
-    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
     private var tempConfig = ""
     private lateinit var navController: NavController
     private val exViewModel by activityViewModels<ExViewModel>()
@@ -116,8 +112,7 @@ class ClipboardFragment : PreferenceFragmentCompat() {
         if (exit) navController.navigateUp()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
         setDividerHeight(0)
         clipboardConfig = if (args.clipboardConfig.isNotEmpty()) {
             Json.decodeFromString(args.clipboardConfig)
@@ -138,6 +133,18 @@ class ClipboardFragment : PreferenceFragmentCompat() {
         initMenu()
     }
 
+    override fun canBack(): Boolean {
+        return tempConfig == clipboardConfig.toString()
+    }
+
+    override fun notBackTip() {
+        exitDialog(requireContext(), okClick = { saveConfig(exit = true) }, neutralClick = {
+            backPressed()
+        }, cancelClick = {
+            saveConfig(false)
+        })
+    }
+
     private fun initMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -151,27 +158,6 @@ class ClipboardFragment : PreferenceFragmentCompat() {
                 return false
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
-
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (tempConfig == clipboardConfig.toString()) {
-                    onBackPressedCallback.isEnabled = false
-                    dispatcher.onBackPressed()
-                } else {
-                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
-                        onBackPressedCallback.isEnabled = false
-                        dispatcher.onBackPressed()
-                    }, cancelClick = {
-                        saveConfig(false)
-                    })
-                }
-            }
-        }
-        dispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

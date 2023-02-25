@@ -27,7 +27,7 @@ import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.base.BaseActivity
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.util.regex.Matcher

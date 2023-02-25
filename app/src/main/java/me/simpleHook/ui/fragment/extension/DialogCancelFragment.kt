@@ -1,13 +1,10 @@
 package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
@@ -15,13 +12,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.chip.Chip
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
+import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.DialogCancel
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.extension.showToast
@@ -31,13 +28,12 @@ import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.viewmodel.ExViewModel
 
-class DialogCancelFragment : PreferenceFragmentCompat() {
+class DialogCancelFragment : BasePreferenceFragment() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
     }
-    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
+
     private lateinit var tempConfig: DialogCancel
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -212,30 +208,22 @@ class DialogCancelFragment : PreferenceFragmentCompat() {
             }).show()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun init() {
         setDividerHeight(0)
         initMenu()
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.stopDialog.info) {
-                    isEnabled = false
-                    dispatcher.onBackPressed()
-                } else {
-                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
-                        onBackPressedCallback.isEnabled = false
-                        dispatcher.onBackPressed()
-                    }, cancelClick = {
-                        saveConfig(false)
-                    })
-                }
-            }
-        }
-        dispatcher.addCallback(this, onBackPressedCallback)
+    override fun notBackTip() {
+        exitDialog(requireContext(), okClick = { saveConfig(true) }, neutralClick = {
+            backPressed()
+        }, cancelClick = {
+            saveConfig(false)
+
+        })
+    }
+
+    override fun canBack(): Boolean {
+        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.stopDialog.info
     }
 
     private fun initMenu() {

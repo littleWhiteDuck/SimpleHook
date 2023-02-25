@@ -22,7 +22,7 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.base.BaseActivity
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.SPUtils

@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.widget.LinearLayout
-import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -28,6 +27,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.DocumentCompat
@@ -40,12 +40,9 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.extension.snack
 import me.simpleHook.ui.activity.ExtensionActivity
-import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
-import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ExtensionItemTitleView
 import me.simpleHook.ui.view.extension.SelectItemView
 import me.simpleHook.ui.view.extension.SubSelectItemView
@@ -53,7 +50,7 @@ import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
 
 
-class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
+class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>() {
 
     private val extensionConfig: AssistConfig by lazy {
         BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!
@@ -73,8 +70,6 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
                 requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
             }
         }
-    private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
     private val navController by lazy {
         findNavController(requireActivity(), R.id.nav_host_fragment)
     }
@@ -174,7 +169,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
     }
 
     private fun onItemClick(tag: String, checked: Boolean) {
-        if (tag == "hotFix") {
+        if (tag == "hotFix" && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
             createDexDirectory()
         }
         when (tag) {
@@ -199,23 +194,6 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
                 }
             }
         }
-    }
-
-
-    private fun showEditStopDialogKeyWord() {
-        val inputView = InputView(requireContext())
-        inputView.textInputLayout.helperText = getString(R.string.extension_block_dialog_helper_tip)
-        inputView.editText.setText(configBean.stopDialog.info)
-        customDialog(requireContext(),
-            title = getString(R.string.extension_block_dialog_title),
-            contentView = inputView,
-            okText = getString(R.string.dialog_confirm),
-            okClick = { dialogInterface ->
-                val keyWords = inputView.editText.text.toString().replace("，", ",").trim()
-                configBean.stopDialog.info = keyWords
-                dialogInterface.dismiss()
-            },
-            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
 
@@ -280,8 +258,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
             getString(R.string.extension_save_success).snack(binding.recyclerView)
             loadingDialog.quickDismiss()
             if (exit) {
-                onBackPressedCallback.isEnabled = false
-                dispatcher.onBackPressed()
+                backPressed()
             }
         }, 500)
         return true
@@ -467,24 +444,24 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (tempConfigStr == configBean.toString()) {
-                    onBackPressedCallback.isEnabled = false
-                    dispatcher.onBackPressed()
-                } else {
-                    exitDialog(context, okClick = { saveConfig(exit = true) }, neutralClick = {
-                        onBackPressedCallback.isEnabled = false
-                        dispatcher.onBackPressed()
-                    }, cancelClick = {
-                        saveConfig(false)
-                    })
-                }
-            }
-        }
-        dispatcher.addCallback(this, onBackPressedCallback)
+    override fun canBack(): Boolean {
+        return tempConfigStr == configBean.toString()
+    }
+
+    override fun performBack() {
+        backPressed()
+    }
+
+    override fun notBackTip() {
+        exitDialog(requireContext(), okClick = { saveConfig(exit = true) }, neutralClick = {
+            backPressed()
+        }, cancelClick = {
+            saveConfig(false)
+        })
+    }
+
+    override fun enableCallback(): Boolean {
+        return true
     }
 
     companion object {

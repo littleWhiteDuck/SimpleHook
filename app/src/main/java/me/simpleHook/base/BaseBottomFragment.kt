@@ -1,4 +1,4 @@
-package me.simpleHook.ui.base
+package me.simpleHook.base
 
 import android.app.Dialog
 import android.os.Bundle
