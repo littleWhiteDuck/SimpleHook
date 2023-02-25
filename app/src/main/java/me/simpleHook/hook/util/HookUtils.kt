@@ -1,15 +1,12 @@
 package me.simpleHook.hook.util
 
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.view.children
-import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
-import me.simpleHook.constant.Constant
 import me.simpleHook.hook.Tip
-import java.lang.reflect.Constructor
-import java.lang.reflect.Method
 
 
 object HookUtils {
@@ -31,6 +28,18 @@ object HookUtils {
                     list += getAllTextView(it)
                 }
             }
+        }
+        return list
+    }
+
+    fun getAllViewIds(view: View): List<String> {
+        val list = mutableListOf<String>()
+        if (view is ViewGroup) {
+            view.children.forEach {
+                list += getAllViewIds(it)
+            }
+        } else {
+            if (view.id != View.NO_ID) list.add(view.id.toString())
         }
         return list
     }

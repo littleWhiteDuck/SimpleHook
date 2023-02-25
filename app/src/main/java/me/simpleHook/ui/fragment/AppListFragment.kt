@@ -57,8 +57,7 @@ class AppListFragment(private val label: String) : BaseFragment<FragmentAppListB
             adapter = appAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-        val myFastScroller = FastScrollerUtil.bind(binding.recyclerView)
-        //myFastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
+        FastScrollerUtil.bind(binding.recyclerView)
     }
 
 }

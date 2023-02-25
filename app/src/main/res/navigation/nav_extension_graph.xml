@@ -33,6 +33,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_dialogCancelFragment"
+            app:destination="@id/dialogCancelFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
@@ -55,5 +62,9 @@
         android:id="@+id/fileMonitorFragment"
         android:name="me.simpleHook.ui.fragment.extension.FileMonitorFragment"
         android:label="@string/label_file" />
+    <fragment
+        android:id="@+id/dialogCancelFragment"
+        android:name="me.simpleHook.ui.fragment.extension.DialogCancelFragment"
+        android:label="@string/label_dialog" />
 
 </navigation>

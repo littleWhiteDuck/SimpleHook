@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
@@ -76,6 +75,9 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
         }
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private val navController by lazy {
+        findNavController(requireActivity(), R.id.nav_host_fragment)
+    }
 
 
     override fun init() {
@@ -99,6 +101,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
                 val isInstalled =
                     AppUtils.isAppInstalled(requireContext(), extensionConfig.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
+                menu.findItem(R.id.menu_open_float).isChecked = GlobalValue.sp.startFloat
                 if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtils.rootVersion) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
@@ -137,6 +140,10 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
                     }
                     R.id.menu_app_info -> AppUtils.jumpAppInfoPage(requireContext(),
                         extensionConfig.packageName)
+                    R.id.menu_open_float -> {
+                        menuItem.isChecked = !menuItem.isChecked
+                        GlobalValue.sp.startFloat = menuItem.isChecked
+                    }
                 }
                 return true
             }
@@ -148,10 +155,9 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
     private fun onSubItemClick(tag: String) {
         when (tag) {
             TAG_STOP_DIALOG -> {
-                showEditStopDialogKeyWord()
+                navController.navigate(R.id.action_managerFragment_to_dialogCancelFragment)
             }
             TAG_FILTER_CLIPBOARD -> {
-                val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
                 val action =
                     ManagerFragmentDirections.actionManagerFragmentToClipboardFragment(configBean.filterClipboard.info)
                 navController.navigate(action)
@@ -159,11 +165,9 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
             TAG_GUISE_SIGN -> {
                 val action =
                     ManagerFragmentDirections.actionManagerFragmentToGuiseSignFragment(configBean.guiseSign.info)
-                val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
                 navController.navigate(action)
             }
             TAG_FILE_MONITOR -> {
-                val navController = findNavController(requireActivity(), R.id.nav_host_fragment)
                 navController.navigate(R.id.action_managerFragment_to_fileMonitorFragment)
             }
         }
@@ -269,7 +273,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
         } else {
             appViewModel.insertAssistConfigs(extensionConfig)
         }
-        if (extensionConfig.packageName != "模板配置") {
+        if (extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
             saveConfig(extensionConfig.packageName, config)
         }
         Handler(Looper.getMainLooper()).postDelayed({

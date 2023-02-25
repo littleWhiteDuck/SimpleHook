@@ -470,5 +470,16 @@
     <string name="main_settings_title_lsp_scope">LSPosed协同配置</string>
     <string name="main_settings_summary_lsp_scope">增加配置后，在LSPosed管理器中也会启用目标应用，你需要手动禁用再启用本模块方能生效</string>
     <string name="record_detail_word_wrap">自动换行</string>
+    <string name="extension_manager_open_float_window">开启悬浮窗</string>
+    <string name="label_dialog">弹窗</string>
+    <string name="extension_dialog_cancel_title_keyword">使用关键词拦截</string>
+    <string name="extension_dialog_cancel_summary_keyword">当弹窗含有关键词时，会阻止弹窗显示</string>
+    <string name="extension_dialog_cancel_title_id">使用ID拦截</string>
+    <string name="extension_dialog_cancel_summary_id">当弹窗控件含有指定ID时，会阻止弹窗显示</string>
+    <string name="extension_dialog_cancel_title_add_id">添加控件ID</string>
+    <string name="extension_dialog_cancel_hint_dec_or_hex">十进制或十六进制</string>
+    <string name="extension_dialog_cancel_add_id">添加ID</string>
+    <string name="extension_dialog_cancel_id_is_empty">ID不能为空</string>
+    <string name="extension_dialog_cancel_illegal_format">非法格式</string>
 
 </resources>

@@ -403,5 +403,16 @@
     <string name="main_settings_title_lsp_scope">LSPosed manager</string>
     <string name="main_settings_summary_lsp_scope">After adding the config, the target app will also be enabled in the LSPosed manager, you need to manually disable and enable SimpleHook to take effect</string>
     <string name="record_detail_word_wrap">自动换行</string>
+    <string name="extension_manager_open_float_window">Open floating window</string>
+    <string name="label_dialog">pop-up window</string>
+    <string name="extension_dialog_cancel_title_keyword">Use keyword blocking</string>
+    <string name="extension_dialog_cancel_summary_keyword">When the dialog contains keywords, it will prevent the dialog from being displayed</string>
+    <string name="extension_dialog_cancel_title_id">Use ID to intercept</string>
+    <string name="extension_dialog_cancel_summary_id">When the dialog widget contains the specified ID, it will prevent the dialog from being displayed</string>
+    <string name="extension_dialog_cancel_title_add_id">Add widget ID</string>
+    <string name="extension_dialog_cancel_hint_dec_or_hex">DEC or HEX</string>
+    <string name="extension_dialog_cancel_add_id">Add ID</string>
+    <string name="extension_dialog_cancel_id_is_empty">ID can\'t be empty</string>
+    <string name="extension_dialog_cancel_illegal_format">Illegal format</string>
 
 </resources>

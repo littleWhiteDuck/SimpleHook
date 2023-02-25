@@ -14,11 +14,6 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_custom">
         <CheckBoxPreference
-            app:defaultValue="false"
-            app:key="startFloat"
-            app:summary="@string/main_settings_summary_start_float"
-            app:title="@string/main_settings_title_start_float" />
-        <CheckBoxPreference
             android:key="bottomConfigDialog"
             android:title="@string/main_settings_title_bottom_config_dialog"
             app:defaultValue="false"

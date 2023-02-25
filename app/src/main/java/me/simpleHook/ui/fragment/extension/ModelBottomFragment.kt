@@ -1,7 +1,6 @@
 package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.viewModels
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
@@ -11,6 +10,7 @@ import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.base.BaseBottomFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.config.HookModeAdapter
+import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ModelListView
 
 class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelListView>() {
@@ -33,8 +33,6 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
             val extensionConfig = modelList[position]
             if (label == "edit") {
                 editModel(extensionConfig)
-            } else {
-
             }
         }
     }
@@ -71,16 +69,19 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
     private fun editModel(
         assistConfig: AssistConfig
     ) {
-        val editText = AppCompatEditText(requireContext())
-        editText.hint = "给模板起个名字"
-        editText.setText(assistConfig.appName)
+        val inputView = InputView(requireContext()).apply {
+            textInputLayout.hint = "给模板起个名字"
+            textInputLayout.counterMaxLength = 15
+            textInputLayout.isCounterEnabled = true
+            editText.setText(assistConfig.appName)
+        }
         customDialog(requireContext(),
             title = "修改模板",
-            contentView = editText,
+            contentView = inputView,
             okText = "去修改",
             okClick = {
-                val modelName = editText.text.toString()
-                if (modelName.isNotEmpty() && modelName.length < 10) {
+                val modelName = inputView.editText.text.toString()
+                if (modelName.isNotEmpty() && modelName.length < 15) {
                     assistConfig.appName = modelName
                     ExtensionActivity.startActivity(requireContext(), assistConfig, true)
                     dismiss()

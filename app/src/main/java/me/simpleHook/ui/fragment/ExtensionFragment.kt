@@ -9,7 +9,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,6 +37,7 @@ import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.fragment.extension.ModelBottomFragment
+import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
 import java.util.*
@@ -248,11 +248,14 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
 
     private fun createModel() {
         val assistConfig = AssistConfig(appName = "", packageName = MODEL_EXTENSION_CONFIG)
-        val editText = AppCompatEditText(mContext)
-        editText.hint = "给模板起个名字"
-        customDialog(mContext, title = "创建模板", contentView = editText, okText = "去创建", okClick = {
-            val modelName = editText.text.toString()
-            if (modelName.isNotEmpty() && modelName.length < 10) {
+        val inputView = InputView(requireContext()).apply {
+            textInputLayout.hint = "给模板起个名字"
+            textInputLayout.counterMaxLength = 15
+            textInputLayout.isCounterEnabled = true
+        }
+        customDialog(mContext, title = "创建模板", contentView = inputView, okText = "去创建", okClick = {
+            val modelName = inputView.editText.text.toString()
+            if (modelName.isNotEmpty() || modelName.length > 15) {
                 assistConfig.appName = modelName
                 ExtensionActivity.startActivity(requireContext(), assistConfig, false)
             } else {

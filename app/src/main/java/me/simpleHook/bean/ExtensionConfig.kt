@@ -23,7 +23,7 @@ data class ExtensionConfig(
     var jsonArray: Boolean = false,
     var webLoadUrl: Boolean = false,
     var webDebug: Boolean = false,
-    val stopDialog: ExtensionItemConfig = ExtensionItemConfig(),
+    val stopDialog: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
     val filterClipboard: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
     var application: Boolean = false,
     var signature: Boolean = false,
@@ -67,4 +67,13 @@ data class FileMonitorConfig(
     var outputFile: Boolean = false,
     var assetsFile: Boolean = false,
     var cacheSize: Int = 0
+)
+
+@kotlinx.serialization.Serializable
+@Keep
+data class DialogCancel(
+    var keywordEnable: Boolean = false,
+    var keywords: String = "[]",
+    var idEnable: Boolean = false,
+    var ids: String = "[]"
 )
