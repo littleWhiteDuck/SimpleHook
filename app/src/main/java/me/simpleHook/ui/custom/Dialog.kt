@@ -3,9 +3,11 @@ package me.simpleHook.ui.custom
 import android.content.Context
 import android.content.DialogInterface
 import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.simpleHook.R
+import me.simpleHook.util.OSUtils
 
 
 fun exitDialog(
@@ -92,5 +94,13 @@ fun customDialog(
             setNeutralButton(neutralText) { dialog, _ -> neutralClick(dialog) }
         }
     }
-    return customDialog.create()
+    return customDialog.create().also { dialog ->
+        if (OSUtils.atLeastS()) {
+            dialog.window?.let {
+                it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                it.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                it.attributes.blurBehindRadius = 50
+            }
+        }
+    }
 }

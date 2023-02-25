@@ -1,7 +1,6 @@
 package me.simpleHook.ui.base
 
 import android.app.Dialog
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import me.simpleHook.R
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.util.OSUtils
 
 abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
 
@@ -42,10 +42,10 @@ abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
                 super.onAttachedToWindow()
                 window?.let {
                     WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (OSUtils.atLeastS()) {
                         it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                        it.attributes.blurBehindRadius = 50
                         it.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-                        it.attributes.blurBehindRadius = 64
                     }
                 }
             }
