@@ -5,8 +5,6 @@ import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
-import android.os.Bundle
-import android.os.Parcelable
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
@@ -22,7 +20,6 @@ import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.OSUtils
 import org.json.JSONObject
 import java.net.URL
 import kotlin.math.roundToInt
@@ -87,17 +84,19 @@ val Float.px
 val Int.px
     get() = this.toFloat().px
 
+val Float.sp
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+        this,
+        Resources.getSystem().displayMetrics)
+
+val Int.sp
+    get() = this.toFloat().sp.toInt()
+
 @Suppress("unused")
 fun px2dp(pxValue: Int): Int {
     val scale = Resources.getSystem().displayMetrics.density
     return (pxValue / scale + 0.5f).toInt()
 }
-
-
-val Float.sp
-    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
-        this,
-        Resources.getSystem().displayMetrics)
 
 
 fun ViewPager2.setCurrentItem(

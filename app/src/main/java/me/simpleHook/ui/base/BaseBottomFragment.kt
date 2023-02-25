@@ -41,7 +41,6 @@ abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
             override fun onAttachedToWindow() {
                 super.onAttachedToWindow()
                 window?.let {
-                    WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
                     if (OSUtils.atLeastS()) {
                         it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
                         it.attributes.blurBehindRadius = 50
@@ -55,6 +54,9 @@ abstract class BaseBottomFragment<T : View> : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         _root = initRootView()
+        dialog?.window?.let {
+            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
+        }
         init()
         return _root
     }

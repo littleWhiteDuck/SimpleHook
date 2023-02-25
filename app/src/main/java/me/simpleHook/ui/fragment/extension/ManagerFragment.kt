@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
@@ -59,7 +60,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
         BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!
     }
     private val exViewModel by activityViewModels<ExViewModel>()
-    private var editMode = true
+    private var editMode: Boolean = true
     private val appViewModel by viewModels<AppViewModel>()
     private val items = ArrayList<Any>()
     private var configBean: ExtensionConfig = ExtensionConfig()
@@ -290,6 +291,7 @@ class ManagerFragment : BaseFragment<FragmentExtensionManagerBinding>() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        editMode = requireActivity().intent.getBooleanExtra("EXTENSION_CONFIG_EDIT", true)
         val dexPosition = getString(R.string.extension_dex_position)
         val dexPath = if (FlavorUtils.normalVersion) {
             dexPosition + "/Android/data/${extensionConfig.packageName}/simpleHook/dex/"

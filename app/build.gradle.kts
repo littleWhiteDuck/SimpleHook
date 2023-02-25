@@ -223,5 +223,7 @@ dependencies {
 
     //leakcanary
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
+    //glacne
+    debugImplementation("com.guolindev.glance:glance:1.1.0")
 
 }

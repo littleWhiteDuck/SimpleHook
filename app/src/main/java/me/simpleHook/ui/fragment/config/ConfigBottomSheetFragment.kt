@@ -2,7 +2,6 @@ package me.simpleHook.ui.fragment.config
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -149,9 +148,8 @@ class ConfigBottomSheetFragment(
         binding.modeSelectButton.text = list[realPosition] + ">"
         binding.modeSelectButton.setOnClickListener {
             HookModeFragment(list) {
-                binding.modeSelectButton.text = "$it>"
-                val position = list.indexOf(it)
-                hookMode = listValue[position]
+                binding.modeSelectButton.text = "${list[it]}>"
+                hookMode = listValue[it]
                 onModeChange()
             }.show(requireActivity().supportFragmentManager, "config")
         }

@@ -45,6 +45,7 @@ class ExtensionActivity : BaseActivity() {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
         val bundle = Bundle()
         bundle.putParcelable(KEY_CONFIG, extensionConfig)
+        bundle.putBoolean(KEY_CONFIG_EDIT, intent.getBooleanExtra(KEY_CONFIG_EDIT, true))
         navController.setGraph(R.navigation.nav_extension_graph, bundle)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.label == "fragment_extension_manager") {

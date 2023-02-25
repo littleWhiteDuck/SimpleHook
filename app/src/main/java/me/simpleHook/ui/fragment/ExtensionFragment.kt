@@ -37,9 +37,9 @@ import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.base.BaseFragment
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.ui.fragment.extension.ModelBottomFragment
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.LogUtils
 import java.util.*
 import kotlin.math.min
 
@@ -63,7 +63,6 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
                 val data = it.data!!
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
-                LogUtils.outLog("$appName, $packageName, ${System.currentTimeMillis()}")
                 if (currentModel == -1) {
                     appViewModel.insertAssistConfigs(AssistConfig(appName = appName,
                         packageName = packageName))
@@ -72,7 +71,6 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
                     modelConfig.appName = appName
                     modelConfig.packageName = packageName
                     modelConfig.id = 0
-                    appViewModel.insertAssistConfigs(modelConfig)
                     currentModel = -1
                     saveConfig(modelConfig)
                 }
@@ -248,28 +246,19 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
         startActivityForModelCreate.launch(intent)
     }
 
-    private fun createModel(
-        editMode: Boolean = false,
-        assistConfig: AssistConfig = AssistConfig(appName = "",
-            packageName = MODEL_EXTENSION_CONFIG)
-    ) {
+    private fun createModel() {
+        val assistConfig = AssistConfig(appName = "", packageName = MODEL_EXTENSION_CONFIG)
         val editText = AppCompatEditText(mContext)
         editText.hint = "给模板起个名字"
-        if (editMode) editText.setText(assistConfig.appName)
-        customDialog(mContext,
-            title = if (editMode) "修改模板" else "创建模板",
-            contentView = editText,
-            okText = if (editMode) "去修改" else "去创建",
-            okClick = {
-                val modelName = editText.text.toString()
-                if (modelName.isNotEmpty() && modelName.length < 10) {
-                    assistConfig.appName = modelName
-                    ExtensionActivity.startActivity(requireContext(), assistConfig, editMode)
-                } else {
-                    requireActivity().showToast("不能为空或名字太长")
-                }
-            },
-            cancelText = "取消").show()
+        customDialog(mContext, title = "创建模板", contentView = editText, okText = "去创建", okClick = {
+            val modelName = editText.text.toString()
+            if (modelName.isNotEmpty() && modelName.length < 10) {
+                assistConfig.appName = modelName
+                ExtensionActivity.startActivity(requireContext(), assistConfig, false)
+            } else {
+                requireActivity().showToast("不能为空或名字太长")
+            }
+        }, cancelText = "取消").show()
     }
 
     private fun showModelDialog() {
@@ -277,33 +266,7 @@ class ExtensionFragment : BaseFragment<FragmentAssistBinding>() {
             requireActivity().showToast("请先创建")
             return
         }
-        val showList = mutableListOf<String>()
-        modelList.forEach {
-            showList.add(it.appName)
-        }
-        val listView = ListView(mContext)
-        val adapter = ArrayAdapter(mContext, android.R.layout.simple_list_item_1, showList)
-        listView.adapter = adapter
-        listView.setOnItemClickListener { _, _, position, _ ->
-            createModel(editMode = true, assistConfig = modelList[position])
-        }
-        listView.setOnItemLongClickListener { _, _, position, _ ->
-            adapter.remove(showList[position])
-            appViewModel.deleteAssistConfigs(modelList[position])
-            modelList.removeAt(position)
-            true
-        }
-        customDialog(mContext,
-            title = MODEL_EXTENSION_CONFIG,
-            contentView = listView,
-            okText = "确定",
-            cancelText = "取消",
-            neutralText = "清空",
-            neutralClick = { dialogInterface ->
-                appViewModel.deleteAssistConfigs(*modelList.toTypedArray())
-                dialogInterface.dismiss()
-            },
-            cancelAble = false).show()
+        ModelBottomFragment("edit").show(requireActivity().supportFragmentManager, "model")
     }
 
     private fun showSelectModelDialog() {

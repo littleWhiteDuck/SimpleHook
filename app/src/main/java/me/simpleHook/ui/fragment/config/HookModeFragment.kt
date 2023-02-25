@@ -7,16 +7,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.extension.dp
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.base.BaseBottomFragment
 import me.simpleHook.ui.view.config.HookModeView
 
-class HookModeFragment(val items: Array<String>, onItemClick: (String) -> Unit) :
+class HookModeFragment(val items: Array<String>, onItemClick: (Int) -> Unit) :
     BaseBottomFragment<RecyclerView>() {
 
     private val mAdapter by lazy {
-        HookModeAdapter {
-            onItemClick(it)
+        HookModeAdapter { position, _ ->
+            onItemClick(position)
             dismiss()
         }
     }
@@ -37,15 +36,12 @@ class HookModeFragment(val items: Array<String>, onItemClick: (String) -> Unit) 
     override fun init() {
         mAdapter.items = items
         root.adapter = mAdapter
-        dialog?.window?.let {
-            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
-        }
     }
 
 }
 
 
-class HookModeAdapter(val onClick: (String) -> Unit) :
+class HookModeAdapter(val onClick: (Int, mode: Int) -> Unit) :
     RecyclerView.Adapter<HookModeAdapter.ViewHolder>() {
     var items: Array<String> = emptyArray()
 
@@ -56,8 +52,13 @@ class HookModeAdapter(val onClick: (String) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val hookModeView = HookModeView(parent.context)
         hookModeView.setOnClickListener {
-            val str = it.getTag(R.id.item_hook_mode) as String
-            onClick(str)
+            val position = it.getTag(R.id.item_hook_mode) as Int
+            onClick(position, 0)
+        }
+        hookModeView.setOnLongClickListener {
+            val position = it.getTag(R.id.item_hook_mode) as Int
+            onClick(position, 1)
+            true
         }
         return ViewHolder(hookModeView)
     }
@@ -66,7 +67,7 @@ class HookModeAdapter(val onClick: (String) -> Unit) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val str = items[position]
-        holder.itemView.setTag(R.id.item_hook_mode, str)
+        holder.itemView.setTag(R.id.item_hook_mode, position)
         holder.title.text = str
     }
 }

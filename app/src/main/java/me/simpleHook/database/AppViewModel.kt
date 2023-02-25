@@ -225,7 +225,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun queryDefaultExConfig() = appRepository.queryDefaultExConfig()
 
-    fun deleteAllAssistConfigs() {
+    fun deleteAllAssistConfigs() = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteAllAssistConfigs()
     }
 

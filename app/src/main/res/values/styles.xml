@@ -76,4 +76,15 @@
     <style name="PreferenceFragment.Material" tools:ignore="PrivateResource">
         <item name="android:divider">@drawable/preference_list_divider_material</item>
     </style>
+
+
+    <style name="BottomModelTitle">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="BottomModelButton">
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.OutlinedButton
+        </item>
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>
