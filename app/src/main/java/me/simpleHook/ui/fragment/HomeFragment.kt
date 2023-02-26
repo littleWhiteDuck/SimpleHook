@@ -3,6 +3,7 @@ package me.simpleHook.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
@@ -10,6 +11,7 @@ import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.SearchView.SearchAutoComplete
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -40,6 +42,7 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
+import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -49,8 +52,7 @@ import me.simpleHook.util.*
 import kotlin.math.min
 
 
-class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), SearchView.OnQueryTextListener,
-    HideScrollListener {
+class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollListener {
 
     private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
@@ -451,14 +453,6 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), SearchView.On
         startActivity(intent)
     }
 
-    override fun onQueryTextSubmit(query: String?) = false
-    override fun onQueryTextChange(newText: String): Boolean {
-        if (isDrag) return true
-        val pattern = newText.trim()
-        currentPattern = pattern
-        toFilterData(pattern)
-        return true
-    }
 
     private fun toFilterData(pattern: String) {
         val filter = filterConfigs.filter {
@@ -473,14 +467,27 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), SearchView.On
         initMenu()
     }
 
+    @Suppress("DEPRECATION")
     private fun initMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_home, menu)
                 val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
                 searchView.apply {
+                    setTextColor(Color.WHITE)
                     queryHint = context.getString(R.string.main_home_toolbar_search_hint)
-                    setOnQueryTextListener(this@HomeFragment)
+                    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                        override fun onQueryTextSubmit(query: String?) = false
+
+                        override fun onQueryTextChange(newText: String): Boolean {
+                            if (isDrag) return true
+                            val pattern = newText.trim()
+                            currentPattern = pattern
+                            toFilterData(pattern)
+                            return true
+                        }
+
+                    })
                 }
             }
 

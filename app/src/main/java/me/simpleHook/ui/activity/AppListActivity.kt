@@ -2,6 +2,7 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.bean.AppItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
@@ -21,8 +23,8 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.databinding.ActivityAppListBinding
+import me.simpleHook.extension.setTextColor
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.SPUtils
@@ -117,6 +119,7 @@ class AppListActivity : BaseActivity() {
         menuInflater.inflate(R.menu.menu_app_list, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
         searchView.queryHint = getString(R.string.search_hint)
+        searchView.setTextColor(Color.WHITE)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String): Boolean {

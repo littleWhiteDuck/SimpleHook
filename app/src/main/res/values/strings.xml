@@ -494,5 +494,6 @@
     <string name="extension_template_config">模板配置</string>
     <string name="extension_clear_all_template_config">清空</string>
     <string name="extension_close_bottom_dialog">关闭</string>
+    <string name="app_list_sort_mode">排序方式</string>
 
 </resources>

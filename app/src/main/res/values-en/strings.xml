@@ -427,4 +427,5 @@
     <string name="extension_template_config">Template</string>
     <string name="extension_clear_all_template_config">Clear</string>
     <string name="extension_close_bottom_dialog">Close</string>
+    <string name="app_list_sort_mode">Sort mode</string>
 </resources>
