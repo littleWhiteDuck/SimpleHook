@@ -192,9 +192,6 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_record_fragment, menu)
-                if (menu.findItem(R.id.search) != null) {
-                    menu.removeItem(R.id.search)
-                }
                 if (sp.showByType) {
                     menu.findItem(R.id.toTypeShow).isChecked = true
                 } else {

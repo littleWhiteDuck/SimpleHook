@@ -19,9 +19,7 @@
             android:layout_height="?actionBarSize"
             android:background="@color/colorPrimary"
             android:minHeight="?attr/actionBarSize"
-            android:theme="@style/ToolBarTheme"
-            app:subtitleTextColor="@color/white"
-            app:titleTextColor="@color/white" />
+            style="@style/Toolbar_Style" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"

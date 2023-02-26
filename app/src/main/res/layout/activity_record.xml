@@ -16,7 +16,7 @@
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_search_24"
+        app:srcCompat="@drawable/ic_search_toolbar_24"
         app:tint="@color/white" />
 
     <com.google.android.material.appbar.AppBarLayout
@@ -33,9 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
-            android:theme="@style/ToolBarTheme"
-            app:subtitleTextColor="@color/white"
-            app:titleTextColor="@color/white" />
+            style="@style/Toolbar_Style" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

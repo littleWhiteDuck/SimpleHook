@@ -87,4 +87,11 @@
         </item>
         <item name="android:textSize">16sp</item>
     </style>
+
+    <style name="Toolbar_Style">
+        <item name="android:theme">@style/ToolBarTheme</item>
+        <item name="popupTheme">@style/ToolBarThemePopup</item>
+        <item name="subtitleTextColor">@color/white</item>
+        <item name="titleTextColor">@color/white</item>
+    </style>
 </resources>

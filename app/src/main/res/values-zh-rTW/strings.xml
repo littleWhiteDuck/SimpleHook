@@ -365,7 +365,7 @@
     <string name="main_settings_title_bottom_check_permission">檢查權限</string>
     <string name="main_settings_summary_check_permission">無必要權限時，無法更改配置</string>
     <string name="main_settings_tip_close_check_permission">關閉後，在更改配置時將不會校驗是否具有ROOT(root)/存儲權限(normal)/被激活(lite)。 \n若無權限，配置更改僅作用於SimpleHook內，而無法作用於目標app</string>
-    <string name="extension_item_desc_adb">禁用ADB(USB 調式)檢測</string>
+    <string name="extension_item_desc_adb">禁用ADB(USB 調試)檢測</string>
     <string name="extension_guise_delete">刪除</string>
     <string name="extension_guise_update">更新</string>
     <string name="extension_guise_update_sign">更改應用簽名</string>

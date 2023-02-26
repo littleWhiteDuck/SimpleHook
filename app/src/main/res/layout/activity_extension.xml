@@ -20,9 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
-            android:theme="@style/ToolBarTheme"
-            app:subtitleTextColor="@color/white"
-            app:titleTextColor="@color/white" />
+            style="@style/Toolbar_Style" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.fragment.app.FragmentContainerView

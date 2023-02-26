@@ -25,4 +25,5 @@
     <color name="extension_item_card_normal">#ffffff</color>
     <color name="extension_manager_page_background">#f5f5f5</color>
     <color name="extension_item_card_ripple">#33000000</color>
+    <color name="menu_item_icon_color">@color/black</color>
 </resources>

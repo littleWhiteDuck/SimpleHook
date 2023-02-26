@@ -2,6 +2,7 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -22,6 +23,7 @@ import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract2
 import me.simpleHook.databinding.ActivityA33PermissionBinding
+import me.simpleHook.extension.setTextColor
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
@@ -187,6 +189,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_permisssion, menu)
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
+        searchView.setTextColor(Color.WHITE)
         searchView.apply {
             queryHint = context.getString(R.string.permission_search_hint_app_name)
             setOnQueryTextListener(this@A33PermissionActivity)

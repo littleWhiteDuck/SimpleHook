@@ -9,4 +9,5 @@
     <color name="divider_color">#595959</color>
     <color name="extension_item_card_normal">#2f2f2f</color>
     <color name="extension_manager_page_background">#171717</color>
+    <color name="menu_item_icon_color">@color/white</color>
 </resources>

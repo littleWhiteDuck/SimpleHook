@@ -7,7 +7,7 @@
         <item name="postSplashScreenTheme">@style/Theme.SimpleHook</item>
     </style>
     <!-- Base application theme. -->
-    <style name="Theme.SimpleHook" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SimpleHook" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#65A3F0</item>
         <item name="colorPrimaryVariant">#4F9BFA</item>
@@ -37,5 +37,10 @@
     <style name="ToolBarTheme" parent="Theme.SimpleHook">
         <item name="colorButtonNormal">@android:color/white</item>
         <item name="colorControlNormal">@android:color/white</item>
+    </style>
+
+    <style name="ToolBarThemePopup" parent="Theme.SimpleHook">
+        <item name="colorButtonNormal">@color/menu_item_icon_color</item>
+        <item name="colorControlNormal">@color/menu_item_icon_color</item>
     </style>
 </resources>
