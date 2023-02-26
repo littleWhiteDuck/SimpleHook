@@ -38,8 +38,6 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.LanguageUtils
-import java.util.*
 import kotlin.math.min
 
 class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
@@ -262,24 +260,29 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
     private fun createModel() {
         val assistConfig = AssistConfig(appName = "", packageName = MODEL_EXTENSION_CONFIG)
         val inputView = InputView(requireContext()).apply {
-            textInputLayout.hint = "给模板起个名字"
+            textInputLayout.hint = context.getString(R.string.extension_template_edit_name_hint)
             textInputLayout.counterMaxLength = 15
             textInputLayout.isCounterEnabled = true
         }
-        customDialog(mContext, title = "创建模板", contentView = inputView, okText = "去创建", okClick = {
-            val modelName = inputView.editText.text.toString()
-            if (modelName.isNotEmpty() || modelName.length > 15) {
-                assistConfig.appName = modelName
-                ExtensionActivity.startActivity(requireContext(), assistConfig, false)
-            } else {
-                requireActivity().showToast("不能为空或名字太长")
-            }
-        }, cancelText = "取消").show()
+        customDialog(mContext,
+            title = getString(R.string.extension_title_create_template),
+            contentView = inputView,
+            okText = getString(R.string.extension_go_create_template),
+            okClick = {
+                val modelName = inputView.editText.text.toString()
+                if (modelName.isNotEmpty() || modelName.length > 15) {
+                    assistConfig.appName = modelName
+                    ExtensionActivity.startActivity(requireContext(), assistConfig, false)
+                } else {
+                    requireActivity().showToast(getString(R.string.extension_template_illegal_name))
+                }
+            },
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
     private fun showModelDialog() {
         if (modelList.isEmpty()) {
-            requireActivity().showToast("请先创建")
+            requireActivity().showToast(getString(R.string.extension_no_template_tip))
             return
         }
         ModelBottomFragment("edit").show(requireActivity().supportFragmentManager, "model")
@@ -295,7 +298,7 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
         listView.adapter = adapter
         val dialog = customDialog(
             mContext,
-            title = "选择一个模板",
+            title = getString(R.string.extension_title_select_template),
             contentView = listView,
         )
         listView.setOnItemClickListener { _, _, position, _ ->
@@ -314,11 +317,6 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_assist_fragment, menu)
-                if (LanguageUtils.isNotChinese() || sp.language == Locale.ENGLISH.language) {
-                    menu.removeItem(R.id.create_model)
-                    menu.removeItem(R.id.show_model)
-                    menu.removeItem(R.id.about_model)
-                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -337,13 +335,9 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
     }
 
     private fun showAboutModel() {
-        warningDialog(mContext, title = "关于模板", message = """
-            创建模板后，在创建配置的时候可以选择模板，所创建的配置中的选中状态和模板一样，简化操作
-            查看模板：
-                ->点击模板（进入编辑模式）
-                ->长按模板（删除模板）
-            长按加号按钮：不使用模板选择App
-        """.trimIndent())
+        warningDialog(mContext,
+            title = getString(R.string.extension_title_about_template),
+            message = getString(R.string.extension_message_about_template))
     }
 
 

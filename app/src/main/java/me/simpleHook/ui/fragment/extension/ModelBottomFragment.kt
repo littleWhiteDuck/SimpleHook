@@ -2,6 +2,7 @@ package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
 import androidx.fragment.app.viewModels
+import me.simpleHook.R
 import me.simpleHook.base.BaseBottomFragment
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
@@ -20,7 +21,7 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
     private val viewModel by viewModels<AppViewModel>()
 
     private val adapter by lazy {
-        HookModeAdapter() { position, mode ->
+        HookModeAdapter { position, mode ->
             onItemClick(position, mode)
         }
     }
@@ -59,7 +60,7 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
             adapter.notifyDataSetChanged()
         }
         root.clearAll.setOnClickListener {
-            viewModel.deleteAllAssistConfigs()
+            viewModel.deleteAssistConfigsByPackageName(Constant.MODEL_EXTENSION_CONFIG)
             dismiss()
         }
         root.closeButton.setOnClickListener { dismiss() }
@@ -70,15 +71,15 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
         assistConfig: AssistConfig
     ) {
         val inputView = InputView(requireContext()).apply {
-            textInputLayout.hint = "给模板起个名字"
+            textInputLayout.hint = context.getString(R.string.extension_template_edit_name_hint)
             textInputLayout.counterMaxLength = 15
             textInputLayout.isCounterEnabled = true
             editText.setText(assistConfig.appName)
         }
         customDialog(requireContext(),
-            title = "修改模板",
+            title = getString(R.string.extension_template_modify_model),
             contentView = inputView,
-            okText = "去修改",
+            okText = getString(R.string.extension_template_go_modify),
             okClick = {
                 val modelName = inputView.editText.text.toString()
                 if (modelName.isNotEmpty() && modelName.length < 15) {
@@ -86,9 +87,9 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
                     ExtensionActivity.startActivity(requireContext(), assistConfig, true)
                     dismiss()
                 } else {
-                    requireActivity().showToast("不能为空或名字太长")
+                    requireActivity().showToast(getString(R.string.extension_template_illegal_name))
                 }
             },
-            cancelText = "取消").show()
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 }

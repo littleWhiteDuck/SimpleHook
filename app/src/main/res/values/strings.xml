@@ -481,5 +481,18 @@
     <string name="extension_dialog_cancel_add_id">添加ID</string>
     <string name="extension_dialog_cancel_id_is_empty">ID不能为空</string>
     <string name="extension_dialog_cancel_illegal_format">非法格式</string>
+    <string name="extension_template_modify_model">修改模板</string>
+    <string name="extension_template_go_modify">去修改</string>
+    <string name="extension_template_illegal_name">不能为空或名字太长</string>
+    <string name="extension_template_edit_name_hint">给模板起个名字</string>
+    <string name="extension_no_template_tip">请先创建</string>
+    <string name="extension_title_select_template">选择一个模板</string>
+    <string name="extension_title_create_template">创建模板</string>
+    <string name="extension_go_create_template">去创建</string>
+    <string name="extension_title_about_template">关于模板</string>
+    <string name="extension_message_about_template">创建模板后，在创建配置的时候可以选择模板，所创建的配置中的选中状态和模板一样，简化操作\n查看模板：\n->点击模板（进入编辑模式）\n->长按模板（删除模板） \n长按加号按钮：不使用模板选择App</string>
+    <string name="extension_template_config">模板配置</string>
+    <string name="extension_clear_all_template_config">清空</string>
+    <string name="extension_close_bottom_dialog">关闭</string>
 
 </resources>

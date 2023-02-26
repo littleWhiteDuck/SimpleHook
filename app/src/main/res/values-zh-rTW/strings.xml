@@ -401,7 +401,7 @@
     <string name="extension_file_summary_set_cache_size">讀取文件或寫入文件的內容，SimpleHook將緩存部分內容用以展示</string>
     <string name="main_settings_title_lsp_scope">LSPosed協同配置</string>
     <string name="main_settings_summary_lsp_scope">增加配置後，在LSPosed管理器中也會啟用目標應用，你需要手動禁用再啟用本模塊方能生效</string>
-    <string name="record_detail_word_wrap">自动换行</string>
+    <string name="record_detail_word_wrap">自動換行</string>
     <string name="extension_manager_open_float_window">開啟懸浮窗</string>
     <string name="label_dialog">彈窗</string>
     <string name="extension_dialog_cancel_title_keyword">使用關鍵詞攔截</string>
@@ -413,4 +413,17 @@
     <string name="extension_dialog_cancel_add_id">添加ID</string>
     <string name="extension_dialog_cancel_id_is_empty">ID不能為空</string>
     <string name="extension_dialog_cancel_illegal_format">非法格式</string>
+    <string name="extension_template_modify_model">修改模板</string>
+    <string name="extension_template_go_modify">去修改</string>
+    <string name="extension_template_illegal_name">不能為空或名字太長</string>
+    <string name="extension_template_edit_name_hint">給模板起個名字</string>
+    <string name="extension_no_template_tip">請先創建</string>
+    <string name="extension_title_select_template">選擇一個模板</string>
+    <string name="extension_title_create_template">創建模板</string>
+    <string name="extension_go_create_template">去創建</string>
+    <string name="extension_title_about_template">關於模板</string>
+    <string name="extension_message_about_template">創建模板後，在創建配置的時候可以選擇模板，所創建的配置中的選中狀態和模板一樣，簡化操作\n查看模板：\n->點擊模板（進入編輯模式）\n->長按模板（刪除模板） \n長按加號按鈕：不使用模板選擇App</string>
+    <string name="extension_template_config">模板配置</string>
+    <string name="extension_clear_all_template_config">清空</string>
+    <string name="extension_close_bottom_dialog">關閉</string>
 </resources>

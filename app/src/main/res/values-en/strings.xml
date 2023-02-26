@@ -402,9 +402,9 @@
     <string name="extension_file_summary_set_cache_size">Read or write the content of the file, SimpleHook will cache part of the content for show</string>
     <string name="main_settings_title_lsp_scope">LSPosed manager</string>
     <string name="main_settings_summary_lsp_scope">After adding the config, the target app will also be enabled in the LSPosed manager, you need to manually disable and enable SimpleHook to take effect</string>
-    <string name="record_detail_word_wrap">自动换行</string>
+    <string name="record_detail_word_wrap">Word wrap</string>
     <string name="extension_manager_open_float_window">Open floating window</string>
-    <string name="label_dialog">pop-up window</string>
+    <string name="label_dialog">Dialog</string>
     <string name="extension_dialog_cancel_title_keyword">Use keyword blocking</string>
     <string name="extension_dialog_cancel_summary_keyword">When the dialog contains keywords, it will prevent the dialog from being displayed</string>
     <string name="extension_dialog_cancel_title_id">Use ID to intercept</string>
@@ -414,5 +414,17 @@
     <string name="extension_dialog_cancel_add_id">Add ID</string>
     <string name="extension_dialog_cancel_id_is_empty">ID can\'t be empty</string>
     <string name="extension_dialog_cancel_illegal_format">Illegal format</string>
-
+    <string name="extension_template_modify_model">Modify template</string>
+    <string name="extension_template_go_modify">Go to modify</string>
+    <string name="extension_template_illegal_name">Cannot be empty or the name is too long</string>
+    <string name="extension_template_edit_name_hint">Name the template</string>
+    <string name="extension_no_template_tip">Please create first</string>
+    <string name="extension_title_select_template">Select a template</string>
+    <string name="extension_title_create_template">Create template</string>
+    <string name="extension_go_create_template">Go to create</string>
+    <string name="extension_title_about_template">About the template</string>
+    <string name="extension_message_about_template">After creating a template, you can select a template when creating a config. The selected state in the created configuration is the same as the template, which simplifies the operation\nView template:\n->Click on the template (enter edit mode )\n->Long press template (delete template) \nLong press plus button: Select App without template</string>
+    <string name="extension_template_config">Template</string>
+    <string name="extension_clear_all_template_config">Clear</string>
+    <string name="extension_close_bottom_dialog">Close</string>
 </resources>

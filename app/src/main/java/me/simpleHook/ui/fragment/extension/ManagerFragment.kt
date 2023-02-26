@@ -97,6 +97,11 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
                     AppUtils.isAppInstalled(requireContext(), extensionConfig.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
                 menu.findItem(R.id.menu_open_float).isChecked = GlobalValue.sp.startFloat
+                menu.findItem(R.id.menu_open_float).setOnMenuItemClickListener {
+                    it.isChecked = !it.isChecked
+                    GlobalValue.sp.startFloat = it.isChecked
+                    true
+                }
                 if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtils.rootVersion) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
@@ -135,10 +140,6 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
                     }
                     R.id.menu_app_info -> AppUtils.jumpAppInfoPage(requireContext(),
                         extensionConfig.packageName)
-                    R.id.menu_open_float -> {
-                        menuItem.isChecked = !menuItem.isChecked
-                        GlobalValue.sp.startFloat = menuItem.isChecked
-                    }
                 }
                 return true
             }
@@ -224,7 +225,7 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
 
 
     private fun checkPermission(): Boolean {
-        if (FlavorUtils.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != "模板配置" && !PermissionUtils.isGrantPackage(
+        if (FlavorUtils.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtils.isGrantPackage(
                 extensionConfig.packageName)
         ) {
             requestPermissionDialog(requireContext(),

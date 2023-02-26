@@ -19,12 +19,12 @@ class ModelListView(context: Context) : CustomViewGroup(context) {
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                 setMargins(5.dp, 0, 0, 0)
             }
-        text = "模板配置"
+        text = context.getString(R.string.extension_template_config)
     }
 
     val clearAll = MaterialButton(ContextThemeWrapper(context, R.style.BottomModelButton)).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        text = "清空"
+        text = context.getString(R.string.extension_clear_all_template_config)
     }
 
     val closeButton =
@@ -33,7 +33,7 @@ class ModelListView(context: Context) : CustomViewGroup(context) {
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                     setMargins(0, 0, 10.dp, 0)
                 }
-            text = "关闭"
+            text = context.getString(R.string.extension_close_bottom_dialog)
         }
 
     val recyclerView = RecyclerView(context).apply {
