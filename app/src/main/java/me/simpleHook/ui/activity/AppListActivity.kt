@@ -58,13 +58,6 @@ class AppListActivity : BaseActivity() {
     }
 
     private fun initView() {
-        binding.toolbar.setOnClickListener {
-            if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
-                findViewById<RecyclerView>(R.id.recycler_view).smoothScrollToPosition(0)
-            } else {
-                firstClickTime = System.currentTimeMillis()
-            }
-        }
         binding.swipeRefreshLayout.isRefreshing = true
         binding.viewPager.adapter =
             object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
@@ -91,6 +84,16 @@ class AppListActivity : BaseActivity() {
         }
         appViewModel.selectAppItem.observe(this) {
             if (it != null) clickResponse(it)
+        }
+        binding.toolbar.setOnClickListener {
+            if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
+                val systemRecyclerView = findViewById<RecyclerView>(R.id.user_app_recycler)
+                systemRecyclerView.smoothScrollToPosition(0)
+                val appRecyclerView = findViewById<RecyclerView>(R.id.system_app_recycler)
+                appRecyclerView.smoothScrollToPosition(0)
+            } else {
+                firstClickTime = System.currentTimeMillis()
+            }
         }
 
     }

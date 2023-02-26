@@ -1,7 +1,7 @@
 package me.simpleHook.viewmodel
 
 import android.app.Application
-import android.content.pm.PackageInfo
+import android.content.pm.ApplicationInfo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,13 +34,41 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _selectAppItem.value = appItem
     }
 
+    @Suppress("DEPRECATION")
     fun fetchData(sortSelected: Int, reverseChecked: Boolean) {
-        viewModelScope.launch {
-            loadData(sortSelected, reverseChecked)
+        viewModelScope.launch(Dispatchers.IO) {
+            val packageInfoList = AppUtils.getApps(getApplication())
+            val userApps = ArrayList<AppItem>()
+            val systemApps = ArrayList<AppItem>()
+            packageInfoList.forEach { packageInfo ->
+                val packageName = packageInfo.packageName
+                if (!blackList.contains(packageName)) {
+                    val appItem = AppItem(AppUtils.getAppName(getApplication(), packageInfo),
+                        packageInfo.packageName,
+                        packageInfo.versionName,
+                        packageInfo.versionCode.toString(),
+                        TimeUtil.getDateTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+                        packageInfo.applicationInfo.targetSdkVersion)
+                    if ((packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
+                        systemApps.add(appItem)
+                    } else {
+                        userApps.add(appItem)
+                    }
+                }
+            }
+            val tempUserApps = getSortAppList(userApps, sortSelected, reverseChecked)
+            val tempSystemApps = getSortAppList(systemApps, sortSelected, reverseChecked)
+            withContext(Dispatchers.Main) {
+                _userApps.value = tempUserApps
+                _systemApps.value = tempSystemApps
+                filerAppItems(queryPattern.value!!)
+            }
+
         }
     }
 
     fun filerAppItems(pattern: String) = viewModelScope.launch(Dispatchers.IO) {
+        if (_userApps.value == null) return@launch
         if (pattern.isEmpty()) {
             withContext(Dispatchers.Main) {
                 userApps.value = _userApps.value
@@ -60,21 +88,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private suspend fun loadData(sortSelected: Int, reverseChecked: Boolean) =
-        withContext(Dispatchers.Default) {
-            val userAppList =
-                getSortAppList(getAppList(AppUtils.getInstalledUserApp(getApplication())),
-                    sortSelected,
-                    reverseChecked)
-            val systemAppList =
-                getSortAppList(getAppList(AppUtils.getInstalledSystemApp(getApplication())),
-                    sortSelected,
-                    reverseChecked)
-            _userApps.postValue(userAppList)
-            _systemApps.postValue(systemAppList)
-            filerAppItems(queryPattern.value!!)
-        }
-
     private fun getSortAppList(
         appList: List<AppItem>, sortSelected: Int, reverseChecked: Boolean
     ): List<AppItem> {
@@ -87,21 +100,5 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         return if (reverseChecked) tempList.reversed() else tempList
-    }
-
-    private fun getAppList(packageInfoList: List<PackageInfo>): List<AppItem> {
-        val appList = ArrayList<AppItem>()
-        for (i in packageInfoList.indices) {
-            if (blackList.contains(packageInfoList[i].packageName)) continue
-            packageInfoList[i].apply {
-                appList.add(AppItem(AppUtils.getAppName(getApplication(), this),
-                    packageName,
-                    AppUtils.getAppVersionName(getApplication(), packageName),
-                    AppUtils.getAppVersionCode(getApplication(), packageName),
-                    TimeUtil.getDateTime(lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                    AppUtils.getTargetSdkVersion(getApplication(), packageName)))
-            }
-        }
-        return appList
     }
 }

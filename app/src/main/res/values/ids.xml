@@ -10,6 +10,8 @@
     <item name="item_permission_grant_position" type="id" />
     <item name="item_record_position" type="id" />
     <item name="item_record_summary" type="id" />
+    <item name="user_app_recycler" type="id" />
+    <item name="system_app_recycler" type="id" />
     <item name="item_hook_mode" type="id" />
     <item name="fab_label" type="id" />
     <item name="fab_fab" type="id" />

@@ -48,6 +48,11 @@ object AppUtils {
         }
     }
 
+    fun getApps(context: Context): List<PackageInfo> {
+        val packageManager = context.packageManager
+        return packageManager.getInstalledPackages(0)
+    }
+
     @SuppressLint("QueryPermissionsNeeded")
     fun getInstalledSystemApp(context: Context): List<PackageInfo> {
         val packageManager = context.packageManager
