@@ -5,6 +5,8 @@ v1.3.3
     - 增加: 阻止读取剪贴板、过滤写入剪贴板，支持记录读写剪贴板
     - 增加: 监听文件操作
     - 增加: 增加配置后（root版），在LSPosed管理器中也会启用目标应用，你需要手动禁用再启用本模块方能生效。参考：Guise(作者 Houvven)、LSPosed
+    - 优化: UI
+    - 优化: 弹窗拦截
 
     - Fix: Unable to delete config  (root version)
     - Add: Disable USB debugging detection
@@ -12,6 +14,8 @@ v1.3.3
     - Add: Prevent reading the clipboard, filter write to the clipboard, support record read and write clipboard。
     - Add: Monitor file operations
     - Add: After adding the config (root version), the target app will also be enabled in the LSPosed manager, you need to manually disable and enable SimpleHook to take effect. Ref: Guise(by Houvven)、LSPosed
+    - Optimize: UI
+    - Optimize: Disable show dialog
 v1.3.1
     - 修复: 若干bug，提高稳定性
     - 增加: 禁用加速度传感器、陀螺仪传感器，如X信会提示传感器不可用

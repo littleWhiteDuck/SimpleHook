@@ -16,11 +16,7 @@ import me.simpleHook.extension.dp
 
 class SelectItemView(context: Context) : CustomViewGroup(context) {
     init {
-        val typedValue = TypedValue()
-        getContext().theme.resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
-        val attribute = intArrayOf(R.attr.selectableItemBackground)
-        val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
-        background = typedArray.getDrawable(0)
+        setBackgroundResource(R.drawable.extension_item_card_bg)
         setPadding(16.dp, 5.dp, 0, 5.dp)
     }
 

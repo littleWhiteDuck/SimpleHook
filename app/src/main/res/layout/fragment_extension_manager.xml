@@ -6,4 +6,5 @@
     android:layout_height="match_parent"
     android:paddingBottom="30dp"
     android:clipToPadding="false"
+    android:background="@color/extension_manager_page_background"
     tools:context=".ui.fragment.extension.ManagerFragment" />

@@ -21,4 +21,8 @@
     <color name="windowSplashScreenBackground">@color/white</color>
     <color name="line_background_color">#404F9BFA</color>
     <color name="bottom_dialog_background_color">#f1f1f1</color>
+    <color name="divider_color">#E0E0E0</color>
+    <color name="extension_item_card_normal">#ffffff</color>
+    <color name="extension_manager_page_background">#f5f5f5</color>
+    <color name="extension_item_card_ripple">#33000000</color>
 </resources>

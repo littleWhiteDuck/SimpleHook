@@ -2,7 +2,6 @@ package me.simpleHook.ui.view.extension
 
 
 import android.content.Context
-import android.util.TypedValue
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
@@ -11,11 +10,11 @@ import androidx.core.view.marginEnd
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
 import me.simpleHook.R
-import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.addViews
 import me.simpleHook.extension.dp
+import me.simpleHook.ui.custom.CustomViewGroup
 
-
+@Suppress("DEPRECATION")
 class SubSelectItemView(context: Context) : CustomViewGroup(context) {
 
 
@@ -23,9 +22,10 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
         layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
 
     }
+
     private val lineView = View(context).apply {
         layoutParams = LayoutParams(2.dp, LayoutParams.WRAP_CONTENT)
-        @Suppress("DEPRECATION") setBackgroundColor(context.resources.getColor(R.color.line_background_color))
+        setBackgroundColor(context.resources.getColor(R.color.divider_color))
     }
     val switch = SwitchCompat(context).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
@@ -35,6 +35,8 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
     init {
         addViews(containerView, lineView, switch)
         //  setPadding(16.dp, 5.dp, 16.dp, 5.dp)
+
+        setBackgroundColor(context.resources.getColor(R.color.extension_item_card_normal))
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -46,7 +48,8 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
             containerView.defaultHeightMeasureSpec(this))
         val height =
             maxOf(containerView.measuredHeightWithMargins, switch.measuredHeightWithMargins)
-        lineView.measure(2.dp.toExactlyMeasureSpec(), (height - 5.dp).toExactlyMeasureSpec())
+        lineView.measure(2.dp.toExactlyMeasureSpec(),
+            (switch.measuredHeightWithMargins - 10.dp).toExactlyMeasureSpec())
         setMeasuredDimension(measuredWidth, height)
     }
 
@@ -65,11 +68,7 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
 
 class ContainerView(context: Context) : CustomViewGroup(context) {
     init {
-        val typedValue = TypedValue()
-        getContext().theme.resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
-        val attribute = intArrayOf(R.attr.selectableItemBackground)
-        val typedArray = getContext().theme.obtainStyledAttributes(typedValue.resourceId, attribute)
-        background = typedArray.getDrawable(0)
+        setBackgroundResource(R.drawable.extension_item_card_bg)
         setPadding(16.dp, 5.dp, 5.dp, 5.dp)
     }
 

@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.widget.LinearLayout
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,7 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.MultiTypeAdapter
 import com.drakeet.multitype.ViewDelegate
@@ -27,6 +25,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.adapter.DividerItemDecoration
 import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
@@ -151,7 +150,7 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
     private fun onSubItemClick(tag: String) {
         when (tag) {
             TAG_STOP_DIALOG -> {
-                navController.navigate(R.id.action_managerFragment_to_dialogCancelFragment)
+                navController.navigate(R.id.action_managerFragment_to_disableDialogFragment)
             }
             TAG_FILTER_CLIPBOARD -> {
                 val action =
@@ -291,10 +290,9 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
             SubItemViewDelegate(onClick = { tag, checked ->
                 onItemClick(tag, checked)
             }, onSubClick = { tag -> onSubItemClick(tag) }))
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(adapter))
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
-            LinearLayout.VERTICAL))
         binding.recyclerView.isVerticalScrollBarEnabled = false
         var paddingBottom = 0
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->

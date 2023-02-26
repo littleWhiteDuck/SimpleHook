@@ -182,7 +182,7 @@
     <string name="extension_item_title_all_switch">总开关</string>
     <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
     <string name="extension_item_title_base64" translatable="false">Base64</string>
-    <string name="extension_item_desc_base64">Base64加解密</string>
+    <string name="extension_item_desc_base64">Base64编码、解码</string>
     <string name="extension_item_title_digest_algorithm">摘要算法</string>
     <string name="extension_item_desc_digest_algorithm">MD5、SHA等</string>
     <string name="extension_item_title_hmac">信息摘要算法</string>

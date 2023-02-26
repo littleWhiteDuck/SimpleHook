@@ -351,8 +351,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         })
-        initViewModel()
         return recyclerView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setDividerHeight(0)
+        initViewModel()
     }
 
     private fun initViewModel() {

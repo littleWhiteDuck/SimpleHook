@@ -6,4 +6,7 @@
     <color name="background_record">#FF1E1E1E</color>
     <color name="windowSplashScreenBackground">@color/black</color>
     <color name="bottom_dialog_background_color">#141414</color>
+    <color name="divider_color">#595959</color>
+    <color name="extension_item_card_normal">#2f2f2f</color>
+    <color name="extension_manager_page_background">#171717</color>
 </resources>

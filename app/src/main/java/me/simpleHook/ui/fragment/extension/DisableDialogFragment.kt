@@ -28,7 +28,7 @@ import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.viewmodel.ExViewModel
 
-class DialogCancelFragment : BasePreferenceFragment() {
+class DisableDialogFragment : BasePreferenceFragment() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)

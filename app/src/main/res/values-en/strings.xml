@@ -165,7 +165,7 @@
     <string name="extension_item_title_hmac">Information Digest Algorithm</string>
     <string name="extension_item_desc_digest_algorithm">MD5, SHA, etc.</string>
     <string name="extension_item_title_digest_algorithm">Digest Algorithm</string>
-    <string name="extension_item_desc_base64">Base64 encryption and decryption</string>
+    <string name="extension_item_desc_base64">Base64 encode, decode</string>
     <string name="extension_item_title_algorithm_analysis">Algorithm Analysis (Alpha)</string>
     <string name="extension_item_title_all_switch">All switch</string>
     <string name="extension_item_title_basic">Basic</string>
