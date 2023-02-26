@@ -13,6 +13,8 @@ import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.extension.log
+import me.simpleHook.extension.random
 import me.simpleHook.hook.Tip.getTip
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.util.*
@@ -25,8 +27,6 @@ import me.simpleHook.hook.util.LogUtil.outLogMsg
 import me.simpleHook.hook.util.Type.getDataTypeValue
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.LanguageUtils
-import me.simpleHook.extension.log
-import me.simpleHook.extension.random
 import org.json.JSONObject
 
 
@@ -269,7 +269,6 @@ object MainHook {
     }
 
 
-
     fun readyExtensionHook(
         strConfig: String
     ) {
@@ -299,7 +298,8 @@ object MainHook {
                 ContactHook,
                 SensorMangerHook,
                 ADBHook,
-                FileHook)
+                FileHook,
+                ExitHook)
         } catch (e: Throwable) {
             LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
                 "config: ${JsonUtil.formatJson(strConfig)}",

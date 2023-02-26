@@ -27,6 +27,8 @@ object RecordType {
         type == "Signature" -> "Sign"
         type.contains("文件") -> "文件"
         type.contains("file") -> "File"
+        type == "CrashCaught" -> "Crash"
+        type == "错误捕获" -> "Crash"
         else -> type
     }
 

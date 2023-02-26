@@ -428,4 +428,14 @@
     <string name="extension_clear_all_template_config">Clear</string>
     <string name="extension_close_bottom_dialog">Close</string>
     <string name="app_list_sort_mode">Sort mode</string>
+    <string name="label_exit">App exit</string>
+    <string name="extension_intercept_app_exit_title">Intercept app exit</string>
+    <string name="extension_intercept_app_exit_finish">Intercept finish() method</string>
+    <string name="extension_intercept_app_exit_exit">Intercept exit() method</string>
+    <string name="extension_intercept_app_exit_kill_process">Intercept killProcess() method</string>
+    <string name="extension_exit_title_record_crash">Record uncaught exception</string>
+    <string name="extension_exit_summary_record_crash">Uncaught exceptions will cause the application to crash</string>
+    <string name="extension_exit_title_app_exit">App Exit</string>
+    <string name="extension_item_title_app_exit">App Exit</string>
+    <string name="extension_item_desc_app_exit">Prevent application from exiting</string>
 </resources>

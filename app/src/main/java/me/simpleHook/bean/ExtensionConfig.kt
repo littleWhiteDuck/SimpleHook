@@ -33,7 +33,8 @@ data class ExtensionConfig(
     var disSensorSport: Boolean = false,
     var adb: Boolean = false,
     var guiseSign: ExtensionItemConfig = ExtensionItemConfig(info = "[]"),
-    var fileMonitor: ExtensionItemConfig = ExtensionItemConfig(info = "{}")
+    var fileMonitor: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
+    var exit: ExtensionItemConfig = ExtensionItemConfig(info = "{}")
 )
 
 @kotlinx.serialization.Serializable
@@ -76,4 +77,14 @@ data class DialogCancel(
     var keywords: String = "[]",
     var idEnable: Boolean = false,
     var ids: String = "[]"
+)
+
+
+@kotlinx.serialization.Serializable
+@Keep
+data class Exit(
+    var finish: Boolean = false,
+    var exit: Boolean = false,
+    var kill: Boolean = false,
+    var recordCrash: Boolean = false
 )

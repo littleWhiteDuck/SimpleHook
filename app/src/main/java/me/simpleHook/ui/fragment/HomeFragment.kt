@@ -11,7 +11,6 @@ import android.util.Patterns
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.SearchView.SearchAutoComplete
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat

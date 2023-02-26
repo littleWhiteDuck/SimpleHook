@@ -165,6 +165,9 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
             TAG_FILE_MONITOR -> {
                 navController.navigate(R.id.action_managerFragment_to_fileMonitorFragment)
             }
+            TAG_APP_EXIT -> {
+                navController.navigate(R.id.action_managerFragment_to_exitFragment)
+            }
         }
     }
 
@@ -184,6 +187,9 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
             }
             TAG_FILE_MONITOR -> {
                 configBean.fileMonitor.enable = checked
+            }
+            TAG_APP_EXIT -> {
+                configBean.exit.enable = checked
             }
             else -> {
                 Class.forName(ExtensionConfig::class.java.name).apply {
@@ -423,6 +429,10 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
                     adb,
                     "adb",
                     getString(R.string.extension_item_desc_adb)))
+                add(ExtensionSubItem(title = getString(R.string.extension_item_title_app_exit),
+                    exit.enable,
+                    TAG_APP_EXIT,
+                    getString(R.string.extension_item_desc_app_exit)))
                 add(Title(getString(R.string.extension_item_title_network)))
                 add(ExtensionItem(getString(R.string.extension_item_title_vpn),
                     vpn,
@@ -464,10 +474,11 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
     }
 
     companion object {
-        private const val TAG_STOP_DIALOG = "stop_dialog"
-        private const val TAG_FILTER_CLIPBOARD = "filter_clip_board"
-        private const val TAG_GUISE_SIGN = "guise_sign"
-        private const val TAG_FILE_MONITOR = "file_monitor"
+        private const val TAG_STOP_DIALOG = "DISABLE_DIALOG"
+        private const val TAG_FILTER_CLIPBOARD = "FILTER_CLIP"
+        private const val TAG_GUISE_SIGN = "GUISE_SIGN"
+        private const val TAG_FILE_MONITOR = "FILE_MONITOR"
+        private const val TAG_APP_EXIT = "APP_EXIT"
     }
 
 }

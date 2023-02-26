@@ -427,4 +427,14 @@
     <string name="extension_clear_all_template_config">清空</string>
     <string name="extension_close_bottom_dialog">關閉</string>
     <string name="app_list_sort_mode">排序方式</string>
+    <string name="label_exit">應用退出</string>
+    <string name="extension_intercept_app_exit_title">攔截應用退出</string>
+    <string name="extension_intercept_app_exit_finish">攔截finish()方法</string>
+    <string name="extension_intercept_app_exit_exit">攔截exit()方法</string>
+    <string name="extension_intercept_app_exit_kill_process">攔截killProcess()方法</string>
+    <string name="extension_exit_title_record_crash">記錄未捕獲的異常</string>
+    <string name="extension_exit_summary_record_crash">未捕獲的異常會導致應用閃退</string>
+    <string name="extension_exit_title_app_exit">應用退出</string>
+    <string name="extension_item_title_app_exit">應用退出</string>
+    <string name="extension_item_desc_app_exit">阻止應用退出</string>
 </resources>
