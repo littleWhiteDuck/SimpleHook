@@ -11,9 +11,9 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.constant.Constant
+import me.simpleHook.extension.log
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.util.log
 
 class HookInit : IXposedHookLoadPackage {
 
