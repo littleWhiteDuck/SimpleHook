@@ -30,16 +30,20 @@ object ApplicationHook : BaseHook() {
                     val exit = Json.decodeFromString<Exit>(configBean.exit.info)
                     if (exit.recordCrash) recordCrash()
                 }
-
             }
         }
 
     }
 
     private fun recordCrash() {
-        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            t ?: return@setDefaultUncaughtExceptionHandler
             val type = if (isShowEnglish) "CrashCaught" else "错误捕获"
-            outLogMsg(LogBean(type, listOf(e.stackTraceToString()), hostPackageName))
+            val isMainThread = t.name == "main"
+            val list = listOf("Thread name(线程名)：${t.name}",
+                "Main thread(主线程): $isMainThread",
+                e.stackTraceToString())
+            outLogMsg(LogBean(type, list, hostPackageName))
         }
     }
 }

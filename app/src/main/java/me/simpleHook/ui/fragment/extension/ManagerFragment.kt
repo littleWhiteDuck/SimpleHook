@@ -47,6 +47,7 @@ import me.simpleHook.ui.view.extension.SelectItemView
 import me.simpleHook.ui.view.extension.SubSelectItemView
 import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
+import kotlin.system.exitProcess
 
 
 class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>() {

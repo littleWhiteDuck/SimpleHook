@@ -23,7 +23,6 @@ object ExitHook : BaseHook() {
                     outLog(Tip.getTip("exit"))
                 }
             }
-
             if (exit.kill) {
                 findMethod(android.os.Process::class.java) {
                     name == "killProcess"

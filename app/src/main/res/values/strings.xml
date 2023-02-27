@@ -501,7 +501,7 @@
     <string name="extension_intercept_app_exit_exit">拦截exit()方法</string>
     <string name="extension_intercept_app_exit_kill_process">拦截killProcess()方法</string>
     <string name="extension_exit_title_record_crash">记录未捕获的异常</string>
-    <string name="extension_exit_summary_record_crash">未捕获的异常会导致应用闪退</string>
+    <string name="extension_exit_summary_record_crash">可以防止子线程的错误导致应用闪退</string>
     <string name="extension_exit_title_app_exit">应用退出</string>
     <string name="extension_item_title_app_exit">应用退出</string>
     <string name="extension_item_desc_app_exit">阻止应用退出</string>
