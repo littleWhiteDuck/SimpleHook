@@ -47,7 +47,6 @@ import me.simpleHook.ui.view.extension.SelectItemView
 import me.simpleHook.ui.view.extension.SubSelectItemView
 import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
-import kotlin.system.exitProcess
 
 
 class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>() {
@@ -86,7 +85,9 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
             exViewModel.extensionConfig.value = configBean
         }
         exViewModel.extensionConfig.observe(requireActivity()) {
-            configBean = it
+            it?.let {
+                configBean = it
+            }
         }
     }
 
@@ -543,9 +544,11 @@ class SubItemViewDelegate(
             containerView.title.text = item.title
             containerView.desc.text = item.desc
             switch.isChecked = item.checked
-            switch.setOnCheckedChangeListener { _, isChecked ->
-                onClick(item.tag, isChecked)
-                item.checked = isChecked
+            switch.setOnCheckedChangeListener { v, isChecked ->
+                if (v.isPressed) {
+                    onClick(item.tag, isChecked)
+                    item.checked = isChecked
+                }
             }
             containerView.setOnClickListener {
                 onSubClick(item.tag)
