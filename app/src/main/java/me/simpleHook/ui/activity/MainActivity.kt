@@ -12,18 +12,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.fragment.extension.ExtensionFragment
 import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
+import me.simpleHook.ui.fragment.extension.ExtensionFragment
 import me.simpleHook.util.*
 
 
