@@ -3,16 +3,15 @@ package me.simpleHook.ui.fragment.extension
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.net.toUri
+import androidx.core.view.*
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,23 +23,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.adapter.AssistAdapter
-import me.simpleHook.base.BaseExtensionFragment
+import me.simpleHook.base.BaseViewFragment
+import me.simpleHook.compat.DocumentCompat
+import me.simpleHook.config.ConfigSystemUtil
+import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
+import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.databinding.FragmentAssistBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
+import me.simpleHook.ui.view.extension.ExtensionFragmentView
 import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.OSUtils
+import me.simpleHook.util.PermissionUtils
 import kotlin.math.min
 
-class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
+class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     private val appViewModel by activityViewModels<AppViewModel>()
     private val bottomNavigationView by lazy {
@@ -53,7 +60,16 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
         AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
     }
+    private val startActivityForData =
+        registerForActivityResult(OpenDocumentTreeContract()) { uri ->
+            if (uri != Uri.EMPTY) {
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
+            }
+        }
 
+    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
     private val startActivityForModelCreate =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -82,19 +98,10 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
         mContext = requireActivity()
     }
 
-    override fun canBack(): Boolean {
-        return true
+
+    override fun initRootView(): ExtensionFragmentView {
+        return ExtensionFragmentView(requireContext())
     }
-
-    override fun performBack() {
-
-    }
-
-    override fun notBackTip() {
-
-    }
-
-    override fun enableCallback() = false
 
     override fun init() {
         initMenu()
@@ -114,21 +121,21 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
                     showList.add(assist)
                 }
             }
-            binding.emptyTip.visibility = if (showList.isEmpty()) View.VISIBLE else View.GONE
+            root.emptyText.visibility = if (showList.isEmpty()) View.VISIBLE else View.GONE
             mAdapter.submitList(showList)
-            binding.progressBar4.hide()
+            root.progressBar.isVisible = false
         }
     }
 
     private fun initView() {
-        binding.progressBar4.show()
+        root.progressBar.isVisible = true
         var maybeABug = 0
-        val layoutParams = binding.addConfig.layoutParams as ViewGroup.MarginLayoutParams
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+        val layoutParams = root.addConfig.layoutParams as ViewGroup.MarginLayoutParams
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val isGesture =
                 navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
-            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            ViewCompat.onApplyWindowInsets(root, windowInsets)
             maybeABug = if (maybeABug == 0) {
                 bottomNavigationView.bottom - bottomNavigationView.top
             } else {
@@ -138,11 +145,11 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
             layoutParams.bottomMargin = if (isGesture) maybeABug + navigationInsets.bottom
             else maybeABug + navigationInsets.bottom / 5
             fabHideDistance = layoutParams.bottomMargin.toFloat() * 2
-            binding.addConfig.layoutParams = layoutParams
-            binding.assistRev.updatePadding(bottom = maybeABug / 2)
+            root.addConfig.layoutParams = layoutParams
+            root.recyclerView.updatePadding(bottom = maybeABug / 2)
             windowInsets
         }
-        binding.apply {
+        root.apply {
             addConfig.setOnClickListener {
                 addConfig()
             }
@@ -150,7 +157,7 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
                 directAddConfig()
                 true
             }
-            assistRev.apply {
+            recyclerView.apply {
                 adapter = mAdapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -177,24 +184,23 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
         mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                binding.assistRev.scrollToPosition(0)
+                root.recyclerView.scrollToPosition(0)
             }
         })
-        FastScrollerUtil.bind(binding.assistRev)
+        FastScrollerUtil.bind(root.recyclerView)
     }
 
     private fun showFab() {
-        binding.addConfig.animate().translationY(0f).interpolator = DecelerateInterpolator(1.5f)
+        root.addConfig.animate().translationY(0f).interpolator = DecelerateInterpolator(1.5f)
         isFabShow = true
     }
 
     private fun upFab() {
-        binding.addConfig.animate().translationY((-50f).dp).interpolator =
-            DecelerateInterpolator(1.5f)
+        root.addConfig.animate().translationY((-50f).dp).interpolator = DecelerateInterpolator(1.5f)
     }
 
     private fun hideFab() {
-        binding.addConfig.animate().translationY(fabHideDistance).interpolator =
+        root.addConfig.animate().translationY(fabHideDistance).interpolator =
             DecelerateInterpolator(1.5f)
         isFabShow = false
     }
@@ -205,7 +211,7 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
                 appViewModel.deleteAssistConfigs(assistConfig)
                 configSystem.deleteExConfig(assistConfig.packageName)
             }
-            Snackbar.make(binding.addConfig,
+            Snackbar.make(root.addConfig,
                 getString(R.string.main_extension_delete_config_tip),
                 Snackbar.LENGTH_LONG).apply {
                 anchorView = bottomNavigationView
@@ -340,5 +346,28 @@ class ExtensionFragment : BaseExtensionFragment<FragmentAssistBinding>() {
             message = getString(R.string.extension_message_about_template))
     }
 
+    private fun requirePermission(packageName: String) {
+        if (FlavorUtils.liteVersion) {
+            requireActivity().showToast(getString(R.string.lite_version_not_active))
+        } else if (FlavorUtils.rootVersion) {
+            requireActivity().showToast(getString(R.string.root_version_no_permission))
+        } else {
+            if (OSUtils.atLeastT()) {
+                requestPermissionDialog(requireContext(),
+                    message = getString(R.string.android_13_no_permission)) {
+                    val uri = DocumentCompat.generateAppUri(packageName)
+                    startActivityForData.launch(uri)
+                }
+            } else if (OSUtils.atLeastR()) {
+                requestPermissionDialog(requireContext()) {
+                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
+                }
+            } else {
+                requestPermissionDialog(requireContext()) {
+                    PermissionUtils.verifyStoragePermissions(requireActivity())
+                }
+            }
+        }
+    }
 
 }

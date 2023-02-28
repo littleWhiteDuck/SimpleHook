@@ -11,6 +11,8 @@ import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
@@ -29,12 +31,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.base.BaseFragment
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
+import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
-import me.simpleHook.base.BaseFragment
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
@@ -158,6 +161,24 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
         val navHostFragment =
             requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+        val layoutParams = binding.add.layoutParams as ViewGroup.MarginLayoutParams
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val isGesture =
+                navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
+            ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            var paddingBottom = 0
+            if (navigationInsets.bottom == 0) paddingBottom += 10.dp
+            paddingBottom = if (isGesture) {
+                paddingBottom + navigationInsets.bottom
+            } else {
+                paddingBottom + navigationInsets.bottom
+            }
+            layoutParams.bottomMargin =
+                if (isGesture) paddingBottom + navigationInsets.bottom else paddingBottom + navigationInsets.bottom
+            binding.add.layoutParams = layoutParams
+            windowInsets
+        }
     }
 
     private fun readApkSignInfo(uri: Uri) {

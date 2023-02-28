@@ -5,4 +5,4 @@
     android:layout_width="match_parent"
     android:paddingHorizontal="16dp"
     android:layout_height="wrap_content"
-    tools:viewBindingIgnore="true"></com.google.android.material.chip.ChipGroup>
+    tools:viewBindingIgnore="true" />

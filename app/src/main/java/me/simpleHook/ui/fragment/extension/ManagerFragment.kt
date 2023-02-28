@@ -302,19 +302,19 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.isVerticalScrollBarEnabled = false
-        var paddingBottom = 0
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val isGesture =
                 navigationInsets.bottom <= 20 * requireActivity().resources.displayMetrics.density
             ViewCompat.onApplyWindowInsets(binding.root, windowInsets)
+            var paddingBottom = 0
             if (navigationInsets.bottom == 0) paddingBottom += 10.dp
             paddingBottom = if (isGesture) {
                 paddingBottom + navigationInsets.bottom
             } else {
                 paddingBottom + navigationInsets.bottom
             }
-            binding.recyclerView.setPadding(0, 0, 0, paddingBottom)
+            binding.recyclerView.setPadding(0, 0, 0, paddingBottom + 10.dp)
             windowInsets
         }
         if (items.isNotEmpty()) return
