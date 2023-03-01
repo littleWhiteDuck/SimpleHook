@@ -42,17 +42,19 @@ class BackupRestoreFragment(val callBack: (RestoreItem) -> Unit) :
                 "SimpleHook/Backups") ?: return@launch
             val listFiles = backupFile.listFiles()
             val list = ArrayList<RestoreItem>()
-            listFiles.forEach { file ->
+            listFiles.sortedByDescending {
+                it.lastModified()
+            }.forEach { file ->
                 file.name?.let {
-                    list.add(RestoreItem(it,
-                        file.uri,
-                        TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
+                    if (it.contains("shbackup")) {
+                        list.add(RestoreItem(it,
+                            file.uri,
+                            TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
+                    }
                 }
             }
             withContext(Dispatchers.Main) {
-                adapter.items = list.sortedBy {
-                    it.time
-                }.reversed()
+                adapter.items = list
                 adapter.notifyDataSetChanged()
             }
         }

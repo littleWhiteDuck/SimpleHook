@@ -11,12 +11,14 @@ import me.simpleHook.extension.dp
 
 class BackupRestoreView(context: Context) : LinearLayoutCompat(context) {
 
+    @Suppress("DEPRECATION")
     private val title =
         AppCompatTextView(ContextThemeWrapper(context, R.style.text_view_title)).apply {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                 it.marginStart = 16.dp
             }
             text = "恢复备份"
+            setTextColor(context.resources.getColor(R.color.normal_text_color))
         }
 
     val listView = RecyclerView(context).apply {

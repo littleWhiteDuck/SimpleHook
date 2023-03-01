@@ -10,4 +10,5 @@
     <color name="extension_item_card_normal">#2a2a2a</color>
     <color name="extension_manager_page_background">#1f1f1f</color>
     <color name="menu_item_icon_color">@color/white</color>
+    <color name="normal_text_color">@color/white</color>
 </resources>
