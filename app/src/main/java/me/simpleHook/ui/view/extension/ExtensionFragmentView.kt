@@ -2,6 +2,7 @@ package me.simpleHook.ui.view.extension
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.view.Gravity
 import android.widget.ProgressBar
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatTextView
@@ -25,6 +26,7 @@ class ExtensionFragmentView(context: Context) : CustomViewGroup(context) {
     val emptyText = AppCompatTextView(context).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         text = context.getString(R.string.main_home_empty_tip)
+        gravity = Gravity.CENTER
         isVisible = false
     }
     val progressBar = ProgressBar(context).apply {

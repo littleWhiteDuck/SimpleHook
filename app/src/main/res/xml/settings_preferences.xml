@@ -71,13 +71,17 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
         <Preference
+            app:key="backup_and_restore"
+            app:summary="备份配置、恢复配置"
+            app:title="备份与恢复" />
+        <!--<Preference
             app:key="backupConfigs"
             app:summary="@string/main_settings_summary_backup"
             app:title="@string/main_settings_title_backup" />
         <Preference
             app:key="restoreConfigs"
             app:summary="@string/main_settings_summary_restore"
-            app:title="@string/main_settings_title_restore" />
+            app:title="@string/main_settings_title_restore" />-->
     </PreferenceCategory>
 
 

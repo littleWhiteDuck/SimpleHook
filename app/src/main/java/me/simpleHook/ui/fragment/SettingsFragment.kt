@@ -35,6 +35,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
+import me.simpleHook.ui.activity.BackupActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -78,7 +79,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        setPreferencesFromResource(R.xml.settings_preferences, rootKey)
         if (FlavorUtils.rootVersion) findPreference<CheckBoxPreference>("lspScope")?.isVisible =
             true
         findPreference<CheckBoxPreference>("checkPermission")?.apply {
@@ -119,15 +120,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<Preference>("backupConfigs")?.apply {
+        findPreference<Preference>("backup_and_restore")?.apply {
             setOnPreferenceClickListener {
-                backupConfigs()
-                true
-            }
-        }
-        findPreference<Preference>("restoreConfigs")?.apply {
-            setOnPreferenceClickListener {
-                restoreConfigs()
+                Intent(requireContext(), BackupActivity::class.java).apply {
+                    startActivity(this)
+                }
                 true
             }
         }
@@ -326,7 +323,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun backupConfigs() {
-        val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "yyMMdd")
+        val time = TimeUtil.getTime(System.currentTimeMillis(), pattern = "yyMMdd")
         backupConfigs.launch("simpleHook_backup_$time.json")
     }
 

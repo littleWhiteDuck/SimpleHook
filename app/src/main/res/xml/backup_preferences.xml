@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="本地">
+        <Preference
+            app:key="backup_path"
+            app:summary="点击选择一个路径进行备份，推荐Android/Documents"
+            app:title="备份路径" />
+        <rikka.preference.SimpleMenuPreference
+            app:defaultValue="BACKUP_SCOPE_ALL"
+            app:entries="@array/backup_scope_entries"
+            app:entryValues="@array/backup_scope_values"
+            app:key="backup_scope"
+            app:summary="%s"
+            app:title="备份范围" />
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:key="backup_auto"
+            app:summary="配置更改后自动备份"
+            app:title="自动备份" />
+        <rikka.preference.SimpleMenuPreference
+            app:defaultValue="BACKUP_OVER_MINUTE"
+            app:entries="@array/backup_cover_entries"
+            app:entryValues="@array/backup_cover_values"
+            app:key="backup_cover"
+            app:summary="%s"
+            app:title="覆盖备份" />
+        <rikka.preference.SimpleMenuPreference
+            app:defaultValue="RESTORE_MODE_COVER"
+            app:entries="@array/restore_mode_entries"
+            app:entryValues="@array/restore_mode_values"
+            app:isPreferenceVisible="false"
+            app:key="restore_mode"
+            app:summary="%s"
+            app:title="恢复模式" />
+        <Preference
+            app:key="backup"
+            app:persistent="false"
+            app:summary="@string/main_settings_summary_backup"
+            app:title="@string/main_settings_title_backup" />
+        <Preference
+            app:key="restore"
+            app:persistent="false"
+            app:summary="@string/main_settings_summary_restore"
+            app:title="@string/main_settings_title_restore" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

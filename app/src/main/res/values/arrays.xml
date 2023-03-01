@@ -1,4 +1,36 @@
 <resources>
-    <!-- Reply Preference -->
+    <string-array name="backup_scope_entries">
+        <item>自定义配置</item>
+        <item>扩展配置</item>
+        <item>所有</item>
+    </string-array>
 
+    <string-array name="backup_scope_values">
+        <item>BACKUP_SCOPE_CUSTOM</item>
+        <item>BACKUP_SCOPE_EXTENSION</item>
+        <item>BACKUP_SCOPE_ALL</item>
+    </string-array>
+
+
+    <string-array name="restore_mode_entries">
+        <item>替换恢复</item>
+        <item>增量恢复</item>
+    </string-array>
+
+    <string-array name="restore_mode_values">
+        <item>RESTORE_MODE_COVER</item>
+        <item>RESTORE_MODE_APPEND</item>
+    </string-array>
+
+    <string-array name="backup_cover_entries">
+        <item>按分钟</item>
+        <item>按小时</item>
+        <item>按每天</item>
+    </string-array>
+
+    <string-array name="backup_cover_values">
+        <item>BACKUP_OVER_MINUTE</item>
+        <item>BACKUP_OVER_HOUR</item>
+        <item>BACKUP_OVER_DAY</item>
+    </string-array>
 </resources>

@@ -10,7 +10,9 @@ object FlavorUtils {
     const val AUTHORITIES = "me.simplehook.provider." + BuildConfig.FLAVOR
     const val PROVIDER_RECORD_URI =
         "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/print_logs"
-    const val PROVIDER_CONFIG_URI =
+    const val PROVIDER_CUSTOM_CONFIG_URI =
         "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/app_configs"
+    const val PROVIDER_EXTENSION_CONFIG_URI =
+        "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/assist_configs"
     const val betaVersion = BuildConfig.IS_BETA
 }

@@ -10,8 +10,10 @@ import kotlinx.parcelize.Parcelize
 @Keep
 @Parcelize
 @Entity
+@kotlinx.serialization.Serializable
 data class AssistConfig(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0,
     var config: String = "",
     var allSwitch: Boolean = false,
     var appName: String,

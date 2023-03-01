@@ -25,6 +25,10 @@
         android:theme="@style/Theme.SimpleHook"
         tools:targetApi="n">
         <activity
+            android:name=".ui.activity.BackupActivity"
+            android:exported="false"
+            android:label="@string/title_activity_backup" />
+        <activity
             android:name=".ui.activity.A33PermissionActivity"
             android:exported="false"
             android:label="@string/label_batch_grant" />

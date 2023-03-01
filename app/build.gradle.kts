@@ -167,8 +167,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.core:core-ktx:+")
-    implementation("androidx.core:core-ktx:+")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
@@ -194,7 +192,7 @@ dependencies {
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
 
     //json
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("com.google.code.gson:gson:2.9.1")
 
     //splashScreen
@@ -221,8 +219,13 @@ dependencies {
     implementation("com.drakeet.about:about:2.5.2")
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
+    //workmanager
+    val work_version = "2.8.0"
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+
+
     //leakcanary
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
+//    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
     //glacne
     debugImplementation("com.guolindev.glance:glance:1.1.0")
 

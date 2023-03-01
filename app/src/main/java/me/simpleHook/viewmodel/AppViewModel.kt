@@ -47,7 +47,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         packageInfo.packageName,
                         packageInfo.versionName,
                         packageInfo.versionCode.toString(),
-                        TimeUtil.getDateTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+                        TimeUtil.getTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                         packageInfo.applicationInfo.targetSdkVersion)
                     if ((packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
                         systemApps.add(appItem)

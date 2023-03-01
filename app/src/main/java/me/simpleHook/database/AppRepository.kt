@@ -1,8 +1,6 @@
 package me.simpleHook.database
 
 import android.content.Context
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog

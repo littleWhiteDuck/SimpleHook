@@ -24,7 +24,7 @@ object LogUtil {
         if (logBean.type == "null" || !HookHelper.enableRecord) return
         val log = Json.encodeToString(logBean)
         HookHelper.appContext.getExternalFilesDirs("")
-        val time = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+        val time = TimeUtil.getTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
         val tempPackageName =
             if (logBean.type.startsWith("Error")) "error.hook.tip" else hostPackageName
         if (FlavorUtils.liteVersion) {

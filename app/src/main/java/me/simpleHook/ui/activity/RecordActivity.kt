@@ -372,7 +372,7 @@ class RecordActivity : BaseActivity() {
                     })
             }
             R.id.save_marked_record -> {
-                val time = TimeUtil.getDateTime(System.currentTimeMillis(), pattern = "ddHHmmss")
+                val time = TimeUtil.getTime(System.currentTimeMillis(), pattern = "ddHHmmss")
                 saveMarkedRecord.launch("simpleHook_record_$time.json")
             }
             R.id.search_by_raw_data -> {

@@ -21,11 +21,10 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.util.FlavorUtils
+import me.simpleHook.worker.BackupWorkerHelper
 
-@Suppress("unused")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
-    private val _filterAppConfig = MutableLiveData<List<AppConfig>>()
     private var _filterRecordPT = MutableLiveData<List<Record>>()
     val filterRecordPT: LiveData<List<Record>> get() = _filterRecordPT
 
@@ -39,10 +38,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
             LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
+        notifyBackupConfig()
+    }
+
+    private fun notifyBackupConfig() {
+        BackupWorkerHelper.nowBackupConfig(getApplication())
     }
 
     fun updateConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
         appRepository.updateConfigs(*appConfig)
+        notifyBackupConfig()
     }
 
     fun deleteConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
@@ -57,11 +62,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
             LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
+        notifyBackupConfig()
     }
 
-    fun deleteAllConfigs() = viewModelScope.launch(Dispatchers.IO) {
+/*    fun deleteAllConfigs() = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteAllConfigs()
-    }
+    }*/
 
     private suspend fun getCustomCountByPackageName(packageName: String) =
         appRepository.getCustomCountByPackageName(packageName)
@@ -69,11 +75,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun getAllConfigs() = appRepository.getAllConfigs()
     fun getConfigs() = appRepository.getConfigs()
 
-    fun getAllExtensionPackageNames() = appRepository.getAllExtensionPackageNames()
+    //    fun getAllExtensionPackageNames() = appRepository.getAllExtensionPackageNames()
     fun getAllPackageNames() = appRepository.getAllPackageNames()
 
-    fun getFilterConfigs(pattern: String) =
-        viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }
+/*    fun getFilterConfigs(pattern: String) =
+        viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }*/
 
     // Record
     val queryPattern = MutableLiveData("")
@@ -131,7 +137,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     //combine(queryInit, transform = { printLog, query ->
 //                printLog.filter { it.log.contains(query, true) }
 //            })
-    fun getAllLogs() = appRepository.getAllLogs()
+//    fun getAllLogs() = appRepository.getAllLogs()
 
     fun getMarkedRecordByType(type: String) = appRepository.getMarkedByType("%$type%")
 
@@ -203,10 +209,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
             LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
+        notifyBackupConfig()
     }
 
     fun updateAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.updateAssistConfigs(*assistConfig)
+        notifyBackupConfig()
     }
 
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
@@ -221,22 +229,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
             LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
+        notifyBackupConfig()
     }
 
-    suspend fun queryDefaultExConfig() = appRepository.queryDefaultExConfig()
+//    suspend fun queryDefaultExConfig() = appRepository.queryDefaultExConfig()
 
-    fun deleteAllAssistConfigs() = viewModelScope.launch(Dispatchers.IO) {
+/*    fun deleteAllAssistConfigs() = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteAllAssistConfigs()
-    }
+    }*/
 
     fun deleteAssistConfigsByPackageName(packageName: String) {
         appRepository.deleteAssistConfigsByPackageName(packageName)
+        notifyBackupConfig()
     }
 
     fun getAllAssistConfigs() = appRepository.getAllAssistConfigs()
     fun getAssistConfigs() = appRepository.getAssistConfigs()
-
-    fun getFilterAssistConfigs(pattern: String) = appRepository.getFilterAssistConfigs(pattern)
 
     private suspend fun getExCountByPackageName(packageName: String) =
         appRepository.getExCountByPackageName(packageName)

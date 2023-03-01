@@ -176,7 +176,7 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
         dismissFloat = false
-        currentTime = TimeUtil.getDateTime(System.currentTimeMillis(), "yy-MM-dd HH:mm:ss")
+        currentTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
         startTime = currentTime
         EasyFloat.with(this).setLayout(R.layout.window_float) {
             val recyclerView = it.findViewById<RecyclerView>(R.id.recyclerView)

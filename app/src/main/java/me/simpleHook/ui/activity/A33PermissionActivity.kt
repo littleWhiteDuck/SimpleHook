@@ -115,12 +115,10 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         userAppList.add(
-                            PermissionBean(
-                                it.packageName,
+                            PermissionBean(it.packageName,
                                 AppUtils.getAppName(this@A33PermissionActivity, it),
-                                TimeUtil.getDateTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                                needApplyApps.contains(it.packageName)
-                            )
+                                TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+                                needApplyApps.contains(it.packageName))
                         )
                     }
                 }
@@ -131,12 +129,10 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         systemAppList.add(
-                            PermissionBean(
-                                it.packageName,
+                            PermissionBean(it.packageName,
                                 AppUtils.getAppName(this@A33PermissionActivity, it),
-                                TimeUtil.getDateTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                                needApplyApps.contains(it.packageName)
-                            )
+                                TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+                                needApplyApps.contains(it.packageName))
                         )
                     }
                 }

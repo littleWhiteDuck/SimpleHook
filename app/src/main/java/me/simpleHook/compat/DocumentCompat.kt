@@ -125,5 +125,46 @@ object DocumentCompat {
         }
     }
 
+    fun getFileUriOrCreate(
+        context: Context,
+        rootUri: Uri,
+        childPath: String,
+        fileName: String,
+        mimeType: String = "application/json"
+    ): Uri? {
+        return runCatching {
+            var documentFile = DocumentFile.fromTreeUri(context, rootUri)
+            val childPaths = childPath.split("/")
+            for (i in childPaths.indices) {
+                if (childPaths[i].isEmpty()) continue
+                documentFile =
+                    getDocumentFile(documentFile!!, childPaths[i]) ?: documentFile.createDirectory(
+                        childPaths[i])
+            }
+            val configFile = if (isChildExists(documentFile!!, fileName)) {
+                documentFile.findFile(fileName)
+            } else {
+                documentFile.createFile(mimeType, fileName)
+            }
+            configFile?.uri
+        }.getOrDefault(null)
+    }
+
+    fun getDocumentFile(
+        context: Context, rootUri: Uri, childPath: String
+    ): DocumentFile? {
+        return runCatching {
+            var documentFile = DocumentFile.fromTreeUri(context, rootUri)
+            val childPaths = childPath.split("/")
+            for (i in childPaths.indices) {
+                if (childPaths[i].isEmpty()) continue
+                documentFile =
+                    getDocumentFile(documentFile!!, childPaths[i]) ?: documentFile.createDirectory(
+                        childPaths[i])
+            }
+            documentFile
+        }.getOrDefault(null)
+    }
+
 
 }
