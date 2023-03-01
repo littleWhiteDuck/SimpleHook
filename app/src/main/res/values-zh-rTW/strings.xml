@@ -437,4 +437,5 @@
     <string name="extension_exit_title_app_exit">應用退出</string>
     <string name="extension_item_title_app_exit">應用退出</string>
     <string name="extension_item_desc_app_exit">阻止應用退出</string>
+    <string name="title_activity_backup">備份與恢復</string>
 </resources>

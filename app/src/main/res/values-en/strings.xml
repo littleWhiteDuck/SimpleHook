@@ -438,4 +438,5 @@
     <string name="extension_exit_title_app_exit">App Exit</string>
     <string name="extension_item_title_app_exit">App Exit</string>
     <string name="extension_item_desc_app_exit">Prevent application from exiting</string>
+    <string name="title_activity_backup">Backup and restore</string>
 </resources>

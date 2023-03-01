@@ -153,18 +153,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        val themePreference = findPreference<SimpleMenuPreference>("themeMode")?.apply {
+        findPreference<SimpleMenuPreference>("themeMode")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 ThemeModeUtil.setMode(newValue as String)
                 if (sp.themeMode != newValue) requireActivity().recreate()
                 true
             }
-        }!!
-        val themeNames =
-            requireContext().resources.getStringArray(R.array.main_settings_theme_mode_item_entries)
-        themePreference.summary =
-            themeNames[listOf(*themePreference.entryValues).indexOf(themePreference.value)]
-        val languagePreference = findPreference<SimpleMenuPreference>("language")?.apply {
+        }
+        findPreference<SimpleMenuPreference>("language")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
                     LanguageUtils.switchLanguage(newValue,
@@ -173,11 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
                 true
             }
-        }!!
-        val languageNames =
-            requireContext().resources.getStringArray(R.array.main_settings_language_item_entries)
-        languagePreference.summary =
-            languageNames[listOf(*languagePreference.entryValues).indexOf(languagePreference.value)]
+        }
         findPreference<Preference>("toJSConfig")?.apply {
             setOnPreferenceClickListener {
                 toJSConfig()

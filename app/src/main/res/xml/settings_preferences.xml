@@ -47,12 +47,14 @@
             app:entries="@array/main_settings_theme_mode_item_entries"
             app:entryValues="@array/main_settings_theme_mode_item_values"
             app:key="themeMode"
+            app:summary="%s"
             app:title="@string/main_settings_ui_mode_title" />
         <rikka.preference.SimpleMenuPreference
             android:entries="@array/main_settings_language_item_entries"
             app:defaultValue="system"
             app:entryValues="@array/main_settings_language_item_values"
             app:key="language"
+            app:summary="%s"
             app:title="@string/main_settings_select_language_title" />
         <rikka.preference.SimpleMenuPreference
             app:enableSelected="false"

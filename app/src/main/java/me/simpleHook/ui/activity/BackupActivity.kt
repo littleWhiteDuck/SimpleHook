@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import me.simpleHook.R
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.fragment.backup.BackupFragment
 
 
@@ -19,5 +20,6 @@ class BackupActivity : AppCompatActivity() {
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
     }
 }
