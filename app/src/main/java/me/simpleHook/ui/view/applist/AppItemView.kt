@@ -71,7 +71,7 @@ class AppItemView(context: Context, attrs: AttributeSet?) : MaterialCardView(con
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             icon.autoMeasure()
             val textViewWidth =
-                measuredWidth - icon.measuredWidthWithMarginsPaddings - paddingStart - paddingEnd
+                measuredWidth - icon.measuredWidthWithMargins - paddingStart - paddingEnd
             appName.measure(
                 textViewWidth.toExactlyMeasureSpec(), appName.defaultHeightMeasureSpec(this)
             )

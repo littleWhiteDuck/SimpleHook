@@ -97,7 +97,7 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             num.measure(num.defaultWidthMeasureSpec(this), num.defaultHeightMeasureSpec(this))
             tip.autoMeasure()
             val leftWidth =
-                measuredWidth - paddingStart - paddingEnd - num.measuredWidthWithMarginsPaddings - className.marginStart - enable.measuredWidthWithMargins
+                measuredWidth - paddingStart - paddingEnd - num.measuredWidthWithMargins - className.marginStart - enable.measuredWidthWithMargins
             className.measure(
                 leftWidth.toExactlyMeasureSpec(), className.defaultHeightMeasureSpec(this)
             )

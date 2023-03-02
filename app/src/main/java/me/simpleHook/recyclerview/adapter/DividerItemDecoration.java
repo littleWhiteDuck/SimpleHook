@@ -1,4 +1,4 @@
-package me.simpleHook.adapter;
+package me.simpleHook.recyclerview.adapter;
 
 import android.graphics.Rect;
 import android.view.View;

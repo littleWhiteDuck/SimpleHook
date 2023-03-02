@@ -1,9 +1,6 @@
 package me.simpleHook.ui.fragment
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.graphics.Rect
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
@@ -13,20 +10,22 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.drakeet.multitype.MultiTypeAdapter
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
-import me.simpleHook.adapter.RecordSummaryAdapter
 import me.simpleHook.base.BaseExtensionFragment
-import me.simpleHook.bean.RecordSummary
+import me.simpleHook.bean.RecordShowPack
+import me.simpleHook.bean.RecordShowType
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentRecordSummaryBinding
+import me.simpleHook.recyclerview.delegate.RecordPackDelegate
+import me.simpleHook.recyclerview.delegate.RecordTypeDelegate
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
@@ -39,18 +38,7 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private var tempListSize = 0
-    private val recorderSummaryAdapter by lazy {
-        RecordSummaryAdapter(onClick = {
-            val bundle = Bundle()
-            bundle.putParcelable("recordSummary", it)
-            val intent = Intent(requireContext(), RecordActivity::class.java)
-            intent.putExtra("bundle", bundle)
-            startActivity(intent)
-        }, onDeleteClick = {
-            deleteRecord(it)
-        })
-    }
-
+    private val multiTypeAdapter = MultiTypeAdapter()
     private lateinit var assistConfigs: List<AssistConfig>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
@@ -112,45 +100,36 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
                     }
                 }
             }
-            val list = mutableListOf<RecordSummary>()
+            val list = mutableListOf<Any>()
             hashSet.forEach { value ->
                 if (sp.showByType) {
-                    list.add(RecordSummary(type = value, count = hasMap[value] ?: 0))
+                    list.add(RecordShowType(type = value, count = hasMap[value] ?: 0))
                 } else {
-                    list.add(RecordSummary(packageName = value, count = hasMap[value] ?: 0))
+                    list.add(RecordShowPack(packageName = value, count = hasMap[value] ?: 0))
                 }
             }
-            if (tempListSize != list.size) {
-                recorderSummaryAdapter.submitList(emptyList())
-                recorderSummaryAdapter.submitList(emptyList())
-            }
             tempListSize = list.size
-            recorderSummaryAdapter.submitList(list)
+            multiTypeAdapter.items = list
+            multiTypeAdapter.notifyDataSetChanged()
             binding.progressBar.visibility = View.GONE
             binding.swipeRefreshLayout.isRefreshing = false
         }
         if (binding.swipeRefreshLayout.isRefreshing) {
             refreshData()
         }
+        multiTypeAdapter.register(RecordShowType::class.java, RecordTypeDelegate(onClick = {
+            RecordActivity.startActivity(requireContext(), null, it.type)
+        }, onDeleteClick = {
+            deleteRecord(it)
+        }))
+        multiTypeAdapter.register(RecordShowPack::class.java, RecordPackDelegate(onClick = {
+            RecordActivity.startActivity(requireContext(), it.packageName, null)
+        }, onDeleteClick = {
+            deleteRecord(it)
+        }))
         binding.recyclerView.apply {
-            adapter = recorderSummaryAdapter
+            adapter = multiTypeAdapter
             layoutManager = LinearLayoutManager(requireContext())
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-                ) {
-                    // Get the position of the view in the recycler view
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 1) {
-                        // Add padding to the last item. You should probably use a @dimen resource.
-                        outRect.bottom = 200
-                    }
-                }
-            })
         }
         FastScrollerUtil.bind(binding.recyclerView)
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -158,11 +137,11 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         }
     }
 
-    private fun deleteRecord(recordSummary: RecordSummary) {
+    private fun deleteRecord(recordSummary: Any) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            if (recordSummary.type.isNotEmpty()) {
+            if (recordSummary is RecordShowType) {
                 appViewModel.deleteRecordByType(recordSummary.type)
-            } else {
+            } else if (recordSummary is RecordShowPack) {
                 appViewModel.deleteRecordByPack(recordSummary.packageName)
             }
         }
@@ -288,6 +267,7 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
 
     override fun onResume() {
         super.onResume()
+        refreshData(0, false)
         refreshData(100, false)
         val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
         val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior

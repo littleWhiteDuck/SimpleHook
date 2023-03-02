@@ -17,11 +17,6 @@ abstract class CustomViewGroup(context: Context, attrs: AttributeSet?) : ViewGro
     protected val View.measuredWidthWithMargins get() = measuredWidth + marginStart + marginEnd
     protected val View.measuredHeightWithMargins get() = measuredHeight + marginTop + marginBottom
 
-    protected val View.measuredWidthWithMarginsPaddings
-        get() = measuredWidth + marginStart + marginEnd + paddingLeft + paddingRight
-    protected val View.measuredHeightWithMarginsPaddings
-        get() = measuredHeight + marginTop + marginBottom + paddingTop + paddingBottom
-
     protected fun Int.toExactlyMeasureSpec() =
         MeasureSpec.makeMeasureSpec(this, MeasureSpec.EXACTLY)
 

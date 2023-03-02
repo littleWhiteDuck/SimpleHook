@@ -1,11 +1,11 @@
 package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -13,7 +13,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,16 +30,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
-import me.simpleHook.adapter.RecordAdapter
-import me.simpleHook.bean.RecordSummary
-import me.simpleHook.compat.BundleCompat
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
+import me.simpleHook.recyclerview.adapter.RecordAdapter
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
@@ -59,10 +56,7 @@ class RecordActivity : BaseActivity() {
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
             appViewModel.updateRecord(it.copy(read = true))
-            val intent = Intent(this, RecordDetailActivity::class.java)
-            intent.putExtra("record_id", it.id)
-            intent.putExtra("record_package_name", it.packageName)
-            startActivity(intent)
+            RecordDetailActivity.startActivity(this, it.packageName, it.id)
         }, deleteRecord = { printLog ->
             appViewModel.deleteRecordById(printLog.id)
         }, markRecord = { printLog ->
@@ -90,23 +84,22 @@ class RecordActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
-        val bundle =
-            intent.getBundleExtra("bundle") ?: throw NullPointerException("Bundle is null")
-        val recordSummary: RecordSummary = BundleCompat.getParcelable(bundle, "recordSummary")
-            ?: throw NullPointerException("Record summary is null")
-        isType = recordSummary.type.isNotEmpty()
-        typeOrPackageName = if (isType) recordSummary.type else recordSummary.packageName
+        isType = intent.getStringExtra(KEY_PACKAGE_NAME) == null
+        typeOrPackageName = if (isType) {
+            intent.getStringExtra(KEY_TYPE) ?: throw NullPointerException("Type is null")
+        } else {
+            intent.getStringExtra(KEY_PACKAGE_NAME)
+                ?: throw NullPointerException("PackageName is null")
+        }
         if (isType) {
             supportActionBar?.title =
                 if (typeOrPackageName.startsWith("Error")) "Hook Error" else typeOrPackageName
         } else {
-            supportActionBar?.apply {
-                title =
-                    if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                        this@RecordActivity,
-                        typeOrPackageName)
-                subtitle = typeOrPackageName
-            }
+            supportActionBar?.title =
+                if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
+                    this@RecordActivity,
+                    typeOrPackageName)
+            supportActionBar?.subtitle = typeOrPackageName
         }
         initView()
         initData()
@@ -157,22 +150,7 @@ class RecordActivity : BaseActivity() {
         binding.recyclerView.apply {
             adapter = recordAdapter
             layoutManager = LinearLayoutManager(this@RecordActivity)
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-                ) {
-                    // Get the position of the view in the recycler view
-                    val position = parent.getChildAdapterPosition(view)
-                    if (position == RecyclerView.NO_POSITION) {
-                        return
-                    }
-
-                    if (position == parent.adapter!!.itemCount - 1) {
-                        // Add padding to the last item. You should probably use a @dimen resource.
-                        outRect.bottom = 200
-                    }
-                }
-            })
+            setPadding(0, 0, 0, 40.dp)
             ItemTouchHelper(object :
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
                 override fun onMove(
@@ -437,14 +415,23 @@ class RecordActivity : BaseActivity() {
                     }
                 }
                 dialogInterface.dismiss()
-            },
-            cancelText = getString(R.string.dialog_cancel),
-            cancelAble = false).show()
+            }, cancelText = getString(R.string.dialog_cancel), cancelAble = false).show()
     }
 
     override fun onResume() {
         super.onResume()
         refreshData()
+    }
+
+    companion object {
+        private const val KEY_PACKAGE_NAME = "PACKAGE_NAME"
+        private const val KEY_TYPE = "TYPE"
+        fun startActivity(context: Context, packageName: String?, type: String?) {
+            val intent = Intent(context, RecordActivity::class.java)
+            intent.putExtra(KEY_PACKAGE_NAME, packageName)
+            intent.putExtra(KEY_TYPE, type)
+            context.startActivity(intent)
+        }
     }
 
 }

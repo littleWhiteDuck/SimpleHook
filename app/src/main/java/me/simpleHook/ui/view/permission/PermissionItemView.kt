@@ -79,7 +79,7 @@ class PermissionItemView(context: Context, attrs: AttributeSet?) :
             icon.autoMeasure()
             checkBox.autoMeasure()
             val textViewWidth =
-                measuredWidth - icon.measuredWidthWithMarginsPaddings - checkBox.measuredWidthWithMargins
+                measuredWidth - icon.measuredWidthWithMargins - checkBox.measuredWidthWithMargins
             appName.measure(
                 textViewWidth.toExactlyMeasureSpec(), appName.defaultHeightMeasureSpec(this)
             )

@@ -31,7 +31,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.adapter.ConfigAdapter
+import me.simpleHook.recyclerview.adapter.ConfigAdapter
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.config.ConfigSystemUtil

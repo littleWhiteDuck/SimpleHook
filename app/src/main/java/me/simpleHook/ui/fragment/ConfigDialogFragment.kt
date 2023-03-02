@@ -19,7 +19,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.adapter.ImExportAdapter
+import me.simpleHook.recyclerview.adapter.ImExportAdapter
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.config.ConfigSystemUtil

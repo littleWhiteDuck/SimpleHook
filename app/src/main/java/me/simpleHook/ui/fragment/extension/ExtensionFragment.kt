@@ -22,7 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
-import me.simpleHook.adapter.AssistAdapter
+import me.simpleHook.recyclerview.adapter.AssistAdapter
 import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.config.ConfigSystemUtil

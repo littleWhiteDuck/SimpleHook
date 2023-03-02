@@ -1,9 +1,9 @@
-package me.simpleHook.adapter
+package me.simpleHook.recyclerview.adapter
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.adapter.ImExportAdapter.ViewHolder
+import me.simpleHook.recyclerview.adapter.ImExportAdapter.ViewHolder
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.ui.view.main.ShareItemView
 

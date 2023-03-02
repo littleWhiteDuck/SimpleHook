@@ -26,7 +26,7 @@ import com.lzf.easyfloat.permission.PermissionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
-import me.simpleHook.adapter.PrintLogAdapter
+import me.simpleHook.recyclerview.adapter.PrintLogAdapter
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel

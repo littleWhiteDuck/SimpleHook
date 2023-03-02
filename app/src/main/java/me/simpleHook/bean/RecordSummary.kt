@@ -1,8 +1,5 @@
 package me.simpleHook.bean
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+data class RecordShowPack(val packageName: String, val count: Int = 0)
 
-@Parcelize
-data class RecordSummary(val type: String = "", val packageName: String = "", val count: Int = 0) :
-    Parcelable
+data class RecordShowType(val type: String, val count: Int = 0)

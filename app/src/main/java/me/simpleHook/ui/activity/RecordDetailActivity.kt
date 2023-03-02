@@ -1,5 +1,7 @@
 package me.simpleHook.ui.activity
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -19,6 +21,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.AppViewModel
@@ -27,7 +30,6 @@ import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
 import java.util.regex.Matcher
@@ -58,7 +60,7 @@ class RecordDetailActivity : BaseActivity() {
         } else {
             false
         }
-        val recordPackageName = intent.getStringExtra("record_package_name")!!
+        val recordPackageName = intent.getStringExtra(KEY_PACKAGE_NAME)!!
         supportActionBar?.title =
             if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(this,
                 recordPackageName)
@@ -69,7 +71,7 @@ class RecordDetailActivity : BaseActivity() {
     private fun initView() {
         binding.progressBar.isVisible = true
         lifecycleScope.launch(Dispatchers.IO) {
-            val recordId = intent.getIntExtra("record_id", -1)
+            val recordId = intent.getIntExtra(KEY_RECORD_ID, -1)
             printLog = appViewModel.getRecordByID(recordId)
             initData()
         }
@@ -111,9 +113,10 @@ class RecordDetailActivity : BaseActivity() {
                 }
                 val nLine: Int = -1
                 currentText = StringBuilder().lineFeesItem(logList,
-                    "${foreStr + logBean.type}\n", nLine = nLine, nLineString = "")
-                    .replace("类：", "  ").replace("方法：", "").replace("Class : ", "  ")
-                    .replace("Method : ", "")
+                    "${foreStr + logBean.type}\n",
+                    nLine = nLine,
+                    nLineString = "").replace("类：", "  ").replace("方法：", "")
+                    .replace("Class : ", "  ").replace("Method : ", "")
             }
             updateView(currentPattern)
             binding.progressBar.isVisible = false
@@ -224,6 +227,17 @@ class RecordDetailActivity : BaseActivity() {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         return spannableString
+    }
+
+    companion object {
+        private const val KEY_PACKAGE_NAME = "PACKAGE_NAME"
+        private const val KEY_RECORD_ID = "RECORD_ID"
+        fun startActivity(context: Context, packageName: String, id: Int) {
+            val intent = Intent(context, RecordDetailActivity::class.java)
+            intent.putExtra(KEY_PACKAGE_NAME, packageName)
+            intent.putExtra(KEY_RECORD_ID, id)
+            context.startActivity(intent)
+        }
     }
 
 }

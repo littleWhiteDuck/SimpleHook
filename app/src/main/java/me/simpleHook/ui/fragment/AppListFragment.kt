@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import me.simpleHook.R
-import me.simpleHook.adapter.AppListAdapter
+import me.simpleHook.recyclerview.adapter.AppListAdapter
 import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.extension.dp
 import me.simpleHook.util.FastScrollerUtil

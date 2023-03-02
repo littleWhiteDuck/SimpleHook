@@ -77,7 +77,7 @@ class GuiseSignatureItem(context: Context, attrs: AttributeSet?) :
             icon.autoMeasure()
             checkBox.autoMeasure()
             val textViewWidth =
-                measuredWidth - icon.measuredWidthWithMarginsPaddings - paddingStart - paddingEnd - checkBox.measuredWidth
+                measuredWidth - icon.measuredWidthWithMargins - paddingStart - paddingEnd - checkBox.measuredWidth
             appName.measure(textViewWidth.toExactlyMeasureSpec(),
                 appName.defaultHeightMeasureSpec(this))
             packageName.measure(textViewWidth.toExactlyMeasureSpec(),

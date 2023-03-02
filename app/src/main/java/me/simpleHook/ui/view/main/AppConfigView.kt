@@ -156,7 +156,7 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
             switch.defaultWidthMeasureSpec(this), switch.defaultHeightMeasureSpec(this)
         )
         val textViewWidth =
-            measuredWidth - icon.measuredWidthWithMargins - switch.measuredWidthWithMarginsPaddings
+            measuredWidth - icon.measuredWidthWithMargins - switch.measuredWidthWithMargins
         appName.measure(
             textViewWidth.toExactlyMeasureSpec(), appName.defaultHeightMeasureSpec(this)
         )

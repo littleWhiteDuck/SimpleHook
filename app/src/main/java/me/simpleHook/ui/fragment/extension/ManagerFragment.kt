@@ -25,7 +25,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.adapter.DividerItemDecoration
+import me.simpleHook.recyclerview.adapter.DividerItemDecoration
 import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
@@ -291,11 +291,11 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
         configBean = if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfig()
         tempConfigStr = configBean.toString()
         adapter.register(Title::class.java, TitleViewDelegate())
-        adapter.register(ExtensionItem::class.java, ItemViewDelegate { tag, checked ->
+        adapter.register(ExtensionItem::class.java, ManagerItemViewDelegate { tag, checked ->
             onItemClick(tag, checked)
         })
         adapter.register(ExtensionSubItem::class.java,
-            SubItemViewDelegate(onClick = { tag, checked ->
+            ManagerSubItemViewDelegate(onClick = { tag, checked ->
                 onItemClick(tag, checked)
             }, onSubClick = { tag -> onSubItemClick(tag) }))
         binding.recyclerView.addItemDecoration(DividerItemDecoration(adapter))
@@ -515,7 +515,7 @@ data class ExtensionSubItem(
     val other: String = ""
 )
 
-class ItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
+class ManagerItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
     ViewDelegate<ExtensionItem, SelectItemView>() {
     override fun onBindView(view: SelectItemView, item: ExtensionItem) {
         view.apply {
@@ -536,7 +536,7 @@ class ItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
 }
 
 
-class SubItemViewDelegate(
+class ManagerSubItemViewDelegate(
     val onClick: (tag: String, checked: Boolean) -> Unit, val onSubClick: (tag: String) -> Unit
 ) : ViewDelegate<ExtensionSubItem, SubSelectItemView>() {
     override fun onBindView(view: SubSelectItemView, item: ExtensionSubItem) {

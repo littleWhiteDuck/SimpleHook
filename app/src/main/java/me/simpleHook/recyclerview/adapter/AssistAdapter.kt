@@ -1,4 +1,4 @@
-package me.simpleHook.adapter
+package me.simpleHook.recyclerview.adapter
 
 
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.adapter.AssistAdapter.ViewHolder
+import me.simpleHook.recyclerview.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
