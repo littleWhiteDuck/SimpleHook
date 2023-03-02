@@ -1,14 +1,14 @@
 package me.simpleHook.ui.fragment
 
 import android.content.Intent
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
@@ -32,7 +31,6 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
@@ -47,27 +45,11 @@ import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
 import java.io.*
 import java.util.*
-import kotlin.concurrent.thread
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
     private val viewModel: AppViewModel by activityViewModels()
     private val settingsViewModel by viewModels<SettingsViewModel>()
-    private val restoreConfigs =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
-            resultUri?.let {
-                importConfigs(readTextFromUri(it))
-            }
-        }
-    private val backupConfigs =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("text/json")) { resultUri ->
-            resultUri?.apply {
-                thread {
-                    alterDocument(this,
-                        JsonUtil.formatJson(Json.encodeToString(viewModel.getConfigs())))
-                }
-            }
-        }
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             if (uri != Uri.EMPTY) {
@@ -311,14 +293,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         startActivity(intent)
     }
 
-    private fun restoreConfigs() {
-        restoreConfigs.launch(arrayOf("application/json", "text/plain"))
-    }
-
-    private fun backupConfigs() {
-        val time = TimeUtil.getTime(System.currentTimeMillis(), pattern = "yyMMdd")
-        backupConfigs.launch("simpleHook_backup_$time.json")
-    }
 
     override fun onCreateRecyclerView(
         inflater: LayoutInflater, parent: ViewGroup, savedInstanceState: Bundle?
@@ -326,7 +300,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
         recyclerView.isVerticalScrollBarEnabled = false
         recyclerView.clipToPadding = false
-        recyclerView.setPadding(0, 0, 0, 40.dp)
+        ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            ViewCompat.onApplyWindowInsets(recyclerView, windowInsets)
+            recyclerView.setPadding(0, 0, 0, navigationInsets.bottom)
+            windowInsets
+        }
         return recyclerView
     }
 

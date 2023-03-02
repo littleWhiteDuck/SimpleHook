@@ -572,6 +572,21 @@
     <string name="time_months_ago">%d月前</string>
     <string name="time_a_year_ago">1年前</string>
     <string name="time_years_ago">%d年前</string>
+    <string name="backup_title_other">其他</string>
+    <string name="backup_title_backup_config">备份配置</string>
+    <string name="backup_summary_backup_config">选择一个目录备份</string>
+    <string name="backup_title_restore_config">恢复配置</string>
+    <string name="backup_summary_restore_config">选择一个后缀为 shbackups 的文件</string>
+    <string name="backup_tip_illegal_file_type">非法文件格式</string>
+    <string name="backup_tip_backup_success">备份成功</string>
+    <string name="backup_tip_backup_failure">备份失败</string>
+    <string name="backup_tip_restore_success">恢复成功</string>
+    <string name="backup_tip_restore_failure">恢复失败</string>
+    <string name="backup_dialog_title_restore_local_backup">恢复本地备份</string>
+    <string name="backup_dialog_title_restore_cloud_backup">恢复云备份</string>
+    <string name="backup_dialog_message">是否恢复：%s, 备份于：%s</string>
+    <string name="backup_tip_cloud_info_is_empty">请填写云备份信息</string>
+    <string name="backup_tip_backup_path_is_empty">请先选择备份目录</string>
 
 
 </resources>

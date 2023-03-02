@@ -481,4 +481,19 @@
     <string name="time_months_ago">%d months ago</string>
     <string name="time_a_year_ago">1 year ago</string>
     <string name="time_years_ago">%d years ago</string>
+    <string name="backup_title_other">Other</string>
+    <string name="backup_title_backup_config">Backup configuration</string>
+    <string name="backup_summary_backup_config">Select a directory backup</string>
+    <string name="backup_title_restore_config">Restore Configuration</string>
+    <string name="backup_summary_restore_config">Select a file whose suffix is shbackups</string>
+    <string name="backup_tip_illegal_file_type">Illegal file type</string>
+    <string name="backup_tip_backup_success">The backup was successful</string>
+    <string name="backup_tip_backup_failure">Backup failed</string>
+    <string name="backup_tip_restore_success">Restored successfully</string>
+    <string name="backup_tip_restore_failure">Restore failed</string>
+    <string name="backup_dialog_title_restore_local_backup">Restore local backup</string>
+    <string name="backup_dialog_title_restore_cloud_backup">Restore cloud backup</string>
+    <string name="backup_dialog_message">Whether to restore: %s, backed up at: %s</string>
+    <string name="backup_tip_cloud_info_is_empty">Please fill in the cloud backup information</string>
+    <string name="backup_tip_backup_path_is_empty">Please select the backup directory first</string>
 </resources>

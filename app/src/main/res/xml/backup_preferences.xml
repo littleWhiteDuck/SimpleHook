@@ -91,4 +91,22 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/backup_title_other">
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="backup_by_select"
+            app:persistent="false"
+            app:summary="@string/backup_summary_backup_config"
+            app:title="@string/backup_title_backup_config" />
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="restore_by_select"
+            app:persistent="false"
+            app:summary="@string/backup_summary_restore_config"
+            app:title="@string/backup_title_restore_config" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

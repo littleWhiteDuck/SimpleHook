@@ -1,6 +1,7 @@
 package me.simpleHook.worker
 
 import android.content.Context
+import android.net.Uri
 import androidx.core.net.toUri
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -18,7 +19,7 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-object BackupWorkerHelper {
+object BackupHelper {
     private val json = Json {
         prettyPrint = true
     }
@@ -34,26 +35,25 @@ object BackupWorkerHelper {
         WorkManager.getInstance(context).enqueue(request)
     }
 
+    @Synchronized
     fun startBackupConfig(
         context: Context,
         backupCustom: Boolean,
         backupExtension: Boolean,
         backupAll: Boolean,
         local: Boolean = false,
-        cloud: Boolean = false
+        cloud: Boolean = false,
+        backUri: Uri? = null
     ): Boolean {
         return runCatching {
             val cacheBackupDir = context.externalCacheDir!!.resolve("backup").also {
                 it.mkdir()
             }
             val appRepository = AppRepository(context)
-            val customConfigs =
-                if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
-            val extensionConfigs =
-                if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
+            val customConfigs = if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
+            val extensionConfigs = if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
             if (customConfigs.isEmpty() && extensionConfigs.isEmpty()) return@runCatching true
-            val backupName =
-                "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}.shbackup"
+            val backupName = "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}.shbackup"
             val cacheFile = cacheBackupDir.resolve(backupName)
             val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
             zipOutputStream.use {
@@ -70,12 +70,12 @@ object BackupWorkerHelper {
             }
             var result = true
             if (local) {
-                val documentFile = DocumentCompat.getFileUriOrCreate(context,
+                val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(context,
                     GlobalValue.sp.backup_path!!.toUri(),
                     "SimpleHook/Backups",
                     backupName,
                     "application/shbackup")!!
-                context.contentResolver.openOutputStream(documentFile).use { output ->
+                context.contentResolver.openOutputStream(tempUri).use { output ->
                     cacheFile.inputStream().use {
                         if (output != null) {
                             it.copyTo(output)
@@ -87,8 +87,7 @@ object BackupWorkerHelper {
                 result = cloudBackup(cacheFile)
             }
             result
-        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
-            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }.onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
             .getOrDefault(false)
     }
 

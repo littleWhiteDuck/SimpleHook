@@ -1,6 +1,7 @@
 package me.simpleHook.database
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,7 +22,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.util.FlavorUtils
-import me.simpleHook.worker.BackupWorkerHelper
+import me.simpleHook.worker.BackupHelper
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
@@ -43,11 +44,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun notifyBackupConfig() {
         if (GlobalValue.sp.backup_local_auto) {
-            BackupWorkerHelper.localBackupConfig(getApplication())
+            BackupHelper.localBackupConfig(getApplication())
         }
         if (GlobalValue.sp.backup_cloud_auto) {
-            BackupWorkerHelper.cloudBackupConfig(getApplication())
+            BackupHelper.cloudBackupConfig(getApplication())
         }
+        Log.d("littleWhiteDuck", "notifyBackupConfig: ")
     }
 
     fun updateConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {

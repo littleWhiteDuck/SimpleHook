@@ -1,15 +1,17 @@
 package me.simpleHook.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import me.simpleHook.GlobalValue
-import me.simpleHook.worker.BackupWorkerHelper.startBackupConfig
+import me.simpleHook.worker.BackupHelper.startBackupConfig
 
 class BackupWorker(private val context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
 
     override fun doWork(): Result {
+        Log.d("littleWhiteDuck", "doWork:11 ")
         val scope = GlobalValue.sp.backup_scope
         val result = startBackupConfig(context,
             scope == "BACKUP_SCOPE_CUSTOM",

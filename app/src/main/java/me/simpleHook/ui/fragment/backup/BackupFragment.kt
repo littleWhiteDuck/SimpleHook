@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,12 +30,11 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.util.TimeUtil
-import me.simpleHook.worker.BackupWorkerHelper
+import me.simpleHook.worker.BackupHelper
 import java.util.zip.ZipInputStream
 
 class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
@@ -46,6 +49,19 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 updatePath(uri.toString())
             }
         }
+    private val restoreConfigs =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+            resultUri?.let {
+                restoreConfigBySelect(it)
+            }
+        }
+
+    private val backupConfigs =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/shbackups")) { resultUri ->
+            resultUri?.apply {
+                startBackupConfig(local = true, backUri = this)
+            }
+        }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.backup_preferences, rootKey)
@@ -56,8 +72,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         setDividerHeight(0)
         initExternalBackup()
         findPreference<Preference>("backup_path")?.apply {
-            summary =
-                GlobalValue.sp.backup_path.toString().ifEmpty { "选择一个路径进行备份，推荐Android/Documents" }
+            summary = GlobalValue.sp.backup_path.toString()
+                .ifEmpty { getString(R.string.backup_summary_backup_path) }
             setOnPreferenceClickListener {
                 selectBackupPath()
                 true
@@ -114,6 +130,23 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 it.setText(GlobalValue.sp.web_dav_pw)
             }
         }
+        findPreference<Preference>("backup_by_select")?.apply {
+            setOnPreferenceClickListener {
+                backupConfigBySelect()
+                true
+            }
+        }
+        findPreference<Preference>("restore_by_select")?.apply {
+            setOnPreferenceClickListener {
+                restoreConfigs.launch(arrayOf("*/*"))
+                true
+            }
+        }
+    }
+
+    private fun backupConfigBySelect() {
+        val time = TimeUtil.getTime(System.currentTimeMillis(), pattern = "yyMMdd")
+        backupConfigs.launch("SimpleHook_backup_$time.shbackup")
     }
 
     private fun initExternalBackup() {
@@ -136,8 +169,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun isLocalBackupEnable(): Boolean {
-        if (GlobalValue.sp.backup_path.isNullOrEmpty()) {
-            requireContext().showToast("请先选择备份目录")
+        if (GlobalValue.sp.backup_path.isNullOrEmpty() || DocumentFile.fromTreeUri(requireContext(),
+                GlobalValue.sp.backup_path!!.toUri())?.exists() == false
+        ) {
+            requireContext().showToast(getString(R.string.backup_tip_backup_path_is_empty))
             return false
         }
         return true
@@ -155,7 +190,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun isCloudBackupEnable(): Boolean {
         if (GlobalValue.sp.web_dav_account.isNullOrEmpty() || GlobalValue.sp.web_dav_pw.isNullOrEmpty() || GlobalValue.sp.web_dav_host.isNullOrEmpty()) {
-            requireContext().showToast("请填写云备份信息")
+            requireContext().showToast(getString(R.string.backup_tip_cloud_info_is_empty))
             return false
         }
         return true
@@ -163,10 +198,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun showRestoreLocal(restoreItem: RestoreItem) {
         customDialog(requireContext(),
-            title = "恢复",
-            message = "是否恢复：${restoreItem.name}, 备份于：${restoreItem.time}",
-            cancelText = "取消",
-            okText = "恢复",
+            title = getString(R.string.backup_dialog_title_restore_local_backup),
+            message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
+            cancelText = getString(R.string.dialog_cancel),
+            okText = getString(R.string.dialog_cancel),
             okClick = {
                 restoreConfigFromUri(restoreItem.uri)
             }).show()
@@ -174,10 +209,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun showRestoreCloud(restoreItem: RestoreCloudItem) {
         customDialog(requireContext(),
-            title = "恢复云备份",
-            message = "是否恢复：${restoreItem.name}, 备份于：${restoreItem.time}",
-            cancelText = "取消",
-            okText = "恢复",
+            title = getString(R.string.backup_dialog_title_restore_cloud_backup),
+            message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
+            cancelText = getString(R.string.dialog_cancel),
+            okText = getString(R.string.dialog_cancel),
             okClick = {
                 restoreConfigFromCloud(restoreItem.url)
             }).show()
@@ -214,10 +249,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             }
         }.onSuccess {
             loadingDialog.dismiss()
-            requireActivity().showToast("恢复成功")
+            requireActivity().showToast(getString(R.string.backup_tip_restore_success))
         }.onFailure {
             loadingDialog.dismiss()
-            requireActivity().showToast("恢复失败")
+            requireActivity().showToast(getString(R.string.backup_tip_restore_failure))
         }
     }
 
@@ -250,10 +285,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             }
         }.onSuccess {
             loadingDialog.dismiss()
-            requireActivity().showToast("恢复成功")
+            requireActivity().showToast(getString(R.string.backup_tip_restore_success))
         }.onFailure {
             loadingDialog.dismiss()
-            requireActivity().showToast("恢复失败")
+            requireActivity().showToast(getString(R.string.backup_tip_restore_failure))
         }
     }
 
@@ -264,36 +299,53 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         recyclerView.apply {
             isVerticalScrollBarEnabled = false
             clipToPadding = false
-            setPadding(0, 0, 0, 40.dp)
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { _, windowInsets ->
+            val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            ViewCompat.onApplyWindowInsets(recyclerView, windowInsets)
+            recyclerView.setPadding(0, 0, 0, navigationInsets.bottom)
+            windowInsets
         }
         return recyclerView
     }
 
-    private fun startBackupConfig(local: Boolean = false, cloud: Boolean = false) {
+    private fun startBackupConfig(
+        local: Boolean = false, cloud: Boolean = false, backUri: Uri? = null
+    ) {
         if ((local && isLocalBackupEnable()) || (cloud && isCloudBackupEnable())) {
             val loadingDialog = LoadingDialog(requireActivity(), "saving... ")
             loadingDialog.show()
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                BackupWorkerHelper.localBackupConfig(requireContext())
                 val scope = GlobalValue.sp.backup_scope
-                val success = BackupWorkerHelper.startBackupConfig(requireContext(),
+                val success = BackupHelper.startBackupConfig(requireContext(),
                     scope == "BACKUP_SCOPE_CUSTOM",
                     scope == "BACKUP_SCOPE_EXTENSION",
                     scope == "BACKUP_SCOPE_ALL",
                     local = local,
-                    cloud)
+                    cloud = cloud,
+                    backUri = backUri)
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (success) {
-                        requireActivity().showToast("备份成功")
+                        requireActivity().showToast(getString(R.string.backup_tip_backup_success))
                     } else {
-                        requireActivity().showToast("备份失败")
+                        requireActivity().showToast(getString(R.string.backup_tip_backup_failure))
                     }
                 }
             }
         }
     }
 
+    private fun restoreConfigBySelect(it: Uri) {
+        val file = DocumentFile.fromSingleUri(requireContext(), it) ?: return
+        if (file.name?.endsWith(".shbackup") == true) {
+            showRestoreLocal(RestoreItem(file.name!!,
+                file.uri,
+                TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
+        } else {
+            requireActivity().showToast(getString(R.string.backup_tip_illegal_file_type))
+        }
+    }
 
     private fun updatePath(uri: String) {
         GlobalValue.sp.backup_path = uri
