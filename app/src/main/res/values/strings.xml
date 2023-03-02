@@ -506,5 +506,72 @@
     <string name="extension_item_title_app_exit">应用退出</string>
     <string name="extension_item_desc_app_exit">阻止应用退出</string>
     <string name="title_activity_backup">备份与恢复</string>
+    <string name="label_activity_backup">SimpleHook-恢复备份</string>
+    <string name="backup_title_cloud_backup">云备份</string>
+    <string name="backup_title_web_dav_host">WebDav 网址</string>
+    <string name="backup_title_web_dav_account">WebDav 账号</string>
+    <string name="backup_title_web_dav_password">WebDav 密码</string>
+    <string name="backup_summary_enable__auto_cloud_backup">配置更改后自动备份</string>
+    <string name="backup_title_enable_cloud_auto_backup">开启云备份</string>
+    <string name="backup_title_now_cloud_backup">立刻云备份</string>
+    <string name="backup_title_restore_cloud_backup">恢复云备份</string>
+    <string name="backup_title_local_backup">本地备份</string>
+    <string name="backup_summary_backup_path">点击选择一个路径进行备份，推荐Android/Documents</string>
+    <string name="backup_title_backup_path">备份路径</string>
+    <string name="backup_summary_enable_local_auto_backup">配置更改后自动备份</string>
+    <string name="backup_title_enable_local_auto_backup">自动备份</string>
+    <string name="backup_title_common_settings">通用设置</string>
+    <string name="backup_title_backup_scope">备份范围</string>
+    <string name="backup_title_cover_backup">覆盖备份</string>
+    <string name="backup_restore_backup">恢复备份</string>
+    <string name="main_settings_title_backup_and_restore">备份与恢复</string>
+    <string name="main_settings_summary_backup_and_restore">备份配置、恢复配置</string>
+    <string-array name="backup_scope_entries">
+        <item>自定义配置</item>
+        <item>扩展配置</item>
+        <item>所有</item>
+    </string-array>
+
+    <string-array name="backup_scope_values">
+        <item>BACKUP_SCOPE_CUSTOM</item>
+        <item>BACKUP_SCOPE_EXTENSION</item>
+        <item>BACKUP_SCOPE_ALL</item>
+    </string-array>
+
+
+    <string-array name="restore_mode_entries">
+        <item>替换恢复</item>
+        <item>增量恢复</item>
+    </string-array>
+
+    <string-array name="restore_mode_values">
+        <item>RESTORE_MODE_COVER</item>
+        <item>RESTORE_MODE_APPEND</item>
+    </string-array>
+
+    <string-array name="backup_cover_entries">
+        <item>按分钟</item>
+        <item>按小时</item>
+        <item>按每天</item>
+    </string-array>
+
+    <string-array name="backup_cover_values">
+        <item>BACKUP_OVER_MINUTE</item>
+        <item>BACKUP_OVER_HOUR</item>
+        <item>BACKUP_OVER_DAY</item>
+    </string-array>
+    <string name="time_illegal">你穿越时空了？</string>
+    <string name="time_seconds_ago">%d秒前</string>
+    <string name="time_a_minute_ago">1分钟前</string>
+    <string name="time_minutes_ago">%d分钟前</string>
+    <string name="time_an_hour_ago">1小时前</string>
+    <string name="time_hours_ago">%d小时前</string>
+    <string name="time_a_day_ago">1天前</string>
+    <string name="time_days_ago">%d天前</string>
+    <string name="time_a_month_ago">1月前</string>
+    <string name="time_months_ago">%d月前</string>
+    <string name="time_a_year_ago">1年前</string>
+    <string name="time_years_ago">%d年前</string>
+
 
 </resources>

@@ -439,4 +439,46 @@
     <string name="extension_item_title_app_exit">App Exit</string>
     <string name="extension_item_desc_app_exit">Prevent application from exiting</string>
     <string name="title_activity_backup">Backup and restore</string>
+    <string name="label_activity_backup">SimpleHook-restore backup</string>
+    <string name="backup_title_cloud_backup">Cloud backup</string>
+    <string name="backup_title_web_dav_host">WebDav URL</string>
+    <string name="backup_title_web_dav_account">WebDav account</string>
+    <string name="backup_title_web_dav_password">WebDav password</string>
+    <string name="backup_summary_enable__auto_cloud_backup">Auto backup after config changes</string>
+    <string name="backup_title_enable_cloud_auto_backup">Auto cloud backup</string>
+    <string name="backup_title_now_cloud_backup">Cloud backup now</string>
+    <string name="backup_title_restore_cloud_backup">Restore cloud backup</string>
+    <string name="backup_title_local_backup">Local backup</string>
+    <string name="backup_summary_backup_path">Click to select a path for backup, [/Android/Documents/] is recommended</string>
+    <string name="backup_title_backup_path">Backup path</string>
+    <string name="backup_summary_enable_local_auto_backup">Auto backup after config changes</string>
+    <string name="backup_title_enable_local_auto_backup">Auto backup</string>
+    <string name="backup_title_common_settings">Common Settings</string>
+    <string name="backup_title_backup_scope">Backup scope</string>
+    <string name="backup_title_cover_backup">Cover backup</string>
+    <string name="backup_restore_backup">Restore backup</string>
+    <string-array name="backup_scope_entries">
+        <item>Custom config</item>
+        <item>Extension config</item>
+        <item>All</item>
+    </string-array>
+    <string-array name="backup_cover_entries">
+        <item>By minute</item>
+        <item>By hour</item>
+        <item>By day</item>
+    </string-array>
+    <string name="main_settings_title_backup_and_restore">Backup and restore</string>
+    <string name="main_settings_summary_backup_and_restore">Backup config, restore config</string>
+    <string name="time_illegal">Have you traveled through time and space? </string>
+    <string name="time_seconds_ago">%d seconds ago</string>
+    <string name="time_a_minute_ago">1 minute ago</string>
+    <string name="time_minutes_ago">%d minutes ago</string>
+    <string name="time_an_hour_ago">1 hour ago</string>
+    <string name="time_hours_ago">%d hours ago</string>
+    <string name="time_a_day_ago">1 day ago</string>
+    <string name="time_days_ago">%d days ago</string>
+    <string name="time_a_month_ago">1 month ago</string>
+    <string name="time_months_ago">%d months ago</string>
+    <string name="time_a_year_ago">1 year ago</string>
+    <string name="time_years_ago">%d years ago</string>
 </resources>

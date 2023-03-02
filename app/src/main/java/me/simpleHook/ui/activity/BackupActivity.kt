@@ -1,5 +1,7 @@
 package me.simpleHook.ui.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,11 +17,22 @@ class BackupActivity : AppCompatActivity() {
         setContentView(R.layout.activity_backup)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        val uri = initReceiveFileUri()
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.settings, BackupFragment())
+            supportFragmentManager.beginTransaction().replace(R.id.settings, BackupFragment(uri))
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
+
+    }
+
+    private fun initReceiveFileUri(): Uri? {
+        if (intent?.action == Intent.ACTION_VIEW) {
+            intent.data?.apply {
+                return this
+            }
+        }
+        return null
     }
 }

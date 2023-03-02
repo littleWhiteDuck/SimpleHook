@@ -108,7 +108,8 @@ android {
         "org/**",
         "**.properties",
         "**.bin",
-        "**.json")
+        "**.json",
+        "**VERSION")
 
     lint {
         disable += "AppCompatResource"
@@ -222,6 +223,9 @@ dependencies {
     //workmanager
     val work_version = "2.8.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
+
+    //
+    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
 
 
     //leakcanary

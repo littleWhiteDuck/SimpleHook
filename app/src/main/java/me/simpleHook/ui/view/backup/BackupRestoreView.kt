@@ -6,6 +6,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import me.simpleHook.R
 import me.simpleHook.extension.dp
 
@@ -17,7 +18,7 @@ class BackupRestoreView(context: Context) : LinearLayoutCompat(context) {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                 it.marginStart = 16.dp
             }
-            text = "恢复备份"
+            text = context.getString(R.string.backup_restore_backup)
             setTextColor(context.resources.getColor(R.color.normal_text_color))
         }
 
@@ -31,8 +32,19 @@ class BackupRestoreView(context: Context) : LinearLayoutCompat(context) {
         layoutManager = LinearLayoutManager(context)
     }
 
+    val progressBar = LinearProgressIndicator(context).apply {
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+            marginStart = 16.dp
+            marginEnd = 16.dp
+            topMargin = 5.dp
+        }
+        isIndeterminate = true
+
+    }
+
     init {
         addView(title)
+        addView(progressBar)
         addView(listView)
         setPadding(0, 20.dp, 0, 5.dp)
         orientation = VERTICAL

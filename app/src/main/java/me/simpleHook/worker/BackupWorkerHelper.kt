@@ -2,6 +2,8 @@ package me.simpleHook.worker
 
 import android.content.Context
 import androidx.core.net.toUri
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import kotlinx.serialization.encodeToString
@@ -9,8 +11,10 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.database.AppRepository
+import me.simpleHook.util.FileUtils
 import me.simpleHook.util.TimeUtil
 import java.io.BufferedOutputStream
+import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -19,29 +23,39 @@ object BackupWorkerHelper {
         prettyPrint = true
     }
 
-    fun nowBackupConfig(context: Context) {
+    fun localBackupConfig(context: Context) {
         val request = OneTimeWorkRequestBuilder<BackupWorker>().build()
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    fun outConfigs(
-        context: Context, backupCustom: Boolean, backupExtension: Boolean, backupAll: Boolean
+    fun cloudBackupConfig(context: Context) {
+        val constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED)
+        val request = OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(constraints).build()
+        WorkManager.getInstance(context).enqueue(request)
+    }
+
+    fun startBackupConfig(
+        context: Context,
+        backupCustom: Boolean,
+        backupExtension: Boolean,
+        backupAll: Boolean,
+        local: Boolean = false,
+        cloud: Boolean = false
     ): Boolean {
         return runCatching {
+            val cacheBackupDir = context.externalCacheDir!!.resolve("backup").also {
+                it.mkdir()
+            }
             val appRepository = AppRepository(context)
-            val customConfigs = appRepository.getConfigs()
-            val extensionConfigs = appRepository.getAssistConfigs()
+            val customConfigs =
+                if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
+            val extensionConfigs =
+                if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
             if (customConfigs.isEmpty() && extensionConfigs.isEmpty()) return@runCatching true
             val backupName =
                 "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}.shbackup"
-            val documentFile = DocumentCompat.getFileUriOrCreate(context,
-                GlobalValue.sp.backup_path!!.toUri(),
-                "SimpleHook/Backups",
-                backupName,
-                "application/shbackup")
-            val zipOutputStream =
-                ZipOutputStream(BufferedOutputStream(context.contentResolver.openOutputStream(
-                    documentFile!!)))
+            val cacheFile = cacheBackupDir.resolve(backupName)
+            val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
             zipOutputStream.use {
                 if (backupAll || backupCustom) {
                     val zipEntry = ZipEntry("custom_config.json")
@@ -54,8 +68,28 @@ object BackupWorkerHelper {
                     zipOutputStream.write(json.encodeToString(extensionConfigs).toByteArray())
                 }
             }
-            true
-        }.getOrDefault(false)
+            var result = true
+            if (local) {
+                val documentFile = DocumentCompat.getFileUriOrCreate(context,
+                    GlobalValue.sp.backup_path!!.toUri(),
+                    "SimpleHook/Backups",
+                    backupName,
+                    "application/shbackup")!!
+                context.contentResolver.openOutputStream(documentFile).use { output ->
+                    cacheFile.inputStream().use {
+                        if (output != null) {
+                            it.copyTo(output)
+                        }
+                    }
+                }
+            }
+            if (cloud) {
+                result = cloudBackup(cacheFile)
+            }
+            result
+        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+            .getOrDefault(false)
     }
 
     private fun getTime(): String {
@@ -66,5 +100,9 @@ object BackupWorkerHelper {
         }
         return TimeUtil.getCurrentTime(pattern)
     }
+
+    private fun cloudBackup(file: File) = runCatching {
+        CloudBackupHelper.uploadFile(file)
+    }.getOrDefault(false)
 
 }

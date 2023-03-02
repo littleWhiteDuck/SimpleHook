@@ -2,6 +2,7 @@ package me.simpleHook.util
 
 import android.annotation.SuppressLint
 import android.content.Context
+import me.simpleHook.R
 import java.text.SimpleDateFormat
 
 object TimeUtil {
@@ -17,28 +18,44 @@ object TimeUtil {
     fun calculateRangeToNow(context: Context, oldTime: Long): String {
         val nowTime = System.currentTimeMillis()
         if (nowTime - oldTime <= 0) {
-            return "你穿越时空了？"
+            return context.getString(R.string.time_illegal)
         }
         val second = (nowTime - oldTime) / 1000
         if (second <= 60) {
-            return "${second}秒前"
+            return context.getString(R.string.time_seconds_ago, second)
         }
         val minute = second / 60
+        if (minute == 1L) {
+            return context.getString(R.string.time_a_minute_ago)
+        }
         if (minute <= 60) {
-            return "${minute}分钟前"
+            return context.getString(R.string.time_minutes_ago, minute)
         }
         val hour = minute / 60
+        if (hour == 1L) {
+            return context.getString(R.string.time_an_hour_ago)
+        }
         if (hour <= 24) {
-            return "${hour}小时前"
+            return context.getString(R.string.time_hours_ago, hour)
         }
         val day = hour / 24
+        if (day == 1L) {
+            return context.getString(R.string.time_a_day_ago)
+        }
         if (day <= 30) {
-            return "${day}天前"
+            return context.getString(R.string.time_days_ago, day)
         }
         val month = day / 30
-        if (month <= 12) {
-            return "${month}月前"
+        if (month == 1L) {
+            return context.getString(R.string.time_a_month_ago)
         }
-        return "${month / 12}年前"
+        if (month <= 12) {
+            return context.getString(R.string.time_months_ago, month)
+        }
+        val year = month / 12
+        if (year == 1L) {
+            return context.getString(R.string.time_a_year_ago)
+        }
+        return context.getString(R.string.time_years_ago, year)
     }
 }

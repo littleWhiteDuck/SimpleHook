@@ -166,26 +166,23 @@ class AboutActivity : AbsAboutActivity() {
                 "drakeet",
                 License.APACHE_2,
                 "https://github.com/PureWriter/about-page"
-            )
-        )
-        items.add(
-            License(
-                "Kotlin multiplatform / multi-format reflectionless serialization",
-                "JetBrains",
-                License.APACHE_2,
-                "https://github.com/Kotlin/kotlinx.serialization"
-            )
-        )
+            ))
+        items.add(License("Kotlin multiplatform / multi-format reflectionless serialization",
+            "JetBrains",
+            License.APACHE_2,
+            "https://github.com/Kotlin/kotlinx.serialization"))
+
+        items.add(License("sardine-android",
+            "thegrizzlylabs",
+            License.APACHE_2,
+            "https://github.com/thegrizzlylabs/sardine-android"))
 
 
         items.add(Category("Acknowledgement"))
-        items.add(
-            Card(
-                """
+        items.add(Card("""
             应用中部分图标来源于：
             https://www.iconfont.cn/
-        """.trimIndent()
-            )
+        """.trimIndent())
         )
     }
 

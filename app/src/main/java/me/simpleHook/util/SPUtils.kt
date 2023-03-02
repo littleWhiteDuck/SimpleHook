@@ -28,10 +28,14 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var lspScope by SharedPreferenceDelegates.boolean(false)
     var wordWrap by SharedPreferenceDelegates.boolean(false)
     var backup_scope by SharedPreferenceDelegates.string("BACKUP_SCOPE_ALL")
-    var backup_auto by SharedPreferenceDelegates.boolean(false)
+    var backup_cloud_auto by SharedPreferenceDelegates.boolean(false)
+    var backup_local_auto by SharedPreferenceDelegates.boolean(false)
     var restore_mode by SharedPreferenceDelegates.string("RESTORE_MODE_COVER")
     var backup_path by SharedPreferenceDelegates.string("")
     var backup_cover by SharedPreferenceDelegates.string("BACKUP_OVER_MINUTE")
+    var web_dav_host by SharedPreferenceDelegates.string("")
+    var web_dav_account by SharedPreferenceDelegates.string("")
+    var web_dav_pw by SharedPreferenceDelegates.string("")
 
     fun remove(key: String) {
         preferences.edit().remove(key).apply()

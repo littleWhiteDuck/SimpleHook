@@ -42,7 +42,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun notifyBackupConfig() {
-        BackupWorkerHelper.nowBackupConfig(getApplication())
+        if (GlobalValue.sp.backup_local_auto) {
+            BackupWorkerHelper.localBackupConfig(getApplication())
+        }
+        if (GlobalValue.sp.backup_cloud_auto) {
+            BackupWorkerHelper.cloudBackupConfig(getApplication())
+        }
     }
 
     fun updateConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {

@@ -438,4 +438,46 @@
     <string name="extension_item_title_app_exit">應用退出</string>
     <string name="extension_item_desc_app_exit">阻止應用退出</string>
     <string name="title_activity_backup">備份與恢復</string>
+    <string name="label_activity_backup">SimpleHook-恢復備份</string>
+    <string name="backup_title_cloud_backup">雲備份</string>
+    <string name="backup_title_web_dav_host">WebDav 網址</string>
+    <string name="backup_title_web_dav_account">WebDav 賬號</string>
+    <string name="backup_title_web_dav_password">WebDav 密碼</string>
+    <string name="backup_summary_enable__auto_cloud_backup">配置更改後自動備份</string>
+    <string name="backup_title_enable_cloud_auto_backup">開啟雲備份</string>
+    <string name="backup_title_now_cloud_backup">立刻雲備份</string>
+    <string name="backup_title_restore_cloud_backup">恢復雲備份</string>
+    <string name="backup_title_local_backup">本地備份</string>
+    <string name="backup_summary_backup_path">點擊選擇一個路徑進行備份，推薦Android/Documents</string>
+    <string name="backup_title_backup_path">備份路徑</string>
+    <string name="backup_summary_enable_local_auto_backup">配置更改後自動備份</string>
+    <string name="backup_title_enable_local_auto_backup">自動備份</string>
+    <string name="backup_title_common_settings">通用設置</string>
+    <string name="backup_title_backup_scope">備份範圍</string>
+    <string name="backup_title_cover_backup">覆蓋備份</string>
+    <string name="backup_restore_backup">恢復備份</string>
+    <string-array name="backup_scope_entries">
+        <item>自定義配置</item>
+        <item>擴展配置</item>
+        <item>所有</item>
+    </string-array>
+    <string-array name="backup_cover_entries">
+        <item>按分鐘</item>
+        <item>按小時</item>
+        <item>按每天</item>
+    </string-array>
+    <string name="main_settings_title_backup_and_restore">備份與恢復</string>
+    <string name="main_settings_summary_backup_and_restore">備份配置、恢復配置</string>
+    <string name="time_illegal">你穿越時空了？ </string>
+    <string name="time_seconds_ago">%d秒前</string>
+    <string name="time_a_minute_ago">1分鐘前</string>
+    <string name="time_minutes_ago">%d分鐘前</string>
+    <string name="time_an_hour_ago">1小時前</string>
+    <string name="time_hours_ago">%d小時前</string>
+    <string name="time_a_day_ago">1天前</string>
+    <string name="time_days_ago">%d天前</string>
+    <string name="time_a_month_ago">1月前</string>
+    <string name="time_months_ago">%d月前</string>
+    <string name="time_a_year_ago">1年前</string>
+    <string name="time_years_ago">%d年前</string>
 </resources>

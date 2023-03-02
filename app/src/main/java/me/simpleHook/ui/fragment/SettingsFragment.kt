@@ -32,6 +32,7 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
@@ -324,22 +325,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ): RecyclerView {
         val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
         recyclerView.isVerticalScrollBarEnabled = false
-        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-            ) {
-                // Get the position of the view in the recycler view
-                val position = parent.getChildAdapterPosition(view)
-                if (position == RecyclerView.NO_POSITION) {
-                    return
-                }
-
-                if (position == parent.adapter!!.itemCount - 1) {
-                    // Add padding to the last item. You should probably use a @dimen resource.
-                    outRect.bottom = 200
-                }
-            }
-        })
+        recyclerView.clipToPadding = false
+        recyclerView.setPadding(0, 0, 0, 40.dp)
         return recyclerView
     }
 
