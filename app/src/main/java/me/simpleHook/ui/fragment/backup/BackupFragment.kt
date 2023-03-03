@@ -3,6 +3,7 @@ package me.simpleHook.ui.fragment.backup
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -110,7 +111,18 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 it.setText(GlobalValue.sp.web_dav_host)
             }
             setOnPreferenceChangeListener { _, newValue ->
-                summary = newValue as String
+                val value = newValue as String
+                if (value.isNotBlank() && Patterns.WEB_URL.matcher(value).matches()) {
+                    val result = if (value.endsWith("/")) {
+                        value
+                    } else {
+                        "$value/"
+                    }
+                    GlobalValue.sp.web_dav_host = result
+                    summary = result
+                } else {
+                    requireActivity().showToast(getString(R.string.url_is_incorrect))
+                }
                 true
             }
         }

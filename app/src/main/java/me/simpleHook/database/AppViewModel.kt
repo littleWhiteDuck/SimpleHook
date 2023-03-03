@@ -1,7 +1,6 @@
 package me.simpleHook.database
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,7 +48,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (GlobalValue.sp.backup_cloud_auto) {
             BackupHelper.cloudBackupConfig(getApplication())
         }
-        Log.d("littleWhiteDuck", "notifyBackupConfig: ")
     }
 
     fun updateConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {

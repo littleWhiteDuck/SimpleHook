@@ -2,16 +2,16 @@ package me.simpleHook.worker
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.core.net.toUri
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
+import me.simpleHook.R
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.database.AppRepository
+import me.simpleHook.extension.showToast
 import me.simpleHook.util.FileUtils
 import me.simpleHook.util.TimeUtil
 import java.io.BufferedOutputStream
@@ -25,14 +25,27 @@ object BackupHelper {
     }
 
     fun localBackupConfig(context: Context) {
-        val request = OneTimeWorkRequestBuilder<BackupWorker>().build()
+        val request =
+            OneTimeWorkRequestBuilder<BackupWorker>().setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
         WorkManager.getInstance(context).enqueue(request)
+        WorkManager.getInstance(context).getWorkInfoByIdLiveData(request.id).observeForever {
+            if (it.state == WorkInfo.State.FAILED) {
+                context.showToast(context.getString(R.string.backup_tip_local_auto_backup_failed))
+            }
+        }
     }
 
     fun cloudBackupConfig(context: Context) {
         val constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED)
-        val request = OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(constraints).build()
+        val request = OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(constraints)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
         WorkManager.getInstance(context).enqueue(request)
+        WorkManager.getInstance(context).getWorkInfoByIdLiveData(request.id).observeForever {
+            if (it.state == WorkInfo.State.FAILED) {
+                context.showToast(context.getString(R.string.backup_tip_cloud_auto_backup_failed))
+            }
+        }
     }
 
     @Synchronized
@@ -50,10 +63,13 @@ object BackupHelper {
                 it.mkdir()
             }
             val appRepository = AppRepository(context)
-            val customConfigs = if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
-            val extensionConfigs = if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
+            val customConfigs =
+                if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
+            val extensionConfigs =
+                if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
             if (customConfigs.isEmpty() && extensionConfigs.isEmpty()) return@runCatching true
-            val backupName = "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}.shbackup"
+            val backupName =
+                "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}-${Build.MODEL}.shbackup"
             val cacheFile = cacheBackupDir.resolve(backupName)
             val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
             zipOutputStream.use {
@@ -87,7 +103,8 @@ object BackupHelper {
                 result = cloudBackup(cacheFile)
             }
             result
-        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }.onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
             .getOrDefault(false)
     }
 

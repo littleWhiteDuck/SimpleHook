@@ -4,6 +4,7 @@
         app:iconSpaceReserved="false"
         app:title="@string/backup_title_cloud_backup">
         <EditTextPreference
+            app:persistent="false"
             app:iconSpaceReserved="false"
             app:key="web_dav_host"
             app:title="@string/backup_title_web_dav_host" />
