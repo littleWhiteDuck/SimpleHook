@@ -22,11 +22,14 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.worker.BackupHelper
+import java.util.*
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val appRepository = AppRepository(application)
     private var _filterRecordPT = MutableLiveData<List<Record>>()
     val filterRecordPT: LiveData<List<Record>> get() = _filterRecordPT
+    var backupLocalWorkerID = MutableLiveData<UUID>()
+    var backupCloudWorkerID = MutableLiveData<UUID>()
 
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
@@ -41,12 +44,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         notifyBackupConfig()
     }
 
-    private fun notifyBackupConfig() {
+    private fun notifyBackupConfig() = viewModelScope.launch(Dispatchers.Main) {
         if (GlobalValue.sp.backup_local_auto) {
-            BackupHelper.localBackupConfig(getApplication())
+            val tag = UUID.randomUUID()
+            BackupHelper.localBackupConfig(getApplication(), tag)
+            backupLocalWorkerID.value = tag
         }
         if (GlobalValue.sp.backup_cloud_auto) {
-            BackupHelper.cloudBackupConfig(getApplication())
+            val tag = UUID.randomUUID()
+            BackupHelper.cloudBackupConfig(getApplication(), tag)
+            backupCloudWorkerID.value = tag
         }
     }
 

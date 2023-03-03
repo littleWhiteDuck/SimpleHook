@@ -21,8 +21,8 @@ class BackupWorker(private val context: Context, workerParams: WorkerParameters)
             scope == "BACKUP_SCOPE_CUSTOM",
             scope == "BACKUP_SCOPE_EXTENSION",
             scope == "BACKUP_SCOPE_ALL",
-            local = GlobalValue.sp.backup_local_auto,
-            cloud = GlobalValue.sp.backup_cloud_auto)
+            local = inputData.getBoolean("LOCAL", false),
+            cloud = inputData.getBoolean("CLOUD", false))
         return if (result) Result.success() else Result.failure()
     }
 

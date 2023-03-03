@@ -213,7 +213,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             title = getString(R.string.backup_dialog_title_restore_local_backup),
             message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
             cancelText = getString(R.string.dialog_cancel),
-            okText = getString(R.string.dialog_cancel),
+            okText = getString(R.string.dialog_confirm),
             okClick = {
                 restoreConfigFromUri(restoreItem.uri)
             }).show()
@@ -224,7 +224,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             title = getString(R.string.backup_dialog_title_restore_cloud_backup),
             message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
             cancelText = getString(R.string.dialog_cancel),
-            okText = getString(R.string.dialog_cancel),
+            okText = getString(R.string.dialog_confirm),
             okClick = {
                 restoreConfigFromCloud(restoreItem.url)
             }).show()

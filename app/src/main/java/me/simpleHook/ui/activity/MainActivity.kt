@@ -3,20 +3,25 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.constant.Constant
+import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
+import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
@@ -25,6 +30,7 @@ import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
 import me.simpleHook.util.*
+import java.util.*
 
 
 class MainActivity : BaseActivity() {
@@ -32,6 +38,7 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
     private val isActive by lazy { isModuleLive() }
+    private val viewModel by viewModels<AppViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -42,7 +49,29 @@ class MainActivity : BaseActivity() {
         checkActive()
         checkUpdate()
         initPermission()
+        initBackup()
         super.onCreate(savedInstanceState)
+    }
+
+    private fun initBackup() {
+        viewModel.backupLocalWorkerID.observe(this) { ID ->
+            if (ID != null) {
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID).observe(this) { work ->
+                    if (work.state == WorkInfo.State.FAILED) {
+                        showToast(getString(R.string.backup_tip_local_auto_backup_failed))
+                    }
+                }
+            }
+        }
+        viewModel.backupCloudWorkerID.observe(this) { ID ->
+            if (ID != null) {
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID).observe(this) { work ->
+                    if (work.state == WorkInfo.State.FAILED) {
+                        showToast(getString(R.string.backup_tip_cloud_auto_backup_failed))
+                    }
+                }
+            }
+        }
     }
 
     private fun checkActive() {

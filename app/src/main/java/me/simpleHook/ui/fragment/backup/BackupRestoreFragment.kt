@@ -64,7 +64,9 @@ class BackupRestoreFragment(
             if (it.contentLength != 0L && it.name.contains("shbackup")) {
                 list.add(RestoreCloudItem(it.name,
                     CloudBackupHelper.getUriByName(it.name),
-                    TimeUtil.calculateRangeToNow(requireContext(), it.modified.time)))
+                    TimeUtil.calculateRangeToNow(requireContext(), it.modified.time) + ", ${
+                        "%.1f".format(it.contentLength.div(1000.0f))
+                    }K"))
             }
 
         }
@@ -84,7 +86,9 @@ class BackupRestoreFragment(
                 if (it.contains("shbackup")) {
                     list.add(RestoreItem(it,
                         file.uri,
-                        TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
+                        TimeUtil.calculateRangeToNow(requireContext(), file.lastModified()) + ", ${
+                            "%.1f".format(file.length().div(1000.0f))
+                        }K"))
                 }
             }
         }

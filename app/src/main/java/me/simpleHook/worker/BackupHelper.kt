@@ -8,14 +8,13 @@ import androidx.work.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
-import me.simpleHook.R
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.database.AppRepository
-import me.simpleHook.extension.showToast
 import me.simpleHook.util.FileUtils
 import me.simpleHook.util.TimeUtil
 import java.io.BufferedOutputStream
 import java.io.File
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -24,28 +23,21 @@ object BackupHelper {
         prettyPrint = true
     }
 
-    fun localBackupConfig(context: Context) {
+    fun localBackupConfig(context: Context, ID: UUID) {
         val request =
             OneTimeWorkRequestBuilder<BackupWorker>().setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+                .setId(ID).setInputData(workDataOf("LOCAL" to true)).build()
         WorkManager.getInstance(context).enqueue(request)
-        WorkManager.getInstance(context).getWorkInfoByIdLiveData(request.id).observeForever {
-            if (it.state == WorkInfo.State.FAILED) {
-                context.showToast(context.getString(R.string.backup_tip_local_auto_backup_failed))
-            }
-        }
+
     }
 
-    fun cloudBackupConfig(context: Context) {
+    fun cloudBackupConfig(context: Context, ID: UUID) {
         val constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED)
-        val request = OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(constraints)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
+        val request =
+            OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(constraints).setId(ID)
+                .setInputData(workDataOf("CLOUD" to true))
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
         WorkManager.getInstance(context).enqueue(request)
-        WorkManager.getInstance(context).getWorkInfoByIdLiveData(request.id).observeForever {
-            if (it.state == WorkInfo.State.FAILED) {
-                context.showToast(context.getString(R.string.backup_tip_cloud_auto_backup_failed))
-            }
-        }
     }
 
     @Synchronized
@@ -86,18 +78,21 @@ object BackupHelper {
             }
             var result = true
             if (local) {
-                val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(context,
-                    GlobalValue.sp.backup_path!!.toUri(),
-                    "SimpleHook/Backups",
-                    backupName,
-                    "application/shbackup")!!
-                context.contentResolver.openOutputStream(tempUri).use { output ->
-                    cacheFile.inputStream().use {
-                        if (output != null) {
-                            it.copyTo(output)
+                result = runCatching {
+                    val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(context,
+                        GlobalValue.sp.backup_path!!.toUri(),
+                        "SimpleHook/Backups",
+                        backupName,
+                        "application/shbackup")!!
+                    context.contentResolver.openOutputStream(tempUri).use { output ->
+                        cacheFile.inputStream().use {
+                            if (output != null) {
+                                it.copyTo(output)
+                            }
                         }
                     }
-                }
+                    true
+                }.getOrDefault(false)
             }
             if (cloud) {
                 result = cloudBackup(cacheFile)
