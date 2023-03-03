@@ -127,18 +127,6 @@ class RecordDetailActivity : BaseActivity() {
     private fun updateView(keyword: String) {
         val color = if (darkMode) "#9C786C".toColorInt() else Color.RED
         if (GlobalValue.sp.wordWrap) {
-            binding.wordWrapScrollView.isVisible = true
-            binding.normalRecord.isVisible = false
-            binding.wordWrapRecord.apply {
-                text = if (keyword.isBlank()) {
-                    currentText
-                } else {
-                    val result = findSearch(currentText, keyword, color)
-                    result
-                }
-            }
-            binding.normalRecord.text = ""
-        } else {
             binding.normalRecord.isVisible = true
             binding.wordWrapScrollView.isVisible = false
             binding.normalRecord.apply {
@@ -150,6 +138,18 @@ class RecordDetailActivity : BaseActivity() {
                 }
             }
             binding.wordWrapRecord.text = ""
+        } else {
+            binding.wordWrapScrollView.isVisible = true
+            binding.normalRecord.isVisible = false
+            binding.wordWrapRecord.apply {
+                text = if (keyword.isBlank()) {
+                    currentText
+                } else {
+                    val result = findSearch(currentText, keyword, color)
+                    result
+                }
+            }
+            binding.normalRecord.text = ""
         }
     }
 

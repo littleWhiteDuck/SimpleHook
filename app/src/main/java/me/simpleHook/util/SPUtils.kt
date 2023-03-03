@@ -26,7 +26,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var showA13Tip by SharedPreferenceDelegates.boolean(true)
     var checkPermission by SharedPreferenceDelegates.boolean(true)
     var lspScope by SharedPreferenceDelegates.boolean(false)
-    var wordWrap by SharedPreferenceDelegates.boolean(false)
+    var wordWrap by SharedPreferenceDelegates.boolean(true)
     var backup_scope by SharedPreferenceDelegates.string("BACKUP_SCOPE_ALL")
     var backup_cloud_auto by SharedPreferenceDelegates.boolean(false)
     var backup_local_auto by SharedPreferenceDelegates.boolean(false)
