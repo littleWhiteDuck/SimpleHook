@@ -11,6 +11,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
@@ -21,7 +22,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.AppViewModel
@@ -36,7 +36,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-class RecordDetailActivity : BaseActivity() {
+class RecordDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
     private val appViewModel by viewModels<AppViewModel>()
     private var currentText = ""

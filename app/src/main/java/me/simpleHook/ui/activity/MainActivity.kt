@@ -30,8 +30,6 @@ import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
 import me.simpleHook.util.*
-import java.util.*
-
 
 class MainActivity : BaseActivity() {
 

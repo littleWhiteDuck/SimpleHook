@@ -91,6 +91,13 @@ class RecordActivity : BaseActivity() {
             intent.getStringExtra(KEY_PACKAGE_NAME)
                 ?: throw NullPointerException("PackageName is null")
         }
+        updateTitle()
+        initView()
+        initData()
+        initBack()
+    }
+
+    private fun updateTitle() {
         if (isType) {
             supportActionBar?.title =
                 if (typeOrPackageName.startsWith("Error")) "Hook Error" else typeOrPackageName
@@ -101,9 +108,6 @@ class RecordActivity : BaseActivity() {
                     typeOrPackageName)
             supportActionBar?.subtitle = typeOrPackageName
         }
-        initView()
-        initData()
-        initBack()
     }
 
     private fun initBack() {
@@ -115,6 +119,7 @@ class RecordActivity : BaseActivity() {
                 } else {
                     binding.swipeRefreshLayout.isRefreshing = true
                     appViewModel.queryPattern.value = ""
+                    updateTitle()
                     lifecycleScope.launch {
                         appViewModel.getRecord(typeOrPackageName,
                             isType,
@@ -401,6 +406,10 @@ class RecordActivity : BaseActivity() {
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 appViewModel.queryPattern.value = inputView.editText.text.toString().trim()
+                if (appViewModel.queryPattern.value!!.isNotEmpty()) {
+                    supportActionBar?.title = appViewModel.queryPattern.value
+                    supportActionBar?.subtitle = ""
+                }
                 val loadingDialog =
                     LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
