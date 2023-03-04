@@ -1,19 +1,18 @@
 package me.simpleHook.hook.extension
 
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.byte2Sting
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.HookUtils.byte2Sting
+import me.simpleHook.hook.util.LogUtil
 import java.security.MessageDigest
 
 object SHAHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.digest) return
         val hashMap = HashMap<String, String>()
         XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
@@ -59,9 +58,7 @@ object SHAHook : BaseHook() {
                         Tip.getTip("encryptResult") + result
                     ) + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(
-                    Gson().toJson(logBean), logBean.type
-                )
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

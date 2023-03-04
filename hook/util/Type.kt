@@ -1,4 +1,4 @@
-package me.simpleHook.hook.utils
+package me.simpleHook.hook.util
 
 
 import android.content.Context
@@ -10,23 +10,24 @@ import java.util.regex.Pattern.matches
 
 object Type {
     // 未考虑非法数字
-    private const val BYTE_PATTERN = """^-?[0-9]\d*[b|B]$"""
-    private const val SHORT_PATTERN = """^-?[0-9]\d*short$"""
-    private const val INT_PATTERN = """^-?[0-9]\d*$"""
-    private const val LONG_PATTERN = """^-?[0-9]\d*[l|L]$"""
-    private const val FLOAT_PATTERN = """^-?[0-9]+.?[0-9]*f$"""
-    private const val DOUBLE_PATTERN = """^-?[0-9]+.?[0-9]*d$"""
+    private const val BYTE_PATTERN = """^-?\d+[b|B]$"""
+    private const val SHORT_PATTERN = """^-?\d+short$"""
+    private const val INT_PATTERN = """^-?\d+$"""
+    private const val LONG_PATTERN = """^-?\d+[l|L]$"""
+    private const val FLOAT_PATTERN = """^-?\d+.?\d*[f|F]$"""
+    private const val DOUBLE_PATTERN = """^-?\d+.?\d*[d|D]$"""
     private const val BOOLEAN_PATTERN = """(?i)true|false"""
-    private const val CHAR_PATTERN = """^.*[c|C]$"""
+    private const val CHAR_PATTERN = """^.[c|C]$"""
 
-    private const val STRING_PATTERN_NUMBER = """^-?[0-9]\d*[l|L]?[s|S]$"""
+    private const val STRING_PATTERN_NUMBER = """^-?\d+[s|S]$"""
     private const val STRING_PATTERN_BOOLEAN = """^(?i)trues|falses$"""
-    private const val STRING_PATTERN_NULL = """^(?i)null[s|S]$"""
+    private const val STRING_PATTERN_NULL = """^(?i)nulls$"""
     private const val STRING_EMPTY_PATTERN = """(?i)empty|空"""
+    private const val STRING_EMPTY_LIST = """empty_list_string"""
     private const val NULL_PATTERN = """(?i)null"""
 
 
-    fun getDataTypeValue(value: String) = when {
+    fun getDataTypeValue(value: String): Any? = when {
         matches(BOOLEAN_PATTERN, value) -> value.toBoolean()
         matches(INT_PATTERN, value) -> value.toIntValue
         matches(FLOAT_PATTERN, value) -> value.replace("f", "").toFloat()
@@ -36,11 +37,12 @@ object Type {
         matches(STRING_EMPTY_PATTERN, value) -> ""
         matches(BYTE_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "").toByteValue
         matches(SHORT_PATTERN, value) -> value.replace(Regex("short"), "").toShortValue
-        matches(CHAR_PATTERN, value) -> value.replace(Regex("""[b|B]"""), "")[0]
+        matches(CHAR_PATTERN, value) -> value[0]
         matches(STRING_PATTERN_NUMBER, value) -> value.replace(Regex("""[s|S]"""), "")
         matches(STRING_PATTERN_BOOLEAN, value) -> value.removeRange(value.length - 1, value.length)
             .lowercase()
         matches(STRING_PATTERN_NULL, value) -> value.replace(Regex("""[s|S]"""), "")
+        value == STRING_EMPTY_LIST -> emptyList<String>()
         else -> value
     }
 

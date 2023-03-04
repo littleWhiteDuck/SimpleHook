@@ -1,18 +1,19 @@
 package me.simpleHook.hook.extension
 
 import android.webkit.WebView
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfigBean
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
 
 object WebHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.webLoadUrl) {
             hookWebLoadUrl()
         }
@@ -30,11 +31,13 @@ object WebHook : BaseHook() {
                 val list = mutableListOf<String>()
                 list.add("Url: $url")
                 if (param.args.size == 2) {
-                    val headers = Gson().toJson(param.args[1])
+                    @Suppress("UNCHECKED_CAST")
+                    val map = param.args[1] as Map<String, String>
+                    val headers = Json.encodeToString(map)
                     list.add("Header: $headers")
                 }
                 val logBean = LogBean(type, list, HookHelper.hostPackageName)
-                LogUtil.toLogMsg(Gson().toJson(logBean), type)
+                LogUtil.outLogMsg(logBean)
             }
         })
     }

@@ -1,18 +1,17 @@
 package me.simpleHook.hook.extension
 
-import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.LogUtil
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 object HMACHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.hmac) return
         val hasMap = HashMap<String, String>()
         XposedBridge.hookAllMethods(Mac::class.java, "init", object : XC_MethodHook() {
@@ -81,7 +80,7 @@ object HMACHook : BaseHook() {
                 val logBean = LogBean(
                     hasMap["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
                 )
-                LogUtil.toLogMsg(Gson().toJson(logBean), logBean.type)
+                LogUtil.outLogMsg(logBean)
                 hasMap.clear()
             }
         })

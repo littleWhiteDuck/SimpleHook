@@ -53,7 +53,7 @@ Floating window
 
 ## 2. Custom Hook writing rules
 
-The following are the writing rules: (You can download *[HookTest.apk](/HookTest.apk)*, this App applies all the situations and includes configuration)
+The following are the writing rules: (You can download *[HookTest.apk](https://github.com/littleWhiteDuck/HookTest/releases)*, this App applies all the situations and includes configuration)
 
 > Please understand the setting page **[smali to config]** before use, it can simplify your operation (with decompiler apps such as **MT manager**)
 

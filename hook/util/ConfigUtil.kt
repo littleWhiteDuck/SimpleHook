@@ -1,55 +1,55 @@
-package me.simpleHook.hook.utils
+package me.simpleHook.hook.util
 
 import android.annotation.SuppressLint
 import android.net.Uri
 import com.google.gson.Gson
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.hook.utils.HookHelper.appContext
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.extension.log
+import me.simpleHook.hook.util.HookHelper.appContext
+import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.log
+import me.simpleHook.util.FlavorUtils.PROVIDER_CUSTOM_CONFIG_URI
+import me.simpleHook.util.FlavorUtils.PROVIDER_EXTENSION_CONFIG_URI
 import java.io.File
-import java.io.FileNotFoundException
 
 object ConfigUtil {
-    private val uri = Uri.parse("content://me.simplehook.provider/app_configs")
-    private val assistUri = Uri.parse("content://me.simplehook.provider/assist_configs")
+    private val uri = Uri.parse(PROVIDER_CUSTOM_CONFIG_URI)
+    private val extensionUri = Uri.parse(PROVIDER_EXTENSION_CONFIG_URI)
 
     fun getConfigFromFile(
-        configName: String = Constant.APP_CONFIG_NAME
+        configName: String = Constant.CUSTOM_CONFIG_NAME
     ): String? {
-        val configPath = if (FlavorUtils.isNormal()) {
-            Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
-        } else {
+        val configPath = if (FlavorUtils.rootVersion) {
             Constant.ROOT_CONFIG_MAIN_DIRECTORY + hostPackageName + "/config/"
+        } else {
+            Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
         } + configName
-        return try {
+        return runCatching {
             val strConfig = File(configPath).reader().use { it.readText() }
             strConfig
-        } catch (e: FileNotFoundException) {
+        }.onFailure {
             "failed: $configPath".log(hostPackageName)
-            null
-        }
+        }.getOrNull()
     }
 
     @SuppressLint("Range")
     fun getCustomConfigFromDB(): String? {
         return try {
             var config: String? = null
-            appContext.contentResolver?.query(
-                uri, null, "packageName = ?", arrayOf(hostPackageName), null
-            )?.apply {
+            appContext.contentResolver?.query(uri,
+                null,
+                "packageName = ?",
+                arrayOf(hostPackageName),
+                null)?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("enable")) == 1) {
                         val configString = getString(getColumnIndex("config"))
-                        val appConfig = AppConfig(
-                            configs = configString,
+                        val appConfig = AppConfig(configs = configString,
                             packageName = hostPackageName,
                             appName = "",
                             versionName = "",
-                            description = ""
-                        )
+                            description = "")
                         config = Gson().toJson(appConfig)
                         break
                     }
@@ -66,9 +66,11 @@ object ConfigUtil {
     fun getExConfigFromDB(): String? {
         return try {
             var config: String? = null
-            appContext.contentResolver?.query(
-                assistUri, null, "packageName = ?", arrayOf(hostPackageName), null
-            )?.apply {
+            appContext.contentResolver?.query(extensionUri,
+                null,
+                "packageName = ?",
+                arrayOf(hostPackageName),
+                null)?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("allSwitch")) == 1) {
                         config = getString(getColumnIndex("config"))

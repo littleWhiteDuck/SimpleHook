@@ -3,42 +3,39 @@ package me.simpleHook.hook.extension
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.TextView
-import com.google.gson.Gson
+import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.hookBefore
+import com.github.kyuubiran.ezxhelper.utils.paramCount
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfigBean
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import me.simpleHook.bean.DialogCancel
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.utils.LogUtil
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.getAllTextView
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.HookUtils
+import me.simpleHook.hook.util.HookUtils.getAllTextView
+import me.simpleHook.hook.util.LogUtil
 
 object PopupWindowHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (configBean.popup || configBean.popCancel || configBean.stopDialog.enable) {
-            XposedBridge.hookAllMethods(PopupWindow::class.java,
-                "showAtLocation",
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam?) {
-                        hookPopupWindowDetail(
-                            param, configBean
-                        )
-                    }
-                })
-            XposedBridge.hookAllMethods(PopupWindow::class.java,
-                "showAsDropDown",
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam?) {
-                        hookPopupWindowDetail(
-                            param, configBean
-                        )
-                    }
-                })
+            findMethod(PopupWindow::class.java) {
+                name == "showAtLocation" && parameterTypes[0].isInterface
+            }.hookBefore {
+                hookPopupWindowDetail(it, configBean)
+            }
+            findMethod(PopupWindow::class.java) {
+                name == "showAsDropDown" && paramCount == 4
+            }.hookBefore {
+                hookPopupWindowDetail(it, configBean)
+            }
         }
     }
 
     private fun hookPopupWindowDetail(
-        param: XC_MethodHook.MethodHookParam?, configBean: ExtensionConfigBean
+        param: XC_MethodHook.MethodHookParam?, configBean: ExtensionConfig
     ) {
         val popupWindow = param?.thisObject as PopupWindow
         if (configBean.popCancel) {
@@ -53,32 +50,47 @@ object PopupWindowHook : BaseHook() {
             list.add(Tip.getTip("text") + contentView.text.toString())
         }
         if (configBean.stopDialog.enable) {
-            val showText = list.toString()
-            val keyWords = configBean.stopDialog.info.split("\n")
-            keyWords.forEach {
-                if (it.isNotEmpty() && showText.contains(it)) {
-                    val type =
-                        if (isShowEnglish) "PopupWindow(blocked display)" else "PopupWindow（已拦截）"
-                    val log = Gson().toJson(
-                        LogBean(
-                            type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
-                        )
-                    )
-                    LogUtil.toLogMsg(log, type)
-                    param.result = null
-                    return
+            val info = configBean.stopDialog.info
+            // new config, not perform old config
+            if (info[0] == '{' && info[info.length - 1] == '}') {
+                val dialogCancel = Json.decodeFromString<DialogCancel>(info)
+                if (dialogCancel.keywordEnable) {
+                    val showText = list.toString()
+                    val keyWords = Json.decodeFromString<Array<String>>(dialogCancel.keywords)
+                    keyWords.forEach {
+                        if (it.isNotEmpty() && showText.contains(it)) {
+                            param.result = null
+                            val type =
+                                if (isShowEnglish) "PopupWindow(blocked by keyword)" else "PopupWindow（通过关键词已拦截）"
+                            LogUtil.outLogMsg(LogBean(type,
+                                list + LogUtil.getStackTrace(),
+                                HookHelper.hostPackageName))
+                            return
+                        }
+                    }
+                }
+                if (dialogCancel.idEnable) {
+                    val currentIds = HookUtils.getAllViewIds(contentView)
+                    val ids = Json.decodeFromString<Array<String>>(dialogCancel.ids)
+                    currentIds.forEach {
+                        if (it in ids) {
+                            param.result = null
+                            val type =
+                                if (isShowEnglish) "PopupWindow(blocked by ID)" else "PopupWindow（通过ID已拦截）"
+                            LogUtil.outLogMsg(LogBean(type,
+                                list + LogUtil.getStackTrace(),
+                                HookHelper.hostPackageName))
+                            return
+                        }
+                    }
                 }
             }
-        }
-        if (configBean.popup) {
-            val type = "PopupWindow"
-            val log = Gson().toJson(
-                LogBean(
-                    type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
-                )
-            )
-            LogUtil.toLogMsg(log, type)
+            if (configBean.popup) {
+                val type = "PopupWindow"
+                LogUtil.outLogMsg(LogBean(type,
+                    list + LogUtil.getStackTrace(),
+                    HookHelper.hostPackageName))
+            }
         }
     }
-
 }
