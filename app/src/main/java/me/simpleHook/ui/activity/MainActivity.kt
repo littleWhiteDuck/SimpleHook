@@ -58,6 +58,13 @@ class MainActivity : BaseActivity() {
                     if (work.state == WorkInfo.State.FAILED) {
                         showToast(getString(R.string.backup_tip_local_auto_backup_failed))
                     }
+                    when (work.state) {
+                        WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
+                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID)
+                                .removeObservers(this)
+                        }
+                        else -> {}
+                    }
                 }
             }
         }
@@ -66,6 +73,13 @@ class MainActivity : BaseActivity() {
                 WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID).observe(this) { work ->
                     if (work.state == WorkInfo.State.FAILED) {
                         showToast(getString(R.string.backup_tip_cloud_auto_backup_failed))
+                    }
+                    when (work.state) {
+                        WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
+                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID)
+                                .removeObservers(this)
+                        }
+                        else -> {}
                     }
                 }
             }
