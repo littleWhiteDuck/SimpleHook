@@ -53,7 +53,7 @@
 
 ## 2.自定义Hook编写规则
 
-下面是编写规则：（你可以下载*[HookTest.apk](/HookTest.apk)*，此App应用了所有情况，并内附有配置）
+下面是编写规则：（你可以下载*[HookTest.apk](https://github.com/littleWhiteDuck/HookTest/releases)*，此App应用了所有情况，并内附有配置）
 
 > 使用前请先了解设置页【smali转配置】，它可以简化你的操作(配合MT管理器等逆向分析软件)
 

@@ -3,26 +3,26 @@ package me.simpleHook.hook.extension
 
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.log
-import me.simpleHook.util.tip
+import me.simpleHook.extension.log
+import me.simpleHook.extension.tip
 import java.io.File
 
 object HotFixHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.hotFix) return
         val dexFilePaths: MutableList<String> = mutableListOf()
-        val pathName = if (FlavorUtils.isNormal()) {
+        val pathName = if (FlavorUtils.normalVersion) {
             Constant.ANDROID_DATA_PATH + HookHelper.hostPackageName + "/simpleHook/dex/"
         } else {
             Constant.ROOT_CONFIG_MAIN_DIRECTORY + HookHelper.hostPackageName + "/dex/"
         }
         val fileTree: FileTreeWalk = File(pathName).walk()
-        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {//循环处理符合条件的文件
+        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {
             dexFilePaths.add(it.absolutePath)
         }
         try {
@@ -43,29 +43,25 @@ object HotFixHook : BaseHook() {
                 val originalPathListObject = pathListField[originalLoader]
                 val originalDexElementsObject = dexElementsField[originalPathListObject]
 
-                val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject)
-                val newLength = java.lang.reflect.Array.getLength(dexElementsObject)
-                val concatDexElementsObject = java.lang.reflect.Array.newInstance(
-                    dexElementsObject.javaClass.componentType, oldLength + newLength
-                )
+                val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject!!)
+                val newLength = java.lang.reflect.Array.getLength(dexElementsObject!!)
+                val concatDexElementsObject =
+                    java.lang.reflect.Array.newInstance(dexElementsObject.javaClass.componentType!!,
+                        oldLength + newLength)
                 for (i in 0 until newLength) {
-                    java.lang.reflect.Array.set(
-                        concatDexElementsObject,
+                    java.lang.reflect.Array.set(concatDexElementsObject,
                         i,
-                        java.lang.reflect.Array.get(dexElementsObject, i)
-                    )
+                        java.lang.reflect.Array.get(dexElementsObject, i))
                 }
                 for (i in 0 until oldLength) {
-                    java.lang.reflect.Array.set(
-                        concatDexElementsObject,
+                    java.lang.reflect.Array.set(concatDexElementsObject,
                         newLength + i,
-                        java.lang.reflect.Array.get(originalDexElementsObject, i)
-                    )
+                        java.lang.reflect.Array.get(originalDexElementsObject, i))
                 }
                 dexElementsField[originalPathListObject] = concatDexElementsObject
             }
 
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             "hot fix error".tip(HookHelper.hostPackageName)
         }
     }

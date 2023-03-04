@@ -1,24 +1,28 @@
 package me.simpleHook.hook.extension
 
 import android.app.Dialog
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
+import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
-import com.google.gson.Gson
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfigBean
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import me.simpleHook.bean.DialogCancel
+import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
-import me.simpleHook.hook.utils.getAllTextView
+import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.HookUtils.getAllTextView
+import me.simpleHook.hook.util.HookUtils.getAllViewIds
+import me.simpleHook.hook.util.LogUtil
 
 object DialogHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
 
         if (configBean.stopDialog.enable) {
             findAllMethods(Dialog::class.java) {
@@ -26,52 +30,68 @@ object DialogHook : BaseHook() {
             }.hookReturnConstant(null)
         }
         if (configBean.dialog || configBean.diaCancel || configBean.stopDialog.enable) {
-            XposedBridge.hookAllMethods(Dialog::class.java, "show", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    val dialog = param?.thisObject as Dialog
-                    val list = mutableListOf<String>()
-                    val dialogView: View? = dialog.window?.decorView
-                    dialogView?.also {
-                        if (it is ViewGroup) {
-                            list += getAllTextView(it)
-                        } else if (it is TextView) {
-                            list.add(Tip.getTip("text") + it.text.toString())
-                        }
+            findMethod(Dialog::class.java) {
+                name == "show"
+            }.hookAfter { param ->
+                val dialog = param.thisObject as Dialog
+                val list = mutableListOf<String>()
+                val dialogView: View? = dialog.window?.decorView
+                dialogView?.also {
+                    if (it is ViewGroup) {
+                        list += getAllTextView(it)
+                    } else if (it is TextView) {
+                        list.add(Tip.getTip("text") + it.text.toString())
                     }
-                    if (configBean.diaCancel) {
-                        dialog.setCancelable(true)
-                    }
-                    if (configBean.stopDialog.enable) {
-                        val showText = list.toString()
-                        val keyWords = configBean.stopDialog.info.split("\n")
-                        keyWords.forEach {
-                            if (it.isNotEmpty() && showText.contains(it)) {
-                                dialog.dismiss()
-                                val type =
-                                    if (isShowEnglish) "Dialog(blocked display)" else "弹窗（已拦截）"
-                                val log = Gson().toJson(
-                                    LogBean(
-                                        type,
+                }
+                if (configBean.diaCancel) {
+                    dialog.setCancelable(true)
+                }
+                if (configBean.stopDialog.enable) {
+                    val info = configBean.stopDialog.info
+                    // new config, not perform old config
+                    if (info[0] == '{' && info[info.length - 1] == '}') {
+                        val dialogCancel = Json.decodeFromString<DialogCancel>(info)
+                        if (dialogCancel.keywordEnable) {
+                            val showText = list.toString()
+                            val keyWords =
+                                Json.decodeFromString<Array<String>>(dialogCancel.keywords)
+                            keyWords.forEach {
+                                if (it.isNotEmpty() && showText.contains(it)) {
+                                    dialog.dismiss()
+                                    val type =
+                                        if (isShowEnglish) "Dialog(blocked by keyword)" else "弹窗（通过关键词已拦截）"
+                                    LogUtil.outLogMsg(LogBean(type,
                                         list + LogUtil.getStackTrace(),
-                                        HookHelper.hostPackageName
-                                    )
-                                )
-                                LogUtil.toLogMsg(log, type)
-                                return
+                                        HookHelper.hostPackageName))
+                                    return@hookAfter
+                                }
+                            }
+                        }
+                        if (dialogCancel.idEnable) {
+                            dialogView ?: return@hookAfter
+                            val currentIds = getAllViewIds(dialogView)
+                            val ids = Json.decodeFromString<Array<String>>(dialogCancel.ids)
+                            currentIds.forEach {
+                                if (it in ids) {
+                                    dialog.dismiss()
+                                    val type =
+                                        if (isShowEnglish) "Dialog(blocked by ID)" else "弹窗（通过ID已拦截）"
+                                    LogUtil.outLogMsg(LogBean(type,
+                                        list + LogUtil.getStackTrace(),
+                                        HookHelper.hostPackageName))
+                                    return@hookAfter
+                                }
                             }
                         }
                     }
                     if (configBean.dialog) {
                         val type = if (isShowEnglish) "Dialog" else "弹窗"
-                        val log = Gson().toJson(
-                            LogBean(
-                                type, list + LogUtil.getStackTrace(), HookHelper.hostPackageName
-                            )
-                        )
-                        LogUtil.toLogMsg(log, type)
+                        LogUtil.outLogMsg(LogBean(type,
+                            list + LogUtil.getStackTrace(),
+                            HookHelper.hostPackageName))
                     }
                 }
-            })
+            }
         }
     }
 }

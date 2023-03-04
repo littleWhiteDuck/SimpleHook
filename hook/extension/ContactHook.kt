@@ -5,10 +5,10 @@ import android.net.Uri
 import android.provider.ContactsContract
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import me.simpleHook.bean.ExtensionConfigBean
+import me.simpleHook.bean.ExtensionConfig
 
 object ContactHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfigBean) {
+    override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.contact) return
         findAllMethods(ContentResolver::class.java) {
             name == "query"
