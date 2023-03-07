@@ -15,24 +15,25 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseExtensionFragment
+import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.bean.RecordShowPack
 import me.simpleHook.bean.RecordShowType
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.databinding.FragmentRecordSummaryBinding
 import me.simpleHook.recyclerview.delegate.RecordPackDelegate
 import me.simpleHook.recyclerview.delegate.RecordTypeDelegate
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
+import me.simpleHook.ui.view.record.RecordSummaryFragmentView
 import me.simpleHook.util.*
 
 
-class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding>() {
+class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     private val appViewModel: AppViewModel by activityViewModels()
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -45,8 +46,8 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        binding.swipeRefreshLayout.isRefreshing = true
-        binding.progressBar.visibility = View.GONE
+        root.swipeRefreshLayout.isRefreshing = true
+        root.progressBar.hide()
         appViewModel.getAllConfigs().observe(requireActivity()) {
             it.forEach { appConfig ->
                 if (appConfig.enable && AppUtils.isAppInstalled(requireContext(),
@@ -67,21 +68,21 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         }
         appViewModel.filterRecordPT.observe(requireActivity()) {
             if (it.isEmpty()) {
-                binding.emptyTip.visibility = View.VISIBLE
+                root.emptyTip.visibility = View.VISIBLE
             } else {
-                binding.emptyTip.visibility = View.GONE
+                root.emptyTip.visibility = View.GONE
             }
-            if (it.size >= 66666 && !sp.showMoreDataTip) {
+            if (it.size >= 66666 && !GlobalValue.sp.showMoreDataTip) {
                 warningDialog(requireContext(),
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_more_data),
                     okText = getString(R.string.record_warn_dialog_ok_more_data),
-                    okClick = { sp.showMoreDataTip = true })
+                    okClick = { GlobalValue.sp.showMoreDataTip = true })
             }
             val hashSet = HashSet<String>()
             val hasMap = HashMap<String, Int>()
             it.forEach { printLog ->
-                if (sp.showByType) {
+                if (GlobalValue.sp.showByType) {
                     val type = RecordType.getSimpleText(printLog.type)
                     hashSet.add(type)
                     hashSet.forEach { typeStr ->
@@ -102,7 +103,7 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
             }
             val list = mutableListOf<Any>()
             hashSet.forEach { value ->
-                if (sp.showByType) {
+                if (GlobalValue.sp.showByType) {
                     list.add(RecordShowType(type = value, count = hasMap[value] ?: 0))
                 } else {
                     list.add(RecordShowPack(packageName = value, count = hasMap[value] ?: 0))
@@ -111,10 +112,10 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
             tempListSize = list.size
             multiTypeAdapter.items = list
             multiTypeAdapter.notifyDataSetChanged()
-            binding.progressBar.visibility = View.GONE
-            binding.swipeRefreshLayout.isRefreshing = false
+            root.progressBar.visibility = View.GONE
+            root.swipeRefreshLayout.isRefreshing = false
         }
-        if (binding.swipeRefreshLayout.isRefreshing) {
+        if (root.swipeRefreshLayout.isRefreshing) {
             refreshData()
         }
         multiTypeAdapter.register(RecordShowType::class.java, RecordTypeDelegate(onClick = {
@@ -127,12 +128,12 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         }, onDeleteClick = {
             deleteRecord(it)
         }))
-        binding.recyclerView.apply {
+        root.recyclerView.apply {
             adapter = multiTypeAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-        FastScrollerUtil.bind(binding.recyclerView)
-        binding.swipeRefreshLayout.setOnRefreshListener {
+        FastScrollerUtil.bind(root.recyclerView)
+        root.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
         }
     }
@@ -148,19 +149,9 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         refreshData(200, true)
     }
 
-    override fun canBack(): Boolean {
-        return true
+    override fun initRootView(): RecordSummaryFragmentView {
+        return RecordSummaryFragmentView(requireContext())
     }
-
-    override fun performBack() {
-
-    }
-
-    override fun notBackTip() {
-
-    }
-
-    override fun enableCallback() = false
 
     override fun init() {
         initMenu()
@@ -171,7 +162,7 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_record_fragment, menu)
-                if (sp.showByType) {
+                if (GlobalValue.sp.showByType) {
                     menu.findItem(R.id.toTypeShow).isChecked = true
                 } else {
                     menu.findItem(R.id.toAppShow).isChecked = true
@@ -199,16 +190,16 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
                             })
                     }
                     R.id.toAppShow -> {
-                        if (sp.showByType) {
+                        if (GlobalValue.sp.showByType) {
                             refreshData(0)
-                            sp.showByType = false
+                            GlobalValue.sp.showByType = false
                         }
                         menuItem.isChecked = !menuItem.isChecked
                     }
                     R.id.toTypeShow -> {
-                        if (!sp.showByType) {
+                        if (!GlobalValue.sp.showByType) {
                             refreshData(0)
-                            sp.showByType = true
+                            GlobalValue.sp.showByType = true
                         }
                         menuItem.isChecked = !menuItem.isChecked
                     }
@@ -223,7 +214,7 @@ class RecordSummaryFragment : BaseExtensionFragment<FragmentRecordSummaryBinding
     }
 
     private fun refreshData(time: Long = 500, showRefresh: Boolean = true) {
-        if (!binding.swipeRefreshLayout.isRefreshing && showRefresh) binding.swipeRefreshLayout.isRefreshing =
+        if (!root.swipeRefreshLayout.isRefreshing && showRefresh) root.swipeRefreshLayout.isRefreshing =
             true
         Handler(Looper.getMainLooper()).postDelayed({
             appViewModel.getAllRecord()

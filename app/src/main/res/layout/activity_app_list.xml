@@ -28,7 +28,8 @@
             android:background="@color/colorPrimary"
             app:layout_anchor="@id/appBar"
             app:layout_anchorGravity="bottom"
-            app:tabIndicatorColor="@android:color/holo_blue_light"
+            app:tabIndicatorHeight="2dp"
+            app:tabIndicatorColor="#6750A4"
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="#EBEBEB">
 
