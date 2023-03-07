@@ -53,17 +53,11 @@
         android:name="me.simpleHook.ui.fragment.extension.GuiseSignFragment"
         android:label="@string/guise_signature"
         tools:layout="@layout/fragment_guise_sign">
-        <argument
-            android:name="sign_data"
-            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/clipboardFragment"
         android:name="me.simpleHook.ui.fragment.extension.ClipboardFragment"
         android:label="@string/label_clipboard">
-        <argument
-            android:name="clipboard_config"
-            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/fileMonitorFragment"

@@ -20,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +55,6 @@ import java.util.zip.ZipFile
 
 class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
     private val viewModel by activityViewModels<ExViewModel>()
-    private val signInfo: GuiseSignFragmentArgs by navArgs()
     private val appSignItems = ArrayList<AppInfo>()
     private lateinit var navController: NavController
     private val startActivityForAppInfo =
@@ -81,7 +79,7 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
                 onItemChanged(position, checked)
             })
     }
-    private var tempConfig = ""
+    private var tempConfigStr = ""
 
 
     private val loadingDialog by lazy { LoadingDialog(requireActivity(), "loading...") }
@@ -97,7 +95,7 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
         super.onAttach(context)
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (tempConfig == appSignItems.toString()) {
+                if (tempConfigStr == appSignItems.toString()) {
                     onBackPressedCallback.isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
@@ -131,19 +129,15 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
 
 
     private fun initData() {
-        if (signInfo.signData.isEmpty()) {
-            tempConfig = appSignItems.toString()
-            binding.progressBar.isVisible = false
-            return
-        }
-        val guiseSigns = Json.decodeFromString<List<GuiseSignConfig>>(signInfo.signData)
+        val info = viewModel.extensionConfig.value!!.guiseSign.info
+        val guiseSigns = Json.decodeFromString<List<GuiseSignConfig>>(info)
         guiseSigns.forEach {
             appSignItems.add(AppInfo(AppUtils.getAppName(requireContext(), it.packageName),
                 it.packageName,
                 it.signData,
                 it.enable))
         }
-        tempConfig = appSignItems.toString()
+        tempConfigStr = appSignItems.toString()
         notifyDataSetChanged()
         binding.progressBar.isVisible = false
         binding.tip.isVisible = appSignItems.isEmpty()

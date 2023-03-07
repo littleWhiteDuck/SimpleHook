@@ -15,7 +15,6 @@ plugins {
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
-    id("androidx.navigation.safeargs.kotlin")
 }
 
 val beta = true

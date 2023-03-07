@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreferenceCompat
@@ -32,7 +31,6 @@ import me.simpleHook.viewmodel.ExViewModel
 
 class ClipboardFragment : BasePreferenceFragment() {
     private lateinit var clipboardConfig: ClipboardConfig
-    private val args: ClipboardFragmentArgs by navArgs()
     private var tempConfig = ""
     private lateinit var navController: NavController
     private val exViewModel by activityViewModels<ExViewModel>()
@@ -114,11 +112,8 @@ class ClipboardFragment : BasePreferenceFragment() {
 
     override fun init() {
         setDividerHeight(0)
-        clipboardConfig = if (args.clipboardConfig.isNotEmpty()) {
-            Json.decodeFromString(args.clipboardConfig)
-        } else {
-            ClipboardConfig()
-        }
+        clipboardConfig =
+            Json.decodeFromString(exViewModel.extensionConfig.value!!.filterClipboard.info)
         tempConfig = clipboardConfig.toString()
         findPreference<SwitchPreferenceCompat>(KEY_RECORD_READ_WRITE)?.isChecked =
             clipboardConfig.record

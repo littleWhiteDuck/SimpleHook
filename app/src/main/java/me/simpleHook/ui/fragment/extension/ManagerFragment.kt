@@ -25,7 +25,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.DividerItemDecoration
 import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
@@ -38,6 +37,7 @@ import me.simpleHook.databinding.FragmentExtensionManagerBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.extension.snack
+import me.simpleHook.recyclerview.adapter.DividerItemDecoration
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.exitDialog
@@ -155,14 +155,10 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
                 navController.navigate(R.id.action_managerFragment_to_disableDialogFragment)
             }
             TAG_FILTER_CLIPBOARD -> {
-                val action =
-                    ManagerFragmentDirections.actionManagerFragmentToClipboardFragment(configBean.filterClipboard.info)
-                navController.navigate(action)
+                navController.navigate(R.id.action_managerFragment_to_clipboardFragment)
             }
             TAG_GUISE_SIGN -> {
-                val action =
-                    ManagerFragmentDirections.actionManagerFragmentToGuiseSignFragment(configBean.guiseSign.info)
-                navController.navigate(action)
+                navController.navigate(R.id.action_managerFragment_to_guiseSignFragment)
             }
             TAG_FILE_MONITOR -> {
                 navController.navigate(R.id.action_managerFragment_to_fileMonitorFragment)
