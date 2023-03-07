@@ -1,6 +1,7 @@
 package me.simpleHook.ui.view.config
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
 import com.google.android.material.card.MaterialCardView
@@ -10,7 +11,7 @@ class HookModeView(context: Context) : MaterialCardView(context) {
     val title = AppCompatTextView(context).apply {
         layoutParams = LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
-        textSize = 5f.dp
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
         gravity = Gravity.CENTER
     }
 
@@ -21,8 +22,8 @@ class HookModeView(context: Context) : MaterialCardView(context) {
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             setMargins(5.dp, 5.dp, 5.dp, 0)
         }
+        cardElevation = 1f.dp
         radius = 5f.dp
-        cardElevation = 10f
     }
 
 }

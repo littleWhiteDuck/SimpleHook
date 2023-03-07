@@ -21,7 +21,7 @@ interface AssistConfigDao {
     @Query("DELETE FROM AssistConfig")
     fun deleteAllConfigs()
 
-    @Query("DELETE FROM AssistConfig WHERE packageName != :packageName")
+    @Query("DELETE FROM AssistConfig WHERE packageName == :packageName")
     fun deleteAssistConfigsByPackageName(packageName: String)
 
     @Update

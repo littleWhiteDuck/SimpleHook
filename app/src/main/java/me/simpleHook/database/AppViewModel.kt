@@ -8,7 +8,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -94,7 +95,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { _filterAppConfig.value = appRepository.getFilterConfigs(pattern) }*/
 
     // Record
-    val queryPattern = MutableLiveData("")
+    val queryPattern = MutableStateFlow("")
     private val pagingConfig =
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
 
@@ -109,39 +110,41 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 appRepository.getPrintLogDao()
                     .getRecordByPack(typeOrPack, "%${queryPattern.value}%")
             }
-        }.flow.cachedIn(viewModelScope).map { pagingData ->
-            when (searchMode) {
-                Constant.RECORD_SEARCH_RESULT -> {
-                    pagingData.filter {
-                        val logBean = Json.decodeFromString<LogBean>(it.log)
-                        val list: List<String> = logBean.other
-                        var result = ""
-                        list.forEach { item ->
-                            if (item.startsWith("加密结果") || item.startsWith("解密结果") || item.startsWith(
-                                    "Encrypt result") || item.startsWith("Decrypt result")
-                            ) {
-                                result = item
-                                return@forEach
+        }.flow.cachedIn(viewModelScope).combine(queryPattern) { pagingData, query ->
+            if (query.isBlank()) {
+                pagingData
+            } else {
+                when (searchMode) {
+                    Constant.RECORD_SEARCH_RESULT -> {
+                        pagingData.filter {
+                            val logBean = Json.decodeFromString<LogBean>(it.log)
+                            val list: List<String> = logBean.other
+                            list.forEach { item ->
+                                if (item.startsWith("加密结果") || item.startsWith("解密结果") || item.startsWith(
+                                        "Encrypt result") || item.startsWith("Decrypt result")
+                                ) {
+                                    item.contains(query)
+                                    return@filter true
+                                }
                             }
+                            false
                         }
-                        result.contains(queryPattern.value ?: "")
                     }
-                }
-                Constant.RECORD_SEARCH_RAW_DATA -> {
-                    pagingData.filter {
-                        val logBean = Json.decodeFromString<LogBean>(it.log)
-                        val list: List<String> = logBean.other
-                        var rawData = ""
-                        list.forEach { item ->
-                            if (item.startsWith("原始数据") || item.startsWith("Raw Data")) {
-                                rawData = item
-                                return@forEach
+                    Constant.RECORD_SEARCH_RAW_DATA -> {
+                        pagingData.filter {
+                            val logBean = Json.decodeFromString<LogBean>(it.log)
+                            val list: List<String> = logBean.other
+                            list.forEach { item ->
+                                if (item.startsWith("原始数据") || item.startsWith("Raw Data")) {
+                                    item.contains(query)
+                                    return@filter true
+                                }
                             }
+                            false
                         }
-                        rawData.contains(queryPattern.value ?: "")
                     }
+                    else -> pagingData
                 }
-                else -> pagingData
             }
         }
     }
@@ -250,10 +253,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         appRepository.deleteAllAssistConfigs()
     }*/
 
-    fun deleteAssistConfigsByPackageName(packageName: String) {
-        appRepository.deleteAssistConfigsByPackageName(packageName)
-        notifyBackupConfig()
-    }
+    fun deleteAssistConfigsByPackageName(packageName: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            appRepository.deleteAssistConfigsByPackageName(packageName)
+            notifyBackupConfig()
+        }
 
     fun getAllAssistConfigs() = appRepository.getAllAssistConfigs()
     fun getAssistConfigs() = appRepository.getAssistConfigs()

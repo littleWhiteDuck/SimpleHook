@@ -11,7 +11,6 @@ object SuUtil {
                 isInit = true
                 Shell.setDefaultBuilder(Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER)
                     .setTimeout(20))
-                Shell.cmd("su").exec()
             }.start()
         }
     }
@@ -30,6 +29,10 @@ object SuUtil {
 
     fun makeDirs(filePath: String): Boolean {
         return Shell.cmd("mkdir -p $filePath").exec().isSuccess
+    }
+
+    fun chmodConfigDir(): Boolean {
+        return Shell.cmd("chmod -R 644 /data/local/tmp/simpleHook").exec().isSuccess
     }
 
     fun isGrantedRoot(): Boolean {

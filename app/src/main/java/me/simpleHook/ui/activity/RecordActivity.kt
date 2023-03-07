@@ -55,7 +55,7 @@ class RecordActivity : BaseActivity() {
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
-            appViewModel.updateRecord(it.copy(read = true))
+            if (!it.read) appViewModel.updateRecord(it.copy(read = true))
             RecordDetailActivity.startActivity(this, it.packageName, it.id)
         }, deleteRecord = { printLog ->
             appViewModel.deleteRecordById(printLog.id)
@@ -113,7 +113,7 @@ class RecordActivity : BaseActivity() {
     private fun initBack() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (appViewModel.queryPattern.value.isNullOrEmpty()) {
+                if (appViewModel.queryPattern.value.isEmpty()) {
                     onBackPressedCallback.isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 } else {
