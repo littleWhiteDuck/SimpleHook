@@ -173,28 +173,14 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
         if (tag == "hotFix" && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
             createDexDirectory()
         }
-        when (tag) {
-            TAG_STOP_DIALOG -> {
-                configBean.stopDialog.enable = checked
-            }
-            TAG_FILTER_CLIPBOARD -> {
-                configBean.filterClipboard.enable = checked
-            }
-            TAG_GUISE_SIGN -> {
-                configBean.guiseSign.enable = checked
-            }
-            TAG_FILE_MONITOR -> {
-                configBean.fileMonitor.enable = checked
-            }
-            TAG_APP_EXIT -> {
-                configBean.exit.enable = checked
-            }
-            else -> {
-                Class.forName(ExtensionConfig::class.java.name).apply {
-                    getDeclaredField(tag).apply {
-                        isAccessible = true
-                        setBoolean(configBean, checked)
-                    }
+        configBean.javaClass.getDeclaredField(tag).apply {
+            isAccessible = true
+            if (type == Boolean::class.java) {
+                setBoolean(configBean, checked)
+            } else {
+                type.getDeclaredField("enable").also {
+                    it.isAccessible = true
+                    it.setBoolean(get(configBean), checked)
                 }
             }
         }
@@ -472,11 +458,11 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
     }
 
     companion object {
-        private const val TAG_STOP_DIALOG = "DISABLE_DIALOG"
-        private const val TAG_FILTER_CLIPBOARD = "FILTER_CLIP"
-        private const val TAG_GUISE_SIGN = "GUISE_SIGN"
-        private const val TAG_FILE_MONITOR = "FILE_MONITOR"
-        private const val TAG_APP_EXIT = "APP_EXIT"
+        private const val TAG_STOP_DIALOG = "stopDialog"
+        private const val TAG_FILTER_CLIPBOARD = "filterClipboard"
+        private const val TAG_GUISE_SIGN = "guiseSign"
+        private const val TAG_FILE_MONITOR = "fileMonitor"
+        private const val TAG_APP_EXIT = "exit"
     }
 
 }
