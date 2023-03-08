@@ -67,7 +67,7 @@ object SuFileUtils {
                 SuFileOutputStream.open(it).writer().use { out ->
                     out.write(content)
                 }
-                SuUtil.chmodConfigDir()
+                SuUtil.chmodConfigFile(pathName)
                 true
             } ?: false
         }.getOrDefault(false)

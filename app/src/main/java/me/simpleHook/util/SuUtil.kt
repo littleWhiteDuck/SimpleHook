@@ -31,8 +31,8 @@ object SuUtil {
         return Shell.cmd("mkdir -p $filePath").exec().isSuccess
     }
 
-    fun chmodConfigDir(): Boolean {
-        return Shell.cmd("chmod -R 644 /data/local/tmp/simpleHook").exec().isSuccess
+    fun chmodConfigFile(path: String): Boolean {
+        return Shell.cmd("chmod -R 644 $path").exec().isSuccess
     }
 
     fun isGrantedRoot(): Boolean {
