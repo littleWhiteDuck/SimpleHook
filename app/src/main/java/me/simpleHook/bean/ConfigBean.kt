@@ -23,7 +23,7 @@ data class ConfigBean(
     val fieldName: String = "",
     val fieldClassName: String = "",
     val resultValues: String = "",
-    val hookPoint: String = "after",
+    val hookPoint: String = "",
     val returnClassName: String = "",
     val fieldType: String = "",
     var enable: Boolean = true

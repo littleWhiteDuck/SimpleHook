@@ -429,7 +429,11 @@ class ConfigActivity : BaseActivity() {
         val fieldName = dialogBinding.fieldNameEdit.text.toString().trim()
         val fieldClassName = tranParams(dialogBinding.fieldClassNameEdit.text.toString())
         val hookPoint = dialogBinding.hookPointEdit.text.toString().trim().let {
-            if (it == "before") it else "after"
+            if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+                ""
+            } else {
+                if (it == "before") it else "after"
+            }
         }
         val returnClassName =
             this.smali2Java(dialogBinding.returnClassNameEdit.text.toString().trim())
@@ -548,7 +552,15 @@ class ConfigActivity : BaseActivity() {
                 Json.decodeFromString<ConfigBean>(it.config)
             }.getOrNull()
             config?.let {
-                showDialog(it, isSmali2Config = true)
+                if (sp.bottomConfigDialog) {
+                    ConfigBottomSheetFragment(saveConfig = { save ->
+                        addConfig(save)
+                    }, deleteConfig = {
+
+                    }, configBean = it).show(supportFragmentManager, "ADD")
+                } else {
+                    showDialog(it, isSmali2Config = true)
+                }
             } ?: showToast(getString(R.string.config_collection_illegal_format))
         }.show(supportFragmentManager, "collect")
     }

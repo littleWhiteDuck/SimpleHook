@@ -593,7 +593,7 @@
     <string name="backup_tip_local_auto_backup_failed">本地自动备份失败</string>
     <string name="backup_tip_cloud_auto_backup_failed">WebDav自动备份失败</string>
     <string name="config_collection_illegal_format">非法格式</string>
-    <string name="config_label_collection">收藏</string>
+    <string name="config_label_collection">导入收藏</string>
     <string name="config_collection_name_hint">给收藏起个名字</string>
     <string name="config_collection_edit_config">编辑配置</string>
     <string name="config_collection_insert_var_field">插入变量</string>

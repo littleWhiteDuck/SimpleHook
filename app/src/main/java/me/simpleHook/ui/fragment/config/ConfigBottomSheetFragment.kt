@@ -178,7 +178,11 @@ class ConfigBottomSheetFragment(
         val fieldName = binding.fieldNameEdit.text.toString().trim()
         val fieldClassName = tranParams(binding.fieldClassNameEdit.text.toString())
         val hookPoint = binding.hookPointEdit.text.toString().trim().let {
-            if (it == "before") it else "after"
+            if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+                ""
+            } else {
+                if (it == "before") it else "after"
+            }
         }
         val returnClassName = smali2Java(binding.returnClassNameEdit.text.toString().trim())
         var stateCheck = getCheckStateMode(this.hookMode)
