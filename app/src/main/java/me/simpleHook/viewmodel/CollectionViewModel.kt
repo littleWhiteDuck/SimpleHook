@@ -1,0 +1,37 @@
+package me.simpleHook.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.simpleHook.database.AppRepository
+import me.simpleHook.database.entity.CollectionEntity
+
+class CollectionViewModel(application: Application) : AndroidViewModel(application) {
+    private val appRepository = AppRepository(application)
+
+    fun insertCollections(vararg collectionEntity: CollectionEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            appRepository.insertCollections(*collectionEntity)
+        }
+
+    fun updateCollections(vararg collectionEntity: CollectionEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            appRepository.updateCollections(*collectionEntity)
+        }
+
+    fun deleteCollections(vararg collectionEntity: CollectionEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            appRepository.deleteCollections(*collectionEntity)
+        }
+
+    fun deleteAllCollections() = viewModelScope.launch(Dispatchers.IO) {
+        appRepository.deleteAllCollections()
+    }
+
+    fun getAllCollections(): LiveData<List<CollectionEntity>> {
+        return appRepository.getAllCollections()
+    }
+}

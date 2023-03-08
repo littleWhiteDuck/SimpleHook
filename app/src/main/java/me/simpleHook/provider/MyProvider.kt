@@ -4,7 +4,6 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.net.Uri
-import me.simpleHook.BuildConfig
 import me.simpleHook.util.FlavorUtils
 
 class MyProvider : ContentProvider() {
@@ -52,7 +51,7 @@ class MyProvider : ContentProvider() {
     }
 
     override fun onCreate() = context?.let {
-        dbHelper = MyDatabaseHelper(it, "app_configs.db", 5)
+        dbHelper = MyDatabaseHelper(it, "app_configs.db", 6)
         true
     } ?: false
 
@@ -65,33 +64,27 @@ class MyProvider : ContentProvider() {
     ) = dbHelper?.let {
         val db = it.writableDatabase
         val cursor = when (uriMatcher.match(uri)) {
-            configDir -> db.query(
-                "AppConfig",
+            configDir -> db.query("AppConfig",
                 projection,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                null
-            )
-            printLogDir -> db.query(
-                "PrintLog",
+                null)
+            printLogDir -> db.query("PrintLog",
                 projection,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                null
-            )
-            assistConfig -> db.query(
-                "AssistConfig",
+                null)
+            assistConfig -> db.query("AssistConfig",
                 projection,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                null
-            )
+                null)
             else -> null
         }
         cursor
