@@ -7,11 +7,9 @@ object SuUtil {
     var isInit = false
     fun init() {
         if (!isInit) {
-            Thread {
-                isInit = true
-                Shell.setDefaultBuilder(Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER)
-                    .setTimeout(20))
-            }.start()
+            isInit = true
+            Shell.setDefaultBuilder(Shell.Builder.create().setFlags(Shell.FLAG_MOUNT_MASTER)
+                .setTimeout(20))
         }
     }
 
@@ -36,7 +34,15 @@ object SuUtil {
     }
 
     fun isGrantedRoot(): Boolean {
-        return Shell.isAppGrantedRoot() == true
+        val isGrantedRoot = Shell.isAppGrantedRoot() == true
+        if (!isGrantedRoot) {
+            su()
+        }
+        return isGrantedRoot
+    }
+
+    private fun su(): Boolean {
+        return Shell.cmd("su").exec().isSuccess
     }
 
 }
