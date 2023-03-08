@@ -1,6 +1,7 @@
 package me.simpleHook.ui.view.record
 
 import android.content.Context
+import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -18,6 +19,7 @@ class RecordSummaryFragmentView(context: Context) : CustomViewGroup(context) {
     val emptyTip = AppCompatTextView(context).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         text = context.getString(R.string.main_record_empty_tip)
+        gravity = Gravity.CENTER
     }
 
     val swipeRefreshLayout = SwipeRefreshLayout(context).apply {

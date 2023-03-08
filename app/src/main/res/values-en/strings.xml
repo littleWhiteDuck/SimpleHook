@@ -460,6 +460,7 @@
     <string-array name="backup_scope_entries">
         <item>Custom config</item>
         <item>Extension config</item>
+        <item>Collection config</item>
         <item>All</item>
     </string-array>
     <string-array name="backup_cover_entries">

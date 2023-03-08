@@ -459,6 +459,7 @@
     <string-array name="backup_scope_entries">
         <item>自定義配置</item>
         <item>擴展配置</item>
+        <item>收藏配置</item>
         <item>所有</item>
     </string-array>
     <string-array name="backup_cover_entries">

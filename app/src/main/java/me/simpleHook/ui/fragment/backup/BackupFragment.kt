@@ -31,16 +31,20 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.util.TimeUtil
+import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.worker.BackupHelper
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private val appViewModel by viewModels<AppViewModel>()
+    private val collViewModel by viewModels<CollectionViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             if (uri != Uri.EMPTY) {
@@ -238,16 +242,25 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 var customConfigs: List<AppConfig> = emptyList()
                 var extensionConfigs: List<AssistConfig> = emptyList()
+                var collections: List<CollectionEntity> = emptyList()
                 val sardine = OkHttpSardine()
                 sardine.setCredentials(GlobalValue.sp.web_dav_account, GlobalValue.sp.web_dav_pw)
                 val inputStream = sardine.get(url)
                 val zipInputStream = ZipInputStream(inputStream)
                 zipInputStream.use {
-                    if (it.nextEntry.name == "custom_config.json") {
-                        customConfigs = Json.decodeFromStream(it)
-                    }
-                    if (it.nextEntry.name == "extension_config.json") {
-                        extensionConfigs = Json.decodeFromStream(it)
+                    var entry: ZipEntry?
+                    while ((it.nextEntry.also { zipEntry: ZipEntry? ->
+                            entry = zipEntry
+                        }) != null) {
+                        if (entry?.name == "custom_config.json") {
+                            customConfigs = Json.decodeFromStream(it)
+                        }
+                        if (entry?.name == "extension_config.json") {
+                            extensionConfigs = Json.decodeFromStream(it)
+                        }
+                        if (entry?.name == "collection_config.json") {
+                            collections = Json.decodeFromStream(it)
+                        }
                     }
                 }
                 customConfigs.forEach {
@@ -256,8 +269,12 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 extensionConfigs.forEach {
                     it.id = 0
                 }
+                collections.forEach {
+                    it.id = 0
+                }
                 appViewModel.insertConfigs(*customConfigs.toTypedArray())
                 appViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                collViewModel.insertCollections(*collections.toTypedArray())
             }
         }.onSuccess {
             loadingDialog.dismiss()
@@ -276,14 +293,23 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 var customConfigs: List<AppConfig> = emptyList()
                 var extensionConfigs: List<AssistConfig> = emptyList()
+                var collections: List<CollectionEntity> = emptyList()
                 val zipInputStream =
                     ZipInputStream(requireActivity().contentResolver.openInputStream(uri))
                 zipInputStream.use {
-                    if (it.nextEntry.name == "custom_config.json") {
-                        customConfigs = Json.decodeFromStream(it)
-                    }
-                    if (it.nextEntry.name == "extension_config.json") {
-                        extensionConfigs = Json.decodeFromStream(it)
+                    var entry: ZipEntry?
+                    while ((it.nextEntry.also { zipEntry: ZipEntry? ->
+                            entry = zipEntry
+                        }) != null) {
+                        if (entry?.name == "custom_config.json") {
+                            customConfigs = Json.decodeFromStream(it)
+                        }
+                        if (entry?.name == "extension_config.json") {
+                            extensionConfigs = Json.decodeFromStream(it)
+                        }
+                        if (entry?.name == "collection_config.json") {
+                            collections = Json.decodeFromStream(it)
+                        }
                     }
                 }
                 customConfigs.forEach {
@@ -292,8 +318,13 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 extensionConfigs.forEach {
                     it.id = 0
                 }
+                collections.forEach {
+                    it.id = 0
+                }
                 appViewModel.insertConfigs(*customConfigs.toTypedArray())
                 appViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                collViewModel.insertCollections(*collections.toTypedArray())
+
             }
         }.onSuccess {
             loadingDialog.dismiss()
@@ -332,6 +363,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 val success = BackupHelper.startBackupConfig(requireContext(),
                     scope == "BACKUP_SCOPE_CUSTOM",
                     scope == "BACKUP_SCOPE_EXTENSION",
+                    scope == "BACKUP_SCOPE_COLLECTION",
                     scope == "BACKUP_SCOPE_ALL",
                     local = local,
                     cloud = cloud,

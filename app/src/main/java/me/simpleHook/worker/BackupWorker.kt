@@ -20,6 +20,7 @@ class BackupWorker(private val context: Context, workerParams: WorkerParameters)
         val result = startBackupConfig(context,
             scope == "BACKUP_SCOPE_CUSTOM",
             scope == "BACKUP_SCOPE_EXTENSION",
+            scope == "BACKUP_SCOPE_COLLECTION",
             scope == "BACKUP_SCOPE_ALL",
             local = inputData.getBoolean("LOCAL", false),
             cloud = inputData.getBoolean("CLOUD", false))

@@ -41,6 +41,7 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.*
+import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
 import java.io.*
@@ -49,6 +50,7 @@ import java.util.*
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
     private val viewModel: AppViewModel by activityViewModels()
+    private val collViewModel by viewModels<CollectionViewModel>()
     private val settingsViewModel by viewModels<SettingsViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
@@ -128,9 +130,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             "hook" -> clearHookConfig(0)
                             "extension" -> clearHookConfig(1)
                             "record" -> clearHookConfig(2)
-                            "favourite" -> {
-                                FileUtils.deleteFile(requireActivity().getExternalFilesDir(null)!!.path + "/collection_config.json")
-                            }
+                            "favourite" -> clearHookConfig(3)
                         }
                     })
                 true
@@ -270,6 +270,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
                 2 -> {
                     viewModel.deleteAllLogs()
+                }
+                3 -> {
+                    collViewModel.deleteAllCollections()
                 }
             }
         }

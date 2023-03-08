@@ -529,12 +529,14 @@
     <string-array name="backup_scope_entries">
         <item>自定义配置</item>
         <item>扩展配置</item>
+        <item>收藏配置</item>
         <item>所有</item>
     </string-array>
 
     <string-array name="backup_scope_values">
         <item>BACKUP_SCOPE_CUSTOM</item>
         <item>BACKUP_SCOPE_EXTENSION</item>
+        <item>BACKUP_SCOPE_COLLECTION</item>
         <item>BACKUP_SCOPE_ALL</item>
     </string-array>
 

@@ -45,6 +45,7 @@ object BackupHelper {
         context: Context,
         backupCustom: Boolean,
         backupExtension: Boolean,
+        backupCollection: Boolean,
         backupAll: Boolean,
         local: Boolean = false,
         cloud: Boolean = false,
@@ -59,9 +60,11 @@ object BackupHelper {
                 if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
             val extensionConfigs =
                 if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
-            if (customConfigs.isEmpty() && extensionConfigs.isEmpty()) return@runCatching true
+            val collections =
+                if (backupAll || backupCollection) appRepository.getCollections() else emptyList()
+            if (customConfigs.isEmpty() && extensionConfigs.isEmpty() && collections.isEmpty()) return@runCatching true
             val backupName =
-                "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-${getTime()}-${Build.MODEL}.shbackup"
+                "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-Co(${collections.size})-${getTime()}-${Build.MODEL}.shbackup"
             val cacheFile = cacheBackupDir.resolve(backupName)
             val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
             zipOutputStream.use {
@@ -74,6 +77,11 @@ object BackupHelper {
                     val zipEntry = ZipEntry("extension_config.json")
                     zipOutputStream.putNextEntry(zipEntry)
                     zipOutputStream.write(json.encodeToString(extensionConfigs).toByteArray())
+                }
+                if (backupAll || backupCollection) {
+                    val zipEntry = ZipEntry("collection_config.json")
+                    zipOutputStream.putNextEntry(zipEntry)
+                    zipOutputStream.write(json.encodeToString(collections).toByteArray())
                 }
             }
             var result = true
