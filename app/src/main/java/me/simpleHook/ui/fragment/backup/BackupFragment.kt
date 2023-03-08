@@ -355,7 +355,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     private fun startBackupConfig(
         local: Boolean = false, cloud: Boolean = false, backUri: Uri? = null
     ) {
-        if ((local && isLocalBackupEnable()) || (cloud && isCloudBackupEnable())) {
+        if ((backUri != null || local && isLocalBackupEnable()) || (cloud && isCloudBackupEnable())) {
             val loadingDialog = LoadingDialog(requireActivity(), "saving... ")
             loadingDialog.show()
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {

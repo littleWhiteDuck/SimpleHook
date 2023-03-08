@@ -36,7 +36,15 @@ object SuUtil {
     }
 
     fun isGrantedRoot(): Boolean {
-        return Shell.isAppGrantedRoot() == true
+        return (Shell.isAppGrantedRoot() == true).also {
+            if (!it) {
+                su()
+            }
+        }
+    }
+
+    private fun su(): Boolean {
+        return Shell.cmd("su").exec().isSuccess
     }
 
 }
