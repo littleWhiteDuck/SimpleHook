@@ -2,6 +2,7 @@ package me.simpleHook.ui.activity
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.Keep
@@ -48,6 +49,7 @@ class MainActivity : BaseActivity() {
         checkUpdate()
         initPermission()
         initBackup()
+        Build.MODEL
         super.onCreate(savedInstanceState)
     }
 

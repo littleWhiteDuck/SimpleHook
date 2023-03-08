@@ -53,7 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE CollectionEntity(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT, config TEXT, type Text)");
+                database.execSQL("CREATE TABLE CollectionEntity(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, config TEXT NOT NULL, type Text NOT NULL)");
             }
         }
         private var instance: AppDatabase? = null

@@ -21,6 +21,7 @@ class CollectionItemView(context: Context) : CustomViewGroup(context) {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         setPadding(0, 0, 16.dp, 0)
         setTextColor(context.resources.getColor(R.color.normal_text_color))
+        textSize = 17f
         addView(this)
     }
 
@@ -53,8 +54,8 @@ class CollectionItemView(context: Context) : CustomViewGroup(context) {
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        icon.autoLayout(0, paddingTop)
-        title.autoLayout(icon.right)
+        icon.autoLayout(0, icon.toVerticalCenter(this))
+        title.autoLayout(icon.right, paddingTop)
         desc.autoLayout(icon.right, title.bottom)
     }
 }

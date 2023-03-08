@@ -34,4 +34,8 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
     fun getAllCollections(): LiveData<List<CollectionEntity>> {
         return appRepository.getAllCollections()
     }
+
+    fun getCollections(): List<CollectionEntity> {
+        return appRepository.getCollections()
+    }
 }

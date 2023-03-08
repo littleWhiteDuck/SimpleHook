@@ -162,4 +162,8 @@ class AppRepository(context: Context) {
     fun getAllCollections(): LiveData<List<CollectionEntity>> {
         return collectionDao.queryAll()
     }
+
+    fun getCollections(): List<CollectionEntity> {
+        return collectionDao.getAll()
+    }
 }

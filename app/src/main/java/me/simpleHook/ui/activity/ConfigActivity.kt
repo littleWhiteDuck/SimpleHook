@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.view.ViewGroup.LayoutParams
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
@@ -16,10 +17,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.drakeet.multitype.MultiTypeAdapter
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -45,16 +45,14 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
 import me.simpleHook.recyclerview.adapter.ConfigAdapter
-import me.simpleHook.recyclerview.delegate.CollectionItemViewDelegate
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.fragment.config.CollectionFragment
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.ui.view.config.InputCollectionView
 import me.simpleHook.util.*
 import me.simpleHook.viewmodel.CollectionViewModel
-import java.io.File
-import java.io.FileNotFoundException
 import java.lang.reflect.Field
 import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
@@ -64,7 +62,6 @@ class ConfigActivity : BaseActivity() {
 
     private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<ConfigBean>()
-    private var collectConfigList: List<CollectionEntity> = emptyList()
     private var hookMode = Constant.HOOK_RETURN
     private var modify = false
     private var modifyConfig = false
@@ -80,10 +77,6 @@ class ConfigActivity : BaseActivity() {
         ConfigAdapter({ position -> onClick(position) },
             { position, menu -> onItemCreateContextMenu(position, menu) },
             { position, isChecked -> onCheckedChange(position, isChecked) })
-    }
-    private var isCollection = false
-    private val collectionFilePath by lazy {
-        getExternalFilesDir(null)!!.path + "/collection_config.json"
     }
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -131,7 +124,6 @@ class ConfigActivity : BaseActivity() {
                 packageInfo.launch(Intent(this@ConfigActivity, AppListActivity::class.java))
             }
             addMethodConfig.setOnClickListener {
-                isCollection = false
                 modifyConfig = false
                 if (sp.bottomConfigDialog) {
                     ConfigBottomSheetFragment(saveConfig = {
@@ -252,7 +244,6 @@ class ConfigActivity : BaseActivity() {
     private fun onClick(position: Int) {
         modifyConfigPosition = position
         val methodConfig = configList[position]
-        isCollection = false
         modifyConfig = true
         if (sp.bottomConfigDialog) {
             ConfigBottomSheetFragment(methodConfig, saveConfig = {
@@ -310,19 +301,33 @@ class ConfigActivity : BaseActivity() {
         val inputCollectionView = InputCollectionView(this).apply {
             configEditText.setText(collectionEntity.config)
             nameEditText.setText(collectionEntity.name)
+            configEditText.setOnFocusChangeListener { _, hasFocus ->
+                insertEnviVar.isEnabled = hasFocus
+            }
+        }
+        val scrollView = NestedScrollView(this).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            addView(inputCollectionView)
         }
         customDialog(this,
-            title = "编辑收藏",
-            contentView = inputCollectionView,
+            title = getString(R.string.config_collection_edit_collection),
+            contentView = scrollView,
             okText = getString(R.string.dialog_confirm),
             okClick = {
                 val name = inputCollectionView.nameEditText.text.toString()
-                val config = inputCollectionView.configEditText.text.toString()
-                collectionViewModel.insertCollections(collectionEntity.copy(name = name,
-                    config = config))
+                val config: String? = runCatching {
+                    val configBean =
+                        Json.decodeFromString<ConfigBean>(inputCollectionView.configEditText.text.toString())
+                    Json.encodeToString(configBean)
+                }.getOrNull()
+                config?.let {
+                    collectionViewModel.insertCollections(collectionEntity.copy(name = name,
+                        config = it))
+                    showToast(message = getString(R.string.config_collect_success_tip))
+                } ?: showToast(message = getString(R.string.config_collection_illegal_format))
+
             },
-            cancelText = getString(R.string.dialog_cancel))
-        showToast(message = getString(R.string.config_collect_success_tip))
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
     private fun showDialog(
@@ -370,11 +375,9 @@ class ConfigActivity : BaseActivity() {
             dialogDismiss(dialog, toCheck(dialogBinding, hookMode, configBean.enable))
         }, cancelText = getString(R.string.config_dialog_cancel), cancelClick = { dialogInterface ->
             dialogDismiss(dialogInterface, true)
-            isCollection = false
         }, neutralText = neutralText, neutralClick = { dialogInterface ->
             deleteConfig(configBean)
             dialogDismiss(dialogInterface, true)
-            isCollection = false
         }, cancelAble = false, contentView = dialogBinding.root).show()
     }
 
@@ -519,24 +522,6 @@ class ConfigActivity : BaseActivity() {
         mAdapter.notifyDataSetChanged()
     }
 
-    private fun writeCollection(content: String) {
-        FileUtils.outTextToFile(getExternalFilesDir(null)!!.path + "/collection_config.json",
-            content)
-    }
-
-    private fun getAllCollection(isWrite: Boolean = false): MutableList<ConfigBean> {
-        var tempList = mutableListOf<ConfigBean>()
-        try {
-            val strCollection = File(collectionFilePath).reader().use { it.readText() }
-            tempList = Json.decodeFromString<ArrayList<ConfigBean>>(strCollection)
-        } catch (e: FileNotFoundException) {
-            if (!isWrite) showToast(getString(R.string.config_no_collection_tip))
-        } catch (e: Exception) {
-            showToast(getString(R.string.config_get_collection_error))
-        }
-        return tempList
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_config, menu)
         if (!sp.smali2Config) menu.removeItem(R.id.config_smali_to_config)
@@ -558,49 +543,15 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showCollectConfigDialog() {
-        collectConfigList = collectionViewModel.getAllCollections().value!!
-        if (collectConfigList.isEmpty()) {
-            showToast(getString(R.string.config_no_collection_tip))
-            return
-        }
-
-        val recyclerView = RecyclerView(this)
-        recyclerView.apply {
-            setPadding(0, 0, 0, 10.dp)
-            layoutManager = LinearLayoutManager(this@ConfigActivity)
-        }
-
-        val dialog = customDialog(this,
-            title = getString(R.string.config_collection_dialog_title),
-            contentView = recyclerView,
-            okClick = {
-                it.dismiss()
-            },
-            okText = getString(R.string.config_collection_cancel),
-            cancelAble = false)
-        val multiAdapter = MultiTypeAdapter()
-        multiAdapter.register(CollectionItemViewDelegate {
-            if (it.config.contains("""\$\{.*}""".toRegex())) {
-                showImportCollectDialog(it)
-            } else {
-                showDialog(Json.decodeFromString(it.config), isSmali2Config = true)
-            }
-        })
-        multiAdapter.items = collectConfigList
-        recyclerView.adapter = multiAdapter
-        dialog.show()
+        CollectionFragment {
+            val config: ConfigBean? = runCatching {
+                Json.decodeFromString<ConfigBean>(it.config)
+            }.getOrNull()
+            config?.let {
+                showDialog(it, isSmali2Config = true)
+            } ?: showToast(getString(R.string.config_collection_illegal_format))
+        }.show(supportFragmentManager, "collect")
     }
-
-    private fun showImportCollectDialog(collectionEntity: CollectionEntity) {
-        val matcher = Pattern.compile("""\$\{(.*)}""").matcher(collectionEntity.config)
-        val list = ArrayList<String>()
-        while (matcher.find()) {
-            matcher.group(2)?.let { list.add(it) }
-            // matcher.gr
-        }
-        // TODO
-    }
-
 
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = true) {

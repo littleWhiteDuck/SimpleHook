@@ -499,4 +499,11 @@
     <string name="backup_tip_running_backup">Backing up</string>
     <string name="backup_tip_local_auto_backup_failed">Local automatic backup failed</string>
     <string name="backup_tip_cloud_auto_backup_failed">WebDav automatic backup failed</string>
+    <string name="config_collection_illegal_format">Illegal format</string>
+    <string name="config_label_collection">Collection</string>
+    <string name="config_collection_name_hint">Give the collection a name</string>
+    <string name="config_collection_edit_config">Edit config</string>
+    <string name="config_collection_insert_var_field">Insert variables</string>
+    <string name="config_collection_edit_var">Edit variable</string>
+    <string name="config_collection_edit_collection">Edit Collection</string>
 </resources>
