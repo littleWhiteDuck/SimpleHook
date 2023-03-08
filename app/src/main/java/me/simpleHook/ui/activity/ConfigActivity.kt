@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.view.ViewGroup.LayoutParams
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
@@ -16,10 +17,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -31,26 +31,28 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.ConfigAdapter
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
+import me.simpleHook.recyclerview.adapter.ConfigAdapter
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.fragment.config.CollectionFragment
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
+import me.simpleHook.ui.view.config.InputCollectionView
 import me.simpleHook.util.*
-import java.io.File
-import java.io.FileNotFoundException
+import me.simpleHook.viewmodel.CollectionViewModel
 import java.lang.reflect.Field
 import java.util.regex.Pattern
 import java.util.regex.Pattern.matches
@@ -60,7 +62,6 @@ class ConfigActivity : BaseActivity() {
 
     private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<ConfigBean>()
-    private var collectConfigList = mutableListOf<ConfigBean>()
     private var hookMode = Constant.HOOK_RETURN
     private var modify = false
     private var modifyConfig = false
@@ -77,18 +78,6 @@ class ConfigActivity : BaseActivity() {
             { position, menu -> onItemCreateContextMenu(position, menu) },
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
-    private val collectAdapter by lazy {
-        ConfigAdapter({ position -> onCollectClick(position) },
-            menuListener = { _, _ -> },
-            onCheckedChange = { position, isChecked ->
-                onCollectCheckedChange(position, isChecked)
-            },
-            isCollect = true)
-    }
-    private var isCollection = false
-    private val collectionFilePath by lazy {
-        getExternalFilesDir(null)!!.path + "/collection_config.json"
-    }
     private val packageInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -103,7 +92,12 @@ class ConfigActivity : BaseActivity() {
     private var longClickPosition = 0
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
-
+    private val collectionViewModel by viewModels<CollectionViewModel>()
+    private val json by lazy {
+        Json {
+            prettyPrint = true
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,7 +124,6 @@ class ConfigActivity : BaseActivity() {
                 packageInfo.launch(Intent(this@ConfigActivity, AppListActivity::class.java))
             }
             addMethodConfig.setOnClickListener {
-                isCollection = false
                 modifyConfig = false
                 if (sp.bottomConfigDialog) {
                     ConfigBottomSheetFragment(saveConfig = {
@@ -251,7 +244,6 @@ class ConfigActivity : BaseActivity() {
     private fun onClick(position: Int) {
         modifyConfigPosition = position
         val methodConfig = configList[position]
-        isCollection = false
         modifyConfig = true
         if (sp.bottomConfigDialog) {
             ConfigBottomSheetFragment(methodConfig, saveConfig = {
@@ -273,10 +265,8 @@ class ConfigActivity : BaseActivity() {
         val methodConfig = configList[longClickPosition]
         when (item.itemId) {
             R.id.menu_collect -> {
-                val tempList = getAllCollection(true)
-                tempList.add(methodConfig)
-                writeCollection(Json.encodeToString(tempList))
-                showToast(message = getString(R.string.config_collect_success_tip))
+                showCollectConfigConfirmDialog(CollectionEntity(name = "",
+                    config = json.encodeToString(methodConfig)))
             }
             R.id.menu_copy -> {
                 ToolUtils.toClip(this, Json.encodeToString(methodConfig))
@@ -305,6 +295,39 @@ class ConfigActivity : BaseActivity() {
             }
         }
         return super.onContextItemSelected(item)
+    }
+
+    private fun showCollectConfigConfirmDialog(collectionEntity: CollectionEntity) {
+        val inputCollectionView = InputCollectionView(this).apply {
+            configEditText.setText(collectionEntity.config)
+            nameEditText.setText(collectionEntity.name)
+            configEditText.setOnFocusChangeListener { _, hasFocus ->
+                insertEnviVar.isEnabled = hasFocus
+            }
+        }
+        val scrollView = NestedScrollView(this).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            addView(inputCollectionView)
+        }
+        customDialog(this,
+            title = getString(R.string.config_collection_edit_collection),
+            contentView = scrollView,
+            okText = getString(R.string.dialog_confirm),
+            okClick = {
+                val name = inputCollectionView.nameEditText.text.toString()
+                val config: String? = runCatching {
+                    val configBean =
+                        Json.decodeFromString<ConfigBean>(inputCollectionView.configEditText.text.toString())
+                    Json.encodeToString(configBean)
+                }.getOrNull()
+                config?.let {
+                    collectionViewModel.insertCollections(collectionEntity.copy(name = name,
+                        config = it))
+                    showToast(message = getString(R.string.config_collect_success_tip))
+                } ?: showToast(message = getString(R.string.config_collection_illegal_format))
+
+            },
+            cancelText = getString(R.string.dialog_cancel)).show()
     }
 
     private fun showDialog(
@@ -352,11 +375,9 @@ class ConfigActivity : BaseActivity() {
             dialogDismiss(dialog, toCheck(dialogBinding, hookMode, configBean.enable))
         }, cancelText = getString(R.string.config_dialog_cancel), cancelClick = { dialogInterface ->
             dialogDismiss(dialogInterface, true)
-            isCollection = false
         }, neutralText = neutralText, neutralClick = { dialogInterface ->
             deleteConfig(configBean)
             dialogDismiss(dialogInterface, true)
-            isCollection = false
         }, cancelAble = false, contentView = dialogBinding.root).show()
     }
 
@@ -479,19 +500,9 @@ class ConfigActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun addConfig(configBean: ConfigBean) {
         if (modifyConfig) {
-            if (isCollection) {
-                collectConfigList[modifyConfigPosition] = configBean
-                collectAdapter.submitList(collectConfigList)
-                collectAdapter.notifyItemChanged(modifyConfigPosition)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val tempConfig = Json.encodeToString(collectConfigList)
-                    writeCollection(tempConfig)
-                }
-            } else {
-                configList[modifyConfigPosition] = configBean
-                mAdapter.submitList(configList)
-                mAdapter.notifyDataSetChanged()
-            }
+            configList[modifyConfigPosition] = configBean
+            mAdapter.submitList(configList)
+            mAdapter.notifyDataSetChanged()
         } else {
             addRemoveItem(configBean)
         }
@@ -504,41 +515,11 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun addRemoveItem(configBean: ConfigBean, isAdd: Boolean = true) {
-        if (isCollection) {
-            collectConfigList.apply {
-                if (isAdd) add(configBean) else remove(configBean)
-            }
-            collectAdapter.submitList(collectConfigList)
-            collectAdapter.notifyDataSetChanged()
-            lifecycleScope.launch(Dispatchers.IO) {
-                val tempConfig = Json.encodeToString(collectConfigList)
-                writeCollection(tempConfig)
-            }
-        } else {
-            configList.apply {
-                if (isAdd) add(configBean) else remove(configBean)
-            }
-            mAdapter.submitList(configList)
-            mAdapter.notifyDataSetChanged()
+        configList.apply {
+            if (isAdd) add(configBean) else remove(configBean)
         }
-    }
-
-    private fun writeCollection(content: String) {
-        FileUtils.outTextToFile(getExternalFilesDir(null)!!.path + "/collection_config.json",
-            content)
-    }
-
-    private fun getAllCollection(isWrite: Boolean = false): MutableList<ConfigBean> {
-        var tempList = mutableListOf<ConfigBean>()
-        try {
-            val strCollection = File(collectionFilePath).reader().use { it.readText() }
-            tempList = Json.decodeFromString<ArrayList<ConfigBean>>(strCollection)
-        } catch (e: FileNotFoundException) {
-            if (!isWrite) showToast(getString(R.string.config_no_collection_tip))
-        } catch (e: Exception) {
-            showToast(getString(R.string.config_get_collection_error))
-        }
-        return tempList
+        mAdapter.submitList(configList)
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -562,60 +543,14 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showCollectConfigDialog() {
-        collectConfigList.clear()
-        getAllCollection().forEach {
-            collectConfigList.add(it.copy(enable = false))
-        }
-        if (collectConfigList.isEmpty()) {
-            showToast(getString(R.string.config_no_collection_tip))
-            return
-        }
-        val recyclerView = RecyclerView(this)
-        recyclerView.apply {
-            setPadding(0, 0, 0, 10.dp)
-            layoutManager = LinearLayoutManager(this@ConfigActivity)
-            addItemDecoration(DividerItemDecoration(this@ConfigActivity,
-                DividerItemDecoration.VERTICAL))
-            adapter = collectAdapter
-        }
-        collectAdapter.submitList(collectConfigList)
-        customDialog(this,
-            title = getString(R.string.config_collection_dialog_title),
-            contentView = recyclerView,
-            okClick = {
-                collectConfigList.forEach {
-                    if (it.enable) {
-                        addRemoveItem(it, true)
-                    }
-                }
-            },
-            okText = getString(R.string.config_collection_confirm),
-            cancelAble = false,
-            cancelText = getString(R.string.config_collection_cancel),
-            cancelClick = {
-                it.dismiss()
-            }).show()
-
-    }
-
-    private fun onCollectClick(position: Int) {
-        modifyConfigPosition = position
-        isCollection = true
-        modifyConfig = true
-        val methodConfig = collectConfigList[position]
-        if (sp.bottomConfigDialog) {
-            ConfigBottomSheetFragment(saveConfig = {
-                addConfig(it)
-            }, deleteConfig = {
-                deleteConfig(methodConfig)
-            }, configBean = methodConfig).show(supportFragmentManager, "MODIFY")
-        } else {
-            showDialog(collectConfigList[position])
-        }
-    }
-
-    private fun onCollectCheckedChange(position: Int, checked: Boolean) {
-        collectConfigList[position].enable = checked
+        CollectionFragment {
+            val config: ConfigBean? = runCatching {
+                Json.decodeFromString<ConfigBean>(it.config)
+            }.getOrNull()
+            config?.let {
+                showDialog(it, isSmali2Config = true)
+            } ?: showToast(getString(R.string.config_collection_illegal_format))
+        }.show(supportFragmentManager, "collect")
     }
 
     @SuppressLint("Range")
@@ -686,7 +621,9 @@ class ConfigActivity : BaseActivity() {
         val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
         val configs = Json.encodeToString(configList)
-        return AppConfig(appName = appName, packageName = packageName, description = description,
+        return AppConfig(appName = appName,
+            packageName = packageName,
+            description = description,
             versionName = tempVersionName,
             configs = configs,
             id = configId,

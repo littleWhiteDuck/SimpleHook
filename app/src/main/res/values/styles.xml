@@ -102,4 +102,6 @@
         <item name="subtitleTextColor">@color/white</item>
         <item name="titleTextColor">@color/white</item>
     </style>
+
+    <style name="TextInput" parent="Widget.Material3.TextInputLayout.FilledBox"></style>
 </resources>

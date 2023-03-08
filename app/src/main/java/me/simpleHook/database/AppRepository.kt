@@ -1,14 +1,17 @@
 package me.simpleHook.database
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.database.entity.PrintLog
 
 class AppRepository(context: Context) {
     private val appConfigDao = AppDatabase.getDatabase(context).getAppConfigDao()
     private val printLogDao = AppDatabase.getDatabase(context).getLogDao()
     private val assistConfigDao = AppDatabase.getDatabase(context).getAssistConfigDao()
+    private val collectionDao = AppDatabase.getDatabase(context).getCollectionDao()
     fun getPrintLogDao() = printLogDao
     suspend fun insertConfigs(vararg appConfig: AppConfig) {
         appConfigDao.insertConfigs(*appConfig)
@@ -135,5 +138,32 @@ class AppRepository(context: Context) {
 
     suspend fun getExCountByPackageName(packageName: String): Int {
         return assistConfigDao.getCountByPackageName(packageName)
+    }
+
+
+    // collection
+
+    fun insertCollections(vararg collectionEntity: CollectionEntity) {
+        collectionDao.insertCollections(*collectionEntity)
+    }
+
+    fun updateCollections(vararg collectionEntity: CollectionEntity) {
+        collectionDao.updateCollections(*collectionEntity)
+    }
+
+    fun deleteCollections(vararg collectionEntity: CollectionEntity) {
+        collectionDao.deleteCollections(*collectionEntity)
+    }
+
+    fun deleteAllCollections() {
+        collectionDao.deleteAllCollections()
+    }
+
+    fun getAllCollections(): LiveData<List<CollectionEntity>> {
+        return collectionDao.queryAll()
+    }
+
+    fun getCollections(): List<CollectionEntity> {
+        return collectionDao.getAll()
     }
 }
