@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.CheckBoxPreference
@@ -19,8 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.bean.ConfigItem
@@ -44,12 +41,10 @@ import me.simpleHook.util.*
 import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
-import java.io.*
-import java.util.*
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
-    private val viewModel: AppViewModel by activityViewModels()
+    private val viewModel: AppViewModel by viewModels()
     private val collViewModel by viewModels<CollectionViewModel>()
     private val settingsViewModel by viewModels<SettingsViewModel>()
     private val startActivityForData =
@@ -365,72 +360,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-    }
-
-    private fun readTextFromUri(uri: Uri): String {
-        val stringBuilder = StringBuilder()
-        try {
-            requireActivity().contentResolver.openInputStream(uri).use { inputStream ->
-                BufferedReader(InputStreamReader(Objects.requireNonNull(inputStream))).use { reader ->
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        stringBuilder.append(line)
-                    }
-                }
-            }
-        } catch (e: java.lang.Exception) {
-            requireActivity().showToast("error")
-        }
-
-        return stringBuilder.toString()
-    }
-
-    private fun importConfigs(configs: String) {
-        try {
-            when {
-                JsonUtil.isJsonArray(configs) -> {
-                    val dataList = JsonUtil.importConfigs(configs)
-                    if (dataList.isEmpty()) {
-                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
-                        return
-                    } else {
-                        ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
-                            Constant.CONFIG_IMPORT_MODE).show(requireActivity().supportFragmentManager,
-                            "import")
-                    }
-                }
-                JsonUtil.isJsonObject(configs) -> {
-                    runCatching {
-                        val appConfig = Json.decodeFromString<AppConfig>(configs)
-                        viewModel.insertConfigs(appConfig)
-                    }.onFailure {
-                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
-                    }
-                }
-            }
-        } catch (e: java.lang.Exception) {
-            requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
+        checkPermission()
         checkPermission()
     }
-
-    private fun alterDocument(uri: Uri, strConfigs: String) {
-        try {
-            requireContext().contentResolver.openFileDescriptor(uri, "w")?.use {
-                // use{} lets the document provider know you're done by automatically closing the stream
-                FileOutputStream(it.fileDescriptor).use { put ->
-                    put.write((strConfigs).toByteArray())
-                }
-            }
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
 }
