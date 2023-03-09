@@ -28,6 +28,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
+import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
@@ -159,6 +160,7 @@ class RecordDetailActivity : AppCompatActivity() {
         menu.findItem(R.id.menu_word_wrap).isChecked = GlobalValue.sp.wordWrap
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.apply {
+            setTextColor(Color.WHITE)
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?) = false

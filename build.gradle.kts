@@ -1,6 +1,5 @@
 // Top-level(build file where you can add configuration options common to all sub-projects/modules.)
 buildscript {
-    extra["kotlin_version"] = "1.5.30"
 
     repositories {
         maven("https://maven.aliyun.com/repository/public")

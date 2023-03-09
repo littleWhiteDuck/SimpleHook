@@ -331,8 +331,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showDialog(
-        configBean: ConfigBean = ConfigBean(0, "", "", "", "", "", ""),
-        isSmali2Config: Boolean = false
+        configBean: ConfigBean = ConfigBean(), isSmali2Config: Boolean = false
     ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         dialogBinding.apply {
@@ -554,6 +553,7 @@ class ConfigActivity : BaseActivity() {
             config?.let {
                 if (sp.bottomConfigDialog) {
                     ConfigBottomSheetFragment(saveConfig = { save ->
+                        modifyConfig = false
                         addConfig(save)
                     }, deleteConfig = {
 
