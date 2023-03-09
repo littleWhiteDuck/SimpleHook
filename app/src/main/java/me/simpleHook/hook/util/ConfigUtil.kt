@@ -2,7 +2,8 @@ package me.simpleHook.hook.util
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import com.google.gson.Gson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.extension.log
@@ -26,8 +27,7 @@ object ConfigUtil {
             Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
         } + configName
         return runCatching {
-            val strConfig = File(configPath).reader().use { it.readText() }
-            strConfig
+            File(configPath).readText()
         }.onFailure {
             "failed: $configPath".log(hostPackageName)
         }.getOrNull()
@@ -50,7 +50,7 @@ object ConfigUtil {
                             appName = "",
                             versionName = "",
                             description = "")
-                        config = Gson().toJson(appConfig)
+                        config = Json.encodeToString(appConfig)
                         break
                     }
                 }

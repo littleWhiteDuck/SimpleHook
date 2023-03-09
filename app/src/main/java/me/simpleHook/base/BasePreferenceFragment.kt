@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.preference.PreferenceFragmentCompat
-import me.simpleHook.ui.custom.exitDialog
 
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
