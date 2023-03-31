@@ -16,11 +16,11 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.TimeUtil
 
-class AppViewModel(application: Application) : AndroidViewModel(application) {
+class AppViewModel(private val application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
     private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
-
+    private val hashMap: HashMap<String, String> = HashMap()
     val userApps = MutableLiveData<List<AppItem>>(emptyList())
     val systemApps = MutableLiveData<List<AppItem>>(emptyList())
 
@@ -43,7 +43,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             packageInfoList.forEach { packageInfo ->
                 val packageName = packageInfo.packageName
                 if (!blackList.contains(packageName)) {
-                    val appItem = AppItem(AppUtils.getAppName(getApplication(), packageInfo),
+                    val appName = hashMap[packageName]
+                        ?: if (sortSelected == APP_LIST_BY_NAME) AppUtils.getAppName(application,
+                            packageInfo) else ""
+                    if (appName.isNotEmpty()) {
+                        hashMap[packageName] = appName
+                    }
+                    val appItem = AppItem(appName,
                         packageInfo.packageName,
                         packageInfo.versionName,
                         packageInfo.versionCode.toString(),
@@ -63,7 +69,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 _systemApps.value = tempSystemApps
                 filerAppItems(queryPattern.value!!)
             }
-
+            userApps.clear()
+            systemApps.clear()
+            tempUserApps.forEach { appItem ->
+                val appName = hashMap[appItem.packageName] ?: AppUtils.getAppName(application,
+                    appItem.packageName).also {
+                    hashMap[appItem.packageName] = it
+                }
+                userApps.add(appItem.copy(name = appName))
+            }
+            tempSystemApps.forEach { appItem ->
+                val appName = hashMap[appItem.packageName] ?: AppUtils.getAppName(application,
+                    appItem.packageName).also {
+                    hashMap[appItem.packageName] = it
+                }
+                systemApps.add(appItem.copy(name = appName))
+            }
+            withContext(Dispatchers.Main) {
+                _userApps.value = userApps
+                _systemApps.value = systemApps
+            }
         }
     }
 

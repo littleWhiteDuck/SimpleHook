@@ -5,11 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.bean.AppItem
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.marquee
 import me.simpleHook.ui.view.applist.AppItemView
+import me.simpleHook.util.AppUtils
 import me.simpleHook.util.GlideApp
 
 class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
@@ -43,7 +48,12 @@ class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
         holder.apply {
             appItem.apply {
                 GlideApp.with(ivIcon).load(packageName).into(ivIcon)
-                tvAppName.text = name
+                CoroutineScope(Dispatchers.IO).launch {
+                    val result = AppUtils.getAppName(holder.itemView.context, packageName)
+                    withContext(Dispatchers.Main) {
+                        tvAppName.text = result
+                    }
+                }
                 tvAppName.marquee()
                 tvPackageName.text = packageName
                 tvPackageName.marquee()

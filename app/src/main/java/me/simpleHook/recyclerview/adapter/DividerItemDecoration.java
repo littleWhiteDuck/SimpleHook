@@ -13,6 +13,7 @@ import java.util.List;
 import me.simpleHook.ui.fragment.extension.ExtensionItem;
 import me.simpleHook.ui.fragment.extension.ExtensionSubItem;
 
+
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
     private final @NonNull MultiTypeAdapter adapter;
