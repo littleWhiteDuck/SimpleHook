@@ -48,11 +48,15 @@ class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
         holder.apply {
             appItem.apply {
                 GlideApp.with(ivIcon).load(packageName).into(ivIcon)
-                CoroutineScope(Dispatchers.IO).launch {
-                    val result = AppUtils.getAppName(holder.itemView.context, packageName)
-                    withContext(Dispatchers.Main) {
-                        tvAppName.text = result
+                if (name.isEmpty()) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = AppUtils.getAppName(holder.itemView.context, packageName)
+                        withContext(Dispatchers.Main) {
+                            tvAppName.text = result
+                        }
                     }
+                } else {
+                    tvAppName.text = name
                 }
                 tvAppName.marquee()
                 tvPackageName.text = packageName

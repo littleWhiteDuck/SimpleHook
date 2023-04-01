@@ -27,6 +27,7 @@ import me.simpleHook.extension.setTextColor
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
+import me.simpleHook.util.AppUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.viewmodel.AppViewModel
 
@@ -99,20 +100,20 @@ class AppListActivity : BaseActivity() {
     }
 
     private fun clickResponse(appItem: AppItem) {
+        val appName = appItem.name.ifEmpty { AppUtils.getAppName(this, appItem.packageName) }
         if (isFromAssist) {
             val intent = Intent().also {
-                it.putExtra("appName", appItem.name)
+                it.putExtra("appName", appName)
                 it.putExtra("packageName", appItem.packageName)
             }
             setResult(RESULT_OK, intent)
         } else {
             val intent = Intent().also {
-                it.putExtra("appName", appItem.name)
+                it.putExtra("appName", appName)
                 it.putExtra("packageName", appItem.packageName)
                 it.putExtra("versionName", appItem.versionName)
             }
             setResult(RESULT_OK, intent)
-            finish()
         }
         finish()
     }
