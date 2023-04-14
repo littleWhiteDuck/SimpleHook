@@ -32,6 +32,68 @@ import me.simpleHook.hook.util.Type
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.util.*
 
+private const val findAndHookMethod = """
+    XposedHelpers.findAndHookMethod('类名', runtime.classLoader, "方法名", 参数类型 XC_MethodHook({
+        beforeHookedMethod: function (param) {
+            before_hook
+        },
+        afterHookedMethod: function (param) {
+            after_hook
+        }
+    }));    
+"""
+private const val isHook = """
+if (hostPackageName == 'package_name') {
+    // description
+    逻辑代码
+}
+"""
+
+private const val hookStaticField = """
+    XposedHelpers.setStaticObjectField(XposedHelpers.findClass("变量类名", runtime.classLoader), "变量名", 变量值);
+"""
+private const val hookInstanceField = """
+    XposedHelpers.setObjectField(param.thisObject, "变量名", 变量值);
+"""
+private const val recordStaticField = """
+    console.log(XposedHelpers.getStaticObjectField(XposedHelpers.findClass("变量类名", runtime.classLoader), "变量名"));  
+"""
+private const val recordInstanceField = """
+    console.log(XposedHelpers.getObjectField(param.thisObject, "变量名"));
+"""
+private const val hookAllMethods = """
+    XposedBridge.hookAllMethods(XposedHelpers.findClass("类名", runtime.classLoader), "方法名", XC_MethodHook({
+        beforeHookedMethod: function (param) {
+            before_hook
+        },
+        afterHookedMethod: function (param) {
+            after_hook
+        }
+    }));
+"""
+private const val findAndHookConstructor = """
+    XposedHelpers.findAndHookConstructor('类名', runtime.classLoader, 参数类型 XC_MethodHook({
+        beforeHookedMethod: function (param) {
+            before_hook
+        },
+        afterHookedMethod: function (param) {
+            after_hook
+        }
+    }));     
+"""
+private const val hookAllConstructors = """
+    XposedBridge.hookAllConstructors(XposedHelpers.findClass("类名", runtime.classLoader), XC_MethodHook({
+        beforeHookedMethod: function (param) {
+            before_hook
+        },
+        afterHookedMethod: function (param) {
+            after_hook
+        }
+    }));    
+"""
+
+private const val hostPackageName = "var hostPackageName = runtime.packageName;"
+
 class ConfigDialogFragment(
     private val configsList: List<ConfigItem>, private val mode: Int
 ) : DialogFragment() {
@@ -44,45 +106,10 @@ class ConfigDialogFragment(
         }
     }
     private val configSystem = ConfigSystemUtil.getConfigSystem()
-    private val staticField = "common.setStaticObjectField('类名', '变量名', 变量值);"
-    private val instanceField = "common.setObjectField(param.thisObject, '变量名', 变量值);"
-    private val hookAllConstructor = """
-        common.hookAllConstructors('类名', function (param) {
-            beforeHook
-        }, function (param) {
-            afterHook
-        });
-    """.trimIndent()
-    private val hookConstructor = """
-        common.hookConstructor('类名', params function (param) {
-            beforeHook
-        }, function (param) {
-            afterHook
-        });
-    """.trimIndent()
-    private val hookMethod = """
-        common.hookMethod('类名', '方法名', params function (param) {
-            beforeHook
-        }, function (param) {
-            afterHook
-        });
-    """.trimIndent()
-    private val hookAllMethods = """
-        common.hookAllMethods('类名', '方法名',function (param) {
-            beforeHook
-        }, function (param) {
-            afterHook
-        });
-    """.trimIndent()
-    private val getPackageName = "var currentPackageName = common.getlpparam().packageName;"
-    private val ifFormat = """
-        if (currentPackageName == 'packageName') {
-            //description
-        implement
-        } 
-    """.trimIndent()
     private var isAnti = false
     private lateinit var mContext: Context
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -115,8 +142,10 @@ class ConfigDialogFragment(
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                if (isEnableSave) configSystem.saveCustomConfig(item.appConfig.packageName,
-                                    Json.encodeToString(item.appConfig))
+                                if (isEnableSave) configSystem.saveCustomConfig(
+                                    item.appConfig.packageName,
+                                    Json.encodeToString(item.appConfig)
+                                )
                             }
                             tempList.add(item.appConfig.copy(enable = isEnableSave))
                         }
@@ -145,7 +174,8 @@ class ConfigDialogFragment(
                     } else {
                         val strConfig =
                             if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else getStringJSConfig(
-                                tempList)
+                                tempList
+                            )
                         ToolUtils.toClip(mContext, strConfig)
                         requireActivity().showToast(getString(R.string.main_home_export_configs_tip))
                         this@ConfigDialogFragment.dismiss()
@@ -159,7 +189,8 @@ class ConfigDialogFragment(
                     isAnti = true
                     selectAll.text =
                         if (isAnti) getString(R.string.config_dialog_button_invert_selection) else getString(
-                            R.string.config_dialog_button_select_all)
+                            R.string.config_dialog_button_select_all
+                        )
                     setAllSelect()
                 }
             }
@@ -215,13 +246,13 @@ class ConfigDialogFragment(
     } ?: ""
 
     private fun getStringJSConfig(list: List<ConfigItem>?) = list?.let {
-        var result = "$getPackageName\n//请手动将同方法的hook移至同一个hook代码内，否则后面的不会生效\n"
+        var result = "$hostPackageName\n\n"
         list.forEach { configItem ->
             val appConfig = configItem.appConfig
             val configStr = toJSConfig(appConfig.configs)
-            result += ifFormat.replace("packageName", appConfig.packageName)
+            result += isHook.replace("package_name", appConfig.packageName)
                 .replace("description", appConfig.description)
-                .replace("implement", configStr) + "\n"
+                .replace("逻辑代码", configStr) + "\n"
         }
         result
     } ?: ""
@@ -235,68 +266,142 @@ class ConfigDialogFragment(
                 val temp = when (mode) {
                     Constant.HOOK_STATIC_FIELD -> {
                         val staticFieldStr =
-                            staticField.replace("类名", fieldClassName).replace("变量名", fieldName)
-                                .replace("变量值",
-                                    getValue(Type.getDataTypeValue(resultValues)).toString())
-                        val thisResult =
-                            hookMode.replace("afterHook", staticFieldStr).replace("beforeHook", "")
-                                .replace("类名", className).replace("方法名", methodName)
-                                .replace("params", transParams(params))
-                        "\n${thisResult}\n"
+                            hookStaticField.replace("变量类名", fieldClassName)
+                                .replace("变量名", fieldName)
+                                .replace(
+                                    "变量值",
+                                    getValue(Type.getDataTypeValue(resultValues)).toString()
+                                )
+                        if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+                            "\n${staticFieldStr}\n"
+                        } else {
+                            val thisResult = if (hookPoint == "before") {
+                                hookMode.replace("after_hook", "")
+                                    .replace("before_hook", staticFieldStr)
+                                    .replace("类名", className).replace("方法名", methodName)
+                                    .replace("参数类型", transParams(params))
+                            } else {
+                                hookMode.replace("after_hook", staticFieldStr)
+                                    .replace("before_hook", "")
+                                    .replace("类名", className).replace("方法名", methodName)
+                                    .replace("参数类型", transParams(params))
+                            }
+                            "\n${thisResult}\n"
+                        }
                     }
+
                     Constant.HOOK_FIELD -> {
-                        val instanceFieldStr = instanceField.replace("变量名", fieldName)
-                            .replace("变量值",
-                                getValue(Type.getDataTypeValue(resultValues)).toString())
-                        val thisResult = hookMode.replace("afterHook", instanceFieldStr)
-                            .replace("beforeHook", "").replace("类名", className)
-                            .replace("方法名", methodName).replace("params", transParams(params))
+                        val instanceFieldStr = hookInstanceField.replace("变量名", fieldName)
+                            .replace(
+                                "变量值",
+                                getValue(Type.getDataTypeValue(resultValues)).toString()
+                            )
+                        val thisResult = if (hookPoint == "before") {
+                            hookMode.replace("after_hook", "")
+                                .replace("before_hook", instanceFieldStr)
+                                .replace("类名", className).replace("方法名", methodName)
+                                .replace("参数类型", transParams(params))
+                        } else {
+                            hookMode.replace("after_hook", instanceFieldStr)
+                                .replace("before_hook", "")
+                                .replace("类名", className).replace("方法名", methodName)
+                                .replace("参数类型", transParams(params))
+                        }
                         "\n${thisResult}\n"
                     }
+
                     Constant.HOOK_RETURN -> {
                         val resultValue =
                             " param.setResult(${getValue(Type.getDataTypeValue(resultValues))});"
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", resultValue).replace("afterHook", "")
-                            .replace("params", transParams(params))
+                            .replace("before_hook", resultValue).replace("after_hook", "")
+                            .replace("参数类型", transParams(params))
                     }
+
                     Constant.HOOK_PARAM -> {
                         val paramValue = transParamValues(params, resultValues)
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", paramValue).replace("afterHook", "")
-                            .replace("params", transParams(params))
+                            .replace("before_hook", paramValue).replace("after_hook", "")
+                            .replace("参数类型", transParams(params))
                     }
+
                     Constant.HOOK_BREAK -> {
                         val resultValue = " param.setResult(null);"
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", resultValue).replace("afterHook", "")
-                            .replace("params", transParams(params))
+                            .replace("before_hook", resultValue).replace("after_hook", "")
+                            .replace("参数类型", transParams(params))
                     }
+
                     Constant.HOOK_RECORD_RETURN -> {
-                        val resultValue = "common.log('返回值: ' + param.getResult());"
+                        val resultValue = "console.log('返回值: ' + param.getResult());"
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", "").replace("afterHook", resultValue)
-                            .replace("params", transParams(params))
+                            .replace("before_hook", "").replace("after_hook", resultValue)
+                            .replace("参数类型", transParams(params))
                     }
+
                     Constant.HOOK_RECORD_PARAMS -> {
                         var resultValue = ""
                         for (i in params.split(",").indices) {
-                            resultValue += "common.log('参数$i: ' + param.args[$i]);\n\t"
+                            resultValue += "console.log('参数$i: ' + param.args[$i]);\n\t"
                         }
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", "").replace("afterHook", resultValue)
-                            .replace("params", transParams(params))
+                            .replace("before_hook", "").replace("after_hook", resultValue)
+                            .replace("参数类型", transParams(params))
                     }
+
                     Constant.HOOK_RECORD_PARAMS_RETURN -> {
                         var resultValue = "common.log('返回值: ' + param.getResult());\n\t"
                         for (i in params.split(",").indices) {
                             resultValue += "common.log('参数$i: ' + param.args[$i]);\n\t"
                         }
                         hookMode.replace("类名", className).replace("方法名", methodName)
-                            .replace("beforeHook", "").replace("afterHook", resultValue)
-                            .replace("params", transParams(params))
+                            .replace("before_hook", "").replace("after_hook", resultValue)
+                            .replace("参数类型", transParams(params))
                     }
-                    else -> "//error"
+
+                    Constant.HOOK_RECORD_STATIC_FIELD -> {
+                        val staticFieldStr =
+                            recordStaticField.replace("变量类名", fieldClassName)
+                                .replace("变量名", fieldName)
+                        if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+                            "\n${staticFieldStr}\n"
+                        } else {
+                            val thisResult = if (hookPoint == "before") {
+                                hookMode.replace("after_hook", "")
+                                    .replace("before_hook", staticFieldStr)
+                                    .replace("类名", className).replace("方法名", methodName)
+                                    .replace("参数类型", transParams(params))
+                            } else {
+                                hookMode.replace("after_hook", staticFieldStr)
+                                    .replace("before_hook", "")
+                                    .replace("类名", className).replace("方法名", methodName)
+                                    .replace("参数类型", transParams(params))
+                            }
+                            "\n${thisResult}\n"
+                        }
+                    }
+
+                    Constant.HOOK_RECORD_INSTANCE_FIELD -> {
+                        val instanceFieldStr = recordInstanceField.replace("变量名", fieldName)
+                        val thisResult = if (hookPoint == "before") {
+                            hookMode.replace("after_hook", "")
+                                .replace("before_hook", instanceFieldStr)
+                                .replace("类名", className).replace("方法名", methodName)
+                                .replace("参数类型", transParams(params))
+                        } else {
+                            hookMode.replace("after_hook", instanceFieldStr)
+                                .replace("before_hook", "")
+                                .replace("类名", className).replace("方法名", methodName)
+                                .replace("参数类型", transParams(params))
+                        }
+                        "\n${thisResult}\n"
+                    }
+
+                    Constant.HOOK_RETURN2 -> {
+                        "\n暂未支持\n"
+                    }
+
+                    else -> "//未知"
                 }
                 result += "$temp \n\n"
             }
@@ -315,15 +420,15 @@ class ConfigDialogFragment(
     private fun getHookMode(methodName: String, params: String): String {
         return if (methodName == "<init>") {
             if (params == "*") {
-                hookAllConstructor
+                hookAllConstructors
             } else {
-                hookConstructor
+                findAndHookConstructor
             }
         } else {
             if (params == "*") {
                 hookAllMethods
             } else {
-                hookMethod
+                findAndHookMethod
             }
         }
     }
@@ -342,20 +447,18 @@ class ConfigDialogFragment(
 
     private fun transParams(params: String): String {
         var value = ""
-        if (params == "") return "[],"
+        if (params == "") return ""
         val methodParams = params.split(",")
-        methodParams.forEachIndexed { index, param ->
+        methodParams.forEach { param ->
             val classType = Type.getClassType(param)
             value += if (classType == null) {
                 "'${param}'"
             } else {
                 "'${classType.name}'"
             }
-            if (index != methodParams.size - 1) {
-                value += ","
-            }
+            value += ","
         }
-        return "[$value],"
+        return value
     }
 
     override fun onDestroyView() {
