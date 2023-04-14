@@ -10,15 +10,16 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
-import me.simpleHook.extension.dp
 
 class RecordAdapter(
-    val isType: Boolean = false,
-    val onItemClick: (PrintLog) -> Unit,
+    private val isType: Boolean = false,
+    private val onItemClick: (PrintLog) -> Unit,
+    private val onItemLongClick: (PrintLog) -> Unit,
     private val deleteRecord: (PrintLog) -> Unit,
     private val markRecord: (PrintLog) -> Unit
 ) : PagingDataAdapter<PrintLog, RecordAdapter.ViewHolder>(RecordDiff) {
@@ -31,6 +32,12 @@ class RecordAdapter(
             val printLog: PrintLog =
                 viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
             onItemClick(printLog)
+        }
+        recordView.container.setOnLongClickListener {
+            val printLog: PrintLog =
+                viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
+            onItemLongClick(printLog)
+            true
         }
         recordView.mark.setOnClickListener {
             val printLog: PrintLog =

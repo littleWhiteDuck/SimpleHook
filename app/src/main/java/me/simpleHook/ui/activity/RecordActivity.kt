@@ -43,9 +43,7 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.util.*
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.io.IOException
 
 
 class RecordActivity : BaseActivity() {
@@ -60,8 +58,9 @@ class RecordActivity : BaseActivity() {
         }, deleteRecord = { printLog ->
             appViewModel.deleteRecordById(printLog.id)
         }, markRecord = { printLog ->
-            val tempIsMark = !printLog.isMark
-            appViewModel.updateRecord(printLog.copy(isMark = tempIsMark))
+            appViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
+        }, onItemLongClick = { printLog ->
+            appViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
         })
     }
     private val saveMarkedRecord =
@@ -372,27 +371,27 @@ class RecordActivity : BaseActivity() {
         val loadingDialog =
             LoadingDialog(this, getString(R.string.record_loading_saving_marked_record))
         loadingDialog.show()
-        lifecycleScope.launch(Dispatchers.Main) {
-            try {
-                withContext(Dispatchers.IO) {
-                    contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
-                        val list =
-                            if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
-                                typeOrPackageName)
-                        list.forEach {
-                            val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
-                            FileOutputStream(parcel.fileDescriptor).use { output ->
-                                output.write(content.toByteArray())
-                            }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = runCatching {
+                contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
+                    val list =
+                        if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
+                            typeOrPackageName
+                        )
+                    list.forEach {
+                        val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
+                        FileOutputStream(parcel.fileDescriptor).use { output ->
+                            output.write(content.toByteArray())
                         }
                     }
                 }
+                true
+            }.getOrDefault(false)
+            withContext(Dispatchers.Main) {
                 loadingDialog.dismiss()
-                showToast(getString(R.string.record_save_marked_record_tip))
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } catch (e: IOException) {
-                e.printStackTrace()
+                if (result) {
+                    showToast(getString(R.string.record_save_marked_record_tip))
+                }
             }
         }
 
@@ -406,7 +405,7 @@ class RecordActivity : BaseActivity() {
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 appViewModel.queryPattern.value = inputView.editText.text.toString().trim()
-                if (appViewModel.queryPattern.value!!.isNotEmpty()) {
+                if (appViewModel.queryPattern.value.isNotEmpty()) {
                     supportActionBar?.title = appViewModel.queryPattern.value
                     supportActionBar?.subtitle = ""
                 }
