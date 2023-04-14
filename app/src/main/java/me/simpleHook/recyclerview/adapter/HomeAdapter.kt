@@ -8,12 +8,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import me.simpleHook.R
 import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.view.main.AppConfigView
-import me.simpleHook.util.GlideApp
 import me.simpleHook.extension.marquee
 
 class HomeAdapter(
@@ -77,7 +77,7 @@ class HomeAdapter(
                 tvConfigDesc.text = if (description.trim().isEmpty()) packageName else description
                 tvConfigDesc.marquee()
                 ableSwitch.isChecked = enable
-                GlideApp.with(ivAppIcon).load(packageName).into(ivAppIcon)
+                Glide.with(ivAppIcon).load(packageName).into(ivAppIcon)
             }
             if (appConfigBean.drag) {
                 holder.ableSwitch.isVisible = false

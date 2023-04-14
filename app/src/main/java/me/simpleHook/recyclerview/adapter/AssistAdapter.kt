@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import me.simpleHook.R
 import me.simpleHook.recyclerview.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.ui.view.main.AssistItemView
 import me.simpleHook.util.AppUtils
-import me.simpleHook.util.GlideApp
 import me.simpleHook.extension.marquee
 
 class AssistAdapter(
@@ -57,7 +57,7 @@ class AssistAdapter(
         holder.itemView.setTag(R.id.item_assist_config, assistConfig)
         holder.apply {
             tvAppName.text = assistConfig.appName
-            GlideApp.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
+            Glide.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
             tvVersionName.text =
                 AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
         }

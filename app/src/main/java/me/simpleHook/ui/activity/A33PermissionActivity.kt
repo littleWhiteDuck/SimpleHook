@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -358,7 +359,7 @@ class PermissionAdapter(
         val permissionBean = getItem(position)
         holder.itemView.setTag(R.id.item_permission_grant_position, position)
         holder.apply {
-            GlideApp.with(icon).load(permissionBean.packageName).into(icon)
+            Glide.with(icon).load(permissionBean.packageName).into(icon)
             appName.text = permissionBean.name
             packageName.text = permissionBean.packageName
             checkBox.isChecked = permissionBean.checked

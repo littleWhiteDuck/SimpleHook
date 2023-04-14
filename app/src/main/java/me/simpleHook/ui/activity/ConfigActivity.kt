@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -176,7 +177,7 @@ class ConfigActivity : BaseActivity() {
         } ?: run {
             binding.appInfo.containerView.apply {
                 appName.text = getString(R.string.config_no_app_info)
-                GlideApp.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
+                Glide.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
             }
 
         }

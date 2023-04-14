@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
@@ -12,7 +13,6 @@ import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView
-import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 import me.simpleHook.util.RecordType
 
@@ -78,7 +78,7 @@ class RecordAdapter(
                 }
             }
             if (isType && !printLog.type.startsWith("Error")) {
-                GlideApp.with(icon).load(logBean.packageName).into(icon)
+                Glide.with(icon).load(logBean.packageName).into(icon)
             } else {
                 val showText = RecordType.getShowText(printLog.type)
                 icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))

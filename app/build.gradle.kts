@@ -11,7 +11,7 @@ prop.load(FileInputStream(keyFile))
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
@@ -63,8 +63,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_17)
-        targetCompatibility(JavaVersion.VERSION_17)
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -160,20 +160,20 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.0-rc01")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // room
     val room_version = "2.5.0-beta02"
     implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
 
     // xposed
@@ -203,9 +203,9 @@ dependencies {
     implementation("androidx.room:room-paging:$room_version")
 
     //glide
-    val glideVersion = "4.14.2"
+    val glideVersion = "4.15.1"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    kapt("com.github.bumptech.glide:compiler:$glideVersion")
+    ksp("com.github.bumptech.glide:ksp:$glideVersion")
 
     val libsuVersion = "5.0.4"
     implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")

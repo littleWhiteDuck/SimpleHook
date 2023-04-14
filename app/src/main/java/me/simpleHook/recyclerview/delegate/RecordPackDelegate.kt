@@ -1,11 +1,11 @@
 package me.simpleHook.recyclerview.delegate
 
 import android.content.Context
+import com.bumptech.glide.Glide
 import com.drakeet.multitype.ViewDelegate
 import me.simpleHook.bean.RecordShowPack
 import me.simpleHook.ui.view.record.RecordPackItemView
 import me.simpleHook.util.AppUtils
-import me.simpleHook.util.GlideApp
 import me.simpleHook.util.IconHelper
 
 class RecordPackDelegate(
@@ -17,7 +17,7 @@ class RecordPackDelegate(
                 title.text = "Hook Error"
                 icon.setImageDrawable(IconHelper.getTextIcon(text = "Error"))
             } else {
-                GlideApp.with(icon).load(item.packageName).into(icon)
+                Glide.with(icon).load(item.packageName).into(icon)
                 title.text = AppUtils.getAppName(view.context, item.packageName)
             }
 
