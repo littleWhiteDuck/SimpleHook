@@ -514,3 +514,132 @@ public class MainActivity extends Acitvity {
 > 这个功能就是遍历所有的应用目录并删除无用的配置(本应用内未显示其配置)
 >
 > 因为需要遍历所有应用会比较慢
+
+
+### 8.配置说明
+
+```json
+{
+  "packageName": "包名",
+  "appName": "应用名",
+  "versionName": "版本名",
+  "description": "描述",
+  "configs": "配置",
+  "enable": true,
+  "id": 0
+},
+configs 为下列字符串形式
+[
+  {
+    "mode": 0,
+    "className": "类名",
+    "methodName": "方法名",
+    "params": "参数类型",
+    "fieldName": "变量名",
+    "fieldClassName": "变量所在类名",
+    "resultValues": "返回值",
+    "hookPoint": "hook点",
+    "returnClassName": "返回值类名",
+    "fieldType": "变量类型",
+    "enable": true
+  }
+]
+```
+
+#### mode
+
+- 0：
+
+   > 代表Hook返回值,
+   >
+   > 有效：mode、className、methodName、params、resultValues、enable
+   >
+   > params: 多个参数为**,**隔开
+   >
+   > resultValues：返回值
+
+- 1：
+
+   >代表Hook参数值，
+   >
+   >有效：mode、className、methodName、params、resultValues、enable
+   >
+   >params: 多个参数为**,**隔开
+   >
+   >resultValues：多个参数值**,**隔开，留空不hook这个参数
+
+- 2：
+
+   >代表替换/拦截方法执行
+   >
+   >有效：mode、className、methodName、params、enable
+
+- 3：
+
+   > 代表Hook静态变量
+   >
+   > 有效1：mode、className、resultValues、enable、fieldName
+   >
+   > ​	直接Hook变量：
+   >
+   > ​		resultValues:变量值
+   >
+   > 
+   >
+   > 有效2：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName、hookPoint
+   >
+   > ​	某方法Hook前后hook变量：
+   >
+   > ​		resultValues: 变量值
+   >
+   > ​		hookPoint: before、after
+
+- 4：
+
+   >代表Hook实例变量
+   >
+   >有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName
+
+- 5：
+
+   >记录参数值
+   >
+   >有效：mode、className、methodName、params、enable
+
+- 6：
+
+   >记录返回值
+   >
+   >有效：mode、className、methodName、params、enable
+
+- 7：
+
+   > 记录参数值和返回值
+   >
+   > 有效：mode、className、methodName、params、enable
+
+- 8：
+
+   > 记录静态变量
+   >
+   > 有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName
+
+- 9：
+
+    > 记录实例变量
+    >
+    > 有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassNam
+
+- 10
+
+    > Hook返回值+
+    >
+    > 有效：mode、className、methodName、params、resultValues、enable、returnClassName
+    >
+    > 通过Gson将json转为returnClassName的对象
+    >
+    > resultValues: json字符串
+    
+     
+
+
