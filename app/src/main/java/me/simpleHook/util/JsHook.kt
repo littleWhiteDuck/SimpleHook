@@ -231,7 +231,11 @@ object JsHook {
                     }
 
                     HOOK_RETURN2 -> {
-                        "\n暂未支持\n"
+                        val resultValue =
+                            " param.setResult(json.gsonStringToClass('$resultValues',XposedHelpers.findClass('$returnClassName', runtime.classLoader)));"
+                        hookMode.replace("类名", className).replace("方法名", methodName)
+                            .replace("before_hook", resultValue).replace("after_hook", "")
+                            .replace("参数类型", transParams(params))
                     }
 
                     else -> "//未知"
