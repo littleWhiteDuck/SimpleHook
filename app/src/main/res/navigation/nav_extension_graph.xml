@@ -47,18 +47,23 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_recordSettingsFragment"
+            app:destination="@id/recordSettingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
         android:name="me.simpleHook.ui.fragment.extension.GuiseSignFragment"
         android:label="@string/guise_signature"
-        tools:layout="@layout/fragment_guise_sign">
-    </fragment>
+        tools:layout="@layout/fragment_guise_sign" />
     <fragment
         android:id="@+id/clipboardFragment"
         android:name="me.simpleHook.ui.fragment.extension.ClipboardFragment"
-        android:label="@string/label_clipboard">
-    </fragment>
+        android:label="@string/label_clipboard" />
     <fragment
         android:id="@+id/fileMonitorFragment"
         android:name="me.simpleHook.ui.fragment.extension.FileMonitorFragment"
@@ -71,5 +76,9 @@
         android:id="@+id/exitFragment"
         android:name="me.simpleHook.ui.fragment.extension.ExitFragment"
         android:label="@string/label_exit" />
+    <fragment
+        android:id="@+id/recordSettingsFragment"
+        android:name="me.simpleHook.ui.fragment.extension.RecordSettingsFragment"
+        android:label="@string/label_record" />
 
 </navigation>

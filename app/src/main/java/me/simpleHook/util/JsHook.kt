@@ -5,19 +5,19 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ConfigItem
+import me.simpleHook.constant.Constant.HOOK_BREAK
+import me.simpleHook.constant.Constant.HOOK_FIELD
+import me.simpleHook.constant.Constant.HOOK_PARAM
+import me.simpleHook.constant.Constant.HOOK_RECORD_INSTANCE_FIELD
+import me.simpleHook.constant.Constant.HOOK_RECORD_PARAMS
+import me.simpleHook.constant.Constant.HOOK_RECORD_PARAMS_RETURN
+import me.simpleHook.constant.Constant.HOOK_RECORD_RETURN
+import me.simpleHook.constant.Constant.HOOK_RECORD_STATIC_FIELD
+import me.simpleHook.constant.Constant.HOOK_RETURN
+import me.simpleHook.constant.Constant.HOOK_RETURN2
+import me.simpleHook.constant.Constant.HOOK_STATIC_FIELD
 import me.simpleHook.hook.util.Type
 
-const val HOOK_RETURN = 0
-const val HOOK_PARAM = 1
-const val HOOK_BREAK = 2
-const val HOOK_STATIC_FIELD = 3
-const val HOOK_FIELD = 4
-const val HOOK_RECORD_PARAMS = 5
-const val HOOK_RECORD_RETURN = 6
-const val HOOK_RECORD_PARAMS_RETURN = 7
-const val HOOK_RECORD_STATIC_FIELD = 8
-const val HOOK_RECORD_INSTANCE_FIELD = 9
-const val HOOK_RETURN2 = 10
 
 private const val findAndHookMethod = """
     XposedHelpers.findAndHookMethod('类名', runtime.classLoader, "方法名", 参数类型 XC_MethodHook({

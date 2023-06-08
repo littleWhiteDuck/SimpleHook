@@ -34,13 +34,22 @@ data class ExtensionConfig(
     var adb: Boolean = false,
     var guiseSign: ExtensionItemConfig = ExtensionItemConfig(info = "[]"),
     var fileMonitor: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
-    var exit: ExtensionItemConfig = ExtensionItemConfig(info = "{}")
+    var exit: ExtensionItemConfig = ExtensionItemConfig(info = "{}"),
+    var record: ExtensionItemConfig = ExtensionItemConfig(info = "{}")
 )
 
 @kotlinx.serialization.Serializable
 @Keep
 data class ExtensionItemConfig(
     var enable: Boolean = false, var info: String = ""
+)
+
+
+@kotlinx.serialization.Serializable
+@Keep
+data class RecordConfig(
+    var enableStack: Boolean = true,
+    var enableBase64: Boolean = false
 )
 
 @kotlinx.serialization.Serializable
