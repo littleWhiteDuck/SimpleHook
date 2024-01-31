@@ -50,7 +50,7 @@ class RecordSettingsFragment : BasePreferenceFragment() {
         tempConfig = Json.decodeFromString(recordConfigInfo)
         val stack = SwitchPreferenceCompat(requireContext()).apply {
             isPersistent = false
-            title = getString(R.string.extension_record_title_add_stasck)
+            title = getString(R.string.extension_record_title_add_stack)
             isIconSpaceReserved = false
             isChecked = tempConfig.enableStack
             setOnPreferenceChangeListener { _, newValue ->

@@ -14,7 +14,7 @@
     <string name="config_dialog_field_name_input_tip">例如：isPro</string>
     <string name="config_dialog_field_class_name_input_tip">例如：com.example.example</string>
     <string name="config_dialog_field_class_name_edit_hint">請輸入變量所在類名</string>
-    <string name="config_dialog_title">方法配置</string>
+    <string name="config_dialog_title">配置</string>
     <string name="config_dialog_mode_select">選擇模式：</string>
     <string name="config_description_input_tip">輸入描述</string>
     <string name="config_menu_save_config">保存配置</string>
@@ -506,4 +506,16 @@
     <string name="config_collection_insert_var_field">插入變量</string>
     <string name="config_collection_edit_var">編輯變量</string>
     <string name="config_collection_edit_collection">編輯收藏</string>
+
+    <string name="label_record">記錄</string>
+    <string name="extension_item_title_record">記錄</string>
+    <string name="extension_item_desc_record">調整記錄的輸出項目</string>
+    <string name="extension_record_record">記錄</string>
+    <string name="extension_record_title_add_base64">輸出結果增加Base64</string>
+    <string name="extension_record_title_add_stack">記錄呼叫堆疊</string>
+    <string name="config_sort_done">儲存排序</string>
+    <string name="config_auto_tran_param">自動轉換參數</string>
+    <string name="config_show_note">顯示描述</string>
+    <string name="config_dialog_config_item_desc_input">例如：這是登入Hook</string>
+    <string name="config_dialog_config_item_desc_edit">輸入備忘訊息</string>
 </resources>

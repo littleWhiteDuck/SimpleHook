@@ -126,19 +126,6 @@
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
-
-
-        <Button
-            android:id="@+id/save_config"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/config_dialog_save"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView"
-            app:layout_constraintEnd_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/textView" />
-
         <Button
             android:id="@+id/delete_config"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -150,6 +137,27 @@
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/save_config"
             app:layout_constraintTop_toTopOf="@+id/textView" />
+        <Button
+            android:id="@+id/save_config"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_dialog_save"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView"
+            app:layout_constraintEnd_toStartOf="@+id/more_settings"
+            app:layout_constraintTop_toTopOf="@+id/textView" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/more_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:background="?selectableItemBackground"
+            android:src="@drawable/baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="@+id/save_config"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintTop_toTopOf="@+id/save_config" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/field_class_name_input"
@@ -223,6 +231,22 @@
                 android:hint="@string/config_dialog_return_value_input_tip"
                 android:imeOptions="actionDone"
                 android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_item_desc_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_config_item_desc_input"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/result_value_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_item_desc_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="@string/config_dialog_config_item_desc_edit" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

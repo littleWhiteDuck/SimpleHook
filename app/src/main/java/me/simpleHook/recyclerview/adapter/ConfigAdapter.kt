@@ -39,6 +39,7 @@ class ConfigAdapter(
         val tvNumber = containerView.num
         val tip = containerView.tip
         val enable = containerView.enable
+        val desc = containerView.desc
     }
 
     @SuppressLint("ResourceType")
@@ -61,8 +62,6 @@ class ConfigAdapter(
         }
         val viewHolder = ViewHolder(configView)
         viewHolder.apply {
-            tvClassName.marquee()
-            tvOtherName.marquee()
             itemView.apply {
                 setOnClickListener {
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
@@ -190,6 +189,8 @@ class ConfigAdapter(
                     SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
             }
             tip.text = span
+
+            desc.text = methodConfig.desc
         }
     }
 

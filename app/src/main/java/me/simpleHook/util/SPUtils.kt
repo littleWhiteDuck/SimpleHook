@@ -36,6 +36,8 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var web_dav_host by SharedPreferenceDelegates.string("")
     var web_dav_account by SharedPreferenceDelegates.string("")
     var web_dav_pw by SharedPreferenceDelegates.string("")
+    var auto_x_param by SharedPreferenceDelegates.boolean(true)
+    var config_item_show_desc by SharedPreferenceDelegates.boolean(false)
 
     fun remove(key: String) {
         preferences.edit().remove(key).apply()

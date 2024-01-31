@@ -50,7 +50,7 @@
     <string name="config_dialog_field_name_input_tip">Example: isPro</string>
     <string name="config_dialog_field_class_name_edit_hint">The class name of the field</string>
     <string name="config_dialog_field_class_name_input_tip">Example: com.example.example</string>
-    <string name="config_dialog_title">Method Config</string>
+    <string name="config_dialog_title">Config</string>
     <string name="config_dialog_mode_select">Select mode:</string>
     <string name="main_extension_delete_config_tip">This configuration has been removed</string>
     <string name="main_extension_name">Extension</string>
@@ -507,4 +507,16 @@
     <string name="config_collection_insert_var_field">Insert variables</string>
     <string name="config_collection_edit_var">Edit variable</string>
     <string name="config_collection_edit_collection">Edit Collection</string>
+
+    <string name="label_record">Record</string>
+    <string name="extension_item_title_record">Record</string>
+    <string name="extension_item_desc_record">Adjust the output items of the record</string>
+    <string name="extension_record_record">Record</string>
+    <string name="extension_record_title_add_base64">The output result is added to Base64</string>
+    <string name="extension_record_title_add_stack">Record call stack</string>
+    <string name="config_sort_done">Save sort</string>
+    <string name="config_auto_tran_param">Auto conversion params</string>
+    <string name="config_show_note">Show note</string>
+    <string name="config_dialog_config_item_desc_input">Example: login hook</string>
+    <string name="config_dialog_config_item_desc_edit">Enter memo info</string>
 </resources>

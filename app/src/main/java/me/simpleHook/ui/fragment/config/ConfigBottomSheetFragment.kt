@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -19,6 +21,7 @@ import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
+import me.simpleHook.util.SPUtils
 import java.util.regex.Pattern
 
 
@@ -76,11 +79,13 @@ class ConfigBottomSheetFragment(
     private val behavior by lazy { BottomSheetBehavior.from(binding.root.parent as View) }
     private var hookMode = Constant.HOOK_RETURN
     private var configEnable = true
+    private val sp by lazy { SPUtils(requireContext()) }
     private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             when (newState) {
                 BottomSheetBehavior.STATE_EXPANDED -> bottomSheet.background =
                     createMaterialShapeDrawable(bottomSheet)
+
                 else -> {}
             }
         }
@@ -111,6 +116,32 @@ class ConfigBottomSheetFragment(
             if (tag == "ADD") {
                 deleteConfig.isVisible = false
             }
+            moreSettings.setOnClickListener {
+                popupSettingMenu(it)
+            }
+        }
+    }
+
+    private fun popupSettingMenu(view: View) {
+        val popupMenu = PopupMenu(requireContext(), view, GravityCompat.START)
+        popupMenu.inflate(R.menu.menu_config_more)
+        popupMenu.menu.findItem(R.id.autoXParam).isChecked = sp.auto_x_param
+        popupMenu.menu.findItem(R.id.show_desc).isChecked = sp.config_item_show_desc
+        popupMenu.show()
+        popupMenu.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.autoXParam -> {
+                    it.isChecked = !it.isChecked
+                    sp.auto_x_param = it.isChecked
+                }
+
+                R.id.show_desc -> {
+                    it.isChecked = !it.isChecked
+                    sp.config_item_show_desc = it.isChecked
+                    binding.configItemDescInput.isVisible = it.isChecked
+                }
+            }
+            true
         }
     }
 
@@ -137,9 +168,11 @@ class ConfigBottomSheetFragment(
                 resultValueEdit.setText(resultValues)
                 hookPointEdit.setText(hookPoint)
                 returnClassNameEdit.setText(returnClassName)
+                configItemDescEdit.setText(desc)
                 hookMode = mode
                 configEnable = enable
             }
+            configItemDescInput.isVisible = sp.config_item_show_desc
             onModeChange()
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
@@ -185,6 +218,7 @@ class ConfigBottomSheetFragment(
             }
         }
         val returnClassName = smali2Java(binding.returnClassNameEdit.text.toString().trim())
+        val configDesc = binding.configItemDescEdit.text.toString().trim()
         var stateCheck = getCheckStateMode(this.hookMode)
         if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
         if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
@@ -199,7 +233,8 @@ class ConfigBottomSheetFragment(
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
                 requireActivity().showToast(getString(R.string.config_hook_constructor_tip))
             }
-            val configBean = ConfigBean(this.hookMode,
+            val configBean = ConfigBean(
+                this.hookMode,
                 className,
                 methodName,
                 params,
@@ -208,7 +243,9 @@ class ConfigBottomSheetFragment(
                 results,
                 hookPoint = hookPoint,
                 returnClassName = returnClassName,
-                enable = configEnable)
+                desc = configDesc,
+                enable = configEnable
+            )
             saveConfig(configBean)
             dismiss()
         } else {
@@ -232,6 +269,7 @@ class ConfigBottomSheetFragment(
     }
 
     private fun tranParams(params: String): String {
+        if (!sp.auto_x_param) return params
         val isSmali = params.contains(Regex("[/;]")) || isPrimitiveType(params)
         if (!isSmali || params.isEmpty()) return params
         var paramStr = params
@@ -276,8 +314,11 @@ class ConfigBottomSheetFragment(
         for (i in paramArray.indices) {
             if (paramArray[i].trim().isEmpty()) continue
             isSmali =
-                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(Regex(
-                    pattern_basic_array)) || paramArray[i].isEmpty()
+                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
+                    Regex(
+                        pattern_basic_array
+                    )
+                ) || paramArray[i].isEmpty()
         }
         return isSmali
     }
@@ -285,21 +326,29 @@ class ConfigBottomSheetFragment(
     private fun onModeChange() {
         val checkStateMode = getShowStateMode(hookMode)
         binding.apply {
-            showView(checkStateMode isContainState METHOD_NAME_STATE,
+            showView(
+                checkStateMode isContainState METHOD_NAME_STATE,
                 methodNameInput,
-                methodNameEdit)
+                methodNameEdit
+            )
             showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
             showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
-            showView(checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+            showView(
+                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
                 fieldClassNameInput,
-                fieldClassNameEdit)
-            showView(checkStateMode isContainState RESULT_VALUE_STATE,
+                fieldClassNameEdit
+            )
+            showView(
+                checkStateMode isContainState RESULT_VALUE_STATE,
                 resultValueInput,
-                resultValueEdit)
+                resultValueEdit
+            )
             showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
-            showView(checkStateMode isContainState RETURN_CLASS_NAME,
+            showView(
+                checkStateMode isContainState RETURN_CLASS_NAME,
                 returnClassNameInput,
-                returnClassNameEdit)
+                returnClassNameEdit
+            )
         }
     }
 

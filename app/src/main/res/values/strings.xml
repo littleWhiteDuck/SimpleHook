@@ -1,19 +1,19 @@
- <resources>
+<resources>
 
-     <!--config-->
-     <string name="config_config_smali_to_config">smali转为配置</string>
-     <string name="config_add_config">添加方法配置</string>
-     <string name="config_dialog_class_edit_tip">输入类名</string>
-     <string name="config_dialog_class_input_helper">例如：com.example.example</string>
-     <string name="config_dialog_method_input_tip">输入方法名</string>
-     <string name="config_dialog_method_input_helper">例如：isVip</string>
-     <string name="config_dialog_params_input_tip">输入参数类型</string>
-     <string name="config_dialog_return_value_input_tip">输入修改值</string>
+    <!--config-->
+    <string name="config_config_smali_to_config">smali转为配置</string>
+    <string name="config_add_config">添加方法配置</string>
+    <string name="config_dialog_class_edit_tip">输入类名</string>
+    <string name="config_dialog_class_input_helper">例如：com.example.example</string>
+    <string name="config_dialog_method_input_tip">输入方法名</string>
+    <string name="config_dialog_method_input_helper">例如：isVip</string>
+    <string name="config_dialog_params_input_tip">输入参数类型</string>
+    <string name="config_dialog_return_value_input_tip">输入修改值</string>
     <string name="config_dialog_field_name_edit_hint">输入变量名</string>
     <string name="config_dialog_field_name_input_tip">例如：isPro</string>
     <string name="config_dialog_field_class_name_input_tip">例如：com.example.example</string>
     <string name="config_dialog_field_class_name_edit_hint">请输入变量所在类名</string>
-    <string name="config_dialog_title">方法配置</string>
+    <string name="config_dialog_title">配置</string>
     <string name="config_dialog_mode_select">选择模式：</string>
     <string name="config_description_input_tip">输入描述</string>
     <string name="config_menu_save_config">保存配置</string>
@@ -589,23 +589,27 @@
     <string name="backup_dialog_message">是否恢复：%s, 备份于：%s</string>
     <string name="backup_tip_cloud_info_is_empty">请填写云备份信息</string>
     <string name="backup_tip_backup_path_is_empty">请先选择备份目录</string>
-     <string name="backup_tip_running_backup">正在备份中</string>
-     <string name="backup_tip_local_auto_backup_failed">本地自动备份失败</string>
-     <string name="backup_tip_cloud_auto_backup_failed">WebDav自动备份失败</string>
-     <string name="config_collection_illegal_format">非法格式</string>
-     <string name="config_label_collection">导入收藏</string>
-     <string name="config_collection_name_hint">给收藏起个名字</string>
-     <string name="config_collection_edit_config">编辑配置</string>
-     <string name="config_collection_insert_var_field">插入变量</string>
-     <string name="config_collection_edit_var">编辑变量</string>
-     <string name="config_collection_edit_collection">编辑收藏</string>
-     <string name="label_record">记录</string>
-     <string name="extension_item_title_record">记录</string>
-     <string name="extension_item_desc_record">调整记录的输出项</string>
-     <string name="extension_record_record">记录</string>
-     <string name="extension_record_title_add_base64">输出结果增加Base64</string>
-     <string name="extension_record_title_add_stasck">记录调用堆栈</string>
-     <string name="config_sort_done">保存排序</string>
+    <string name="backup_tip_running_backup">正在备份中</string>
+    <string name="backup_tip_local_auto_backup_failed">本地自动备份失败</string>
+    <string name="backup_tip_cloud_auto_backup_failed">WebDav自动备份失败</string>
+    <string name="config_collection_illegal_format">非法格式</string>
+    <string name="config_label_collection">导入收藏</string>
+    <string name="config_collection_name_hint">给收藏起个名字</string>
+    <string name="config_collection_edit_config">编辑配置</string>
+    <string name="config_collection_insert_var_field">插入变量</string>
+    <string name="config_collection_edit_var">编辑变量</string>
+    <string name="config_collection_edit_collection">编辑收藏</string>
+    <string name="label_record">记录</string>
+    <string name="extension_item_title_record">记录</string>
+    <string name="extension_item_desc_record">调整记录的输出项</string>
+    <string name="extension_record_record">记录</string>
+    <string name="extension_record_title_add_base64">输出结果增加Base64</string>
+    <string name="extension_record_title_add_stack">记录调用堆栈</string>
+    <string name="config_sort_done">保存排序</string>
+    <string name="config_auto_tran_param">自动转换参数</string>
+    <string name="config_show_note">显示描述</string>
+    <string name="config_dialog_config_item_desc_input">例如：这是登录Hook</string>
+    <string name="config_dialog_config_item_desc_edit">输入备忘信息</string>
 
 
- </resources>
+</resources>

@@ -1,6 +1,7 @@
 package me.simpleHook.ui.view.config
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.CheckBox
@@ -13,8 +14,9 @@ import androidx.core.view.marginTop
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
 import me.simpleHook.R
-import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.dp
+import me.simpleHook.extension.marquee
+import me.simpleHook.ui.custom.CustomViewGroup
 
 
 class ConfigItemView(context: Context) : MaterialCardView(context) {
@@ -43,6 +45,7 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
                 ).also {
                     it.marginStart = 5.dp
                 }
+                marquee()
                 addView(this)
             }
 
@@ -52,6 +55,7 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             ).also {
                 it.setMargins(0, 5.dp, 0, 0)
             }
+            marquee()
             addView(this)
         }
         val tip = AppCompatTextView(context).apply {
@@ -60,6 +64,17 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             ).also {
                 it.setMargins(0, 5.dp, 0, 0)
             }
+            addView(this)
+        }
+
+        val desc = AppCompatTextView(context).apply {
+            layoutParams = MarginLayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
+            ).also {
+                it.setMargins(5.dp, 5.dp, 5.dp, 0)
+            }
+            marquee()
+            setTypeface(Typeface.DEFAULT, Typeface.ITALIC)
             addView(this)
         }
 
@@ -104,6 +119,9 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             otherName.measure(
                 leftWidth.toExactlyMeasureSpec(), otherName.defaultHeightMeasureSpec(this)
             )
+            val descWidth =
+                measuredWidth - paddingStart - paddingEnd - num.measuredWidthWithMargins - tip.measuredWidthWithMargins - enable.measuredWidthWithMargins - desc.marginStart - desc.marginEnd
+            desc.measure(descWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
             setMeasuredDimension(
                 measuredWidth,
                 tip.measuredHeightWithMargins + className.measuredHeight + otherName.measuredHeightWithMargins + paddingTop + paddingBottom
@@ -116,6 +134,7 @@ class ConfigItemView(context: Context) : MaterialCardView(context) {
             className.autoLayout(num.right + num.paddingEnd + className.marginStart, paddingTop)
             otherName.autoLayout(className.left, className.bottom + otherName.marginTop)
             tip.autoLayout(className.left, otherName.bottom + tip.marginTop)
+            desc.autoLayout(tip.right + desc.marginStart, tip.top)
         }
     }
 }
