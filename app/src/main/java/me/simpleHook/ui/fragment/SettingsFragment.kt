@@ -60,8 +60,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
-        if (FlavorUtils.rootVersion) findPreference<CheckBoxPreference>("lspScope")?.isVisible =
-            true
+//        findPreference<CheckBoxPreference>("lspScope")?.isVisible = FlavorUtils.rootVersion
         findPreference<CheckBoxPreference>("checkPermission")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (!(newValue as Boolean)) {

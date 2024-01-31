@@ -605,6 +605,7 @@
      <string name="extension_record_record">记录</string>
      <string name="extension_record_title_add_base64">输出结果增加Base64</string>
      <string name="extension_record_title_add_stasck">记录调用堆栈</string>
+     <string name="config_sort_done">保存排序</string>
 
 
  </resources>

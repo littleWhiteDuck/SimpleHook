@@ -40,7 +40,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             appConfig.forEach {
                 pkgNames.add(it.packageName)
             }
-            LSPosedHelper.addScope(pkgNames.toTypedArray())
+//            LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -73,7 +73,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     pkgNames.add(it.packageName)
                 }
             }
-            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+//            LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -222,7 +222,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             assistConfig.forEach {
                 pkgNames.add(it.packageName)
             }
-            LSPosedHelper.addScope(pkgNames.toTypedArray())
+//            LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -242,7 +242,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     pkgNames.add(it.packageName)
                 }
             }
-            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+//            LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }

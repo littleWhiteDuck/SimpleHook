@@ -50,7 +50,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/done_all_24"
-        app:tint="@color/white" />
+        app:tint="@color/white"
+        android:contentDescription="@string/config_sort_done" />
 
     <me.simpleHook.ui.custom.FloatingActionMenu
         android:id="@+id/fab"
