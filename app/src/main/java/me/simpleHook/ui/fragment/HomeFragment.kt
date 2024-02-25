@@ -8,7 +8,12 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
 import android.util.Patterns
-import android.view.*
+import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
@@ -31,7 +36,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.base.BaseExtensionFragment
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.bean.CustomConfigItem
@@ -43,11 +47,17 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
+import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.edit.InputView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.SuUtil
+import me.simpleHook.util.ToolUtils
 import kotlin.math.min
 
 
@@ -154,8 +164,10 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                 val tempConfigId = tempConfigs[fromPosition].appConfig.id
                 tempConfigs[fromPosition].appConfig.id = tempConfigs[finalPosition].appConfig.id
                 tempConfigs[finalPosition].appConfig.id = tempConfigId
-                mAdapter.notifyItemMoved(viewHolder.bindingAdapterPosition,
-                    target.bindingAdapterPosition)
+                mAdapter.notifyItemMoved(
+                    viewHolder.bindingAdapterPosition,
+                    target.bindingAdapterPosition
+                )
                 return true
             }
 
@@ -175,9 +187,11 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.deleteConfigs(appConfig)
                 configSystem.deleteCustomConfig(appConfig.packageName)
-                Snackbar.make(binding.fab,
+                Snackbar.make(
+                    binding.fab,
                     getString(R.string.main_home_delete_config_tip),
-                    Snackbar.LENGTH_LONG).apply {
+                    Snackbar.LENGTH_LONG
+                ).apply {
                     anchorView = bottomNavigationView
                 }.addCallback(object : Snackbar.Callback() {
                     override fun onShown(sb: Snackbar?) {
@@ -309,7 +323,8 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                 }
             }
         }
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.please_input_url),
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
@@ -317,7 +332,8 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                 importConfigsFromInternet(inputView.editText.text.toString().trim())
                 dialogInterface.dismiss()
             },
-            cancelText = getString(R.string.dialog_cancel)).show()
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
     }
 
     private fun importConfigsFromInternet(urlString: String) {
@@ -337,9 +353,13 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
             for (config in filterConfigs) {
                 dataList.add(ConfigItem(config.appConfig))
             }
-            ConfigDialogFragment(dataList,
-                Constant.CONFIG_EXPORT_MODE).show(requireActivity().supportFragmentManager,
-                "export")
+            ConfigDialogFragment(
+                dataList,
+                Constant.CONFIG_EXPORT_MODE
+            ).show(
+                requireActivity().supportFragmentManager,
+                "export"
+            )
         }
     }
 
@@ -351,11 +371,16 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                     requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
                     return
                 } else {
-                    ConfigDialogFragment(dataList as ArrayList<ConfigItem>,
-                        Constant.CONFIG_IMPORT_MODE).show(requireActivity().supportFragmentManager,
-                        "import")
+                    ConfigDialogFragment(
+                        dataList as ArrayList<ConfigItem>,
+                        Constant.CONFIG_IMPORT_MODE
+                    ).show(
+                        requireActivity().supportFragmentManager,
+                        "import"
+                    )
                 }
             }
+
             JsonUtil.isJsonObject(configs) -> {
                 lifecycleScope.launch(Dispatchers.IO) {
                     runCatching {
@@ -370,6 +395,7 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                     }
                 }
             }
+
             else -> requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
         }
     }
@@ -408,6 +434,7 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                     AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
             }
+
             R.id.menu_relaunch -> {
                 if (FlavorUtils.rootVersion) {
                     val intent =
@@ -417,8 +444,12 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
                     }
                 }
             }
-            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(requireContext(),
-                configOfItemMenu.packageName)
+
+            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
+                requireContext(),
+                configOfItemMenu.packageName
+            )
+
             R.id.menu_copy_config -> copyConfigs(configOfItemMenu)
             R.id.menu_delete_config -> deleteConfig(configOfItemMenu)
             R.id.menu_edit_config -> editConfig(configOfItemMenu)

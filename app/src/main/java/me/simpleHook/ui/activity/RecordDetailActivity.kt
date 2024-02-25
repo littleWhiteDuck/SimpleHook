@@ -32,7 +32,11 @@ import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.OSUtils
+import me.simpleHook.util.ToolUtils
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -63,8 +67,10 @@ class RecordDetailActivity : AppCompatActivity() {
         }
         val recordPackageName = intent.getStringExtra(KEY_PACKAGE_NAME)!!
         supportActionBar?.title =
-            if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(this,
-                recordPackageName)
+            if (recordPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
+                this,
+                recordPackageName
+            )
         supportActionBar?.subtitle = recordPackageName
         initView()
     }
@@ -100,12 +106,17 @@ class RecordDetailActivity : AppCompatActivity() {
                 logList.forEach {
                     if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {
                         rawData = it.replaceFirst(Regex("""原始数据：|Raw data: """), "")
-                    } else if (it.startsWith("加密结果：") || it.startsWith("解密结果：") || it.startsWith("Decrypt result: ") || it.startsWith(
-                            "Encrypt result: ")
+                    } else if (it.startsWith("加密结果：") || it.startsWith("解密结果：") || it.startsWith(
+                            "Decrypt result: "
+                        ) || it.startsWith(
+                            "Encrypt result: "
+                        )
                     ) {
                         cryptResult =
-                            it.replaceFirst(Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """),
-                                "")
+                            it.replaceFirst(
+                                Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """),
+                                ""
+                            )
                         //返回值|参返|Param&Return Value|Return value
                     } else if (it.startsWith("返回值：") || it.startsWith("Return value: ")) {
                         returnValue = it.replaceFirst(Regex("""返回值：|Return value: """), "")
@@ -113,10 +124,12 @@ class RecordDetailActivity : AppCompatActivity() {
                     sb.append(it).append("\n")
                 }
                 val nLine: Int = -1
-                currentText = StringBuilder().lineFeesItem(logList,
+                currentText = StringBuilder().lineFeesItem(
+                    logList,
                     "${foreStr + logBean.type}\n",
                     nLine = nLine,
-                    nLineString = "").replace("类：", "  ").replace("方法：", "")
+                    nLineString = ""
+                ).replace("类：", "  ").replace("方法：", "")
                     .replace("Class : ", "  ").replace("Method : ", "")
             }
             updateView(currentPattern)
@@ -183,30 +196,38 @@ class RecordDetailActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> onBackPressedDispatcher.onBackPressed()
             R.id.help -> {
-                warningDialog(this,
+                warningDialog(
+                    this,
                     title = "可能出现的问题",
-                    message = "加解密过程中byte[]与string转换可能会采用不同的编码，会使获取到的数据乱码，造成结果的不准确")
+                    message = "加解密过程中byte[]与string转换可能会采用不同的编码，会使获取到的数据乱码，造成结果的不准确"
+                )
             }
+
             R.id.copy_text -> {
                 ToolUtils.toClip(this, currentText)
                 showToast(getString(R.string.main_home_export_configs_tip))
             }
+
             R.id.copy_json -> {
                 ToolUtils.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
                 showToast(getString(R.string.main_home_export_configs_tip))
             }
+
             R.id.copy_raw_data -> {
                 ToolUtils.toClip(this, rawData)
                 showToast(getString(R.string.main_home_export_configs_tip))
             }
+
             R.id.copy_crypt_result -> {
                 ToolUtils.toClip(this, cryptResult)
                 showToast(getString(R.string.main_home_export_configs_tip))
             }
+
             R.id.copy_return_value -> {
                 ToolUtils.toClip(this, returnValue)
                 showToast(getString(R.string.main_home_export_configs_tip))
             }
+
             R.id.menu_word_wrap -> {
                 item.isChecked = !item.isChecked
                 GlobalValue.sp.wordWrap = item.isChecked
@@ -218,15 +239,18 @@ class RecordDetailActivity : AppCompatActivity() {
 
     private fun findSearch(text: String, keyword: String, color: Int = Color.RED): SpannableString {
         val spannableString = SpannableString(text)
-        val pattern: Pattern = Pattern.compile("(?i)$keyword")
+        val regex = keyword.replace("\\", "\\\\")
+        val pattern: Pattern = Pattern.compile("(?i)$regex")
         val matcher: Matcher = pattern.matcher(spannableString)
         while (matcher.find()) {
             val start: Int = matcher.start()
             val end: Int = matcher.end()
-            spannableString.setSpan(ForegroundColorSpan(color),
+            spannableString.setSpan(
+                ForegroundColorSpan(color),
                 start,
                 end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
         return spannableString
     }

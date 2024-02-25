@@ -58,6 +58,7 @@ android {
                 "proguard-rules.pro")
         }
         getByName("debug") {
+            isDefault = true
             signingConfig = signConfig
             versionNameSuffix = Random().nextInt(1000).toString()
         }
@@ -76,6 +77,7 @@ android {
     namespace = "me.simpleHook"
     productFlavors {
         create("root") {
+            isDefault = true
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.root"
             manifestPlaceholders["FLAVOR"] = "SimpleHookR"
             versionName = verName + if (beta) "_beta" else ""
