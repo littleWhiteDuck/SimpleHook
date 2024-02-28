@@ -35,7 +35,7 @@ android {
             enableV3Signing = true
         }
     }
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         resourceConfigurations += setOf("zh_CN", "en", "zh_TW")
         applicationId = "me.simpleHook"
@@ -72,6 +72,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildToolsVersion = "33.0.1"
     namespace = "me.simpleHook"
@@ -161,19 +162,19 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.8.0")
-    implementation("androidx.preference:preference-ktx:1.2.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // room
-    val room_version = "2.5.0-beta02"
+    val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
@@ -183,9 +184,9 @@ dependencies {
     //compileOnly("de.robv.android.xposed:api:82:sources")
     implementation("com.github.kyuubiran:EzXHelper:1.0.3")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    val nav_version = "2.5.3"
+    val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 
@@ -193,19 +194,19 @@ dependencies {
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
 
     //json
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation("com.google.code.gson:gson:2.9.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     //splashScreen
-    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     //paging3
-    val pagingVersion = "3.1.1"
+    val pagingVersion = "3.2.1"
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
     implementation("androidx.room:room-paging:$room_version")
 
     //glide
-    val glideVersion = "4.15.1"
+    val glideVersion = "4.16.0"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     ksp("com.github.bumptech.glide:ksp:$glideVersion")
 
@@ -221,11 +222,11 @@ dependencies {
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
     //workmanager
-    val work_version = "2.8.0"
+    val work_version = "2.9.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
     //
-    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
+    implementation("com.github.thegrizzlylabs:sardine-android:0.9")
 
 
     //leakcanary

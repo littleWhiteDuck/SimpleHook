@@ -29,9 +29,8 @@
 #-packageobfuscationdictionary ./proguard-keys.txt
 
 
--keep class * implements de.robv.android.xposed.IXposedHookLoadPackage {
-    public void *(de.robv.android.xposed.callbacks.XC_LoadPackage$LoadPackageParam);
-}
+-keep class me.simpleHook.hook.HookInit { *; }
+
 
 -keepattributes Signature
 
@@ -77,5 +76,11 @@
 -keep,allowoptimization class * extends androidx.viewbinding.ViewBinding {
   public static * inflate(...);
 }
+
+-dontwarn org.xmlpull.v1.**
+-dontnote org.xmlpull.v1.**
+-dontwarn android.content.res.**
+-keep class org.xmlpull.** { *; }
+-keepclassmembers class org.xmlpull.** { *; }
 
 -printmapping mapping.txt
