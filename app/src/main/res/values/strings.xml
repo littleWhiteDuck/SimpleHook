@@ -173,7 +173,7 @@
     <string name="about_menu_add_group">加入TG群</string>
     <string name="about_menu_feedback">反馈</string>
     <string name="about_clip_email_tip">邮箱地址已复制到剪切板</string>
-    <string name="about_js_hook">用js写Hook,更加强大</string>
+    <string name="about_js_hook">用js写Hook，更加强大</string>
 
 
     <!--extension-->
@@ -263,7 +263,7 @@
         <item>记录实例变量</item>
     </string-array>
     <integer-array name="config_hook_mode_item_value">
-        <item name="1">0</item>
+        <item>0</item>
         <item>10</item>
         <item>1</item>
         <item>3</item>

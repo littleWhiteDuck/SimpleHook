@@ -261,7 +261,7 @@
     <string name="read_introduction_message">推薦你看看配置的編寫規則，不要想當然的隨意填寫</string>
     <string name="read_introduction_not_remind">不再提示</string>
     <string name="record_introduction_ok">去看看</string>
-    <string name="about_js_hook">用js寫Hook,更加強大</string>
+    <string name="about_js_hook">用js寫Hook，更加強大</string>
     <string name="float_window_title">记录</string>
     <string name="float_window_drag_text">拖拽</string>
     <string name="float_window_require_permission">請授予懸浮窗權限</string>

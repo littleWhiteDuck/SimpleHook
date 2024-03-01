@@ -8,11 +8,10 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drakeet.multitype.MultiTypeAdapter
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.base.BaseBottomFragment
+import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.extension.showToast
@@ -24,8 +23,8 @@ import me.simpleHook.ui.view.config.InputCollectionView
 import me.simpleHook.viewmodel.CollectionViewModel
 import java.util.regex.Pattern
 
-class CollectionFragment(private val addConfig: (CollectionEntity) -> Unit) :
-    BaseBottomFragment<CollectionFragmentView>() {
+class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) :
+    BaseBottomViewFragment<CollectionFragmentView>() {
     private val collectionViewModel by viewModels<CollectionViewModel>()
     private val multiAdapter = MultiTypeAdapter()
     override fun initRootView(): CollectionFragmentView {

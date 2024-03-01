@@ -63,8 +63,8 @@ class AboutActivity : AbsAboutActivity() {
         )
 
         items.add(Category("Testers"))
+        items.add(Contributor(R.drawable.jian, "简大仙", "Tester and Sponsor"))
         items.add(Contributor(R.drawable.zhengji, "正己", "Tester"))
-        items.add(Contributor(R.drawable.jian, "简", "Tester"))
         items.add(Contributor(R.drawable.xiaoniu, "快乐小牛", "Tester"))
 
         items.add(Category("App recommendations"))

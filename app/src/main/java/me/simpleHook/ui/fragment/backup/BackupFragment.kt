@@ -176,7 +176,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun showLocalRestoreFragment() {
         if (isLocalBackupEnable()) {
-            BackupRestoreFragment(callBackLocal = {
+            BackupRestoreViewFragment(callBackLocal = {
                 showRestoreLocal(it)
             }) {
                 showRestoreCloud(it)
@@ -196,7 +196,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun showCloudRestoreFragment() {
         if (isCloudBackupEnable()) {
-            BackupRestoreFragment(callBackLocal = {
+            BackupRestoreViewFragment(callBackLocal = {
                 showRestoreLocal(it)
             }) {
                 showRestoreCloud(it)

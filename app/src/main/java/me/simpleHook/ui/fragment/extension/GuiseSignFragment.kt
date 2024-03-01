@@ -7,7 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.net.Uri
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
@@ -25,7 +28,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
@@ -42,13 +44,15 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.extension.EditSignatureView
 import me.simpleHook.ui.view.extension.GuiseSignatureItem
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.ToolUtils
 import me.simpleHook.viewmodel.ExViewModel
 import java.io.IOException
 import java.io.InputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import java.util.*
+import java.util.Enumeration
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 

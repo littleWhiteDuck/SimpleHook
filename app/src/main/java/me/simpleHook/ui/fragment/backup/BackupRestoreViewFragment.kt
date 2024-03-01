@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseBottomFragment
+import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.ui.view.backup.BackupRestoreView
 import me.simpleHook.ui.view.backup.RestoreItemView
@@ -19,9 +19,9 @@ import me.simpleHook.util.TimeUtil
 import me.simpleHook.worker.CloudBackupHelper
 
 
-class BackupRestoreFragment(
+class BackupRestoreViewFragment(
     val callBackLocal: (RestoreItem) -> Unit, val callBackCloud: (RestoreCloudItem) -> Unit
-) : BaseBottomFragment<BackupRestoreView>() {
+) : BaseBottomViewFragment<BackupRestoreView>() {
     private val adapter = MultiTypeAdapter()
     override fun initRootView(): BackupRestoreView {
         return BackupRestoreView(requireContext())

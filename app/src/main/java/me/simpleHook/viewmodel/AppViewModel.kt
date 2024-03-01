@@ -2,6 +2,7 @@ package me.simpleHook.viewmodel
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -51,7 +52,7 @@ class AppViewModel(private val application: Application) : AndroidViewModel(appl
                     }
                     val appItem = AppItem(appName,
                         packageInfo.packageName,
-                        packageInfo.versionName,
+                        packageInfo.versionName ?: "null",
                         packageInfo.versionCode.toString(),
                         TimeUtil.getTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                         packageInfo.applicationInfo.targetSdkVersion)

@@ -6,48 +6,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import me.simpleHook.R
-import me.simpleHook.extension.inflateBinding
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.util.OSUtils
-import me.simpleHook.util.WindowUtils
 
+abstract class BaseBottomViewFragment<T : View> : BottomSheetDialogFragment() {
 
-abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(), IBinding<VB> {
-
-    private var _binding: VB? = null
-
-    override val binding: VB get() = _binding!!
-    open var enableUpdateHeight = true
-    private val behavior by lazy { BottomSheetBehavior.from(binding.root.parent as View) }
+    private var _root: T? = null
+    val root get() = _root!!
+    private val behavior by lazy { BottomSheetBehavior.from(root.parent as View) }
     private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onStateChanged(bottomSheet: View, newState: Int) {}
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            when (newState) {
+                BottomSheetBehavior.STATE_EXPANDED -> bottomSheet.background =
+                    createMaterialShapeDrawable(bottomSheet)
 
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+                else -> {}
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+        }
     }
 
-    override fun onStart() {
-        super.onStart()
-        behavior.addBottomSheetCallback(bottomSheetCallback)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        behavior.removeBottomSheetCallback(bottomSheetCallback)
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
+    abstract fun initRootView(): T
+    abstract fun init()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         object : BottomSheetDialog(requireContext(), theme) {
@@ -65,34 +53,34 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = inflateBinding(layoutInflater)
+    ): View? {
+        _root = initRootView()
         dialog?.window?.let {
             WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
         }
-        return binding.root
+        return _root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (enableUpdateHeight) {
-            ViewCompat.setOnApplyWindowInsetsListener(requireView()) { _, insets: WindowInsetsCompat ->
-                updateBottomSheetHeights()
-                insets
-            }
-        }
         init()
     }
 
-    private fun updateBottomSheetHeights() {
-        val params = binding.root.layoutParams
-        params.height = WindowUtils.getAppHeight(requireActivity())
-        binding.root.layoutParams = params
-        behavior.isFitToContents = true
+
+    override fun onStart() {
+        super.onStart()
+        behavior.addBottomSheetCallback(bottomSheetCallback)
     }
 
-    abstract fun init()
+    override fun onStop() {
+        super.onStop()
+        behavior.removeBottomSheetCallback(bottomSheetCallback)
+    }
 
+    override fun onDestroyView() {
+        _root = null
+        super.onDestroyView()
+    }
 
     private fun createMaterialShapeDrawable(bottomSheet: View): MaterialShapeDrawable {
         //Create a ShapeAppearanceModel with the same shapeAppearanceOverlay used in the style
@@ -114,8 +102,5 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
         return newMaterialShapeDrawable
     }
 
+
 }
-
-
-
-

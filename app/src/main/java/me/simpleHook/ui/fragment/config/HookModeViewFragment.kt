@@ -1,5 +1,6 @@
 package me.simpleHook.ui.fragment.config
 
+import android.graphics.Typeface
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.MarginLayoutParams
@@ -7,14 +8,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.extension.dp
-import me.simpleHook.base.BaseBottomFragment
+import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.ui.view.config.HookModeView
 
-class HookModeFragment(val items: Array<String>, onItemClick: (Int) -> Unit) :
-    BaseBottomFragment<RecyclerView>() {
+class HookModeViewFragment(
+    private val mode: Int,
+    val items: Array<String>,
+    onItemClick: (Int) -> Unit
+) :
+    BaseBottomViewFragment<RecyclerView>() {
 
     private val mAdapter by lazy {
-        HookModeAdapter { position, _ ->
+        HookModeAdapter(mode) { position ->
             onItemClick(position)
             dismiss()
         }
@@ -41,7 +46,7 @@ class HookModeFragment(val items: Array<String>, onItemClick: (Int) -> Unit) :
 }
 
 
-class HookModeAdapter(val onClick: (Int, mode: Int) -> Unit) :
+class HookModeAdapter(private val mode: Int, val onClick: (Int) -> Unit) :
     RecyclerView.Adapter<HookModeAdapter.ViewHolder>() {
     var items: Array<String> = emptyArray()
 
@@ -53,12 +58,7 @@ class HookModeAdapter(val onClick: (Int, mode: Int) -> Unit) :
         val hookModeView = HookModeView(parent.context)
         hookModeView.setOnClickListener {
             val position = it.getTag(R.id.item_hook_mode) as Int
-            onClick(position, 0)
-        }
-        hookModeView.setOnLongClickListener {
-            val position = it.getTag(R.id.item_hook_mode) as Int
-            onClick(position, 1)
-            true
+            onClick(position)
         }
         return ViewHolder(hookModeView)
     }
@@ -69,5 +69,13 @@ class HookModeAdapter(val onClick: (Int, mode: Int) -> Unit) :
         val str = items[position]
         holder.itemView.setTag(R.id.item_hook_mode, position)
         holder.title.text = str
+
+        val modeView: HookModeView = holder.itemView as HookModeView
+        val listValue = modeView.context.resources.getIntArray(R.array.config_hook_mode_item_value)
+
+        if (listValue.indexOf(mode) == position) {
+            modeView.strokeWidth = 1.dp
+            modeView.title.setTypeface(null, Typeface.BOLD)
+        }
     }
 }

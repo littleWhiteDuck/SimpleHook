@@ -27,7 +27,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
@@ -48,7 +47,7 @@ import me.simpleHook.extension.showToast
 import me.simpleHook.recyclerview.adapter.ConfigAdapter
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.*
-import me.simpleHook.ui.fragment.config.CollectionFragment
+import me.simpleHook.ui.fragment.config.CollectionViewFragment
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.ui.view.config.InputCollectionView
@@ -547,7 +546,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showCollectConfigDialog() {
-        CollectionFragment {
+        CollectionViewFragment {
             val config: ConfigBean? = runCatching {
                 Json.decodeFromString<ConfigBean>(it.config)
             }.getOrNull()

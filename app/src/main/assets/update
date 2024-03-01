@@ -1,3 +1,20 @@
+v1.3.4
+    - 优化: 收藏配置功能
+    - 优化: 应用列表页加载速度
+    - 增加: 支持新版JsHook配置导出
+    - 增加: 可以单独为每个配置 增加描述（需要在设置页面开启「配置弹窗在底部」功能）
+    - 修复: 「记录」搜索问题
+    - 修复: 应用版本名为空时的错误
+    - 优化: UI
+
+    - Optimize: favorite config
+    - Optimize: the loading speed of app list
+    - Add: support export config for new JsHook
+    - Add: can add a note for each config ( need to enable the ｢Config dialog at the bottom｣ on the settings page)
+    - Fix: ｢Record｣ search
+    - Fix: crash with app version-name is null
+    - Optimize: UI
+
 v1.3.3
     - 修复: 无法删除配置问题（root 版）
     - 增加: 禁用 USB调式检测

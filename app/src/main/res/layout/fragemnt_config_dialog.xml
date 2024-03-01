@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/config_dialog_title"
+            android:fontFamily="sans-serif-medium"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="parent" />
@@ -72,7 +73,7 @@
                 android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_class_edit_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true"
+                android:maxLines="3"
                 android:textColorHint="#757575" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -124,8 +125,9 @@
                 android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_params_input_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <Button
             android:id="@+id/delete_config"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -137,6 +139,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/save_config"
             app:layout_constraintTop_toTopOf="@+id/textView" />
+
         <Button
             android:id="@+id/save_config"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -152,8 +155,8 @@
             android:id="@+id/more_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="4dp"
             android:background="?selectableItemBackground"
+            android:padding="4dp"
             android:src="@drawable/baseline_more_vert_24"
             app:layout_constraintBottom_toBottomOf="@+id/save_config"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
@@ -174,7 +177,7 @@
                 android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_field_class_name_edit_hint"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="3" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -212,7 +215,7 @@
                 android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_class_name_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -229,8 +232,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_value_input_tip"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                android:imeOptions="actionDone" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

@@ -10,21 +10,25 @@ import me.simpleHook.extension.dp
 
 class HookModeView(context: Context) : MaterialCardView(context) {
     val title = AppCompatTextView(context).apply {
-        layoutParams = LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+        layoutParams = LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
         gravity = Gravity.CENTER
     }
 
     init {
         strokeColor = "#4F9BFA".toColorInt()
-        strokeWidth = 1.5f.dp.toInt()
         setContentPadding(10.dp, 10.dp, 10.dp, 10.dp)
         addView(title)
-        layoutParams = MarginLayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        layoutParams = MarginLayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
             setMargins(5.dp, 5.dp, 5.dp, 0)
         }
+        cardElevation = 3f.dp
         radius = 5f.dp
     }
 

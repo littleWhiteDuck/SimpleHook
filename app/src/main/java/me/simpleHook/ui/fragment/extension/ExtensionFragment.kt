@@ -291,7 +291,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             requireActivity().showToast(getString(R.string.extension_no_template_tip))
             return
         }
-        ModelBottomFragment("edit").show(requireActivity().supportFragmentManager, "model")
+        ModelBottomViewFragment("edit").show(requireActivity().supportFragmentManager, "model")
     }
 
     private fun showSelectModelDialog() {

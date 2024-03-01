@@ -76,6 +76,8 @@
 -keep,allowoptimization class * extends androidx.viewbinding.ViewBinding {
   public static * inflate(...);
 }
+-keep,allowobfuscation,allowshrinking class * extends me.simpleHook.base.BaseBottomFragment
+
 
 -dontwarn org.xmlpull.v1.**
 -dontnote org.xmlpull.v1.**

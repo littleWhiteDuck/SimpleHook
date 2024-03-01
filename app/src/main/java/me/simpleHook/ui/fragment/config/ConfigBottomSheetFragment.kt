@@ -1,26 +1,19 @@
 package me.simpleHook.ui.fragment.config
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
+import me.simpleHook.base.BaseBottomFragment
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showToast
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.util.SPUtils
 import java.util.regex.Pattern
 
@@ -72,53 +65,53 @@ class ConfigBottomSheetFragment(
     private val configBean: ConfigBean,
     private val saveConfig: (ConfigBean) -> Unit,
     private val deleteConfig: () -> Unit
-) : BottomSheetDialogFragment() {
+) : BaseBottomFragment<FragemntConfigDialogBinding>() {
 
-    private var _binding: FragemntConfigDialogBinding? = null
-    private val binding get() = _binding!!
-    private val behavior by lazy { BottomSheetBehavior.from(binding.root.parent as View) }
     private var hookMode = Constant.HOOK_RETURN
     private var configEnable = true
     private val sp by lazy { SPUtils(requireContext()) }
-    private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            when (newState) {
-                BottomSheetBehavior.STATE_EXPANDED -> bottomSheet.background =
-                    createMaterialShapeDrawable(bottomSheet)
 
-                else -> {}
-            }
-        }
 
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragemntConfigDialogBinding.inflate(inflater, container, false)
-        dialog?.window?.let {
-            WindowPreferencesManager(requireContext()).applyEdgeToEdgePreference(it)
-        }
+    override fun init() {
         initView()
-        return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initView() {
-        binding.apply {
-            saveConfig.setOnClickListener {
-                toCheck()
-            }
+        with(binding) {
+            saveConfig.setOnClickListener { toCheck() }
             deleteConfig.setOnClickListener {
                 deleteConfig()
                 dismissAllowingStateLoss()
             }
-            if (tag == "ADD") {
-                deleteConfig.isVisible = false
+            deleteConfig.isVisible = tag != "ADD"
+            moreSettings.setOnClickListener { popupSettingMenu(it) }
+            with(configBean) {
+                classNameEdit.setText(className)
+                methodNameEdit.setText(methodName)
+                paramsTypeEdit.setText(params)
+                fieldNameEdit.setText(fieldName)
+                fieldClassNameEdit.setText(fieldClassName)
+                resultValueEdit.setText(resultValues)
+                hookPointEdit.setText(hookPoint)
+                returnClassNameEdit.setText(returnClassName)
+                configItemDescEdit.setText(desc)
+                hookMode = mode
+                configEnable = enable
             }
-            moreSettings.setOnClickListener {
-                popupSettingMenu(it)
-            }
+            configItemDescInput.isVisible = sp.config_item_show_desc
+            onModeChange()
+        }
+        val list = resources.getStringArray(R.array.config_hook_mode_item)
+        val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
+        val realPosition = listValue.indexOf(hookMode)
+        binding.modeSelectButton.text = list[realPosition] + ">"
+        binding.modeSelectButton.setOnClickListener {
+            HookModeViewFragment(hookMode, list) {
+                binding.modeSelectButton.text = "${list[it]}>"
+                hookMode = listValue[it]
+                onModeChange()
+            }.show(requireActivity().supportFragmentManager, "config")
         }
     }
 
@@ -143,64 +136,6 @@ class ConfigBottomSheetFragment(
             }
             true
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        behavior.addBottomSheetCallback(bottomSheetCallback)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        behavior.removeBottomSheetCallback(bottomSheetCallback)
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            configBean.apply {
-                classNameEdit.setText(className)
-                methodNameEdit.setText(methodName)
-                paramsTypeEdit.setText(params)
-                fieldNameEdit.setText(fieldName)
-                fieldClassNameEdit.setText(fieldClassName)
-                resultValueEdit.setText(resultValues)
-                hookPointEdit.setText(hookPoint)
-                returnClassNameEdit.setText(returnClassName)
-                configItemDescEdit.setText(desc)
-                hookMode = mode
-                configEnable = enable
-            }
-            configItemDescInput.isVisible = sp.config_item_show_desc
-            onModeChange()
-        }
-        val list = resources.getStringArray(R.array.config_hook_mode_item)
-        val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
-        val realPosition = listValue.indexOf(configBean.mode)
-        binding.modeSelectButton.text = list[realPosition] + ">"
-        binding.modeSelectButton.setOnClickListener {
-            HookModeFragment(list) {
-                binding.modeSelectButton.text = "${list[it]}>"
-                hookMode = listValue[it]
-                onModeChange()
-            }.show(requireActivity().supportFragmentManager, "config")
-        }
-        /* binding.modeSelectSpinner.adapter =
-             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
-         val realPosition = listValue.indexOf(configBean.mode)
-         binding.modeSelectSpinner.setSelection(realPosition)
-         binding.modeSelectSpinner.onItemSelectedListener =
-             object : AdapterView.OnItemSelectedListener {
-                 override fun onItemSelected(
-                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
-                 ) {
-                     hookMode = listValue[position]
-                     onModeChange()
-                 }
-
-                 override fun onNothingSelected(parent: AdapterView<*>?) {}
-             }*/
     }
 
     private fun toCheck() {
@@ -382,31 +317,5 @@ class ConfigBottomSheetFragment(
         Constant.HOOK_RETURN2 -> SHOW_RETURN2
         else -> 0
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun createMaterialShapeDrawable(bottomSheet: View): MaterialShapeDrawable {
-        //Create a ShapeAppearanceModel with the same shapeAppearanceOverlay used in the style
-        val shapeAppearanceModel =
-            ShapeAppearanceModel.builder(context, 0, R.style.CustomShapeAppearanceBottomSheetDialog)
-                .build()
-
-        //Create a new MaterialShapeDrawable (you can't use the original MaterialShapeDrawable in the BottoSheet)
-        val currentMaterialShapeDrawable = bottomSheet.background as MaterialShapeDrawable
-        val newMaterialShapeDrawable = MaterialShapeDrawable(shapeAppearanceModel)
-
-        //Copy the attributes in the new MaterialShapeDrawable
-        newMaterialShapeDrawable.initializeElevationOverlay(context)
-        newMaterialShapeDrawable.fillColor = currentMaterialShapeDrawable.fillColor
-        newMaterialShapeDrawable.tintList = currentMaterialShapeDrawable.tintList
-        newMaterialShapeDrawable.elevation = currentMaterialShapeDrawable.elevation
-        newMaterialShapeDrawable.strokeWidth = currentMaterialShapeDrawable.strokeWidth
-        newMaterialShapeDrawable.strokeColor = currentMaterialShapeDrawable.strokeColor
-        return newMaterialShapeDrawable
-    }
-
 
 }

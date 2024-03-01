@@ -1,27 +1,29 @@
 package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.base.BaseBottomFragment
+import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.fragment.config.HookModeAdapter
+import me.simpleHook.ui.view.config.HookModeView
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ModelListView
 
-class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelListView>() {
+class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragment<ModelListView>() {
 
     private val modelList = ArrayList<AssistConfig>()
 
     private val viewModel by viewModels<AppViewModel>()
 
     private val adapter by lazy {
-        HookModeAdapter { position, mode ->
+        ModelAdapter { position, mode ->
             onItemClick(position, mode)
         }
     }
@@ -76,7 +78,8 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
             textInputLayout.isCounterEnabled = true
             editText.setText(assistConfig.appName)
         }
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.extension_template_modify_model),
             contentView = inputView,
             okText = getString(R.string.extension_template_go_modify),
@@ -90,6 +93,38 @@ class ModelBottomFragment(private val label: String) : BaseBottomFragment<ModelL
                     requireActivity().showToast(getString(R.string.extension_template_illegal_name))
                 }
             },
-            cancelText = getString(R.string.dialog_cancel)).show()
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
+    }
+}
+
+class ModelAdapter(val onClick: (Int, mode: Int) -> Unit) :
+    RecyclerView.Adapter<ModelAdapter.ViewHolder>() {
+    var items: Array<String> = emptyArray()
+
+    inner class ViewHolder(view: HookModeView) : RecyclerView.ViewHolder(view) {
+        val title = view.title
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val hookModeView = HookModeView(parent.context)
+        hookModeView.setOnClickListener {
+            val position = it.getTag(R.id.item_hook_mode) as Int
+            onClick(position, 0)
+        }
+        hookModeView.setOnLongClickListener {
+            val position = it.getTag(R.id.item_hook_mode) as Int
+            onClick(position, 1)
+            true
+        }
+        return ViewHolder(hookModeView)
+    }
+
+    override fun getItemCount() = items.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val str = items[position]
+        holder.itemView.setTag(R.id.item_hook_mode, position)
+        holder.title.text = str
     }
 }
