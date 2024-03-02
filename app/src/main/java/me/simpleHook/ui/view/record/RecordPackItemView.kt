@@ -37,8 +37,9 @@ class RecordPackItemView(context: Context) :
             ViewGroup.LayoutParams.WRAP_CONTENT).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
-        cardElevation = 1.dp.toFloat()
-        radius = 5.dp.toFloat()
+        cardElevation = 1f.dp
+        radius = 5f.dp
+        strokeWidth = 0
         addView(container)
     }
 

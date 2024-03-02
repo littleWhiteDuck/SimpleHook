@@ -12,9 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceCategory
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.chip.Chip
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
@@ -23,6 +21,7 @@ import me.simpleHook.bean.DialogCancel
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.extension.showToast
 import me.simpleHook.ui.custom.ChipPreference
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.edit.InputView
@@ -45,7 +44,7 @@ class DisableDialogFragment : BasePreferenceFragment() {
             val list = dialogCancelInfo.split("\n")
             DialogCancel(keywords = Json.encodeToString(list))
         }
-        val keywordSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val keywordSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_dialog_cancel_title_keyword)
             isIconSpaceReserved = false
@@ -72,7 +71,7 @@ class DisableDialogFragment : BasePreferenceFragment() {
             key = KEY_CHIP_GROUP
             chipTexts = Json.decodeFromString(tempConfig.keywords)
         }
-        val idSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val idSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_dialog_cancel_title_id)
             isIconSpaceReserved = false
@@ -165,8 +164,10 @@ class DisableDialogFragment : BasePreferenceFragment() {
                 chip?.let {
                     chip.text = inputView.keywordEdit.text.toString().trim()
                 }
-                    ?: findPreference<ChipPreference>(KEY_CHIP_GROUP)?.addChip(inputView.keywordEdit.text.toString()
-                        .trim())
+                    ?: findPreference<ChipPreference>(KEY_CHIP_GROUP)?.addChip(
+                        inputView.keywordEdit.text.toString()
+                            .trim()
+                    )
             },
             cancelAble = false,
             cancelText = getString(R.string.dialog_cancel),
@@ -244,7 +245,8 @@ class DisableDialogFragment : BasePreferenceFragment() {
     private fun saveConfig(exit: Boolean) {
         val keywordChipGroup =
             findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipGroup ?: throw NullPointerException(
-                "chip is null")
+                "chip is null"
+            )
         val idChipGroup = findPreference<ChipPreference>(KEY_CHIP_GROUP_ID)?.chipGroup
             ?: throw NullPointerException("chip is null")
         val keywords = ArrayList<String>()

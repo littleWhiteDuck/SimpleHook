@@ -15,9 +15,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.chip.Chip
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
@@ -25,6 +23,7 @@ import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.ClipboardConfig
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.ui.custom.ChipPreference
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
@@ -83,8 +82,10 @@ class ClipboardFragment : BasePreferenceFragment() {
                 chip?.let {
                     chip.text = inputView.keywordEdit.text.toString().trim()
                 }
-                    ?: findPreference<ChipPreference>(KEY_CHIP_GROUP)?.addChip(inputView.keywordEdit.text.toString()
-                        .trim())
+                    ?: findPreference<ChipPreference>(KEY_CHIP_GROUP)?.addChip(
+                        inputView.keywordEdit.text.toString()
+                            .trim()
+                    )
             },
             cancelAble = false,
             cancelText = getString(R.string.dialog_cancel),
@@ -98,7 +99,8 @@ class ClipboardFragment : BasePreferenceFragment() {
     private fun saveConfig(exit: Boolean) {
         val chipGroup =
             findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipGroup ?: throw NullPointerException(
-                "chip is null")
+                "chip is null"
+            )
         val items = ArrayList<String>()
         chipGroup.children.iterator().forEach {
             items.add((it as Chip).text.toString())
@@ -115,10 +117,11 @@ class ClipboardFragment : BasePreferenceFragment() {
         clipboardConfig =
             Json.decodeFromString(exViewModel.extensionConfig.value!!.filterClipboard.info)
         tempConfig = clipboardConfig.toString()
-        findPreference<SwitchPreferenceCompat>(KEY_RECORD_READ_WRITE)?.isChecked =
+        findPreference<MaterialSwitchPreference>(KEY_RECORD_READ_WRITE)?.isChecked =
             clipboardConfig.record
-        findPreference<SwitchPreferenceCompat>(KEY_READ_CLIPBOARD)?.isChecked = clipboardConfig.read
-        findPreference<SwitchPreferenceCompat>(KEY_WRITE_CLIPBOARD)?.isChecked =
+        findPreference<MaterialSwitchPreference>(KEY_READ_CLIPBOARD)?.isChecked =
+            clipboardConfig.read
+        findPreference<MaterialSwitchPreference>(KEY_WRITE_CLIPBOARD)?.isChecked =
             clipboardConfig.write
         if (clipboardConfig.filter.isNotEmpty()) {
             val list = Json.decodeFromString<List<String>>(clipboardConfig.filter)
@@ -156,7 +159,7 @@ class ClipboardFragment : BasePreferenceFragment() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        val recordClip = SwitchPreferenceCompat(requireContext()).apply {
+        val recordClip = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_clip_title_record)
             isIconSpaceReserved = false
@@ -167,7 +170,7 @@ class ClipboardFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val blockGetClip = SwitchPreferenceCompat(requireContext()).apply {
+        val blockGetClip = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_clip_prevent_read_clip)
             isIconSpaceReserved = false
@@ -177,7 +180,7 @@ class ClipboardFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val blockWriteClip = SwitchPreferenceCompat(requireContext()).apply {
+        val blockWriteClip = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_clip_prevent_write_clip)
             isIconSpaceReserved = false

@@ -17,21 +17,15 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="@color/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            style="@style/Toolbar_Style" />
+            android:minHeight="?attr/actionBarSize" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
             app:layout_anchor="@id/appBar"
             app:layout_anchorGravity="bottom"
-            app:tabIndicatorHeight="2dp"
-            app:tabIndicatorColor="#6750A4"
-            app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="#EBEBEB">
+            app:tabIndicatorHeight="2dp">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"

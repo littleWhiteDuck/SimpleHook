@@ -11,10 +11,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.DynamicColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,10 +34,19 @@ import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.BackupActivity
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.AssetsUtil
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.OSUtils
+import me.simpleHook.util.PermissionUtils
+import me.simpleHook.util.SPUtils
+import me.simpleHook.util.SuUtil
+import me.simpleHook.util.ThemeModeUtil
 import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
@@ -60,20 +69,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
-//        findPreference<CheckBoxPreference>("lspScope")?.isVisible = FlavorUtils.rootVersion
-        findPreference<CheckBoxPreference>("checkPermission")?.apply {
+//        findPreference<MaterialSwitchPreference>("lspScope")?.isVisible = FlavorUtils.rootVersion
+        findPreference<MaterialSwitchPreference>("checkPermission")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (!(newValue as Boolean)) {
-                    customDialog(requireContext(),
+                    customDialog(
+                        requireContext(),
                         title = "Tip",
                         message = getString(R.string.main_settings_tip_close_check_permission),
-                        okText = "ok").show()
+                        okText = "ok"
+                    ).show()
                 }
                 true
             }
         }
         findPreference<Preference>("batch_grant")?.apply {
-            if (OSUtils.atLeastT() && FlavorUtils.normalVersion) isVisible = true
+            isVisible = OSUtils.atLeastT() && FlavorUtils.normalVersion
             setOnPreferenceClickListener {
                 val intent = Intent(requireContext(), A33PermissionActivity::class.java)
                 startActivity(intent)
@@ -137,12 +148,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        findPreference<MaterialSwitchPreference>("enableSystemAccent")?.apply {
+            isVisible = DynamicColors.isDynamicColorAvailable()
+            setOnPreferenceChangeListener { _, _ ->
+                activity?.recreate()
+                true
+            }
+        }
         findPreference<SimpleMenuPreference>("language")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
-                    LanguageUtils.switchLanguage(newValue,
+                    LanguageUtils.switchLanguage(
+                        newValue,
                         requireActivity(),
-                        MainActivity::class.java)
+                        MainActivity::class.java
+                    )
                 }
                 true
             }
@@ -199,8 +219,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 
     private fun deleteLeftConfigs(mode: String) {
-        val loadingDialog = LoadingDialog(requireActivity(),
-            getString(R.string.main_delete_left_config_loading_tip))
+        val loadingDialog = LoadingDialog(
+            requireActivity(),
+            getString(R.string.main_delete_left_config_loading_tip)
+        )
         loadingDialog.show()
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
@@ -230,9 +252,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             viewModel.getConfigs().forEach {
                 configItems.add(ConfigItem(it))
             }
-            ConfigDialogFragment(configItems,
-                Constant.CONFIG_EXPORT_JS_MODE).show(requireActivity().supportFragmentManager,
-                "toJS")
+            ConfigDialogFragment(
+                configItems,
+                Constant.CONFIG_EXPORT_JS_MODE
+            ).show(
+                requireActivity().supportFragmentManager,
+                "toJS"
+            )
         }
     }
 
@@ -250,6 +276,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                     viewModel.deleteConfigs(*tempConfigs.toTypedArray())
                 }
+
                 1 -> {
                     val configs = viewModel.getAssistConfigs()
                     val tempConfigs = ArrayList<AssistConfig>()
@@ -262,9 +289,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                     viewModel.deleteAssistConfigs(*tempConfigs.toTypedArray())
                 }
+
                 2 -> {
                     viewModel.deleteAllLogs()
                 }
+
                 3 -> {
                     collViewModel.deleteAllCollections()
                 }
@@ -320,14 +349,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         title = getString(R.string.main_settings_title_storage_permission)
                         summary = getString(R.string.main_settings_summary_storage_permission)
                     }
+
                     Constant.NO_ROOT -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
                         summary = getString(R.string.main_settings_summary_storage_no_root)
                     }
+
                     Constant.NO_ALIVE -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
                         summary = getString(R.string.main_settings_summary_no_alive)
                     }
+
                     else -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
                         summary = getString(R.string.main_settings_summary_storage_no)
@@ -339,6 +371,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     Constant.NO_ROOT -> {
                         requireActivity().showToast(getString(R.string.not_root_tip))
                     }
+
                     Constant.NO_STORAGE -> {
                         if (OSUtils.atR2T()) {
                             if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {

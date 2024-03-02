@@ -497,14 +497,12 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
         initMenu()
     }
 
-    @Suppress("DEPRECATION")
     private fun initMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_home, menu)
                 val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
                 searchView.apply {
-                    setTextColor(Color.WHITE)
                     queryHint = context.getString(R.string.main_home_toolbar_search_hint)
                     setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?) = false

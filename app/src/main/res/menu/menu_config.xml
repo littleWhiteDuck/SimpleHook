@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/collect"
+        android:icon="@drawable/ic_config_collect"
         android:title="@string/config_menu_collect_config"
-        android:icon="@drawable/ic_collect_24"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/config_smali_to_config"
+        android:icon="@drawable/ic_config_paste"
         android:title="@string/config_config_smali_to_config"
-        android:icon="@drawable/ic_paste"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/save_config"
+        android:icon="@drawable/ic_config_save"
         android:title="@string/config_menu_save_config"
-        android:icon="@drawable/ic_save_toolbar_24"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 </menu>

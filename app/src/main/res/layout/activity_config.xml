@@ -15,9 +15,9 @@
             android:id="@+id/collapsing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryVariant"
-            app:collapsedTitleTextColor="@color/white"
-            app:contentScrim="@color/colorPrimary"
+            android:background="?colorPrimary"
+            app:collapsedTitleTextColor="?colorOnPrimary"
+            app:contentScrim="?colorPrimary"
             app:expandedTitleTextAppearance="@style/TransparentText"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -42,10 +42,10 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                style="@style/Toolbar_Style"
+                app:titleTextColor="?colorOnPrimary"
+                app:navigationIcon="@drawable/ic_config_back"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                android:background="@color/colorPrimary"
                 app:layout_collapseMode="pin" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

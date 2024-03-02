@@ -11,8 +11,8 @@ import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
 import com.google.android.material.card.MaterialCardView
 import me.simpleHook.R
-import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.dp
+import me.simpleHook.ui.custom.CustomViewGroup
 import kotlin.math.max
 
 class AppItemView(context: Context, attrs: AttributeSet?) : MaterialCardView(context, attrs) {
@@ -28,6 +28,7 @@ class AppItemView(context: Context, attrs: AttributeSet?) : MaterialCardView(con
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
+        strokeWidth = 0
         addView(containerView)
     }
 

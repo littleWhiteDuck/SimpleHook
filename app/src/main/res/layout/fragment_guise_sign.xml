@@ -13,10 +13,10 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tip"
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="@string/extension_guise_tip"
         android:textColor="@android:color/holo_red_light"
@@ -24,9 +24,9 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add"
@@ -35,8 +35,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
         android:contentDescription="@string/dialog_confirm"
-        app:backgroundTint="@color/colorPrimary"
         app:fabSize="normal"
-        app:srcCompat="@drawable/ic_add_24"
-        app:tint="@color/white" />
+        app:srcCompat="@drawable/ic_add_24" />
 </FrameLayout>

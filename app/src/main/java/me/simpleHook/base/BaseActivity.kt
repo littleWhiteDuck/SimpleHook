@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.widget.CheckBox
 import android.widget.ImageButton
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.DynamicColors
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
@@ -25,8 +28,8 @@ import com.lzf.easyfloat.interfaces.OnPermissionResult
 import com.lzf.easyfloat.permission.PermissionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.PrintLogAdapter
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
@@ -34,8 +37,13 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showToast
+import me.simpleHook.recyclerview.adapter.PrintLogAdapter
 import me.simpleHook.ui.view.ControlView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.LogUtils
+import me.simpleHook.util.TimeUtil
 
 @Keep
 open class BaseActivity : AppCompatActivity() {
@@ -86,6 +94,14 @@ open class BaseActivity : AppCompatActivity() {
         super.attachBaseContext(LanguageUtils.attachBaseContext(newBase))
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+        if (DynamicColors.isDynamicColorAvailable() && GlobalValue.sp.enableSystemAccent) {
+            DynamicColors.applyToActivityIfAvailable(this)
+        }
+        super.onCreate(savedInstanceState)
+    }
+
 
     fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -93,14 +109,18 @@ open class BaseActivity : AppCompatActivity() {
                 if (!::assistConfigs.isInitialized) {
                     assistConfigs = appViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(this@BaseActivity,
-                                it.packageName)
+                        if (it.allSwitch && AppUtils.isAppInstalled(
+                                this@BaseActivity,
+                                it.packageName
+                            )
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appViewModel.getConfigs()
                     configs.forEach {
-                        if (it.enable && AppUtils.isAppInstalled(this@BaseActivity,
-                                it.packageName)
+                        if (it.enable && AppUtils.isAppInstalled(
+                                this@BaseActivity,
+                                it.packageName
+                            )
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
@@ -183,8 +203,12 @@ open class BaseActivity : AppCompatActivity() {
             recyclerView.apply {
                 adapter = mAdapter
                 layoutManager = LinearLayoutManager(this@BaseActivity)
-                addItemDecoration(DividerItemDecoration(this@BaseActivity,
-                    DividerItemDecoration.VERTICAL))
+                addItemDecoration(
+                    DividerItemDecoration(
+                        this@BaseActivity,
+                        DividerItemDecoration.VERTICAL
+                    )
+                )
             }
             val dragCheckBox = it.findViewById<CheckBox>(R.id.dragEnable)
             dragCheckBox.setOnCheckedChangeListener { _, isChecked ->

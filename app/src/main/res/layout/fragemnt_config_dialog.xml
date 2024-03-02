@@ -16,8 +16,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@string/config_dialog_title"
             android:fontFamily="sans-serif-medium"
+            android:text="@string/config_dialog_title"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="parent" />
@@ -51,11 +51,9 @@
                 android:id="@+id/hookPointEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_hook_point_edit_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true"
-                android:textColorHint="#757575" />
+                android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -70,11 +68,9 @@
                 android:id="@+id/classNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_class_edit_tip"
                 android:imeOptions="actionNext"
-                android:maxLines="3"
-                android:textColorHint="#757575" />
+                android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.Guideline
@@ -103,7 +99,6 @@
                 android:id="@+id/methodNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_method_input_tip"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
@@ -122,7 +117,6 @@
                 android:id="@+id/paramsTypeEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_params_input_tip"
                 android:imeOptions="actionNext"
                 android:maxLines="3" />
@@ -157,7 +151,7 @@
             android:layout_height="wrap_content"
             android:background="?selectableItemBackground"
             android:padding="4dp"
-            android:src="@drawable/baseline_more_vert_24"
+            android:src="@drawable/ic_more_config"
             app:layout_constraintBottom_toBottomOf="@+id/save_config"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toTopOf="@+id/save_config" />
@@ -174,7 +168,6 @@
                 android:id="@+id/field_class_name_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_field_class_name_edit_hint"
                 android:imeOptions="actionNext"
                 android:maxLines="3" />
@@ -193,7 +186,6 @@
                 android:id="@+id/fieldNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_field_name_edit_hint"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
@@ -212,7 +204,6 @@
                 android:id="@+id/return_class_name_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_class_name_tip"
                 android:imeOptions="actionNext"
                 android:maxLines="3" />
@@ -230,7 +221,6 @@
                 android:id="@+id/resultValueEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_value_input_tip"
                 android:imeOptions="actionDone" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -247,7 +237,6 @@
                 android:id="@+id/config_item_desc_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_config_item_desc_edit" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

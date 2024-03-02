@@ -138,6 +138,7 @@
 
     <string name="main_record_name">记录</string>
     <string name="main_record_empty_tip">这里是空的，可在扩展页面添加配置、设置记录项或者Hook配置页选择【打印参数值】、【打印返回值】</string>
+    <string name="main_settings_follow_system_theme_color">跟随系统主题色</string>
 
     <!--record-->
     <string name="record_menu_show_method">显示方式</string>
@@ -203,12 +204,12 @@
     <string name="extension_item_title_click_event">点击事件</string>
     <string name="extension_item_desc_click_event">打印点击调用、显示内容</string>
     <string name="extension_item_title_others">其他</string>
-    <string name="extension_item_title_intent">intent</string>
+    <string name="extension_item_title_intent">Intent</string>
     <string name="extension_item_desc_intent">打印常见启动activity时传递的intent</string>
     <string name="extension_item_title_hot_fix_dex">热修复dex</string>
     <string name="extension_item_title_hot_fix">热修复</string>
     <string name="extension_item_title_network">网络</string>
-    <string name="extension_item_title_vpn">vpn</string>
+    <string name="extension_item_title_vpn">Vpn</string>
     <string name="extension_item_desc_vpn">去除一般的VPN检测</string>
     <string name="extension_item_title_json_object" translatable="false">JSONObject</string>
     <string name="extension_item_desc_json_object">记录JSONObject创建时内容、增加时内容</string>

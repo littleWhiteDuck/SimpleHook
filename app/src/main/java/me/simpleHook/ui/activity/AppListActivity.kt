@@ -2,13 +2,13 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
@@ -23,7 +23,6 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.databinding.ActivityAppListBinding
-import me.simpleHook.extension.setTextColor
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
@@ -44,6 +43,7 @@ class AppListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAppListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        enableEdgeToEdge()
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -59,18 +59,18 @@ class AppListActivity : BaseActivity() {
     }
 
     private fun initView() {
-        binding.swipeRefreshLayout.isRefreshing = true
-        binding.viewPager.adapter =
-            object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
-                override fun getItemCount() = 2
+        with(binding) {
+            swipeRefreshLayout.isRefreshing = true
+            viewPager.adapter =
+                object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+                    override fun getItemCount() = 2
 
-                override fun createFragment(position: Int) = when (position) {
-                    0 -> AppListFragment("user")
-                    else -> AppListFragment("system")
+                    override fun createFragment(position: Int) = when (position) {
+                        0 -> AppListFragment("user")
+                        else -> AppListFragment("system")
+                    }
                 }
-            }
-        binding.viewPager.offscreenPageLimit = 1
-        binding.apply {
+            viewPager.offscreenPageLimit = 1
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 run {
                     when (position) {
@@ -79,22 +79,22 @@ class AppListActivity : BaseActivity() {
                     }
                 }
             }.attach()
-        }
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            appViewModel.fetchData(currentSortSelected, currentSortReverse)
+            swipeRefreshLayout.setOnRefreshListener {
+                appViewModel.fetchData(currentSortSelected, currentSortReverse)
+            }
+            toolbar.setOnClickListener {
+                if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
+                    val systemRecyclerView = findViewById<RecyclerView>(R.id.user_app_recycler)
+                    systemRecyclerView.smoothScrollToPosition(0)
+                    val appRecyclerView = findViewById<RecyclerView>(R.id.system_app_recycler)
+                    appRecyclerView.smoothScrollToPosition(0)
+                } else {
+                    firstClickTime = System.currentTimeMillis()
+                }
+            }
         }
         appViewModel.selectAppItem.observe(this) {
             if (it != null) clickResponse(it)
-        }
-        binding.toolbar.setOnClickListener {
-            if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
-                val systemRecyclerView = findViewById<RecyclerView>(R.id.user_app_recycler)
-                systemRecyclerView.smoothScrollToPosition(0)
-                val appRecyclerView = findViewById<RecyclerView>(R.id.system_app_recycler)
-                appRecyclerView.smoothScrollToPosition(0)
-            } else {
-                firstClickTime = System.currentTimeMillis()
-            }
         }
 
     }
@@ -123,7 +123,7 @@ class AppListActivity : BaseActivity() {
         menuInflater.inflate(R.menu.menu_app_list, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
         searchView.queryHint = getString(R.string.search_hint)
-        searchView.setTextColor(Color.WHITE)
+//        searchView.setTextColor(Color.WHITE)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String): Boolean {
@@ -161,15 +161,18 @@ class AppListActivity : BaseActivity() {
                 APP_LIST_BY_NAME -> findViewById<RadioButton>(R.id.app_name).isChecked = true
                 APP_LIST_BY_PACKAGE_NAME -> findViewById<RadioButton>(R.id.package_name).isChecked =
                     true
+
                 APP_LIST_BY_INSTALLED_TIME -> findViewById<RadioButton>(R.id.installed_time).isChecked =
                     true
+
                 else -> findViewById<RadioButton>(R.id.target_api).isChecked = true
             }
         }
         val reverseSort = contentView.findViewById<CheckBox>(R.id.reverse_sort)
         reverseSort.setOnCheckedChangeListener { _, isChecked -> currentSortReverse = isChecked }
         reverseSort.isChecked = currentSortReverse
-        customDialog(this,
+        customDialog(
+            this,
             title = getString(R.string.app_list_sort_dialog_title),
             okText = getString(R.string.app_list_sort_dialog_confirm),
             okClick = {
@@ -184,6 +187,7 @@ class AppListActivity : BaseActivity() {
                 currentSortSelected = sp.appListSortSelected
             },
             contentView = contentView,
-            cancelAble = false).show()
+            cancelAble = false
+        ).show()
     }
 }

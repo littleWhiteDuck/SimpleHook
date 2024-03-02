@@ -50,8 +50,8 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         src?.let {
             actionButton.setImageDrawable(it)
         }
-        val tint = typeValue.getColorStateList(R.styleable.FloatingActionButton_fab_tint)
-        actionButton.imageTintList = tint
+        //val tint = typeValue.getColorStateList(R.styleable.FloatingActionButton_fab_tint)
+        //actionButton.imageTintList = tint
         cardView.id = R.id.fab_label
         addView(cardView)
         actionButton.id = R.id.fab_fab

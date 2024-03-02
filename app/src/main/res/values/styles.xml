@@ -56,7 +56,7 @@
         <item name="fontFamily">sans-serif</item>
     </style>
 
-    <style name="card">
+    <style name="card" parent="Widget.Material3.CardView.Filled">
         <item name="cardUseCompatPadding">true</item>
         <item name="cardPreventCornerOverlap">true</item>
     </style>
@@ -99,8 +99,8 @@
     <style name="Toolbar_Style">
         <item name="android:theme">@style/ToolBarTheme</item>
         <item name="popupTheme">@style/ToolBarThemePopup</item>
-        <item name="subtitleTextColor">@color/white</item>
-        <item name="titleTextColor">@color/white</item>
+        <item name="subtitleTextColor">?colorOnPrimary</item>
+        <item name="titleTextColor">?colorOnPrimary</item>
     </style>
 
     <style name="TextInput" parent="Widget.Material3.TextInputLayout.FilledBox"></style>

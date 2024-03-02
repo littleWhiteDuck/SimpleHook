@@ -3,15 +3,14 @@ package me.simpleHook.ui.view.extension
 
 import android.content.Context
 import android.graphics.Color
-import android.util.TypedValue
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import me.simpleHook.R
-import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.dp
+import me.simpleHook.ui.custom.CustomViewGroup
 
 
 class SelectItemView(context: Context) : CustomViewGroup(context) {
@@ -33,7 +32,7 @@ class SelectItemView(context: Context) : CustomViewGroup(context) {
             addView(this)
         }
 
-    val switch = SwitchMaterial(context).apply {
+    val switch = MaterialSwitch(context).apply {
         layoutParams = MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         setPadding(5.dp, 10.dp, 15.dp, 10.dp)
         isClickable = false

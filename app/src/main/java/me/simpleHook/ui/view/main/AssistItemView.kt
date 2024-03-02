@@ -22,8 +22,9 @@ class AssistItemView(context: Context) : MaterialCardView(context) {
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 5.dp)
         }
-        cardElevation = 1.dp.toFloat()
-        radius = 5.dp.toFloat()
+        cardElevation = 1f.dp
+        radius = 5f.dp
+        strokeWidth = 0
         addView(containerView)
     }
 

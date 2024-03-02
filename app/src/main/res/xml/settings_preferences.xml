@@ -13,19 +13,19 @@
             app:title="@string/main_settings_title_batch_grant" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_custom">
-        <CheckBoxPreference
+        <me.simpleHook.ui.custom.MaterialSwitchPreference
             android:key="bottomConfigDialog"
             android:title="@string/main_settings_title_bottom_config_dialog"
             app:defaultValue="false"
             app:summary="@string/main_settings_summary_bottom_config_dialog" />
-        <CheckBoxPreference
+        <me.simpleHook.ui.custom.MaterialSwitchPreference
             android:key="checkPermission"
             android:title="@string/main_settings_title_bottom_check_permission"
             app:defaultValue="true"
             app:summary="@string/main_settings_summary_check_permission" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_experiment">
-        <CheckBoxPreference
+        <me.simpleHook.ui.custom.MaterialSwitchPreference
             app:defaultValue="true"
             app:key="smali2Config"
             app:summary="@string/main_settings_summary_to_config"
@@ -49,6 +49,10 @@
             app:key="themeMode"
             app:summary="%s"
             app:title="@string/main_settings_ui_mode_title" />
+        <me.simpleHook.ui.custom.MaterialSwitchPreference
+            android:key="enableSystemAccent"
+            android:title="@string/main_settings_follow_system_theme_color"
+            app:defaultValue="true" />
         <rikka.preference.SimpleMenuPreference
             android:entries="@array/main_settings_language_item_entries"
             app:defaultValue="system"

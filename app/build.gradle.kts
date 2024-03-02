@@ -4,9 +4,9 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
-val keyFile = rootProject.file("sign.properties")
+val configFile = rootProject.file("sign.properties")
 val prop = Properties()
-prop.load(FileInputStream(keyFile))
+prop.load(FileInputStream(configFile))
 
 plugins {
     id("com.android.application")
@@ -17,7 +17,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val beta = true
+val beta = prop.getProperty("beta").toBoolean()
+val verName: String = prop.getProperty("verName")
 
 android {
     val verCode = run {
@@ -25,7 +26,6 @@ android {
         sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
         sdf.format(Date()).toInt()
     }
-    val verName = "1.3.4"
     signingConfigs {
         create("keyStore") {
             keyAlias = prop.getProperty("alias")
@@ -164,7 +164,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0-alpha03")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -225,9 +225,8 @@ dependencies {
     val work_version = "2.9.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
-    //
+    // webdav
     implementation("com.github.thegrizzlylabs:sardine-android:0.9")
-
 
     //leakcanary
 //    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")

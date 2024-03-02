@@ -344,14 +344,14 @@ class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>()
                         getString(R.string.extension_item_desc_hook_success_tip)
                     )
                 )
-                add(
-                    ExtensionSubNextItem(
-                        getString(R.string.extension_item_title_record),
-                        record.enable,
-                        TAG_RECORD,
-                        getString(R.string.extension_item_desc_record)
-                    )
-                )
+                /*  add(
+                      ExtensionSubNextItem(
+                          getString(R.string.extension_item_title_record),
+                          record.enable,
+                          TAG_RECORD,
+                          getString(R.string.extension_item_desc_record)
+                      )
+                  )*/
                 add(Title(getString(R.string.extension_item_title_algorithm_analysis)))
                 add(
                     ExtensionItem(

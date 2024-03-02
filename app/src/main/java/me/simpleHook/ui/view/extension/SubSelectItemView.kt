@@ -5,10 +5,10 @@ import android.content.Context
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.marginEnd
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
+import com.google.android.material.materialswitch.MaterialSwitch
 import me.simpleHook.R
 import me.simpleHook.extension.addViews
 import me.simpleHook.extension.dp
@@ -27,7 +27,7 @@ class SubSelectItemView(context: Context) : CustomViewGroup(context) {
         layoutParams = LayoutParams(2.dp, LayoutParams.WRAP_CONTENT)
         setBackgroundColor(context.resources.getColor(R.color.divider_color))
     }
-    val switch = SwitchCompat(context).apply {
+    val switch = MaterialSwitch(context).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         setPadding(5.dp, 10.dp, 15.dp, 10.dp)
     }

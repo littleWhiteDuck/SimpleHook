@@ -52,7 +52,6 @@
                 android:id="@+id/hookPointEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_hook_point_edit_tip"
                 android:imeOptions="actionNext"
                 android:singleLine="true"
@@ -71,10 +70,9 @@
                 android:id="@+id/classNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_class_edit_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true"
+                android:maxLines="2"
                 android:textColorHint="#757575" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -104,7 +102,6 @@
                 android:id="@+id/methodNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_method_input_tip"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
@@ -123,10 +120,9 @@
                 android:id="@+id/paramsTypeEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_params_input_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -141,10 +137,9 @@
                 android:id="@+id/field_class_name_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_field_class_name_edit_hint"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="3" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -160,7 +155,6 @@
                 android:id="@+id/fieldNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_field_name_edit_hint"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
@@ -179,10 +173,9 @@
                 android:id="@+id/return_class_name_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_class_name_tip"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:maxLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -197,10 +190,8 @@
                 android:id="@+id/resultValueEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="@string/config_dialog_return_value_input_tip"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                android:imeOptions="actionDone" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

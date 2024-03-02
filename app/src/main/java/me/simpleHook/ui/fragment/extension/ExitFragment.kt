@@ -9,13 +9,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceCategory
-import androidx.preference.SwitchPreferenceCompat
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.Exit
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
@@ -70,7 +69,7 @@ class ExitFragment : BasePreferenceFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         tempConfig = Json.decodeFromString(exViewModel.extensionConfig.value!!.exit.info)
-        val finishSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val finishSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_finish)
@@ -81,7 +80,7 @@ class ExitFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val exitSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val exitSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_exit)
@@ -93,7 +92,7 @@ class ExitFragment : BasePreferenceFragment() {
             }
         }
 
-        val killSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val killSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_kill_process)
@@ -105,7 +104,7 @@ class ExitFragment : BasePreferenceFragment() {
             }
         }
 
-        val recordCrashSwitch = SwitchPreferenceCompat(requireContext()).apply {
+        val recordCrashSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_exit_title_record_crash)
             summary = getString(R.string.extension_exit_summary_record_crash)

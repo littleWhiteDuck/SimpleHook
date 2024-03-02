@@ -519,4 +519,6 @@
     <string name="config_show_note">Show note</string>
     <string name="config_dialog_config_item_desc_input">Example: login hook</string>
     <string name="config_dialog_config_item_desc_edit">Enter memo info</string>
+
+    <string name="main_settings_follow_system_theme_color">Follow system theme color</string>
 </resources>

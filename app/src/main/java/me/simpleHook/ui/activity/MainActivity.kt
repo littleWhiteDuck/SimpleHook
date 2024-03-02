@@ -3,6 +3,7 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.core.net.toUri
@@ -29,7 +30,11 @@ import me.simpleHook.ui.fragment.HomeFragment
 import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
-import me.simpleHook.util.*
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.OSUtils
+import me.simpleHook.util.PermissionUtils
+import me.simpleHook.util.SPUtils
+import me.simpleHook.util.SuUtil
 
 class MainActivity : BaseActivity() {
 
@@ -39,46 +44,49 @@ class MainActivity : BaseActivity() {
     private val viewModel by viewModels<AppViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        enableEdgeToEdge()
         WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         checkActive()
         checkUpdate()
-        initPermission()
         initBackup()
-        super.onCreate(savedInstanceState)
+        initPermission()
     }
 
     private fun initBackup() {
-        viewModel.backupLocalWorkerID.observe(this) { ID ->
-            if (ID != null) {
-                WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID).observe(this) { work ->
+        viewModel.backupLocalWorkerID.observe(this) { id ->
+            if (id != null) {
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
                     if (work.state == WorkInfo.State.FAILED) {
                         showToast(getString(R.string.backup_tip_local_auto_backup_failed))
                     }
                     when (work.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
-                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID)
+                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(id)
                                 .removeObservers(this)
                         }
+
                         else -> {}
                     }
                 }
             }
         }
-        viewModel.backupCloudWorkerID.observe(this) { ID ->
-            if (ID != null) {
-                WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID).observe(this) { work ->
+        viewModel.backupCloudWorkerID.observe(this) { id ->
+            if (id != null) {
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
                     if (work.state == WorkInfo.State.FAILED) {
                         showToast(getString(R.string.backup_tip_cloud_auto_backup_failed))
                     }
                     when (work.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
-                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(ID)
+                            WorkManager.getInstance(this).getWorkInfoByIdLiveData(id)
                                 .removeObservers(this)
                         }
+
                         else -> {}
                     }
                 }
@@ -144,7 +152,8 @@ class MainActivity : BaseActivity() {
             if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
                 val body = result.optString("body").substringAfterLast("更新记录").trim()
                 val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
-                customDialog(this@MainActivity,
+                customDialog(
+                    this@MainActivity,
                     title = getString(R.string.main_version_update) + versionName,
                     message = message,
                     okText = getString(R.string.main_go_upgrade),
@@ -159,7 +168,8 @@ class MainActivity : BaseActivity() {
                     cancelClick = {
                         it.dismiss()
                     },
-                    cancelAble = false).show()
+                    cancelAble = false
+                ).show()
             }
         }
     }

@@ -2,26 +2,28 @@ package me.simpleHook.ui.view.main
 
 import android.content.Context
 import android.graphics.Color
+import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
+import com.google.android.material.materialswitch.MaterialSwitch
 import me.simpleHook.R
+import me.simpleHook.extension.dp
 import me.simpleHook.ui.custom.CustomSwipeCardViewGroup
 import me.simpleHook.ui.custom.CustomViewGroup
-import me.simpleHook.extension.dp
 import kotlin.math.max
 
-class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
-    val container = ContainerView(context)
+class AppConfigView(context: Context, attrs: AttributeSet? = null) :
+    CustomSwipeCardViewGroup(context, attrs) {
+    val container = ContainerView(context, null)
 
 
     val editConfig = AppCompatButton(context).apply {
@@ -66,6 +68,7 @@ class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
         }
         cardElevation = 1.dp.toFloat()
         radius = 5.dp.toFloat()
+        strokeWidth = 0
         addView(container)
     }
 
@@ -101,7 +104,7 @@ class AppConfigView(context: Context) : CustomSwipeCardViewGroup(context) {
 
 }
 
-class ContainerView(context: Context) : CustomViewGroup(context) {
+class ContainerView(context: Context, attrs: AttributeSet?) : CustomViewGroup(context, attrs) {
     val icon = AppCompatImageView(context).apply {
         layoutParams = MarginLayoutParams(40.dp, 40.dp).apply {
             setMargins(10.dp, 10.dp, 10.dp, 10.dp)
@@ -130,12 +133,13 @@ class ContainerView(context: Context) : CustomViewGroup(context) {
         addView(this)
     }
 
-    val switch = SwitchCompat(context).apply {
+    val switch = MaterialSwitch(context).apply {
         layoutParams =
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                 it.setMargins(0.dp, 0.dp, 5.dp, 0.dp)
             }
         setPadding(5.dp, 5.dp, 5.dp, 5.dp)
+
         addView(this)
     }
 

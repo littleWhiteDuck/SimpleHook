@@ -15,8 +15,10 @@ class RecordItemView(context: Context) :
     CustomSwipeCardViewGroup(ContextThemeWrapper(context, R.style.card)) {
     val container = RecordPackItemView.RecordContainerView(context)
     val mark = AppCompatButton(context).apply {
-        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT).also {
+        layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ).also {
             setPadding(0, 0, 0, 0)
         }
         text = context.getString(R.string.mark)
@@ -25,8 +27,10 @@ class RecordItemView(context: Context) :
         addView(this)
     }
     val delete = AppCompatButton(context).apply {
-        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT).also {
+        layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ).also {
             setPadding(0, 0, 0, 0)
         }
         text = context.getString(R.string.delete)
@@ -36,20 +40,25 @@ class RecordItemView(context: Context) :
     }
 
     init {
-        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT).also {
+        layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
-        cardElevation = 1.dp.toFloat()
-        radius = 5.dp.toFloat()
+        cardElevation = 1f.dp
+        radius = 5f.dp
+        strokeWidth = 0
         addView(container)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         container.autoMeasure()
-        mark.measure(mark.defaultWidthMeasureSpec(this),
-            container.measuredHeight.toExactlyMeasureSpec())
+        mark.measure(
+            mark.defaultWidthMeasureSpec(this),
+            container.measuredHeight.toExactlyMeasureSpec()
+        )
         delete.autoMeasure()
         isClickable = true
         mRightMenuWidths = mark.measuredWidth + delete.measuredWidth

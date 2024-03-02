@@ -21,8 +21,10 @@ class RecordTypeItemView(context: Context) :
     CustomSwipeCardViewGroup(ContextThemeWrapper(context, R.style.card)) {
     val container = RecordContainerView(context)
     val delete = AppCompatButton(context).apply {
-        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT).also {
+        layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ).also {
             setPadding(0, 0, 0, 0)
         }
         text = context.getString(R.string.delete)
@@ -32,20 +34,25 @@ class RecordTypeItemView(context: Context) :
     }
 
     init {
-        layoutParams = MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT).also {
+        layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }
-        cardElevation = 1.dp.toFloat()
-        radius = 5.dp.toFloat()
+        cardElevation = 1f.dp
+        radius = 5f.dp
+        strokeWidth = 0
         addView(container)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         container.autoMeasure()
-        delete.measure(delete.defaultWidthMeasureSpec(this),
-            container.measuredHeight.toExactlyMeasureSpec())
+        delete.measure(
+            delete.defaultWidthMeasureSpec(this),
+            container.measuredHeight.toExactlyMeasureSpec()
+        )
         isClickable = true
         mRightMenuWidths = delete.measuredWidth
         mContentView = container
@@ -74,8 +81,12 @@ class RecordTypeItemView(context: Context) :
             addView(this)
         }
 
-        val tip = AppCompatTextView(ContextThemeWrapper(context,
-            R.style.text_view_item_secondary)).apply {
+        val tip = AppCompatTextView(
+            ContextThemeWrapper(
+                context,
+                R.style.text_view_item_secondary
+            )
+        ).apply {
             layoutParams =
                 MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also {
                     it.setMargins(0.dp, 0.dp, 5.dp, 0.dp)
@@ -90,8 +101,10 @@ class RecordTypeItemView(context: Context) :
             tip.measure(tip.defaultWidthMeasureSpec(this), tip.defaultHeightMeasureSpec(this))
             val textViewWidth =
                 measuredWidth - icon.measuredWidthWithMargins - tip.measuredHeightWithMargins
-            title.measure(textViewWidth.toExactlyMeasureSpec(),
-                title.defaultHeightMeasureSpec(this))
+            title.measure(
+                textViewWidth.toExactlyMeasureSpec(),
+                title.defaultHeightMeasureSpec(this)
+            )
             val height = max(icon.measuredHeightWithMargins, title.measuredHeightWithMargins)
             setMeasuredDimension(measuredWidth, height)
         }
@@ -99,8 +112,10 @@ class RecordTypeItemView(context: Context) :
         override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
             icon.autoLayout(icon.marginLeft, icon.toVerticalCenter(this))
             tip.autoLayout(tip.marginRight, tip.toVerticalCenter(this), fromRight = true)
-            title.autoLayout(icon.measuredHeightWithMargins + title.marginLeft,
-                title.toVerticalCenter(this))
+            title.autoLayout(
+                icon.measuredHeightWithMargins + title.marginLeft,
+                title.toVerticalCenter(this)
+            )
         }
     }
 }

@@ -10,14 +10,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation.findNavController
 import androidx.preference.PreferenceCategory
 import androidx.preference.SeekBarPreference
-import androidx.preference.SwitchPreferenceCompat
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.FileMonitorConfig
 import me.simpleHook.extension.addPreferences
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
@@ -34,7 +33,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
         val fileMonitorInfo = exViewModel.extensionConfig.value?.fileMonitor?.info
             ?: throw NullPointerException("FileMonitorConfig is null...")
         tempConfig = Json.decodeFromString(fileMonitorInfo)
-        val createFile = SwitchPreferenceCompat(requireContext()).apply {
+        val createFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_create_file)
             isIconSpaceReserved = false
@@ -44,7 +43,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val deleteFile = SwitchPreferenceCompat(requireContext()).apply {
+        val deleteFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_delete_file)
             isIconSpaceReserved = false
@@ -54,7 +53,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val outputFile = SwitchPreferenceCompat(requireContext()).apply {
+        val outputFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_write_file)
             isIconSpaceReserved = false
@@ -64,7 +63,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val inputFile = SwitchPreferenceCompat(requireContext()).apply {
+        val inputFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_read_file)
             isIconSpaceReserved = false
@@ -74,7 +73,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
                 true
             }
         }
-        val assetsFile = SwitchPreferenceCompat(requireContext()).apply {
+        val assetsFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_read_assets_file)
             isIconSpaceReserved = false
@@ -104,9 +103,11 @@ class FileMonitorFragment : BasePreferenceFragment() {
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.addPreferences(createFile,
+        preferenceCategory.addPreferences(
+            createFile,
             deleteFile,
-            inputFile, outputFile, assetsFile, seekBarPreference)
+            inputFile, outputFile, assetsFile, seekBarPreference
+        )
         setPreferenceScreen(preferenceScreen)
     }
 

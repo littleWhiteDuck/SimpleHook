@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
+import me.simpleHook.extension.getColorByAttr
 import me.simpleHook.ui.custom.MyFastScroller
 
 object FastScrollerUtil {
@@ -14,9 +15,11 @@ object FastScrollerUtil {
         val resources = view.context.resources
         val verticalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        verticalThumbDrawable.setTint(view.context.getColorByAttr(com.google.android.material.R.attr.colorPrimary))
         val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable, null)
         val horizontalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
+        horizontalThumbDrawable.setTint(view.context.getColorByAttr(com.google.android.material.R.attr.colorPrimary))
         val horizontalTrackDrawable: Drawable =
             resources.getDrawable(R.drawable.line_drawable, null)
         return MyFastScroller(

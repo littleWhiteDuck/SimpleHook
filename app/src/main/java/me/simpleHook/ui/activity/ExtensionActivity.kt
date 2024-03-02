@@ -11,11 +11,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.ActivityExtensionBinding
-import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.base.BaseActivity
 
 class ExtensionActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
@@ -29,7 +28,7 @@ class ExtensionActivity : BaseActivity() {
         binding = ActivityExtensionBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
+//        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle =
             intent.getBundleExtra(KEY_CONFIG) ?: throw NullPointerException("Bundle is null")
         extensionConfig = BundleCompat.getParcelable(bundle, KEY_CONFIG)

@@ -44,14 +44,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="80dp"
+        android:contentDescription="@string/config_sort_done"
         android:visibility="gone"
-        app:backgroundTint="@color/colorPrimary"
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/done_all_24"
-        app:tint="@color/white"
-        android:contentDescription="@string/config_sort_done" />
+        app:srcCompat="@drawable/done_all_24" />
 
     <me.simpleHook.ui.custom.FloatingActionMenu
         android:id="@+id/fab"
@@ -61,8 +59,7 @@
         android:layout_marginBottom="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu_src="@drawable/ic_add_24"
-        app:menu_tint="@color/white">
+        app:menu_src="@drawable/ic_add_24">
 
         <me.simpleHook.ui.custom.FloatingActionButton
             android:id="@+id/share_configs"
@@ -71,7 +68,6 @@
             android:layout_marginBottom="5dp"
             app:fab_label="@string/home_fab__share_config"
             app:fab_src="@drawable/ic_share"
-            app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
 
         <me.simpleHook.ui.custom.FloatingActionButton
@@ -81,7 +77,6 @@
             android:layout_marginBottom="5dp"
             app:fab_label="@string/home_fab_import_config_from_internet"
             app:fab_src="@drawable/ic_cloud_download_12"
-            app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
 
         <me.simpleHook.ui.custom.FloatingActionButton
@@ -91,7 +86,6 @@
             android:layout_marginBottom="5dp"
             app:fab_label="@string/home_fab_import_config_from_clip"
             app:fab_src="@drawable/ic_paste"
-            app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
 
         <me.simpleHook.ui.custom.FloatingActionButton
@@ -101,7 +95,6 @@
             android:layout_marginBottom="5dp"
             app:fab_label="@string/home_fab_add_config"
             app:fab_src="@drawable/ic_add_24"
-            app:fab_tint="@color/white"
             app:maxImageSize="15dp" />
     </me.simpleHook.ui.custom.FloatingActionMenu>
 </androidx.constraintlayout.widget.ConstraintLayout>

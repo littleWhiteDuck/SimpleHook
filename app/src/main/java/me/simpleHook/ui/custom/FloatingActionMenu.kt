@@ -45,8 +45,8 @@ class FloatingActionMenu(context: Context, attrs: AttributeSet) : CustomViewGrou
         val typeValue = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenu)
         val srcDrawable = typeValue.getDrawable(R.styleable.FloatingActionMenu_menu_src)
         srcDrawable?.let { menuButton.setImageDrawable(srcDrawable) }
-        val tint = typeValue.getColorStateList(R.styleable.FloatingActionMenu_menu_tint)
-        menuButton.imageTintList = tint
+        // val tint = typeValue.getColorStateList(R.styleable.FloatingActionMenu_menu_tint)
+        // menuButton.imageTintList = tint
         typeValue.recycle()
         addView(menuButton)
         hideButton()

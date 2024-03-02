@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.AppListAdapter
 import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.extension.dp
+import me.simpleHook.recyclerview.adapter.AppListAdapter
 import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.viewmodel.AppViewModel
 
@@ -22,7 +22,7 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
         appViewModel.updateSelectApp(it)
     }
     private val swipeRefreshLayout by lazy {
-        requireActivity().findViewById(R.id.swipeRefreshLayout) as SwipeRefreshLayout
+        requireActivity().findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)!!
     }
 
     override fun initRootView(): RecyclerView {

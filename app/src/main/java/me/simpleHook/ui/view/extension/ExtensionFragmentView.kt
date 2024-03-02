@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.Gravity
 import android.widget.ProgressBar
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
@@ -36,9 +35,8 @@ class ExtensionFragmentView(context: Context) : CustomViewGroup(context) {
     @SuppressLint("UseCompatLoadingForDrawables")
     val addConfig = FloatingActionButton(context).apply {
         val drawable = resources.getDrawable(R.drawable.ic_add_24)
-        imageTintList = AppCompatResources.getColorStateList(context, R.color.white)
+//        imageTintList = AppCompatResources.getColorStateList(context, R.color.white)
         setImageDrawable(drawable)
-        contentDescription = context.getString(R.string.config_add_config)
         layoutParams =
             MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                 setMargins(0, 0, 20.dp, 20.dp)

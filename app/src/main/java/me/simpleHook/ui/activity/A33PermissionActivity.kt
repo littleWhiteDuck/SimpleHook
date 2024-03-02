@@ -2,12 +2,11 @@ package me.simpleHook.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -20,17 +19,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract2
 import me.simpleHook.databinding.ActivityA33PermissionBinding
-import me.simpleHook.extension.setTextColor
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.permission.PermissionItemView
 import me.simpleHook.ui.view.permission.PermissionSortView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.PermissionUtils
+import me.simpleHook.util.SPUtils
+import me.simpleHook.util.TimeUtil
 
 
 private const val SHOW_APP_USER = 0
@@ -41,13 +44,13 @@ private const val SORT_BY_NAME = 0
 private const val SORT_BY_PACK_NAME = 1
 private const val SORT_BY_INSTALLED_TIME = 2
 
-class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityA33PermissionBinding
     private var appList: List<PermissionBean> = ArrayList()
     private var currentPattern = ""
     private var needApplyApps = HashSet<String>()
-    private val startActivityForData =
+    private val startActivityForData2 =
         registerForActivityResult(OpenDocumentTreeContract2()) { callBackIntent ->
             callBackIntent?.let {
                 it.data?.let { uri ->
@@ -95,6 +98,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityA33PermissionBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -116,10 +120,12 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         userAppList.add(
-                            PermissionBean(it.packageName,
+                            PermissionBean(
+                                it.packageName,
                                 AppUtils.getAppName(this@A33PermissionActivity, it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                                needApplyApps.contains(it.packageName))
+                                needApplyApps.contains(it.packageName)
+                            )
                         )
                     }
                 }
@@ -130,10 +136,12 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         systemAppList.add(
-                            PermissionBean(it.packageName,
+                            PermissionBean(
+                                it.packageName,
                                 AppUtils.getAppName(this@A33PermissionActivity, it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                                needApplyApps.contains(it.packageName))
+                                needApplyApps.contains(it.packageName)
+                            )
                         )
                     }
                 }
@@ -178,7 +186,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
 
     private fun batchGrant() {
         if (needApplyApps.isNotEmpty()) {
-            startActivityForData.launch(DocumentCompat.generateAppUri(needApplyApps.first()))
+            startActivityForData2.launch(DocumentCompat.generateAppUri(needApplyApps.first()))
         }
     }
 
@@ -186,7 +194,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_permisssion, menu)
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
-        searchView.setTextColor(Color.WHITE)
+//        searchView.setTextColor(Color.WHITE)
         searchView.apply {
             queryHint = context.getString(R.string.permission_search_hint_app_name)
             setOnQueryTextListener(this@A33PermissionActivity)
@@ -201,9 +209,11 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
             R.id.menu_help -> {
                 showHelpDialog()
             }
+
             R.id.menu_sort -> {
                 showSortDialog()
             }
+
             R.id.menu_select_all -> {
                 appList = appList.filter {
                     needApplyApps.add(it.packageName)
@@ -213,6 +223,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                 permissionAdapter.submitList(appList)
                 permissionAdapter.notifyDataSetChanged()
             }
+
             R.id.menu_invert_selection -> {
                 appList = appList.filter {
                     if (needApplyApps.contains(it.packageName)) {
@@ -227,6 +238,7 @@ class A33PermissionActivity : AppCompatActivity(), SearchView.OnQueryTextListene
                 permissionAdapter.submitList(appList)
                 permissionAdapter.notifyDataSetChanged()
             }
+
             android.R.id.home -> {
                 finish()
             }

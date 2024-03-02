@@ -10,27 +10,25 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.base.BaseActivity
 import me.simpleHook.bean.IntentBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
-import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.JsonUtil
@@ -41,7 +39,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-class RecordDetailActivity : AppCompatActivity() {
+class RecordDetailActivity : BaseActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
     private val appViewModel by viewModels<AppViewModel>()
     private var currentText = ""
@@ -55,11 +53,11 @@ class RecordDetailActivity : AppCompatActivity() {
     // private var showReturnValue = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityRecordDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         darkMode = if (OSUtils.atLeastO()) {
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         } else {
@@ -173,7 +171,6 @@ class RecordDetailActivity : AppCompatActivity() {
         menu.findItem(R.id.menu_word_wrap).isChecked = GlobalValue.sp.wordWrap
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.apply {
-            setTextColor(Color.WHITE)
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?) = false

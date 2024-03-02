@@ -170,11 +170,11 @@
     <string name="extension_item_title_click_event">點擊事件</string>
     <string name="extension_item_desc_click_event">打印點擊調用、顯示內容</string>
     <string name="extension_item_title_others">其他</string>
-    <string name="extension_item_title_intent">intent</string>
+    <string name="extension_item_title_intent">Intent</string>
     <string name="extension_item_desc_intent">打印常見啟動activity時傳遞的intent</string>
     <string name="extension_item_title_hot_fix_dex">熱修復dex</string>
     <string name="extension_item_title_network">網絡</string>
-    <string name="extension_item_title_vpn">vpn</string>
+    <string name="extension_item_title_vpn">Vpn</string>
     <string name="extension_item_desc_vpn">去除一般的VPN檢測</string>
     <string name="record_menu_show_method">顯示方式</string>
     <string name="record_menu_type_show">按照類型劃分</string>
@@ -518,4 +518,6 @@
     <string name="config_show_note">顯示描述</string>
     <string name="config_dialog_config_item_desc_input">例如：這是登入Hook</string>
     <string name="config_dialog_config_item_desc_edit">輸入備忘訊息</string>
+
+    <string name="main_settings_follow_system_theme_color">跟隨系統主題色</string>
 </resources>

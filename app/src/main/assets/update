@@ -5,7 +5,7 @@ v1.3.4
     - 增加: 可以单独为每个配置 增加描述（需要在设置页面开启「配置弹窗在底部」功能）
     - 修复: 「记录」搜索问题
     - 修复: 应用版本名为空时的错误
-    - 优化: UI
+    - 优化: UI, 支持跟随系统主题色
 
     - Optimize: favorite config
     - Optimize: the loading speed of app list
@@ -13,7 +13,7 @@ v1.3.4
     - Add: can add a note for each config ( need to enable the ｢Config dialog at the bottom｣ on the settings page)
     - Fix: ｢Record｣ search
     - Fix: crash with app version-name is null
-    - Optimize: UI
+    - Optimize: UI, support follow system theme color
 
 v1.3.3
     - 修复: 无法删除配置问题（root 版）
