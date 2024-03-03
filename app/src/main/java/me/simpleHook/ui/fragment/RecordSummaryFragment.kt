@@ -154,63 +154,61 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
 
     override fun init() {
-        initMenu()
         initView()
     }
 
-    private fun initMenu() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_record_fragment, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_record_fragment, menu)
+        if (GlobalValue.sp.showByType) {
+            menu.findItem(R.id.toTypeShow).isChecked = true
+        } else {
+            menu.findItem(R.id.toAppShow).isChecked = true
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.delete_all -> {
+                warningDialog(requireContext(),
+                    title = getString(R.string.record_warn_dialog_title),
+                    message = getString(R.string.record_warn_dialog_message_delete_all),
+                    okClick = {
+                        appViewModel.deleteAllLogs()
+                        refreshData()
+                    })
+            }
+
+            R.id.delete_read -> {
+                warningDialog(requireContext(),
+                    title = getString(R.string.record_warn_dialog_title),
+                    message = getString(R.string.record_warn_dialog_message_delete_read),
+                    okClick = {
+                        appViewModel.deleteRecordByRead(read = true)
+                        refreshData()
+                    })
+            }
+
+            R.id.toAppShow -> {
                 if (GlobalValue.sp.showByType) {
-                    menu.findItem(R.id.toTypeShow).isChecked = true
-                } else {
-                    menu.findItem(R.id.toAppShow).isChecked = true
+                    refreshData(0)
+                    GlobalValue.sp.showByType = false
                 }
+                menuItem.isChecked = !menuItem.isChecked
             }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.delete_all -> {
-                        warningDialog(requireContext(),
-                            title = getString(R.string.record_warn_dialog_title),
-                            message = getString(R.string.record_warn_dialog_message_delete_all),
-                            okClick = {
-                                appViewModel.deleteAllLogs()
-                                refreshData()
-                            })
-                    }
-                    R.id.delete_read -> {
-                        warningDialog(requireContext(),
-                            title = getString(R.string.record_warn_dialog_title),
-                            message = getString(R.string.record_warn_dialog_message_delete_read),
-                            okClick = {
-                                appViewModel.deleteRecordByRead(read = true)
-                                refreshData()
-                            })
-                    }
-                    R.id.toAppShow -> {
-                        if (GlobalValue.sp.showByType) {
-                            refreshData(0)
-                            GlobalValue.sp.showByType = false
-                        }
-                        menuItem.isChecked = !menuItem.isChecked
-                    }
-                    R.id.toTypeShow -> {
-                        if (!GlobalValue.sp.showByType) {
-                            refreshData(0)
-                            GlobalValue.sp.showByType = true
-                        }
-                        menuItem.isChecked = !menuItem.isChecked
-                    }
-                    R.id.startFloat -> {
-                        (requireActivity() as MainActivity).initPrintFloat()
-                    }
+            R.id.toTypeShow -> {
+                if (!GlobalValue.sp.showByType) {
+                    refreshData(0)
+                    GlobalValue.sp.showByType = true
                 }
-                return true
+                menuItem.isChecked = !menuItem.isChecked
             }
 
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+            R.id.startFloat -> {
+                (requireActivity() as MainActivity).initPrintFloat()
+            }
+        }
+        return true
     }
 
     private fun refreshData(time: Long = 500, showRefresh: Boolean = true) {

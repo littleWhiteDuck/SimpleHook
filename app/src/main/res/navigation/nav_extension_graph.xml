@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/managerFragment"
-        android:name="me.simpleHook.ui.fragment.extension.ManagerFragment"
+        android:name="me.simpleHook.ui.fragment.extension.ManagerVBFragment"
         android:label="fragment_extension_manager"
         tools:layout="@layout/fragment_extension_manager">
         <action
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
-        android:name="me.simpleHook.ui.fragment.extension.GuiseSignFragment"
+        android:name="me.simpleHook.ui.fragment.extension.GuiseSignVBFragment"
         android:label="@string/guise_signature"
         tools:layout="@layout/fragment_guise_sign" />
     <fragment

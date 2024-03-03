@@ -1,5 +1,8 @@
 package me.simpleHook.ui.fragment
 
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.ViewGroup.LayoutParams
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,6 +41,14 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
     override fun init() {
         initData()
         initView()
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return true
     }
 
     private fun initData() {

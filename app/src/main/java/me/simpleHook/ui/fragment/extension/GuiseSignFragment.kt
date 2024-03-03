@@ -19,7 +19,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -32,7 +31,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseFragment
+import me.simpleHook.base.BaseVBFragment
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.dp
@@ -57,7 +56,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 
-class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
+class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     private val viewModel by activityViewModels<ExViewModel>()
     private val appSignItems = ArrayList<AppInfo>()
     private lateinit var navController: NavController
@@ -136,10 +135,14 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
         val info = viewModel.extensionConfig.value!!.guiseSign.info
         val guiseSigns = Json.decodeFromString<List<GuiseSignConfig>>(info)
         guiseSigns.forEach {
-            appSignItems.add(AppInfo(AppUtils.getAppName(requireContext(), it.packageName),
-                it.packageName,
-                it.signData,
-                it.enable))
+            appSignItems.add(
+                AppInfo(
+                    AppUtils.getAppName(requireContext(), it.packageName),
+                    it.packageName,
+                    it.signData,
+                    it.enable
+                )
+            )
         }
         tempConfigStr = appSignItems.toString()
         notifyDataSetChanged()
@@ -148,12 +151,16 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
     }
 
     private fun initView() {
-        binding.apply {
+        with(binding) {
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             add.setOnClickListener {
-                startActivityForAppInfo.launch(Intent(requireContext(),
-                    AppListActivity::class.java))
+                startActivityForAppInfo.launch(
+                    Intent(
+                        requireContext(),
+                        AppListActivity::class.java
+                    )
+                )
             }
         }
         val navHostFragment =
@@ -264,14 +271,11 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
     }
 
 
-    @SuppressLint("PackageManagerGetSignatures")
+    @Suppress("DEPRECATION")
     private fun addApp(appName: String, packageName: String) {
-        @Suppress("DEPRECATION")
         val packInfo =
             GlobalValue.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-        appSignItems.add(@Suppress("DEPRECATION") AppInfo(appName,
-            packageName,
-            packInfo.signatures[0].toCharsString()))
+        appSignItems.add(AppInfo(appName, packageName, packInfo.signatures[0].toCharsString()))
         notifyDataSetChanged(appSignItems.size)
         binding.tip.isVisible = false
     }
@@ -289,14 +293,15 @@ class GuiseSignFragment : BaseFragment<FragmentGuiseSignBinding>() {
                 }
                 return false
             }
-
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        })
     }
 }
 
-
 data class AppInfo(
-    val appName: String, val packageName: String, var signData: String, var enable: Boolean = true
+    val appName: String,
+    val packageName: String,
+    var signData: String,
+    var enable: Boolean = true
 )
 
 class GuiseSignAdapter(
@@ -337,7 +342,8 @@ class GuiseSignAdapter(
             appName.text = appInfo.appName
             packageName.text = appInfo.packageName
             signMd5.text =
-                "MD5:" + ToolUtils.getDigest(Signature(appInfo.signData).toByteArray()).uppercase()
+                "MD5:" + ToolUtils.getDigest(Signature(appInfo.signData).toByteArray())
+                    .uppercase()
             icon.setImageDrawable(AppUtils.getIcon(itemView.context, appInfo.packageName))
             checkBox.isChecked = appInfo.enable
         }

@@ -19,7 +19,7 @@ import me.simpleHook.util.PermissionUtils
 import me.simpleHook.util.SPUtils
 
 
-abstract class BaseExtensionFragment<VB : ViewBinding> : BaseFragment<VB>() {
+abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() {
 
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
@@ -46,6 +46,7 @@ abstract class BaseExtensionFragment<VB : ViewBinding> : BaseFragment<VB>() {
     protected fun backPressed() {
         onBackPressedCallback.isEnabled = false
         dispatcher.onBackPressed()
+        onBackPressedCallback.isEnabled = true
     }
 
     protected val sp by lazy { SPUtils(requireContext()) }

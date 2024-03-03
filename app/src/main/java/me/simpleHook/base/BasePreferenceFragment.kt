@@ -36,6 +36,7 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
     protected fun backPressed() {
         onBackPressedCallback.isEnabled = false
         dispatcher.onBackPressed()
+        onBackPressedCallback.isEnabled = true
     }
 
 

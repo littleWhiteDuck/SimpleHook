@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:context=".ui.fragment.HomeFragment">
+    tools:context=".ui.fragment.HomeVBFragment">
 
     <TextView
         android:id="@+id/empty_tip"

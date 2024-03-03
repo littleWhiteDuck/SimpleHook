@@ -20,12 +20,11 @@ import com.drakeet.multitype.MultiTypeAdapter
 import com.drakeet.multitype.ViewDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseExtensionFragment
+import me.simpleHook.base.BaseExtensionVBFragment
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.DocumentCompat
@@ -50,7 +49,7 @@ import me.simpleHook.util.*
 import me.simpleHook.viewmodel.ExViewModel
 
 
-class ManagerFragment : BaseExtensionFragment<FragmentExtensionManagerBinding>() {
+class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBinding>() {
 
     private val extensionConfig: AssistConfig by lazy {
         BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!

@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.work.WorkInfo
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
+import me.simpleHook.base.IMenuProvider
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityMainBinding
@@ -26,7 +28,7 @@ import me.simpleHook.extension.showToast
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.ui.fragment.HomeFragment
+import me.simpleHook.ui.fragment.HomeVBFragment
 import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
@@ -36,7 +38,7 @@ import me.simpleHook.util.PermissionUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.SuUtil
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), IMenuProvider {
 
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
@@ -182,7 +184,7 @@ class MainActivity : BaseActivity() {
                         override fun getItemCount() = 2
 
                         override fun createFragment(position: Int) = when (position) {
-                            0 -> HomeFragment()
+                            0 -> HomeVBFragment()
                             else -> SettingsFragment()
                         }
                     }
@@ -191,7 +193,7 @@ class MainActivity : BaseActivity() {
                         override fun getItemCount() = 4
 
                         override fun createFragment(position: Int) = when (position) {
-                            0 -> HomeFragment()
+                            0 -> HomeVBFragment()
                             1 -> ExtensionFragment()
                             2 -> RecordSummaryFragment()
                             else -> SettingsFragment()
@@ -234,6 +236,13 @@ class MainActivity : BaseActivity() {
 
     @Keep
     private fun isModuleLive() = false
+
+    private var _menuProvider: MenuProvider? = null
+    override var currentMenuProvider: MenuProvider?
+        get() = _menuProvider
+        set(value) {
+            _menuProvider = value
+        }
 
 
 }

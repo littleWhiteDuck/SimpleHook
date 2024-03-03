@@ -3,7 +3,6 @@ package me.simpleHook.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
@@ -16,13 +15,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,12 +28,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.base.BaseExtensionFragment
+import me.simpleHook.base.BaseExtensionVBFragment
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.bean.CustomConfigItem
 import me.simpleHook.constant.Constant
@@ -45,7 +41,6 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
-import me.simpleHook.extension.setTextColor
 import me.simpleHook.extension.showToast
 import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.ui.activity.ConfigActivity
@@ -61,7 +56,7 @@ import me.simpleHook.util.ToolUtils
 import kotlin.math.min
 
 
-class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollListener {
+class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollListener {
 
     private var fabDistance = 0
     private val viewModel: AppViewModel by activityViewModels()
@@ -124,7 +119,7 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
         binding.mainRecycler.apply {
             this.adapter = mAdapter
             layoutManager = linearLayoutManager
-            addOnScrollListener(FabScrollListener(this@HomeFragment))
+            addOnScrollListener(FabScrollListener(this@HomeVBFragment))
         }
         binding.mainRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
@@ -494,37 +489,29 @@ class HomeFragment : BaseExtensionFragment<FragmentHomeBinding>(), HideScrollLis
     override fun init() {
         initView()
         initData()
-        initMenu()
     }
 
-    private fun initMenu() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_home, menu)
-                val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
-                searchView.apply {
-                    queryHint = context.getString(R.string.main_home_toolbar_search_hint)
-                    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                        override fun onQueryTextSubmit(query: String?) = false
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_home, menu)
+        val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+        searchView.apply {
+            queryHint = context.getString(R.string.main_home_toolbar_search_hint)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?) = false
 
-                        override fun onQueryTextChange(newText: String): Boolean {
-                            if (isDrag) return true
-                            val pattern = newText.trim()
-                            currentPattern = pattern
-                            toFilterData(pattern)
-                            return true
-                        }
-
-                    })
+                override fun onQueryTextChange(newText: String): Boolean {
+                    if (isDrag) return true
+                    val pattern = newText.trim()
+                    currentPattern = pattern
+                    toFilterData(pattern)
+                    return true
                 }
-            }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return true
-            }
-
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+            })
+        }
     }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) = true
 
     override fun canBack() = isDrag
 

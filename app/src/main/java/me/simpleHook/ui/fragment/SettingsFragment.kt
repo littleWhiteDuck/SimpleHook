@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
+import me.simpleHook.base.IMenuProvider
 import me.simpleHook.bean.ConfigItem
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.config.PrefConfigHelper
@@ -394,5 +395,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         checkPermission()
         checkPermission()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? IMenuProvider)?.let {
+            it.currentMenuProvider?.let { menuProvider ->
+                activity?.removeMenuProvider(menuProvider)
+            }
+            it.currentMenuProvider = null
+        }
     }
 }

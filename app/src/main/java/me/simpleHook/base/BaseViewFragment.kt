@@ -2,13 +2,15 @@ package me.simpleHook.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import me.simpleHook.ui.WindowPreferencesManager
 
 
-abstract class BaseViewFragment<T : View> : Fragment() {
+abstract class BaseViewFragment<T : View> : BaseFragment() {
 
     private var _root: T? = null
     val root get() = _root!!
@@ -31,6 +33,12 @@ abstract class BaseViewFragment<T : View> : Fragment() {
         _root = null
         super.onDestroyView()
     }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean = true
 
 
 }

@@ -104,7 +104,6 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
     override fun init() {
-        initMenu()
         initView()
         initData()
     }
@@ -319,25 +318,21 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     }
 
-    private fun initMenu() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_assist_fragment, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_assist_fragment, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.startFloat -> {
+                (requireActivity() as MainActivity).initPrintFloat()
             }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.startFloat -> {
-                        (requireActivity() as MainActivity).initPrintFloat()
-                    }
-                    R.id.create_model -> createModel()
-                    R.id.show_model -> showModelDialog()
-                    R.id.about_model -> showAboutModel()
-                }
-                return true
-            }
-
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+            R.id.create_model -> createModel()
+            R.id.show_model -> showModelDialog()
+            R.id.about_model -> showAboutModel()
+        }
+        return true
     }
 
     private fun showAboutModel() {

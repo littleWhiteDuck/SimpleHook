@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import me.simpleHook.R
 import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.dp
+import me.simpleHook.extension.getColorByAttr
 
 
 class LoadingView(context: Context) : CustomViewGroup(context) {
@@ -20,7 +21,7 @@ class LoadingView(context: Context) : CustomViewGroup(context) {
 
     val tip = AppCompatTextView(context).apply {
         layoutParams = MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        setTextColor(Color.WHITE)
+        setTextColor(context.getColorByAttr(com.google.android.material.R.attr.colorSecondary))
         addView(this)
     }
 
