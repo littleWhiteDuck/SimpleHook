@@ -148,7 +148,6 @@ object MainHook {
         } catch (e: Throwable) {
             outHookError(className, "$methodName($params)", e)
         }
-
     }
 
     private fun hookReturnValuePro(

@@ -85,4 +85,7 @@
 -keep class org.xmlpull.** { *; }
 -keepclassmembers class org.xmlpull.** { *; }
 
+
+-keepattributes LineNumberTable,SourceFile
+-renamesourcefileattribute SourceFile
 -printmapping mapping.txt
