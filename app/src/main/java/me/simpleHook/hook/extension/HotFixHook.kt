@@ -6,9 +6,8 @@ import dalvik.system.DexClassLoader
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.log
 import me.simpleHook.util.FlavorUtils
-import me.simpleHook.extension.log
-import me.simpleHook.extension.tip
 import java.io.File
 
 object HotFixHook : BaseHook() {
@@ -27,7 +26,7 @@ object HotFixHook : BaseHook() {
         }
         try {
             for (index in 0 until dexFilePaths.size) {
-                dexFilePaths[index].log(HookHelper.hostPackageName)
+                dexFilePaths[index].log()
                 val originalLoader = HookHelper.appClassLoader
                 val classLoader = DexClassLoader(
                     dexFilePaths[index], HookHelper.appContext.cacheDir.path, null, null
@@ -46,23 +45,29 @@ object HotFixHook : BaseHook() {
                 val oldLength = java.lang.reflect.Array.getLength(originalDexElementsObject!!)
                 val newLength = java.lang.reflect.Array.getLength(dexElementsObject!!)
                 val concatDexElementsObject =
-                    java.lang.reflect.Array.newInstance(dexElementsObject.javaClass.componentType!!,
-                        oldLength + newLength)
+                    java.lang.reflect.Array.newInstance(
+                        dexElementsObject.javaClass.componentType!!,
+                        oldLength + newLength
+                    )
                 for (i in 0 until newLength) {
-                    java.lang.reflect.Array.set(concatDexElementsObject,
+                    java.lang.reflect.Array.set(
+                        concatDexElementsObject,
                         i,
-                        java.lang.reflect.Array.get(dexElementsObject, i))
+                        java.lang.reflect.Array.get(dexElementsObject, i)
+                    )
                 }
                 for (i in 0 until oldLength) {
-                    java.lang.reflect.Array.set(concatDexElementsObject,
+                    java.lang.reflect.Array.set(
+                        concatDexElementsObject,
                         newLength + i,
-                        java.lang.reflect.Array.get(originalDexElementsObject, i))
+                        java.lang.reflect.Array.get(originalDexElementsObject, i)
+                    )
                 }
                 dexElementsField[originalPathListObject] = concatDexElementsObject
             }
 
         } catch (e: Throwable) {
-            "hot fix error".tip(HookHelper.hostPackageName)
+            "hot fix error".log()
         }
     }
 }

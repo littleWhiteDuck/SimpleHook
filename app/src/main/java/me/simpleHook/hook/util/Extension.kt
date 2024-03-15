@@ -1,15 +1,23 @@
 package me.simpleHook.hook.util
 
-import com.github.kyuubiran.ezxhelper.utils.*
+import com.github.kyuubiran.ezxhelper.utils.Hooker
+import com.github.kyuubiran.ezxhelper.utils.hookAfter
+import com.github.kyuubiran.ezxhelper.utils.hookBefore
+import com.github.kyuubiran.ezxhelper.utils.hookReplace
+import com.github.kyuubiran.ezxhelper.utils.paramCount
+import de.robv.android.xposed.XposedBridge
 import me.simpleHook.constant.Constant
 import java.lang.reflect.Constructor
+import java.lang.reflect.Executable
 import java.lang.reflect.Method
 
 fun Method.hook(hookMode: Int, hooker: Hooker) {
     when (hookMode) {
         Constant.HOOK_RETURN, Constant.HOOK_RETURN2, Constant.HOOK_PARAM -> hookBefore(hooker)
         Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS_RETURN -> hookAfter(
-            hooker)
+            hooker
+        )
+
         Constant.HOOK_BREAK -> this.hookReplace { it.result == null }
     }
 }
@@ -31,7 +39,9 @@ fun List<Method>.hook(hookMode: Int, hooker: Hooker) {
     when (hookMode) {
         Constant.HOOK_RETURN, Constant.HOOK_RETURN2, Constant.HOOK_PARAM -> hookBefore(hooker)
         Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS_RETURN -> hookAfter(
-            hooker)
+            hooker
+        )
+
         Constant.HOOK_BREAK -> this.hookReplace { it.result == null }
     }
 }
@@ -59,4 +69,9 @@ fun Constructor<*>.isSearchConstructor(params: String): Boolean {
         if (parameterTypes[index].name != Type.getClassTypeName(methodParams[index])) return false
     }
     return true
+}
+
+//xposed log
+fun String.log() {
+    XposedBridge.log("simpleHook(${HookHelper.hostPackageName}): $this")
 }

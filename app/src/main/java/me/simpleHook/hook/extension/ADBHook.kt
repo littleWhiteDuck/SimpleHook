@@ -23,10 +23,10 @@ object ADBHook : BaseHook() {
         }
     }
 
-    private fun disableCheckAdb(it: XC_MethodHook.MethodHookParam) {
-        val keyName = it.args[1] as String
+    private fun disableCheckAdb(param: XC_MethodHook.MethodHookParam) {
+        val keyName = param.args[1] as String
         if (keyName == Global.ADB_ENABLED) {
-            it.result = 0
+            param.result = 0
         }
     }
 }

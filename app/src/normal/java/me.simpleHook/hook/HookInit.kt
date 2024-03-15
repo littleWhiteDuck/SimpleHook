@@ -10,9 +10,9 @@ import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.extension.log
 import me.simpleHook.hook.util.ConfigUtil
 import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.util.log
 
 class HookInit : IXposedHookLoadPackage {
 
@@ -38,24 +38,24 @@ class HookInit : IXposedHookLoadPackage {
     private fun startHook() {
         val packageName = HookHelper.hostPackageName
         ConfigUtil.getConfigFromFile(Constant.CUSTOM_CONFIG_NORMAL_NAME)?.let {
-            "get custom config succeed from file".log(packageName)
+            "get custom config succeed from file".log()
             MainHook.readyHook(it)
         } ?: run {
-            "get custom config failed from file".log(packageName)
+            "get custom config failed from file".log()
             ConfigUtil.getCustomConfigFromDB()?.let {
-                "get custom config succeed from db".log(packageName)
+                "get custom config succeed from db".log()
                 MainHook.readyHook(it)
-            } ?: "get custom config failed from db".log(packageName)
+            } ?: "get custom config failed from db".log()
         }
         ConfigUtil.getConfigFromFile(Constant.EXTENSION_CONFIG_NORMAL_NAME)?.let {
-            "get extension config succeed from file".log(packageName)
+            "get extension config succeed from file".log()
             MainHook.readyExtensionHook(it)
         } ?: run {
-            "get extension config failed from file".log(packageName)
+            "get extension config failed from file".log()
             ConfigUtil.getExConfigFromDB()?.let {
-                "get extension config succeed from db".log(packageName)
+                "get extension config succeed from db".log()
                 MainHook.readyExtensionHook(it)
-            } ?: "get extension config failed from db".log(packageName)
+            } ?: "get extension config failed from db".log()
         }
     }
 

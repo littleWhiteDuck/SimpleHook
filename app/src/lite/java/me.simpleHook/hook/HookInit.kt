@@ -11,9 +11,9 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.simpleHook.BuildConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.extension.log
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookHelper.hostPackageName
+import me.simpleHook.hook.util.log
 
 class HookInit : IXposedHookLoadPackage {
 
@@ -41,8 +41,8 @@ class HookInit : IXposedHookLoadPackage {
         prefHookConfig?.let { sp ->
             sp.getString(hostPackageName, null)?.let {
                 MainHook.readyHook(it)
-            } ?: "not have the custom config".log(hostPackageName)
-        } ?: "null: XSharedPreferences".log(hostPackageName)
+            } ?: "not have the custom config".log()
+        } ?: "null: XSharedPreferences".log()
     }
 
 

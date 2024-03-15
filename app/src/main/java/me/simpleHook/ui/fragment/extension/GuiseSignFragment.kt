@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +61,7 @@ import java.util.zip.ZipFile
 class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     private val viewModel by activityViewModels<ExViewModel>()
     private val appSignItems = ArrayList<AppInfo>()
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
     private val startActivityForAppInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
@@ -164,9 +165,6 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
                 )
             }
         }
-        val navHostFragment =
-            requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
         val layoutParams = binding.add.layoutParams as ViewGroup.MarginLayoutParams
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
@@ -191,7 +189,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         loadingDialog.show()
         runCatching {
             var result: String? = null
-            viewLifecycleOwner.lifecycleScope.launch((Dispatchers.IO)) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val apk = DocumentFile.fromSingleUri(requireContext(), uri)
                     ?: throw IOException("IO is null")
                 val outputFile = cacheFile.resolve(apk.name!!)

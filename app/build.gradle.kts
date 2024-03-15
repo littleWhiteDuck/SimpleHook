@@ -227,8 +227,7 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
     // webdav
-    implementation("com.github.thegrizzlylabs:sardine-android:0.9")
-
+    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
     //leakcanary
 //    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
     //glacne

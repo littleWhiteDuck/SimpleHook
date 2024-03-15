@@ -6,7 +6,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.extension.log
 import me.simpleHook.hook.util.HookHelper.appContext
 import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.FlavorUtils
@@ -29,7 +28,7 @@ object ConfigUtil {
         return runCatching {
             File(configPath).readText()
         }.onFailure {
-            "failed: $configPath".log(hostPackageName)
+            "failed: $configPath".log()
         }.getOrNull()
     }
 

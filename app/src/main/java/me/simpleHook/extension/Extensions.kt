@@ -44,19 +44,6 @@ fun String.random(length: Int): String {
     return temp.toString()
 }
 
-//xposed log
-fun String.log(packageName: String) {
-    XposedBridge.log("simpleHook($packageName): $this")
-}
-
-fun String.tip(packageName: String) {
-    XposedBridge.log("simpleHook($packageName): $this")
-}
-
-fun String.print() {
-    XposedBridge.log("\n\n\n\n${JsonUtil.formatJson(this).replace("\u003e", ">")}\n\n\n\n")
-}
-
 // 跑马灯
 fun TextView.marquee() {
     this.apply {
