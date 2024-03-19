@@ -24,7 +24,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.ImExportAdapter
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.util.*
@@ -88,9 +88,9 @@ class ConfigDialogFragment(
                     tempList.reverse()
                     viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
-                        requireActivity().showToast("为空")
+                        requireActivity().showPopup("为空")
                     } else {
-                        requireActivity().showToast("导入成功")
+                        requireActivity().showPopup("导入成功")
                         this@ConfigDialogFragment.dismiss()
                     }
                     if (tag == "from text import") {
@@ -105,14 +105,14 @@ class ConfigDialogFragment(
                         }
                     }
                     if (checkIsZero) {
-                        requireActivity().showToast("为空")
+                        requireActivity().showPopup("为空")
                     } else {
                         val strConfig =
                             if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else JsHook.getStringJSConfig(
                                 tempList
                             )
                         ToolUtils.toClip(mContext, strConfig)
-                        requireActivity().showToast(getString(R.string.main_home_export_configs_tip))
+                        requireActivity().showPopup(getString(R.string.main_home_export_configs_tip))
                         this@ConfigDialogFragment.dismiss()
                     }
                 }

@@ -32,7 +32,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.CollectionEntity
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.util.TimeUtil
@@ -125,7 +125,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                     GlobalValue.sp.web_dav_host = result
                     summary = result
                 } else {
-                    requireActivity().showToast(getString(R.string.url_is_incorrect))
+                    requireActivity().showPopup(getString(R.string.url_is_incorrect))
                 }
                 true
             }
@@ -188,7 +188,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         if (GlobalValue.sp.backup_path.isNullOrEmpty() || DocumentFile.fromTreeUri(requireContext(),
                 GlobalValue.sp.backup_path!!.toUri())?.exists() == false
         ) {
-            requireContext().showToast(getString(R.string.backup_tip_backup_path_is_empty))
+            requireActivity().showPopup(getString(R.string.backup_tip_backup_path_is_empty))
             return false
         }
         return true
@@ -206,7 +206,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
     private fun isCloudBackupEnable(): Boolean {
         if (GlobalValue.sp.web_dav_account.isNullOrEmpty() || GlobalValue.sp.web_dav_pw.isNullOrEmpty() || GlobalValue.sp.web_dav_host.isNullOrEmpty()) {
-            requireContext().showToast(getString(R.string.backup_tip_cloud_info_is_empty))
+            requireActivity().showPopup(getString(R.string.backup_tip_cloud_info_is_empty))
             return false
         }
         return true
@@ -278,10 +278,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             }
         }.onSuccess {
             loadingDialog.dismiss()
-            requireActivity().showToast(getString(R.string.backup_tip_restore_success))
+            requireActivity().showPopup(getString(R.string.backup_tip_restore_success))
         }.onFailure {
             loadingDialog.dismiss()
-            requireActivity().showToast(getString(R.string.backup_tip_restore_failure))
+            requireActivity().showPopup(getString(R.string.backup_tip_restore_failure))
         }
     }
 
@@ -328,10 +328,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             }
         }.onSuccess {
             loadingDialog.dismiss()
-            requireActivity().showToast(getString(R.string.backup_tip_restore_success))
+            requireActivity().showPopup(getString(R.string.backup_tip_restore_success))
         }.onFailure {
             loadingDialog.dismiss()
-            requireActivity().showToast(getString(R.string.backup_tip_restore_failure))
+            requireActivity().showPopup(getString(R.string.backup_tip_restore_failure))
         }
     }
 
@@ -371,9 +371,9 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (success) {
-                        requireActivity().showToast(getString(R.string.backup_tip_backup_success))
+                        requireActivity().showPopup(getString(R.string.backup_tip_backup_success))
                     } else {
-                        requireActivity().showToast(getString(R.string.backup_tip_backup_failure))
+                        requireActivity().showPopup(getString(R.string.backup_tip_backup_failure))
                     }
                 }
             }
@@ -387,7 +387,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 file.uri,
                 TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
         } else {
-            requireActivity().showToast(getString(R.string.backup_tip_illegal_file_type))
+            requireActivity().showPopup(getString(R.string.backup_tip_illegal_file_type))
         }
     }
 

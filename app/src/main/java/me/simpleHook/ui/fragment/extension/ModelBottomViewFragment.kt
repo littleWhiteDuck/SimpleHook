@@ -9,7 +9,7 @@ import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.config.HookModeView
@@ -90,7 +90,7 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
                     ExtensionActivity.startActivity(requireContext(), assistConfig, true)
                     dismiss()
                 } else {
-                    requireActivity().showToast(getString(R.string.extension_template_illegal_name))
+                    requireActivity().showPopup(getString(R.string.extension_template_illegal_name))
                 }
             },
             cancelText = getString(R.string.dialog_cancel)

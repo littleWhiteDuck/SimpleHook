@@ -1,13 +1,12 @@
 package me.simpleHook.ui.view.loading
 
 import android.content.Context
-import android.graphics.Color
 import android.widget.ProgressBar
 import androidx.appcompat.widget.AppCompatTextView
 import me.simpleHook.R
-import me.simpleHook.ui.custom.CustomViewGroup
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.getColorByAttr
+import me.simpleHook.ui.custom.CustomViewGroup
 
 
 class LoadingView(context: Context) : CustomViewGroup(context) {

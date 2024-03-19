@@ -8,7 +8,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -43,15 +47,22 @@ import me.simpleHook.databinding.ActivityConfigBinding
 import me.simpleHook.databinding.ConfigDialogBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.isContainState
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
+import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.recyclerview.adapter.ConfigAdapter
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.ui.custom.*
+import me.simpleHook.ui.custom.LoadingDialog
+import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.fragment.config.CollectionViewFragment
 import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.ui.view.config.InputCollectionView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.HookModeUtil
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.SPUtils
+import me.simpleHook.util.ToolUtils
 import me.simpleHook.viewmodel.CollectionViewModel
 import java.lang.reflect.Field
 import java.util.regex.Pattern
@@ -161,8 +172,12 @@ class ConfigActivity : BaseActivity() {
             binding.apply {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
                     appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
-                    appInfo.containerView.icon.setImageDrawable(AppUtils.getIcon(this@ConfigActivity,
-                        it.packageName))
+                    appInfo.containerView.icon.setImageDrawable(
+                        AppUtils.getIcon(
+                            this@ConfigActivity,
+                            it.packageName
+                        )
+                    )
                 } else {
                     refreshAppInfo(AppInfo(it.appName, it.packageName, it.versionName))
                 }
@@ -205,9 +220,11 @@ class ConfigActivity : BaseActivity() {
         binding.appInfo.containerView.apply {
             appName.text = appInfo.appName
             packageName.text = appInfo.packageName
-            otherInfo.text = getString(R.string.config_version_support,
+            otherInfo.text = getString(
+                R.string.config_version_support,
                 AppUtils.getAppVersionName(this@ConfigActivity, appInfo.packageName),
-                appInfo.versionName)
+                appInfo.versionName
+            )
             icon.setImageDrawable(AppUtils.getIcon(this@ConfigActivity, appInfo.packageName))
         }
         tempVersionName = appInfo.versionName
@@ -215,7 +232,8 @@ class ConfigActivity : BaseActivity() {
 
     private fun showIntroductionDialog() {
         if (sp.readIntroduction) {
-            customDialog(title = getString(R.string.read_introduction_title),
+            customDialog(
+                title = getString(R.string.read_introduction_title),
                 message = getString(R.string.read_introduction_message),
                 okText = getString(R.string.record_introduction_ok),
                 okClick = {
@@ -230,7 +248,8 @@ class ConfigActivity : BaseActivity() {
                     sp.readIntroduction = false
                     it.dismiss()
                 },
-                neutralText = getString(R.string.dialog_cancel)).show()
+                neutralText = getString(R.string.dialog_cancel)
+            ).show()
         }
     }
 
@@ -265,18 +284,28 @@ class ConfigActivity : BaseActivity() {
         val methodConfig = configList[longClickPosition]
         when (item.itemId) {
             R.id.menu_collect -> {
-                showCollectConfigConfirmDialog(CollectionEntity(name = "",
-                    config = json.encodeToString(methodConfig)))
+                showCollectConfigConfirmDialog(
+                    CollectionEntity(
+                        name = "",
+                        config = json.encodeToString(methodConfig)
+                    )
+                )
             }
+
             R.id.menu_copy -> {
-                ToolUtils.toClip(this, Json.encodeToString(methodConfig))
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopupWithCopyMsg(
+                    title = getString(R.string.main_home_export_configs_tip),
+                    message = Json.encodeToString(methodConfig)
+                )
             }
+
             R.id.menu_duplicate -> {
                 addRemoveItem(methodConfig)
-                Snackbar.make(binding.addMethodConfig,
+                Snackbar.make(
+                    binding.addMethodConfig,
                     getString(R.string.config_add_repeat_config_tip),
-                    Snackbar.LENGTH_LONG).apply {
+                    Snackbar.LENGTH_LONG
+                ).apply {
                     anchorView = binding.addMethodConfig
                 }.setAction(getString(R.string.config_undo_repeat_config)) {
                     configList.removeAt(configList.size - 1)
@@ -284,6 +313,7 @@ class ConfigActivity : BaseActivity() {
                     mAdapter.notifyDataSetChanged()
                 }.show()
             }
+
             R.id.menu_delete_same_type -> {
                 val size = configList.size
                 for (i in 0 until configList.size) {
@@ -309,7 +339,8 @@ class ConfigActivity : BaseActivity() {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             addView(inputCollectionView)
         }
-        customDialog(this,
+        customDialog(
+            this,
             title = getString(R.string.config_collection_edit_collection),
             contentView = scrollView,
             okText = getString(R.string.dialog_confirm),
@@ -321,13 +352,18 @@ class ConfigActivity : BaseActivity() {
                     Json.encodeToString(configBean)
                 }.getOrNull()
                 config?.let {
-                    collectionViewModel.insertCollections(collectionEntity.copy(name = name,
-                        config = it))
-                    showToast(message = getString(R.string.config_collect_success_tip))
-                } ?: showToast(message = getString(R.string.config_collection_illegal_format))
+                    collectionViewModel.insertCollections(
+                        collectionEntity.copy(
+                            name = name,
+                            config = it
+                        )
+                    )
+                    showPopup(message = getString(R.string.config_collect_success_tip))
+                } ?: showPopup(message = getString(R.string.config_collection_illegal_format))
 
             },
-            cancelText = getString(R.string.dialog_cancel)).show()
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
     }
 
     private fun showDialog(
@@ -395,21 +431,29 @@ class ConfigActivity : BaseActivity() {
     private fun onModeChange(dialogBinding: ConfigDialogBinding) {
         val checkStateMode = getShowStateMode(hookMode)
         dialogBinding.apply {
-            showView(checkStateMode isContainState METHOD_NAME_STATE,
+            showView(
+                checkStateMode isContainState METHOD_NAME_STATE,
                 methodNameInput,
-                methodNameEdit)
+                methodNameEdit
+            )
             showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
             showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
-            showView(checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+            showView(
+                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
                 fieldClassNameInput,
-                fieldClassNameEdit)
-            showView(checkStateMode isContainState RESULT_VALUE_STATE,
+                fieldClassNameEdit
+            )
+            showView(
+                checkStateMode isContainState RESULT_VALUE_STATE,
                 resultValueInput,
-                resultValueEdit)
+                resultValueEdit
+            )
             showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
-            showView(checkStateMode isContainState RETURN_CLASS_NAME,
+            showView(
+                checkStateMode isContainState RETURN_CLASS_NAME,
                 returnClassNameInput,
-                returnClassNameEdit)
+                returnClassNameEdit
+            )
         }
     }
 
@@ -448,9 +492,10 @@ class ConfigActivity : BaseActivity() {
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                showToast(getString(R.string.config_hook_constructor_tip))
+                showPopup(getString(R.string.config_hook_constructor_tip))
             }
-            val configBean = ConfigBean(this.hookMode,
+            val configBean = ConfigBean(
+                this.hookMode,
                 className,
                 methodName,
                 params,
@@ -459,10 +504,11 @@ class ConfigActivity : BaseActivity() {
                 results,
                 hookPoint = hookPoint,
                 returnClassName = returnClassName,
-                enable = enable)
+                enable = enable
+            )
             addConfig(configBean)
         } else {
-            showToast(getString(R.string.config_info_not_match_mode))
+            showPopup(getString(R.string.config_info_not_match_mode))
         }
         return canCancel
     }
@@ -538,6 +584,7 @@ class ConfigActivity : BaseActivity() {
             R.id.config_smali_to_config -> {
                 ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
             }
+
             R.id.collect -> {
                 showCollectConfigDialog()
             }
@@ -561,18 +608,18 @@ class ConfigActivity : BaseActivity() {
                 } else {
                     showDialog(it, isSmali2Config = true)
                 }
-            } ?: showToast(getString(R.string.config_collection_illegal_format))
+            } ?: showPopup(getString(R.string.config_collection_illegal_format))
         }.show(supportFragmentManager, "collect")
     }
 
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = true) {
         if (configList.size == 0) {
-            showToast(getString(R.string.config_save_empty_config_tip))
+            showPopup(getString(R.string.config_save_empty_config_tip))
             return
         }
         if (binding.appInfo.containerView.packageName.text.toString().isEmpty()) {
-            showToast(getString(R.string.config_app_info_is_empty_tip))
+            showPopup(getString(R.string.config_app_info_is_empty_tip))
             return
         }
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
@@ -633,13 +680,15 @@ class ConfigActivity : BaseActivity() {
         val packageName = binding.appInfo.containerView.packageName.text.toString()
         val description = binding.descStringEdit.text.toString()
         val configs = Json.encodeToString(configList)
-        return AppConfig(appName = appName,
+        return AppConfig(
+            appName = appName,
             packageName = packageName,
             description = description,
             versionName = tempVersionName,
             configs = configs,
             id = configId,
-            enable = configSystem.isEnableSave(packageName))
+            enable = configSystem.isEnableSave(packageName)
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -655,28 +704,33 @@ class ConfigActivity : BaseActivity() {
                     val returnType = matcher.group(5)!!
 
                     if (getMode(returnType, params) == Constant.HOOK_RETURN) {
-                        configBean = ConfigBean(Constant.HOOK_RETURN,
+                        configBean = ConfigBean(
+                            Constant.HOOK_RETURN,
                             className,
                             methodName,
                             tranParams(params),
                             "",
                             "",
-                            getReturnValue(returnType))
+                            getReturnValue(returnType)
+                        )
 
                     } else {
-                        configBean = ConfigBean(getMode(returnType, params),
+                        configBean = ConfigBean(
+                            getMode(returnType, params),
                             smali2Java(className),
                             methodName,
                             tranParams(params),
                             "",
                             "",
-                            "")
+                            ""
+                        )
 
                     }
 
                 }
                 configBean
             }
+
             matches(PATTERN_FIELD, string) -> {
                 val matcher = Pattern.compile(PATTERN_FIELD).matcher(string)
                 if (matcher.find()) {
@@ -686,34 +740,40 @@ class ConfigActivity : BaseActivity() {
                     val fieldMode =
                         if (string.startsWith("iget") || string.startsWith("iput")) Constant.HOOK_FIELD else Constant.HOOK_STATIC_FIELD
                     configBean = if (fieldMode == Constant.HOOK_STATIC_FIELD) {
-                        ConfigBean(mode = Constant.HOOK_STATIC_FIELD,
+                        ConfigBean(
+                            mode = Constant.HOOK_STATIC_FIELD,
                             "",
                             "",
                             "",
                             fieldName = fieldName,
                             fieldClassName = smali2Java(className),
-                            resultValues = getReturnValue(fieldType))
+                            resultValues = getReturnValue(fieldType)
+                        )
                     } else {
-                        ConfigBean(fieldMode,
+                        ConfigBean(
+                            fieldMode,
                             className = smali2Java(className),
                             "",
                             "",
                             fieldName = fieldName,
                             "",
-                            getReturnValue(fieldType))
+                            getReturnValue(fieldType)
+                        )
                     }
 
                 }
                 configBean
             }
+
             JsonUtil.isJsonObject(string) -> {
                 try {
                     configBean = Json.decodeFromString<ConfigBean>(string)
                 } catch (e: java.lang.Exception) {
-                    showToast(getString(R.string.config_tip_error_config_format))
+                    showPopup(getString(R.string.config_tip_error_config_format))
                 }
                 configBean
             }
+
             else -> null
         }
         config?.also {
@@ -727,7 +787,7 @@ class ConfigActivity : BaseActivity() {
             } else {
                 showDialog(it, isSmali2Config = true)
             }
-        } ?: showToast(getString(R.string.config_smali_to_config_error))
+        } ?: showPopup(getString(R.string.config_smali_to_config_error))
     }
 
     private fun tranParam(param: String): String {
@@ -784,8 +844,11 @@ class ConfigActivity : BaseActivity() {
         for (i in paramArray.indices) {
             if (paramArray[i].trim().isEmpty()) continue
             isSmali =
-                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(Regex(
-                    pattern_basic_array)) || paramArray[i].isEmpty()
+                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
+                    Regex(
+                        pattern_basic_array
+                    )
+                ) || paramArray[i].isEmpty()
         }
         return isSmali
     }

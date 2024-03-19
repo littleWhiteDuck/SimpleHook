@@ -11,7 +11,7 @@ import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.OSUtils
@@ -65,9 +65,9 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
 
     protected fun requirePermission(packageName: String) {
         if (FlavorUtils.liteVersion) {
-            requireActivity().showToast(getString(R.string.lite_version_not_active))
+            requireActivity().showPopup(getString(R.string.lite_version_not_active))
         } else if (FlavorUtils.rootVersion) {
-            requireActivity().showToast(getString(R.string.root_version_no_permission))
+            requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
                 requestPermissionDialog(requireContext(),

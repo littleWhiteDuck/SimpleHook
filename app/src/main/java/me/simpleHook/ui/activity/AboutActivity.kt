@@ -8,11 +8,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
-import com.drakeet.about.*
+import com.drakeet.about.AbsAboutActivity
+import com.drakeet.about.Card
+import com.drakeet.about.Category
+import com.drakeet.about.Contributor
+import com.drakeet.about.License
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.util.ToolUtils
 import me.simpleHook.extension.showToast
+import me.simpleHook.util.ToolUtils
 
 
 class AboutActivity : AbsAboutActivity() {

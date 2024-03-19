@@ -11,14 +11,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.bean.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
-import me.simpleHook.util.*
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.ToolUtils
 
 class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(RecordCallback) {
 

@@ -5,15 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +28,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
-import me.simpleHook.recyclerview.adapter.AssistAdapter
 import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.config.ConfigSystemUtil
@@ -32,7 +37,8 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
+import me.simpleHook.recyclerview.adapter.AssistAdapter
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
@@ -279,7 +285,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                     assistConfig.appName = modelName
                     ExtensionActivity.startActivity(requireContext(), assistConfig, false)
                 } else {
-                    requireActivity().showToast(getString(R.string.extension_template_illegal_name))
+                    requireActivity().showPopup(getString(R.string.extension_template_illegal_name))
                 }
             },
             cancelText = getString(R.string.dialog_cancel)).show()
@@ -287,7 +293,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     private fun showModelDialog() {
         if (modelList.isEmpty()) {
-            requireActivity().showToast(getString(R.string.extension_no_template_tip))
+            requireActivity().showPopup(getString(R.string.extension_no_template_tip))
             return
         }
         ModelBottomViewFragment("edit").show(requireActivity().supportFragmentManager, "model")
@@ -343,9 +349,9 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     private fun requirePermission(packageName: String) {
         if (FlavorUtils.liteVersion) {
-            requireActivity().showToast(getString(R.string.lite_version_not_active))
+            requireActivity().showPopup(getString(R.string.lite_version_not_active))
         } else if (FlavorUtils.rootVersion) {
-            requireActivity().showToast(getString(R.string.root_version_no_permission))
+            requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
                 requestPermissionDialog(requireContext(),

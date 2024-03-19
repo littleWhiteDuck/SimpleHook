@@ -3,6 +3,7 @@ package me.simpleHook.extension
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.text.TextUtils
@@ -16,20 +17,13 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.Popup
 import org.json.JSONObject
 import java.net.URL
 import kotlin.math.roundToInt
 
-/*
-//toast
-fun String.toast(context: Context,duration: Int = Toast.LENGTH_SHORT){
-    Toast.makeText(context,this,duration).show()
-}
-*/
 
 //
 fun String.snack(view: View, duration: Int = Snackbar.LENGTH_SHORT) {
@@ -122,9 +116,6 @@ fun runThread(block: () -> Unit) {
     Thread(block).start()
 }
 
-fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, message, duration).show()
-}
 
 fun StringBuilder.lineFeesItem(
     list: List<String>, foreground: String, nLine: Int = 0, nLineString: String = ""

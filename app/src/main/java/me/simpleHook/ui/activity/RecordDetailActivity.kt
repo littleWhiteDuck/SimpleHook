@@ -26,7 +26,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.JsonUtil
@@ -183,27 +183,27 @@ class RecordDetailActivity : BaseActivity() {
 
             R.id.copy_text -> {
                 ToolUtils.toClip(this, currentText)
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_json -> {
                 ToolUtils.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_raw_data -> {
                 ToolUtils.toClip(this, rawData)
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_crypt_result -> {
                 ToolUtils.toClip(this, cryptResult)
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_return_value -> {
                 ToolUtils.toClip(this, returnValue)
-                showToast(getString(R.string.main_home_export_configs_tip))
+                showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.menu_word_wrap -> {

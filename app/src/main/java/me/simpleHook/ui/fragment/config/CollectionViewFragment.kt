@@ -14,7 +14,7 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.database.entity.CollectionEntity
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.delegate.CollectionEnviDelegate
 import me.simpleHook.recyclerview.delegate.CollectionItemViewDelegate
 import me.simpleHook.ui.custom.customDialog
@@ -94,7 +94,7 @@ class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) 
             val config = runCatching {
                 json.decodeFromString<ConfigBean>(collectionEntity.config)
             }.getOrNull()
-            config ?: requireActivity().showToast(message = "error")
+            config ?: requireActivity().showPopup(message = "error")
             configEditText.setText(json.encodeToString(config))
             nameEditText.setText(collectionEntity.name)
             configEditText.setOnFocusChangeListener { _, hasFocus ->
@@ -120,7 +120,7 @@ class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) 
                     collectionViewModel.updateCollections(collectionEntity.copy(name = name,
                         config = it))
                 }
-                    ?: requireActivity().showToast(message = getString(R.string.config_collection_illegal_format))
+                    ?: requireActivity().showPopup(message = getString(R.string.config_collection_illegal_format))
 
             },
             cancelText = getString(R.string.dialog_cancel),

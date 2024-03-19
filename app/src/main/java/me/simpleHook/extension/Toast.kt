@@ -1,0 +1,37 @@
+package me.simpleHook.extension
+
+import android.app.Activity
+import android.content.Context
+import android.widget.Toast
+import me.simpleHook.util.Popup
+import me.simpleHook.util.ToolUtils
+
+fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, message, duration).show()
+}
+
+
+/**
+ * The calling Activity must apply the MaterialTheme
+ */
+fun Activity.showPopup(message: String, duration: Long = 1500) {
+    Popup.show(this, message, duration)
+}
+
+/**
+ * The calling Activity must apply the MaterialTheme
+ */
+fun Activity.showPopup(title: String, message: String, duration: Long = 1500) {
+    Popup.show(this, title = title, message = message, duration = duration)
+}
+
+/**
+ * The calling Activity must apply the MaterialTheme
+ */
+fun Activity.showPopupWithCopyMsg(title: String, message: String, duration: Long = 1500) {
+    ToolUtils.toClip(this, message)
+    Popup.show(this, title = title, message = message, duration = duration)
+}
+
+
+

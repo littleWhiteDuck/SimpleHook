@@ -24,7 +24,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
@@ -64,7 +64,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
             if (id != null) {
                 WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
                     if (work.state == WorkInfo.State.FAILED) {
-                        showToast(getString(R.string.backup_tip_local_auto_backup_failed))
+                        showPopup(getString(R.string.backup_tip_local_auto_backup_failed))
                     }
                     when (work.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
@@ -81,7 +81,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
             if (id != null) {
                 WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
                     if (work.state == WorkInfo.State.FAILED) {
-                        showToast(getString(R.string.backup_tip_cloud_auto_backup_failed))
+                        showPopup(getString(R.string.backup_tip_cloud_auto_backup_failed))
                     }
                     when (work.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {

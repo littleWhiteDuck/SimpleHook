@@ -10,12 +10,13 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
-
 abstract class CustomViewGroup(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
     constructor(context: Context) : this(context, null)
 
     protected val View.measuredWidthWithMargins get() = measuredWidth + marginStart + marginEnd
     protected val View.measuredHeightWithMargins get() = measuredHeight + marginTop + marginBottom
+    protected val View.paddingVertical get() = paddingTop + paddingBottom
+    protected val View.paddingHorizontal get() = paddingStart + paddingEnd
 
     protected fun Int.toExactlyMeasureSpec() =
         MeasureSpec.makeMeasureSpec(this, MeasureSpec.EXACTLY)
@@ -46,6 +47,15 @@ abstract class CustomViewGroup(context: Context, attrs: AttributeSet?) : ViewGro
             this.defaultHeightMeasureSpec(this@CustomViewGroup)
         )
     }
+
+    protected fun View.exactWidth(width: Int) {
+        measure(width.toExactlyMeasureSpec(), this.defaultHeightMeasureSpec(this@CustomViewGroup))
+    }
+
+    protected fun View.exactHeight(height: Int) {
+        measure(this.defaultWidthMeasureSpec(this@CustomViewGroup), height.toExactlyMeasureSpec())
+    }
+
 
     protected fun View.autoLayout(
         x: Int = 0, y: Int = 0, fromRight: Boolean = false, fromBottom: Boolean = false

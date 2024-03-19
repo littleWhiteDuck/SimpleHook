@@ -34,7 +34,8 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentExtensionManagerBinding
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
+import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.extension.snack
 import me.simpleHook.recyclerview.adapter.DividerItemDecoration
 import me.simpleHook.ui.activity.ExtensionActivity
@@ -214,8 +215,10 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             }
             path
         }
-        ToolUtils.toClip(requireContext(), filePath)
-        requireActivity().showToast(getString(R.string.extension_tip_dex_path_to_clip))
+        requireActivity().showPopupWithCopyMsg(
+            title = getString(R.string.extension_tip_dex_path_to_clip),
+            message = filePath
+        )
     }
 
     private fun showFloatWindow() {

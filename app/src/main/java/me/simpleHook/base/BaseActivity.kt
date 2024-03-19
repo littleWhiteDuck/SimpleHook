@@ -36,7 +36,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.PrintLogAdapter
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.AppUtils
@@ -168,13 +168,13 @@ open class BaseActivity : AppCompatActivity() {
         if (PermissionUtils.checkPermission(this)) {
             showPrintFloat()
         } else {
-            showToast(message = getString(R.string.float_window_require_permission))
+            showPopup(message = getString(R.string.float_window_require_permission))
             PermissionUtils.requestPermission(this, object : OnPermissionResult {
                 override fun permissionResult(isOpen: Boolean) {
                     if (isOpen) {
                         showPrintFloat()
                     } else {
-                        showToast(message = getString(R.string.float_window_require_permission_failed))
+                        showPopup(message = getString(R.string.float_window_require_permission_failed))
                     }
                 }
             })

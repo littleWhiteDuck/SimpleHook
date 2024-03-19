@@ -22,7 +22,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,7 +36,7 @@ import me.simpleHook.base.BaseVBFragment
 import me.simpleHook.bean.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.hook.util.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -221,7 +220,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
             }
 
         }.onFailure {
-            requireActivity().showToast("失败")
+            requireActivity().showPopup("失败")
         }.recoverCatching {
             FileUtils.deleteDir(cacheFile)
         }

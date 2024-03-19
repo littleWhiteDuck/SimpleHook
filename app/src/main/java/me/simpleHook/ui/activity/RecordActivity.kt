@@ -35,7 +35,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.RecordAdapter
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
@@ -390,7 +390,7 @@ class RecordActivity : BaseActivity() {
             withContext(Dispatchers.Main) {
                 loadingDialog.dismiss()
                 if (result) {
-                    showToast(getString(R.string.record_save_marked_record_tip))
+                    showPopup(getString(R.string.record_save_marked_record_tip))
                 }
             }
         }

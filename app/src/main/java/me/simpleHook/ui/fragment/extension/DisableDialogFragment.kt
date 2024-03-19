@@ -19,7 +19,7 @@ import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
 import me.simpleHook.bean.DialogCancel
 import me.simpleHook.databinding.LayoutInputKeywordBinding
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.ChipPreference
 import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
@@ -192,14 +192,14 @@ class DisableDialogFragment : BasePreferenceFragment() {
             okText = getString(R.string.dialog_confirm),
             okClick = {
                 val text = inputView.editText.text.toString().trim()
-                if (text.isEmpty()) requireActivity().showToast(getString(R.string.extension_dialog_cancel_id_is_empty))
+                if (text.isEmpty()) requireActivity().showPopup(getString(R.string.extension_dialog_cancel_id_is_empty))
                 val id = formatId(text)
                 id?.let { str ->
                     chip?.let {
                         chip.text = str
                     } ?: findPreference<ChipPreference>(KEY_CHIP_GROUP_ID)?.addChip(str)
                 }
-                    ?: requireActivity().showToast(getString(R.string.extension_dialog_cancel_illegal_format))
+                    ?: requireActivity().showPopup(getString(R.string.extension_dialog_cancel_illegal_format))
             },
             cancelAble = false,
             cancelText = getString(R.string.dialog_cancel),

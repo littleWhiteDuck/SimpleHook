@@ -13,7 +13,7 @@ import me.simpleHook.bean.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.util.SPUtils
 import java.util.regex.Pattern
 
@@ -166,7 +166,7 @@ class ConfigBottomSheetFragment(
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                requireActivity().showToast(getString(R.string.config_hook_constructor_tip))
+                requireActivity().showPopup(getString(R.string.config_hook_constructor_tip))
             }
             val configBean = ConfigBean(
                 this.hookMode,
@@ -184,7 +184,7 @@ class ConfigBottomSheetFragment(
             saveConfig(configBean)
             dismiss()
         } else {
-            requireActivity().showToast(getString(R.string.config_info_not_match_mode))
+            requireActivity().showPopup(getString(R.string.config_info_not_match_mode))
         }
     }
 

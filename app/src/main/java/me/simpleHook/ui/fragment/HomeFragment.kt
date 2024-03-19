@@ -41,7 +41,8 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
+import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -250,9 +251,11 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
     }
 
     private fun copyConfigs(config: AppConfig) {
-        val configs: AppConfig = config
-        ToolUtils.toClip(requireContext(), Json.encodeToString(configs))
-        requireActivity().showToast(getString(R.string.main_home_export_configs_tip))
+        val msg = Json.encodeToString(config)
+        requireActivity().showPopupWithCopyMsg(
+            getString(R.string.main_home_export_configs_tip),
+            msg
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -337,7 +340,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             fetchText(urlString)?.let {
                 importConfigs(it)
-            } ?: requireActivity().showToast(getString(R.string.error_get_config_from_internet))
+            } ?: requireActivity().showPopup(getString(R.string.error_get_config_from_internet))
             loadingDialog.dismiss()
         }
     }
@@ -363,7 +366,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
             JsonUtil.isJsonArray(configs) -> {
                 val dataList = JsonUtil.importConfigs(configs)
                 if (dataList.isEmpty()) {
-                    requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
+                    requireActivity().showPopup(getString(R.string.main_home_import_incorrect_format_tip))
                     return
                 } else {
                     ConfigDialogFragment(
@@ -385,13 +388,13 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                         configSystem.saveCustomConfig(appConfig.packageName, configs)
                     }.onFailure {
                         Looper.prepare()
-                        requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
+                        requireActivity().showPopup(getString(R.string.main_home_import_incorrect_format_tip))
                         Looper.loop()
                     }
                 }
             }
 
-            else -> requireActivity().showToast(getString(R.string.main_home_import_incorrect_format_tip))
+            else -> requireActivity().showPopup(getString(R.string.main_home_import_incorrect_format_tip))
         }
     }
 
@@ -452,7 +455,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                 if (currentPattern.isEmpty()) {
                     startDragSort()
                 } else {
-                    requireActivity().showToast(getString(R.string.main_sort_tip_exit_search))
+                    requireActivity().showPopup(getString(R.string.main_sort_tip_exit_search))
                 }
             }
         }

@@ -29,7 +29,7 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.extension.showToast
+import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.BackupActivity
@@ -370,7 +370,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
                     Constant.NO_ROOT -> {
-                        requireActivity().showToast(getString(R.string.not_root_tip))
+                        requireActivity().showPopup(getString(R.string.not_root_tip))
                     }
 
                     Constant.NO_STORAGE -> {
