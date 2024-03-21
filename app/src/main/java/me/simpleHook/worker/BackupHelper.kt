@@ -4,7 +4,12 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.core.net.toUri
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
@@ -14,7 +19,7 @@ import me.simpleHook.util.FileUtils
 import me.simpleHook.util.TimeUtil
 import java.io.BufferedOutputStream
 import java.io.File
-import java.util.*
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -87,11 +92,13 @@ object BackupHelper {
             var result = true
             if (local) {
                 result = runCatching {
-                    val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(context,
+                    val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(
+                        context,
                         GlobalValue.sp.backup_path!!.toUri(),
                         "SimpleHook/Backups",
                         backupName,
-                        "application/shbackup")!!
+                        "application/shbackup"
+                    )!!
                     context.contentResolver.openOutputStream(tempUri).use { output ->
                         cacheFile.inputStream().use {
                             if (output != null) {
@@ -106,8 +113,8 @@ object BackupHelper {
                 result = cloudBackup(cacheFile)
             }
             result
-        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
-            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!.resolve("cache")) }
+        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!) }
+            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!) }
             .getOrDefault(false)
     }
 

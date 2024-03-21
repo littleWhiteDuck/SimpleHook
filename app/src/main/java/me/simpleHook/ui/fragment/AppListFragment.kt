@@ -73,12 +73,12 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
             root.setPadding(0, 0, 0, navigationInsets.bottom + 20.dp)
             windowInsets
         }
-        root.apply {
+        with(root) {
             adapter = appAdapter
             layoutManager = LinearLayoutManager(requireContext())
+            FastScrollerUtil.bind(root)
+                .setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
         }
-        val fastScroller = FastScrollerUtil.bind(root)
-        fastScroller.setSwipeRefreshLayout(requireActivity().findViewById(R.id.swipeRefreshLayout))
     }
 
 }

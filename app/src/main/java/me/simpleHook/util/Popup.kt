@@ -55,6 +55,9 @@ object Popup {
         val contentView = ContentView(context).apply {
             titleView.title.text = message
             titleView.title.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            setOnClickListener {
+                dismissActivePopup()
+            }
         }
         dismissActivePopup()
         showNewPopup(contentView, duration)

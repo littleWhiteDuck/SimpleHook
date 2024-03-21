@@ -1,27 +1,31 @@
+@file:Suppress("RedundantSuspendModifier")
+
 package me.simpleHook.viewmodel
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.util.Log
+import android.content.pm.PackageInfo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.bean.AppItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
+import me.simpleHook.extension.verCode
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.TimeUtil
 
-class AppViewModel(private val application: Application) : AndroidViewModel(application) {
+class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
-    private val blackList = "me.simpleHook,bin.mt.plus.canary,com.drakeet.purewriter"
-    private val hashMap: HashMap<String, String> = HashMap()
+
+    private val appNames = HashMap<String, String>()
+
     val userApps = MutableLiveData<List<AppItem>>(emptyList())
     val systemApps = MutableLiveData<List<AppItem>>(emptyList())
 
@@ -35,82 +39,100 @@ class AppViewModel(private val application: Application) : AndroidViewModel(appl
         _selectAppItem.value = appItem
     }
 
-    @Suppress("DEPRECATION")
-    fun fetchData(sortSelected: Int, reverseChecked: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val packageInfoList = AppUtils.getApps(getApplication())
-            val userApps = ArrayList<AppItem>()
-            val systemApps = ArrayList<AppItem>()
-            packageInfoList.forEach { packageInfo ->
-                val packageName = packageInfo.packageName
-                if (!blackList.contains(packageName)) {
-                    val appName = hashMap[packageName]
-                        ?: if (sortSelected == APP_LIST_BY_NAME) AppUtils.getAppName(application,
-                            packageInfo) else ""
-                    if (appName.isNotEmpty()) {
-                        hashMap[packageName] = appName
-                    }
-                    val appItem = AppItem(appName,
-                        packageInfo.packageName,
-                        packageInfo.versionName ?: "null",
-                        packageInfo.versionCode.toString(),
-                        TimeUtil.getTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-                        packageInfo.applicationInfo.targetSdkVersion)
-                    if ((packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
-                        systemApps.add(appItem)
-                    } else {
-                        userApps.add(appItem)
-                    }
+    fun fetchData(sortSelected: Int, reverseChecked: Boolean) = viewModelScope.launch {
+        val userAppsDeferred = async(Dispatchers.IO) { fetchUserData(sortSelected, reverseChecked) }
+        val systemAppsDeferred =
+            async(Dispatchers.IO) { fetchSystemData(sortSelected, reverseChecked) }
+
+        val userApps = userAppsDeferred.await()
+        val systemApps = systemAppsDeferred.await()
+
+        _userApps.value = userApps
+        _systemApps.value = systemApps
+        filerAppItems(queryPattern.value!!)
+        if (sortSelected != APP_LIST_BY_NAME) {
+            val userAppsDeferred2 = async(Dispatchers.IO) {
+                AppUtils.getInstalledUserApp(getApplication()).map { packageInfo ->
+                    getAppNameOrPut(packageInfo)
+                    getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
             }
-            val tempUserApps = getSortAppList(userApps, sortSelected, reverseChecked)
-            val tempSystemApps = getSortAppList(systemApps, sortSelected, reverseChecked)
-            withContext(Dispatchers.Main) {
-                _userApps.value = tempUserApps
-                _systemApps.value = tempSystemApps
-                filerAppItems(queryPattern.value!!)
-            }
-            userApps.clear()
-            systemApps.clear()
-            tempUserApps.forEach { appItem ->
-                val appName = hashMap[appItem.packageName] ?: AppUtils.getAppName(application,
-                    appItem.packageName).also {
-                    hashMap[appItem.packageName] = it
+
+            val systemAppsDeferred2 = async(Dispatchers.IO) {
+                AppUtils.getInstalledSystemApp(getApplication()).map { packageInfo ->
+                    getAppNameOrPut(packageInfo)
+                    getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
-                userApps.add(appItem.copy(name = appName))
             }
-            tempSystemApps.forEach { appItem ->
-                val appName = hashMap[appItem.packageName] ?: AppUtils.getAppName(application,
-                    appItem.packageName).also {
-                    hashMap[appItem.packageName] = it
-                }
-                systemApps.add(appItem.copy(name = appName))
-            }
-            withContext(Dispatchers.Main) {
-                _userApps.value = userApps
-                _systemApps.value = systemApps
-            }
+
+            val userApps2 = userAppsDeferred2.await()
+            val systemApps2 = systemAppsDeferred2.await()
+            _userApps.value = userApps2
+            _systemApps.value = systemApps2
         }
     }
 
-    fun filerAppItems(pattern: String) = viewModelScope.launch(Dispatchers.IO) {
+    private suspend fun fetchUserData(sortSelected: Int, reverseChecked: Boolean): List<AppItem> {
+        val packageInfoList = AppUtils.getInstalledUserApp(getApplication())
+        return packageInfoList.map { packageInfo ->
+            getAppItem(packageInfo, sortSelected)
+        }.let { useApps ->
+            getSortAppList(useApps, sortSelected, reverseChecked)
+        }
+    }
+
+    private suspend fun fetchSystemData(sortSelected: Int, reverseChecked: Boolean): List<AppItem> {
+        val packageInfoList = AppUtils.getInstalledSystemApp(getApplication())
+        return packageInfoList.map { packageInfo ->
+            getAppItem(packageInfo, sortSelected)
+        }.let { useApps ->
+            getSortAppList(useApps, sortSelected, reverseChecked)
+        }
+    }
+
+    private fun getAppItem(packageInfo: PackageInfo, sortSelected: Int): AppItem {
+        val isSortByAppName = sortSelected == APP_LIST_BY_NAME
+        val appName = if (isSortByAppName) {
+            getAppNameOrPut(packageInfo)
+        } else {
+            appNames[packageInfo.packageName] ?: ""
+        }
+        return AppItem(
+            name = appName,
+            packageName = packageInfo.packageName,
+            versionName = packageInfo.versionName ?: "null",
+            versionCode = packageInfo.verCode.toString(),
+            installedTime = TimeUtil.getTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
+            targetApi = packageInfo.applicationInfo.targetSdkVersion
+        )
+    }
+
+    private fun getAppNameOrPut(packageInfo: PackageInfo) =
+        appNames[packageInfo.packageName] ?: AppUtils.getAppName(
+            getApplication(),
+            packageInfo.packageName
+        ).also {
+            appNames[packageInfo.packageName] = it
+        }
+
+    fun filerAppItems(pattern: String) = viewModelScope.launch {
         if (_userApps.value == null) return@launch
         if (pattern.isEmpty()) {
-            withContext(Dispatchers.Main) {
-                userApps.value = _userApps.value
-                systemApps.value = _systemApps.value
-            }
+            userApps.value = _userApps.value
+            systemApps.value = _systemApps.value
         } else {
-            val filter1 = _userApps.value?.filter {
-                it.packageName.contains(pattern) || it.name.contains(pattern, true)
+            val filter1 = withContext(Dispatchers.IO) {
+                _userApps.value?.filter {
+                    it.packageName.contains(pattern) || it.name.contains(pattern, true)
+                }
             }
-            val filter2 = _systemApps.value?.filter {
-                it.packageName.contains(pattern) || it.name.contains(pattern, true)
+            val filter2 = withContext(Dispatchers.IO) {
+                _systemApps.value?.filter {
+                    it.packageName.contains(pattern) || it.name.contains(pattern, true)
+                }
             }
-            withContext(Dispatchers.Main) {
-                userApps.value = filter1 ?: emptyList()
-                systemApps.value = filter2 ?: emptyList()
-            }
+            userApps.value = filter1 ?: emptyList()
+            systemApps.value = filter2 ?: emptyList()
         }
     }
 
