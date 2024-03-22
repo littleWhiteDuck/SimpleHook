@@ -48,18 +48,24 @@ object Type {
 
 
     fun getClassType(className: String) = when (className) {
-        "byte", "B", "b" -> Byte::class.java
-        "int", "I", "i" -> Int::class.java
-        "short", "S", "s" -> Short::class.java
-        "long", "J", "j" -> Long::class.java
-        "float", "F", "f" -> Float::class.java
-        "double", "D", "d" -> Double::class.java
-        "boolean", "Z", "z" -> Boolean::class.java
-        "char", "c", "C" -> Char::class.java
+        "byte", "B", "b" -> Byte::class.javaPrimitiveType
+        "int", "I", "i" -> Int::class.javaPrimitiveType
+        "short", "S", "s" -> Short::class.javaPrimitiveType
+        "long", "J", "j" -> Long::class.javaPrimitiveType
+        "float", "F", "f" -> Float::class.javaPrimitiveType
+        "double", "D", "d" -> Double::class.javaPrimitiveType
+        "boolean", "Z", "z" -> Boolean::class.javaPrimitiveType
+        "char", "c", "C" -> Char::class.javaPrimitiveType
         "string" -> String::class.java
         "context" -> Context::class.java
         else -> null
     }
 
-    fun getClassTypeName(className: String) = getClassType(className)?.name ?: className
+    fun getClassTypeName(className: String): String {
+        return if (className.endsWith("[]")) {
+            "[L${className.removeSuffix("[]")};"
+        } else {
+            getClassType(className)?.name ?: className
+        }
+    }
 }
