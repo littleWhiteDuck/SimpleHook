@@ -55,7 +55,7 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.fragment.config.CollectionViewFragment
-import me.simpleHook.ui.fragment.config.ConfigBottomSheetFragment
+import me.simpleHook.ui.fragment.config.ConfigBottomFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.ui.view.config.InputCollectionView
 import me.simpleHook.util.AppUtils
@@ -137,7 +137,7 @@ class ConfigActivity : BaseActivity() {
             addMethodConfig.setOnClickListener {
                 modifyConfig = false
                 if (sp.bottomConfigDialog) {
-                    ConfigBottomSheetFragment(saveConfig = {
+                    ConfigBottomFragment(saveConfig = {
                         addConfig(it)
                     }, deleteConfig = {
 
@@ -265,7 +265,7 @@ class ConfigActivity : BaseActivity() {
         val methodConfig = configList[position]
         modifyConfig = true
         if (sp.bottomConfigDialog) {
-            ConfigBottomSheetFragment(methodConfig, saveConfig = {
+            ConfigBottomFragment(methodConfig, saveConfig = {
                 addConfig(it)
             }, deleteConfig = {
                 addRemoveItem(methodConfig, isAdd = false)
@@ -599,7 +599,7 @@ class ConfigActivity : BaseActivity() {
             }.getOrNull()
             config?.let {
                 if (sp.bottomConfigDialog) {
-                    ConfigBottomSheetFragment(saveConfig = { save ->
+                    ConfigBottomFragment(saveConfig = { save ->
                         modifyConfig = false
                         addConfig(save)
                     }, deleteConfig = {
@@ -779,7 +779,7 @@ class ConfigActivity : BaseActivity() {
         config?.also {
             modifyConfig = false
             if (sp.bottomConfigDialog) {
-                ConfigBottomSheetFragment(saveConfig = { save ->
+                ConfigBottomFragment(saveConfig = { save ->
                     addConfig(save)
                 }, deleteConfig = {
 

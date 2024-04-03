@@ -11,22 +11,21 @@ import android.os.Looper
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
-import androidx.core.view.marginStart
-import androidx.core.view.marginTop
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.google.android.material.card.MaterialCardView
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.getColorByAttr
-import me.simpleHook.ui.custom.CustomViewGroup
 
 
 object Popup {
@@ -53,8 +52,8 @@ object Popup {
      */
     fun show(context: Context, message: CharSequence, duration: Long = 1500) {
         val contentView = ContentView(context).apply {
-            titleView.title.text = message
-            titleView.title.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            title.text = message
+            title.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             setOnClickListener {
                 dismissActivePopup()
             }
@@ -63,8 +62,37 @@ object Popup {
         showNewPopup(contentView, duration)
     }
 
-    private fun showNewPopup(contentView: View, duration: Long) {
+    /**
+     * The calling Activity of View must apply the MaterialTheme
+     */
+    fun show(rootView: View, title: String, message: String, duration: Long = 1500) {
+        show(rootView, message = buildSpannedString {
+            bold {
+                append(title)
+            }
+            append("\n")
+            scale(0.8f) {
+                append(message)
+            }
+        }, duration)
+    }
 
+    /**
+     * The calling Activity of View must apply the MaterialTheme
+     */
+    fun show(rootView: View, message: CharSequence, duration: Long = 1500) {
+        val contentView = ContentView(rootView.context).apply {
+            title.text = message
+            title.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            setOnClickListener {
+                dismissActivePopup()
+            }
+        }
+        dismissActivePopup()
+        showNewPopup(contentView, duration, rootView)
+    }
+
+    private fun showNewPopup(contentView: View, duration: Long, rootView: View? = null) {
         val popupWindow = PopupWindow(
             contentView,
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -76,7 +104,8 @@ object Popup {
             isFocusable = false
             activePopup = popupWindow
         }
-        popupWindow.showAtLocation(contentView, Gravity.TOP, 0, 0)
+        popupWindow.showAtLocation(rootView ?: contentView, Gravity.TOP, 0, 0)
+
         val springForce = SpringForce().apply {
             dampingRatio = SpringForce.DAMPING_RATIO_HIGH_BOUNCY
             stiffness = SpringForce.STIFFNESS_LOW
@@ -133,57 +162,49 @@ object Popup {
     }
 }
 
-private class ContentView(context: Context) : CustomViewGroup(context) {
-    val titleView = TitleView(context)
-    private val cardView = MaterialCardView(context).apply {
-        layoutParams = MarginLayoutParams(
-            LayoutParams.MATCH_PARENT,
+private class ContentView(context: Context) : FrameLayout(context) {
+    val titleView = TitleCardView(context).apply {
+        layoutParams = LayoutParams(
+            LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT
         ).also {
+            it.gravity = Gravity.CENTER_HORIZONTAL
             it.setMargins(16.dp, 32.dp, 16.dp, 8.dp)
         }
         fitsSystemWindows = true
         strokeWidth = 0
         elevation = 5f.dp
+        minimumHeight = 48.dp
         setCardBackgroundColor(context.getColorByAttr(com.google.android.material.R.attr.colorSurfaceVariant))
     }
+    val title get() = titleView.title
 
     init {
-        cardView.addView(titleView)
-        addView(cardView)
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        cardView.exactWidth(measuredWidth - cardView.marginStart * 2)
-        setMeasuredDimension(measuredWidth, cardView.measuredHeightWithMargins)
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        cardView.autoLayout(x = cardView.marginStart, y = cardView.marginTop)
+        addView(titleView)
     }
 }
 
-private class TitleView(context: Context) : CustomViewGroup(context) {
+
+private class TitleCardView(context: Context) : MaterialCardView(context) {
     val title = TextView(context).apply {
         layoutParams =
-            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).also {
+            MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).also {
                 it.setMargins(16.dp, 4.dp, 8.dp, 4.dp)
             }
-        textSize = 18f
+        textSize = 16f
         maxLines = 6
         setTextColor(context.getColorByAttr(com.google.android.material.R.attr.colorOnSurfaceVariant))
         ellipsize = TextUtils.TruncateAt.END
         addView(this)
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        title.exactWidth(measuredWidth - title.marginStart * 2)
-        setMeasuredDimension(measuredWidth, title.measuredHeightWithMargins)
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        title.autoLayout(title.marginStart, title.toVerticalCenter(this))
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        val l = (measuredWidth - title.measuredWidth) / 2
+        val t = (measuredHeight - title.measuredHeight) / 2
+        title.layout(l, t, l + title.measuredWidth, t + measuredHeight)
     }
 }

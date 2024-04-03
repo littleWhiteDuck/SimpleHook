@@ -61,7 +61,7 @@ private const val SHOW_RECORD_STATIC_FIELD =
 private const val SHOW_RECORD_INSTANCE_FIELD =
     HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
-class ConfigBottomSheetFragment(
+class ConfigBottomFragment(
     private val configBean: ConfigBean,
     private val saveConfig: (ConfigBean) -> Unit,
     private val deleteConfig: () -> Unit
@@ -70,6 +70,7 @@ class ConfigBottomSheetFragment(
     private var hookMode = Constant.HOOK_RETURN
     private var configEnable = true
     private val sp by lazy { SPUtils(requireContext()) }
+    override var enableUpdateHeight: Boolean = false
 
 
     override fun init() {
@@ -166,7 +167,7 @@ class ConfigBottomSheetFragment(
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
-                requireActivity().showPopup(getString(R.string.config_hook_constructor_tip))
+                binding.root.showPopup(getString(R.string.config_hook_constructor_tip))
             }
             val configBean = ConfigBean(
                 this.hookMode,
@@ -184,7 +185,7 @@ class ConfigBottomSheetFragment(
             saveConfig(configBean)
             dismiss()
         } else {
-            requireActivity().showPopup(getString(R.string.config_info_not_match_mode))
+            binding.root.showPopup(getString(R.string.config_info_not_match_mode))
         }
     }
 
