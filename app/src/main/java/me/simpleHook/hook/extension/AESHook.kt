@@ -4,7 +4,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 import java.security.spec.EncodedKeySpec
@@ -43,7 +43,7 @@ object AESHook : BaseHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val opmode = param.args[0] as Int
                 val cryptType =
-                    if (opmode == Cipher.ENCRYPT_MODE) Tip.getTip("encrypt") else Tip.getTip("decrypt")
+                    if (opmode == Cipher.ENCRYPT_MODE) tip.encrypt else tip.decrypt
                 map["cryptType"] = cryptType
             }
         })
@@ -97,13 +97,11 @@ object AESHook : BaseHook() {
                         val result = String(it as ByteArray)
                         map["result"] = result
                         val list = listOf(
-                            Tip.getTip("encryptOrDecrypt") + map["cryptType"],
-                            Tip.getTip("key") + map["key"],
+                            tip.encryptOrDecrypt + map["cryptType"],
+                            tip.key + map["key"],
                             "iv：${map["iv"]}",
-                            Tip.getTip("rawData") + map["rawData"],
-                            Tip.getTip(
-                                map["cryptType"] ?: "error"
-                            ) + Tip.getTip("result") + map["result"]
+                            tip.rawData + map["rawData"],
+                            (map["cryptType"] ?: "error") + tip.result + map["result"]
                         )
                         val items = LogUtil.getStackTrace()
                         val logBean = LogBean(

@@ -7,12 +7,11 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import com.github.kyuubiran.ezxhelper.utils.paramCount
 import de.robv.android.xposed.XC_MethodHook
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.DialogCancel
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils
 import me.simpleHook.hook.util.HookUtils.getAllTextView
@@ -47,7 +46,7 @@ object PopupWindowHook : BaseHook() {
         if (contentView is ViewGroup) {
             list += getAllTextView(contentView)
         } else if (contentView is TextView) {
-            list.add(Tip.getTip("text") + contentView.text.toString())
+            list.add(tip.text + contentView.text.toString())
         }
         if (configBean.stopDialog.enable) {
             val info = configBean.stopDialog.info
@@ -62,9 +61,13 @@ object PopupWindowHook : BaseHook() {
                             param.result = null
                             val type =
                                 if (isShowEnglish) "PopupWindow(blocked by keyword)" else "PopupWindow（通过关键词已拦截）"
-                            LogUtil.outLogMsg(LogBean(type,
-                                list + LogUtil.getStackTrace(),
-                                HookHelper.hostPackageName))
+                            LogUtil.outLogMsg(
+                                LogBean(
+                                    type,
+                                    list + LogUtil.getStackTrace(),
+                                    HookHelper.hostPackageName
+                                )
+                            )
                             return
                         }
                     }
@@ -77,9 +80,13 @@ object PopupWindowHook : BaseHook() {
                             param.result = null
                             val type =
                                 if (isShowEnglish) "PopupWindow(blocked by ID)" else "PopupWindow（通过ID已拦截）"
-                            LogUtil.outLogMsg(LogBean(type,
-                                list + LogUtil.getStackTrace(),
-                                HookHelper.hostPackageName))
+                            LogUtil.outLogMsg(
+                                LogBean(
+                                    type,
+                                    list + LogUtil.getStackTrace(),
+                                    HookHelper.hostPackageName
+                                )
+                            )
                             return
                         }
                     }
@@ -87,9 +94,13 @@ object PopupWindowHook : BaseHook() {
             }
             if (configBean.popup) {
                 val type = "PopupWindow"
-                LogUtil.outLogMsg(LogBean(type,
-                    list + LogUtil.getStackTrace(),
-                    HookHelper.hostPackageName))
+                LogUtil.outLogMsg(
+                    LogBean(
+                        type,
+                        list + LogUtil.getStackTrace(),
+                        HookHelper.hostPackageName
+                    )
+                )
             }
         }
     }

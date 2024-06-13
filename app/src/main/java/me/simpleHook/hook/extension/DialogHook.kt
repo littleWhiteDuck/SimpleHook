@@ -1,7 +1,6 @@
 package me.simpleHook.hook.extension
 
 import android.app.Dialog
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -9,12 +8,11 @@ import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.DialogCancel
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.HookUtils.getAllViewIds
@@ -40,7 +38,7 @@ object DialogHook : BaseHook() {
                     if (it is ViewGroup) {
                         list += getAllTextView(it)
                     } else if (it is TextView) {
-                        list.add(Tip.getTip("text") + it.text.toString())
+                        list.add(tip.text + it.text.toString())
                     }
                 }
                 if (configBean.diaCancel) {
@@ -60,9 +58,13 @@ object DialogHook : BaseHook() {
                                     dialog.dismiss()
                                     val type =
                                         if (isShowEnglish) "Dialog(blocked by keyword)" else "弹窗（通过关键词已拦截）"
-                                    LogUtil.outLogMsg(LogBean(type,
-                                        list + LogUtil.getStackTrace(),
-                                        HookHelper.hostPackageName))
+                                    LogUtil.outLogMsg(
+                                        LogBean(
+                                            type,
+                                            list + LogUtil.getStackTrace(),
+                                            HookHelper.hostPackageName
+                                        )
+                                    )
                                     return@hookAfter
                                 }
                             }
@@ -76,9 +78,13 @@ object DialogHook : BaseHook() {
                                     dialog.dismiss()
                                     val type =
                                         if (isShowEnglish) "Dialog(blocked by ID)" else "弹窗（通过ID已拦截）"
-                                    LogUtil.outLogMsg(LogBean(type,
-                                        list + LogUtil.getStackTrace(),
-                                        HookHelper.hostPackageName))
+                                    LogUtil.outLogMsg(
+                                        LogBean(
+                                            type,
+                                            list + LogUtil.getStackTrace(),
+                                            HookHelper.hostPackageName
+                                        )
+                                    )
                                     return@hookAfter
                                 }
                             }
@@ -86,9 +92,13 @@ object DialogHook : BaseHook() {
                     }
                     if (configBean.dialog) {
                         val type = if (isShowEnglish) "Dialog" else "弹窗"
-                        LogUtil.outLogMsg(LogBean(type,
-                            list + LogUtil.getStackTrace(),
-                            HookHelper.hostPackageName))
+                        LogUtil.outLogMsg(
+                            LogBean(
+                                type,
+                                list + LogUtil.getStackTrace(),
+                                HookHelper.hostPackageName
+                            )
+                        )
                     }
                 }
             }

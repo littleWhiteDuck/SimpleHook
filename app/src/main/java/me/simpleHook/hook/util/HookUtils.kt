@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.view.children
 import com.google.gson.Gson
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 
 
 object HookUtils {
@@ -16,14 +16,16 @@ object HookUtils {
             when (it) {
                 is Button -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add(Tip.getTip("button") + it.text.toString())
+                        list.add(tip.button + it.text.toString())
                     }
                 }
+
                 is TextView -> {
                     if (it.text.toString().isNotEmpty()) {
-                        list.add(Tip.getTip("text") + it.text.toString())
+                        list.add(tip.text + it.text.toString())
                     }
                 }
+
                 is ViewGroup -> {
                     list += getAllTextView(it)
                 }

@@ -8,11 +8,11 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.extension.log
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.extension.log
 
 object ClickEventHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {
@@ -31,17 +31,21 @@ object ClickEventHook : BaseHook() {
                 val callbackType = mOnClickListenerObject.javaClass.name
                 val viewId =
                     if (view.id == View.NO_ID) "id：NO ID" else "id： " + Integer.toHexString(view.id)
-                list.add(Tip.getTip("viewType") + viewType)
-                list.add(Tip.getTip("callbackType") + callbackType)
+                list.add(tip.viewType + viewType)
+                list.add(tip.callbackType + callbackType)
                 list.add(viewId)
                 if (view is TextView) {
-                    list.add(Tip.getTip("text") + view.text.toString())
+                    list.add(tip.text + view.text.toString())
                 } else if (view is ViewGroup) {
                     list += getAllTextView(view)
                 }
-                LogUtil.outLogMsg(LogBean(type,
-                    list + LogUtil.getStackTrace(),
-                    HookHelper.hostPackageName))
+                LogUtil.outLogMsg(
+                    LogBean(
+                        type,
+                        list + LogUtil.getStackTrace(),
+                        HookHelper.hostPackageName
+                    )
+                )
             } catch (e: Exception) {
                 "error: click".log(HookHelper.hostPackageName)
             }

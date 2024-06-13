@@ -12,6 +12,7 @@ object Tip {
     private val tipEnglishMap = Gson().fromJson<Map<String, String>>(englishTip, Map::class.java)
     private val isNotChinese = LanguageUtils.isNotChinese()
 
+
     fun getTip(key: String): String {
         return if (isNotChinese) {
             tipEnglishMap[key] ?: key

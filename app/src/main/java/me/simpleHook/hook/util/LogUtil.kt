@@ -11,10 +11,13 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.log
 import me.simpleHook.extension.tip
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.util.*
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.FlavorUtils.PROVIDER_RECORD_URI
+import me.simpleHook.util.LanguageUtils
+import me.simpleHook.util.TimeUtil
 
 object LogUtil {
     private const val filterClass =
@@ -46,11 +49,13 @@ object LogUtil {
             val printLogStr = Json.encodeToString(printLog)
             val filePath =
                 Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/" + Constant.RECORD_TEMP_DIRECTORY
-            FileUtils.outTextToFile(filePath,
+            FileUtils.outTextToFile(
+                filePath,
                 printLogStr,
                 isNewLine = true,
                 limitSize = 4096,
-                append = true)
+                append = true
+            )
         } catch (e: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".tip(hostPackageName)
             log.log(hostPackageName)
@@ -61,12 +66,14 @@ object LogUtil {
         log: String, tempPackageName: String, type: String, time: String
     ) {
         try {
-            val contentValues = contentValuesOf("packageName" to tempPackageName,
+            val contentValues = contentValuesOf(
+                "packageName" to tempPackageName,
                 "log" to log,
                 "read" to 0,
                 "type" to type,
                 "time" to time,
-                "isMark" to 0)
+                "isMark" to 0
+            )
             HookHelper.appContext.contentResolver?.insert(PRINT_URI, contentValues)
         } catch (e: Exception) {
             "error occurred while saving log to the database".tip(hostPackageName)
@@ -102,24 +109,28 @@ object LogUtil {
     private fun notFoundClass(
         className: String, methodName: String, error: String
     ) {
-        Tip.getTip("notFoundClass").log(hostPackageName)
-        val list = listOf(Tip.getTip("errorType") + "ClassNotFoundError",
-            Tip.getTip("solution") + Tip.getTip("notFoundClass"),
-            Tip.getTip("filledClassName") + className,
-            Tip.getTip("filledMethodOrField") + methodName,
-            Tip.getTip("detailReason") + error)
+        tip.notFoundClass.log(hostPackageName)
+        val list = listOf(
+            tip.errorType + "ClassNotFoundError",
+            tip.solution + tip.notFoundClass,
+            tip.filledClassName + className,
+            tip.filledMethodOrField + methodName,
+            tip.detailReason + error
+        )
         outLog(list, "Error ClassNotFoundError")
     }
 
     private fun noSuchMethod(
         className: String, methodName: String, error: String
     ) {
-        Tip.getTip("noSuchMethod").log(hostPackageName)
-        val list = listOf(Tip.getTip("errorType") + "NoSuchMethodError",
-            Tip.getTip("solution") + Tip.getTip("useSmali2Config"),
-            Tip.getTip("filledClassName") + className,
-            Tip.getTip("filledMethodParams") + methodName,
-            Tip.getTip("detailReason") + error)
+        tip.noSuchMethod.log(hostPackageName)
+        val list = listOf(
+            tip.errorType + "NoSuchMethodError",
+            tip.solution + tip.useSmali2Config,
+            tip.filledClassName + className,
+            tip.filledMethodParams + methodName,
+            tip.detailReason + error
+        )
         outLog(list, "Error NoSuchMethodError")
     }
 
@@ -128,6 +139,7 @@ object LogUtil {
             is NoSuchMethodError, is NoSuchMethodException -> {
                 noSuchMethod(className, methodName, exception.stackTraceToString())
             }
+
             is XposedHelpers.ClassNotFoundError, is ClassNotFoundException -> {
                 notFoundClass(className, methodName, exception.stackTraceToString())
             }

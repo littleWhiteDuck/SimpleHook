@@ -5,7 +5,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 import java.nio.charset.Charset
@@ -25,9 +25,9 @@ object Base64Hook : BaseHook() {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            Tip.getTip("isEncrypt"),
-                            Tip.getTip("rawData") + String(data),
-                            Tip.getTip("encryptResult") + result
+                            tip.isEncrypt,
+                            tip.rawData + String(data),
+                            tip.encryptResult + result
                         ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.outLogMsg(logBean)
@@ -45,9 +45,9 @@ object Base64Hook : BaseHook() {
                     val result = String(param.result as ByteArray)
                     val logBean = LogBean(
                         "base64", listOf(
-                            Tip.getTip("isDecrypt"),
-                            Tip.getTip("rawData") + String(data),
-                            Tip.getTip("decryptResult") + result
+                            tip.isDecrypt,
+                            tip.rawData + String(data),
+                            tip.decryptResult + result
                         ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.outLogMsg(logBean)
@@ -75,9 +75,9 @@ object Base64Hook : BaseHook() {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            Tip.getTip("isEncrypt"),
-                            Tip.getTip("rawData") + String(rawData),
-                            Tip.getTip("encryptResult") + result
+                            tip.isEncrypt,
+                            tip.rawData + String(rawData),
+                            tip.encryptResult + result
                         ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.outLogMsg(logBean)
@@ -101,9 +101,9 @@ object Base64Hook : BaseHook() {
                     val result = String(param.result as ByteArray, Charset.forName("US-ASCII"))
                     val logBean = LogBean(
                         "base64", listOf(
-                            Tip.getTip("isDecrypt"),
-                            Tip.getTip("rawData") + String(rawData),
-                            Tip.getTip("decryptResult") + result
+                            tip.isDecrypt,
+                            tip.rawData + String(rawData),
+                            tip.decryptResult + result
                         ) + items, HookHelper.hostPackageName
                     )
                     LogUtil.outLogMsg(logBean)

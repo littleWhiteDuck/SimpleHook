@@ -8,11 +8,11 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.extension.log
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.extension.log
 
 object ToastHook : BaseHook() {
 
@@ -25,7 +25,7 @@ object ToastHook : BaseHook() {
                 val toast: Toast = param?.thisObject as Toast
                 try {
                     XposedHelpers.getObjectField(toast, "mText")?.also {
-                        list.add(Tip.getTip("text") + it)
+                        list.add(tip.text + it)
                     }
                 } catch (e: NoSuchFieldError) {
                     "toast error1".log(HookHelper.hostPackageName)
@@ -35,7 +35,7 @@ object ToastHook : BaseHook() {
                             if (toastView is ViewGroup) {
                                 list += getAllTextView(toastView)
                             } else if (toastView is TextView) {
-                                list.add(Tip.getTip("text") + toastView.text.toString())
+                                list.add(tip.text + toastView.text.toString())
                             }
                         }
                     } catch (e: NoSuchFieldError) {

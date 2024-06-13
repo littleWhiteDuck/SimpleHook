@@ -11,6 +11,7 @@ import me.simpleHook.bean.ClipboardConfig
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 
@@ -34,9 +35,9 @@ object ClipboardHook : BaseHook() {
                 if (clipboardConfig.record) {
                     val clipData = it.result as ClipData?
                     val info = getClipInfo(clipData)
-                    val type = Tip.getTip("getClipboard")
-                    val items = listOf(Tip.getTip("clipboardInfo") + info) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type, items, HookHelper.hostPackageName)
+                    val items = listOf(tip.clipboardInfo + info) + LogUtil.getStackTrace()
+                    val logBean =
+                        LogBean(type = tip.getClipboard, items, HookHelper.hostPackageName)
                     LogUtil.outLogMsg(logBean)
                 }
                 if (clipboardConfig.read) {
@@ -55,9 +56,9 @@ object ClipboardHook : BaseHook() {
                 val clipData = it.args[0] as ClipData
                 val info = getClipInfo(clipData)
                 if (clipboardConfig.record) {
-                    val type = Tip.getTip("setClipboard")
-                    val items = listOf(Tip.getTip("clipboardInfo") + info) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type, items, HookHelper.hostPackageName)
+                    val items = listOf(tip.clipboardInfo + info) + LogUtil.getStackTrace()
+                    val logBean =
+                        LogBean(type = tip.setClipboard, items, HookHelper.hostPackageName)
                     LogUtil.outLogMsg(logBean)
                 }
                 if (clipboardConfig.write) {

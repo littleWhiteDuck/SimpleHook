@@ -4,7 +4,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 import javax.crypto.Mac
@@ -37,6 +37,7 @@ object HMACHook : BaseHook() {
                             val rawData = param0.toString()
                             hasMap["rawData"] = rawData
                         }
+
                         is ByteArray -> {
                             val rawData = String(param0)
                             hasMap["rawData"] = rawData
@@ -71,10 +72,10 @@ object HMACHook : BaseHook() {
                 hasMap["result"] = String(result)
 
                 val list = listOf(
-                    Tip.getTip("key") + hasMap["key"],
-                    Tip.getTip("keyAlgorithm") + hasMap["keyAlgorithm"],
-                    Tip.getTip("rawData") + hasMap["rawData"],
-                    Tip.getTip("encryptResult") + hasMap["result"]
+                    tip.key + hasMap["key"],
+                    tip.keyAlgorithm + hasMap["keyAlgorithm"],
+                    tip.rawData + hasMap["rawData"],
+                    tip.encryptResult + hasMap["result"]
                 )
                 val items = LogUtil.getStackTrace().toList()
                 val logBean = LogBean(

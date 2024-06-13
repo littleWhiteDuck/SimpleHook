@@ -1,16 +1,23 @@
 package me.simpleHook.hook
 
-import com.github.kyuubiran.ezxhelper.utils.*
+import com.github.kyuubiran.ezxhelper.utils.Hooker
+import com.github.kyuubiran.ezxhelper.utils.findAllConstructors
+import com.github.kyuubiran.ezxhelper.utils.findAllMethods
+import com.github.kyuubiran.ezxhelper.utils.findConstructor
+import com.github.kyuubiran.ezxhelper.utils.findMethod
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.util.*
+import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.appClassLoader
 import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.Type
+import me.simpleHook.hook.util.hook
+import me.simpleHook.hook.util.isSearchConstructor
+import me.simpleHook.hook.util.isSearchMethod
 
 object FieldHook {
     /**
@@ -76,13 +83,15 @@ object FieldHook {
     private fun recordStaticField(
         fieldClassName: String, fieldName: String
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Static field" else "静态变量"
         val hookClass = XposedHelpers.findClass(fieldClassName, appClassLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, fieldName)
-        val list = listOf(getTip("className") + fieldClassName,
-            getTip("fieldName") + fieldName,
-            getTip("fieldValue") + result)
-        val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
+        val list = listOf(
+            tip.className + fieldClassName,
+            tip.fieldName + fieldName,
+            tip.fieldValue + result
+        )
+        val logBean =
+            LogBean(type = tip.staticField, other = list, packageName = hostPackageName)
         LogUtil.outLogMsg(logBean)
     }
 
@@ -110,13 +119,15 @@ object FieldHook {
     private fun recordInstanceField(
         className: String, param: XC_MethodHook.MethodHookParam, fieldName: String
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Instance field" else "实例变量"
         val thisObj = param.thisObject
         val result = XposedHelpers.getObjectField(thisObj, fieldName)
-        val list = listOf(getTip("className") + className,
-            getTip("fieldName") + fieldName,
-            getTip("fieldValue") + result)
-        val logBean = LogBean(type = type, other = list, packageName = hostPackageName)
+        val list = listOf(
+            tip.className + className,
+            tip.fieldName + fieldName,
+            tip.fieldValue + result
+        )
+        val logBean =
+            LogBean(type = tip.instanceField, other = list, packageName = hostPackageName)
         LogUtil.outLogMsg(logBean)
     }
 
