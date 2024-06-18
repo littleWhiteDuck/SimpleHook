@@ -520,4 +520,6 @@
     <string name="config_dialog_config_item_desc_edit">輸入備忘訊息</string>
 
     <string name="main_settings_follow_system_theme_color">跟隨系統主題色</string>
+    <string name="record_show_line_number">顯示行號</string>
+    <string name="record_enable_magnifier">啟用放大鏡</string>
 </resources>

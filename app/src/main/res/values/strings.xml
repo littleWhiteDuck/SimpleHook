@@ -611,6 +611,8 @@
     <string name="config_show_note">显示描述</string>
     <string name="config_dialog_config_item_desc_input">例如：这是登录Hook</string>
     <string name="config_dialog_config_item_desc_edit">输入备忘信息</string>
+    <string name="record_show_line_number">显示行号</string>
+    <string name="record_enable_magnifier">启用放大镜</string>
 
 
 </resources>

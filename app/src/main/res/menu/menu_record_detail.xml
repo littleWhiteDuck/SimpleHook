@@ -12,28 +12,28 @@
     <item android:title="@string/record_detail_menu_copy">
         <menu>
             <item
-                android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_text"
+                android:icon="@drawable/ic_copy"
                 android:title="@string/record_detail_menu_copy_text" />
             <item
-                android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_json"
+                android:icon="@drawable/ic_copy"
                 android:title="@string/record_detail_menu_copy_json_format" />
             <item
-                android:visible="false"
-                android:icon="@drawable/ic_copy"
                 android:id="@+id/copy_raw_data"
-                android:title="@string/record_detail_menu_copy_raw_data" />
-            <item
-                android:visible="false"
                 android:icon="@drawable/ic_copy"
+                android:title="@string/record_detail_menu_copy_raw_data"
+                android:visible="false" />
+            <item
                 android:id="@+id/copy_crypt_result"
-                android:title="@string/record_detail_menu_copy_crypt_result" />
-            <item
-                android:visible="false"
                 android:icon="@drawable/ic_copy"
+                android:title="@string/record_detail_menu_copy_crypt_result"
+                android:visible="false" />
+            <item
                 android:id="@+id/copy_return_value"
-                android:title="@string/record_detail_menu_copy_return_value" />
+                android:icon="@drawable/ic_copy"
+                android:title="@string/record_detail_menu_copy_return_value"
+                android:visible="false" />
         </menu>
 
     </item>
@@ -42,7 +42,17 @@
         android:title="@string/record_detail_menu_help" />
     <item
         android:id="@+id/menu_word_wrap"
-        android:title="@string/record_detail_word_wrap"
         android:checkable="true"
-        android:checked="false" />
+        android:checked="false"
+        android:title="@string/record_detail_word_wrap" />
+    <item
+        android:id="@+id/menu_line_number"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_show_line_number" />
+    <item
+        android:id="@+id/menu_magnifier"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_enable_magnifier" />
 </menu>

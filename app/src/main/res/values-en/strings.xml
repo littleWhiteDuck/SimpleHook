@@ -521,4 +521,6 @@
     <string name="config_dialog_config_item_desc_edit">Enter memo info</string>
 
     <string name="main_settings_follow_system_theme_color">Follow system theme color</string>
+    <string name="record_show_line_number">Show line number</string>
+    <string name="record_enable_magnifier">Enable magnifier</string>
 </resources>

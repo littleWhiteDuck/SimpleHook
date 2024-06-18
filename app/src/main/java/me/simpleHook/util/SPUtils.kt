@@ -9,7 +9,8 @@ import kotlin.reflect.KProperty
 @Suppress("PropertyName")
 open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID + "_preferences") {
 
-    private val preferences: SharedPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences =
+        context.getSharedPreferences(name, Context.MODE_PRIVATE)
     var smali2Config by SharedPreferenceDelegates.boolean(true)
     var language by SharedPreferenceDelegates.string("system")
     var showByType by SharedPreferenceDelegates.boolean(true)
@@ -27,6 +28,8 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var checkPermission by SharedPreferenceDelegates.boolean(true)
     var lspScope by SharedPreferenceDelegates.boolean(false)
     var wordWrap by SharedPreferenceDelegates.boolean(true)
+    var record_line_number by SharedPreferenceDelegates.boolean(true)
+    var record_magnifier_enable by SharedPreferenceDelegates.boolean(true)
     var backup_scope by SharedPreferenceDelegates.string("BACKUP_SCOPE_ALL")
     var backup_cloud_auto by SharedPreferenceDelegates.boolean(false)
     var backup_local_auto by SharedPreferenceDelegates.boolean(false)
@@ -98,16 +101,17 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
         }
 
-        fun setString(defaultValue: Set<String>? = null) = object : ReadWriteProperty<SPUtils, Set<String>?> {
-            override fun getValue(thisRef: SPUtils, property: KProperty<*>): Set<String>? {
-                return thisRef.preferences.getStringSet(property.name, defaultValue)
-            }
+        fun setString(defaultValue: Set<String>? = null) =
+            object : ReadWriteProperty<SPUtils, Set<String>?> {
+                override fun getValue(thisRef: SPUtils, property: KProperty<*>): Set<String>? {
+                    return thisRef.preferences.getStringSet(property.name, defaultValue)
+                }
 
-            override fun setValue(
-                thisRef: SPUtils, property: KProperty<*>, value: Set<String>?
-            ) {
-                thisRef.preferences.edit().putStringSet(property.name, value).apply()
+                override fun setValue(
+                    thisRef: SPUtils, property: KProperty<*>, value: Set<String>?
+                ) {
+                    thisRef.preferences.edit().putStringSet(property.name, value).apply()
+                }
             }
-        }
     }
 }

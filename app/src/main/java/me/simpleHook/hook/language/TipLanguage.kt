@@ -183,6 +183,6 @@ sealed class TipLanguage(val data: LanguageData) {
 }
 
 val tip by lazy {
-    if (LanguageUtils.isNotChinese()) TipLanguage.CN.data
-    else TipLanguage.EN.data
+    if (LanguageUtils.isNotChinese()) TipLanguage.EN.data
+    else TipLanguage.CN.data
 }
