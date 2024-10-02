@@ -12,7 +12,6 @@ import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.extension.log
 import me.simpleHook.extension.random
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.language.tip
@@ -37,7 +36,7 @@ object MainHook {
             val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
             val configs = Json.decodeFromString<List<ConfigBean>>(appConfig.configs)
-            tip.startCustomHook.log(hostPackageName)
+            tip.startCustomHook.log()
             configs.forEach { configBean ->
                 if (!configBean.enable) return@forEach
                 configBean.apply {
@@ -75,7 +74,7 @@ object MainHook {
                     tip.detailReason + e.stackTraceToString()
                 ), "Error Unknown Error"
             )
-            "config error".log(hostPackageName)
+            "config error".log()
         }
     }
 
@@ -289,7 +288,7 @@ object MainHook {
     ) {
         try {
             if (strConfig.trim().isEmpty()) return
-            tip.startExtensionHook.log(hostPackageName)
+            tip.startExtensionHook.log()
             val configBean = Json.decodeFromString<ExtensionConfig>(strConfig)
             if (!configBean.all) return
             if (configBean.tip) appContext.showToast(msg = "SimpleHook: StartHook")

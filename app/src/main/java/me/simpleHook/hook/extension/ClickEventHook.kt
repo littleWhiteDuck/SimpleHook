@@ -8,11 +8,11 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.extension.log
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.log
 
 object ClickEventHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {
@@ -47,7 +47,7 @@ object ClickEventHook : BaseHook() {
                     )
                 )
             } catch (e: Exception) {
-                "error: click".log(HookHelper.hostPackageName)
+                "error: click".log()
             }
         }
     }

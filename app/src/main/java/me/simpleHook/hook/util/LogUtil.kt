@@ -9,8 +9,6 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.PrintLog
-import me.simpleHook.extension.log
-import me.simpleHook.extension.tip
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.util.FileUtils
@@ -31,7 +29,7 @@ object LogUtil {
         val tempPackageName =
             if (logBean.type.startsWith("Error")) "error.hook.tip" else hostPackageName
         if (FlavorUtils.liteVersion) {
-            log.log(hostPackageName)
+            log.log()
         } else if (HookHelper.appInfo.targetSdkVersion > VERSION_CODES.Q) {
             outLogFile(log, tempPackageName, logBean.type, time)
         } else {
@@ -57,8 +55,8 @@ object LogUtil {
                 append = true
             )
         } catch (e: Exception) {
-            "error occurred while saving log to the file, 此次log打印在下方".tip(hostPackageName)
-            log.log(hostPackageName)
+            "error occurred while saving log to the file, 此次log打印在下方".log()
+            log.log()
         }
     }
 
@@ -76,7 +74,7 @@ object LogUtil {
             )
             HookHelper.appContext.contentResolver?.insert(PRINT_URI, contentValues)
         } catch (e: Exception) {
-            "error occurred while saving log to the database".tip(hostPackageName)
+            "error occurred while saving log to the database".log()
             outLogFile(log, tempPackageName, type, time)
         }
     }
@@ -109,7 +107,7 @@ object LogUtil {
     private fun notFoundClass(
         className: String, methodName: String, error: String
     ) {
-        tip.notFoundClass.log(hostPackageName)
+        tip.notFoundClass.log()
         val list = listOf(
             tip.errorType + "ClassNotFoundError",
             tip.solution + tip.notFoundClass,
@@ -123,7 +121,7 @@ object LogUtil {
     private fun noSuchMethod(
         className: String, methodName: String, error: String
     ) {
-        tip.noSuchMethod.log(hostPackageName)
+        tip.noSuchMethod.log()
         val list = listOf(
             tip.errorType + "NoSuchMethodError",
             tip.solution + tip.useSmali2Config,

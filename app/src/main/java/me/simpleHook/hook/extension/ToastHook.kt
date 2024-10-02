@@ -8,11 +8,11 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
-import me.simpleHook.extension.log
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView
 import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.util.log
 
 object ToastHook : BaseHook() {
 
@@ -28,7 +28,7 @@ object ToastHook : BaseHook() {
                         list.add(tip.text + it)
                     }
                 } catch (e: NoSuchFieldError) {
-                    "toast error1".log(HookHelper.hostPackageName)
+                    "toast error1".log()
                     try {
                         XposedHelpers.getObjectField(toast, "mNextView")?.also {
                             val toastView = it as View
@@ -39,7 +39,7 @@ object ToastHook : BaseHook() {
                             }
                         }
                     } catch (e: NoSuchFieldError) {
-                        "toast error2".log(HookHelper.hostPackageName)
+                        "toast error2".log()
                     }
                 }
                 val type = "Toast"
