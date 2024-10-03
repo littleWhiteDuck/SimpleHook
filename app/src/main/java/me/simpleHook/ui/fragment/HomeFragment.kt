@@ -43,6 +43,7 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.showPopup
 import me.simpleHook.extension.showPopupWithCopyMsg
+import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -402,6 +403,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         if (configSystem.isEnableSave(appConfig.packageName)) {
             appConfig.enable = isChecked
             viewModel.updateConfigs(appConfig)
+            LSPosedHelper.changeScope(appConfig.packageName, isChecked)
             val configStr = Json.encodeToString(appConfig)
             configSystem.saveCustomConfig(appConfig.packageName, configStr)
         } else {

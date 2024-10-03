@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.bean.LogBean
@@ -35,12 +34,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     // appConfig
     fun insertConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
         appRepository.insertConfigs(*appConfig)
-        if (FlavorUtils.rootVersion && GlobalValue.sp.lspScope) {
+        if (FlavorUtils.rootVersion) {
             val pkgNames = HashSet<String>()
             appConfig.forEach {
                 pkgNames.add(it.packageName)
             }
-//            LSPosedHelper.addScope(pkgNames.toTypedArray())
+            LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -65,7 +64,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
         appRepository.deleteConfigs(*appConfig)
-        if (FlavorUtils.rootVersion && GlobalValue.sp.lspScope) {
+        if (FlavorUtils.rootVersion) {
             val pkgNames = HashSet<String>()
             appConfig.forEach {
                 val count = getExCountByPackageName(it.packageName)
@@ -73,7 +72,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     pkgNames.add(it.packageName)
                 }
             }
-//            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+            LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -222,7 +221,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             assistConfig.forEach {
                 pkgNames.add(it.packageName)
             }
-//            LSPosedHelper.addScope(pkgNames.toTypedArray())
+            LSPosedHelper.addScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }
@@ -242,7 +241,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     pkgNames.add(it.packageName)
                 }
             }
-//            LSPosedHelper.removeScope(pkgNames.toTypedArray())
+            LSPosedHelper.removeScope(pkgNames.toTypedArray())
         }
         notifyBackupConfig()
     }

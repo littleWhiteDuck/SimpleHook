@@ -3,6 +3,8 @@ package me.simpleHook.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.Keep
@@ -13,6 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import io.github.libxposed.service.XposedService
+import io.github.libxposed.service.XposedServiceHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
@@ -25,6 +29,7 @@ import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
 import me.simpleHook.extension.showPopup
+import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
@@ -57,6 +62,19 @@ class MainActivity : BaseActivity(), IMenuProvider {
         checkUpdate()
         initBackup()
         initPermission()
+        initLSPosedService()
+    }
+
+    private fun initLSPosedService() {
+        XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
+            override fun onServiceBind(service: XposedService) {
+                LSPosedHelper.setService(service)
+            }
+
+            override fun onServiceDied(service: XposedService) {
+                LSPosedHelper.setService(null)
+            }
+        })
     }
 
     private fun initBackup() {
@@ -97,9 +115,12 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun checkActive() {
-        if (!isActive) {
-            supportActionBar?.title = BuildConfig.APP_NAME + getString(R.string.main_not_activated)
-        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!isActive) {
+                supportActionBar?.title =
+                    BuildConfig.APP_NAME + getString(R.string.main_not_activated)
+            }
+        }, 1000)
     }
 
     private fun initPermission() {
@@ -234,8 +255,12 @@ class MainActivity : BaseActivity(), IMenuProvider {
         }
     }
 
+    /**
+     * 传统XP，该方法会被hook直接返回true；
+     * LSPosed new api（可能）不会hook自己，会调用获取LSPosed状态的函数
+     */
     @Keep
-    private fun isModuleLive() = false
+    private fun isModuleLive() = LSPosedHelper.isActivated()
 
     private var _menuProvider: MenuProvider? = null
     override var currentMenuProvider: MenuProvider?

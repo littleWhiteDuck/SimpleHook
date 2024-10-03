@@ -38,6 +38,7 @@ import me.simpleHook.database.AppViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
+import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.recyclerview.adapter.AssistAdapter
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
@@ -213,6 +214,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private fun itemOnLongClick(assistConfig: AssistConfig) {
         if (configSystem.isEnableDelete(assistConfig.packageName)) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                LSPosedHelper.changeScope(assistConfig.packageName, false)
                 appViewModel.deleteAssistConfigs(assistConfig)
                 configSystem.deleteExConfig(assistConfig.packageName)
             }
@@ -241,6 +243,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private fun saveConfig(assistConfig: AssistConfig) {
         if (configSystem.isEnableSave(assistConfig.packageName)) {
             lifecycleScope.launch(Dispatchers.IO) {
+                LSPosedHelper.changeScope(assistConfig.packageName, true)
                 appViewModel.insertAssistConfigs(assistConfig)
                 configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
             }

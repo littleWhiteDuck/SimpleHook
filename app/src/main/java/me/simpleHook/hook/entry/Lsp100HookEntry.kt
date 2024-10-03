@@ -2,7 +2,6 @@ package me.simpleHook.hook.entry
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
@@ -23,12 +22,12 @@ class Lsp100HookEntry(base: XposedInterface, param: ModuleLoadedParam) : XposedM
     }
 
     override fun onPackageLoaded(param: XposedModuleInterface.PackageLoadedParam) {
-        Log.d("SHOOK", param.packageName)
         EzXHelperInit.initHandleLoadPackageLsp100(param)
         StartupInfo.setHookBridge(Lsp100HookImpl.INSTANCE)
         StartupInfo.setLoaderService(Lsp100HookImpl.INSTANCE)
 
         if (param.packageName == BuildConfig.APPLICATION_ID) {
+            // 经测试，似乎LSPosed new api有时候会hook模块自身，故保留这段代码
             findMethod("me.simpleHook.ui.activity.MainActivity") {
                 name == "isModuleLive"
             }.hookReturnConstant(true)
