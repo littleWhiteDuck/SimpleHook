@@ -1,7 +1,7 @@
 package me.simpleHook.hook.extension
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedBridge
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.language.tip

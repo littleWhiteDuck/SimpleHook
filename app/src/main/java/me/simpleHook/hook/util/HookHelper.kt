@@ -2,18 +2,16 @@ package me.simpleHook.hook.util
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.content.res.Resources
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 object HookHelper {
 
-    fun initFields(context: Context, lpparam: XC_LoadPackage.LoadPackageParam) {
+    fun initFields(context: Context, packageName: String, app: ApplicationInfo) {
         appContext = context
         appClassLoader = context.classLoader
         EzXHelperInit.setEzClassLoader(appClassLoader)
-        hostPackageName = lpparam.packageName
-        appInfo = lpparam.appInfo
+        hostPackageName = packageName
+        appInfo = app
     }
 
     lateinit var appContext: Context

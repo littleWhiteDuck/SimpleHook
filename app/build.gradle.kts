@@ -43,7 +43,7 @@ android {
     defaultConfig {
         resourceConfigurations += setOf("zh_CN", "en", "zh_TW")
         applicationId = "me.simpleHook"
-        minSdk = 22
+        minSdk = 24
         targetSdk = 33
         versionCode = verCode
         versionName = verName
@@ -58,8 +58,10 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signConfig
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         getByName("debug") {
             isDefault = true
@@ -108,14 +110,15 @@ android {
         }
     }
 
-    packagingOptions.resources.excludes += setOf("META-INF/**",
+    packagingOptions.resources.excludes += setOf(
         "okhttp3/**",
         "kotlin/**",
         "org/**",
         "**.properties",
         "**.bin",
         "**.json",
-        "**VERSION")
+        "**VERSION"
+    )
 
     lint {
         disable += "AppCompatResource"
@@ -142,14 +145,18 @@ android {
         notCompatibleWithConfigurationCache("optimizeReleaseRes tasks haven't support CC.")
         val flavor = name.removeSurrounding("optimize", "ReleaseResources").toLowerCaseAsciiOnly()
         doLast {
-            val aapt2 = File(androidComponents.sdkComponents.sdkDirectory.get().asFile,
-                "build-tools/${project.android.buildToolsVersion}/aapt2")
-            val zip = Paths.get(buildDir.path,
+            val aapt2 = File(
+                androidComponents.sdkComponents.sdkDirectory.get().asFile,
+                "build-tools/${project.android.buildToolsVersion}/aapt2"
+            )
+            val zip = Paths.get(
+                buildDir.path,
                 "intermediates",
                 "optimized_processed_res",
                 "${flavor}Release",
                 "optimize${flavor.uppercaseFirstChar()}ReleaseResources",
-                "resources-${flavor}-release-optimize.ap_")
+                "resources-${flavor}-release-optimize.ap_"
+            )
             val optimized = File("${zip}.opt")
             val cmd = exec {
                 commandLine(aapt2, "optimize", "--collapse-resource-names", "-o", optimized, zip)
@@ -188,7 +195,9 @@ dependencies {
     // xposed
     compileOnly("de.robv.android.xposed:api:82")
     //compileOnly("de.robv.android.xposed:api:82:sources")
-    implementation("com.github.kyuubiran:EzXHelper:1.0.3")
+    compileOnly("io.github.libxposed:api:100")
+    implementation("io.github.libxposed:service:100-1.0.0")
+//    implementation("com.github.kyuubiran:EzXHelper:1.0.3")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="xposed_description">DIY hook</string>
     <string name="app_name">SimpleHook</string>
     <string name="record_detail_menu_copy">Copy</string>
     <string name="extension_start_float_window">start float window</string>

@@ -28,9 +28,8 @@
 #指定package模糊字典
 #-packageobfuscationdictionary ./proguard-keys.txt
 
-
--keep class me.simpleHook.hook.HookInit { *; }
-
+-keep class me.simpleHook.hook.entry.Xp51HookEntry { *; }
+-keep class me.simpleHook.hook.entry.Lsp100HookEntry { *; }
 
 -keepattributes Signature
 

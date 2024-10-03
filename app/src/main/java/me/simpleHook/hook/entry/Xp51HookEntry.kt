@@ -1,4 +1,4 @@
-package me.simpleHook.hook
+package me.simpleHook.hook.entry
 
 import android.app.Application
 import android.content.Context
@@ -7,48 +7,36 @@ import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import io.github.qauxv.loader.sbl.xp51.Xp51HookImpl
+import io.github.qauxv.poststartup.StartupInfo
 import me.simpleHook.BuildConfig
-import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.log
 
-class HookInit : IXposedHookLoadPackage {
-
-    private val prefHookConfig by lazy { getPref(Constant.CUSTOM_CONFIG_PREF) }
+class Xp51HookEntry : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         EzXHelperInit.initHandleLoadPackage(lpparam)
+        StartupInfo.setHookBridge(Xp51HookImpl.INSTANCE)
+        StartupInfo.setLoaderService(Xp51HookImpl.INSTANCE)
+
         if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
             findMethod("me.simpleHook.ui.activity.MainActivity") {
                 name == "isModuleLive"
             }.hookReturnConstant(true)
-
         } else {
             if (HookHelper.isAppContextInitialized) return
             findMethod(Application::class.java) {
                 name == "attach"
             }.hookAfter {
-                HookHelper.initFields(context = it.args[0] as Context, lpparam)
-                readyXmlHook()
+                HookHelper.initFields(
+                    context = it.args[0] as Context,
+                    lpparam.packageName,
+                    lpparam.appInfo
+                )
+                HookHelper.appContext.getExternalFilesDirs(null)
+                HookInit.startHook()
             }
         }
     }
-
-    private fun readyXmlHook() {
-        prefHookConfig?.let { sp ->
-            sp.getString(hostPackageName, null)?.let {
-                MainHook.readyHook(it)
-            } ?: "not have the custom config".log()
-        } ?: "null: XSharedPreferences".log()
-    }
-
-
-    private fun getPref(path: String): XSharedPreferences? {
-        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, path)
-        return if (pref.file.canRead()) pref else null
-    }
-
 }

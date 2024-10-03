@@ -1,5 +1,7 @@
 <resources>
 
+    <string name="xposed_description">自定义hook</string>
+
     <!--config-->
     <string name="config_config_smali_to_config">smali转为配置</string>
     <string name="config_add_config">添加方法配置</string>

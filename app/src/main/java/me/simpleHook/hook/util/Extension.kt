@@ -5,10 +5,9 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import com.github.kyuubiran.ezxhelper.utils.hookReplace
 import com.github.kyuubiran.ezxhelper.utils.paramCount
-import de.robv.android.xposed.XposedBridge
+import io.github.qauxv.util.xpcompat.XposedBridge
 import me.simpleHook.constant.Constant
 import java.lang.reflect.Constructor
-import java.lang.reflect.Executable
 import java.lang.reflect.Method
 
 fun Method.hook(hookMode: Int, hooker: Hooker) {

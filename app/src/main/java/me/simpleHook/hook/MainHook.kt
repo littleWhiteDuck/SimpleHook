@@ -4,8 +4,8 @@ import android.app.AndroidAppHelper
 import android.content.Context
 import com.github.kyuubiran.ezxhelper.utils.*
 import com.google.gson.Gson
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.ExtensionConfig

@@ -5,8 +5,8 @@ import com.github.kyuubiran.ezxhelper.utils.findAllConstructors
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.findConstructor
 import com.github.kyuubiran.ezxhelper.utils.findMethod
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.bean.ConfigBean
 import me.simpleHook.bean.LogBean
 import me.simpleHook.constant.Constant

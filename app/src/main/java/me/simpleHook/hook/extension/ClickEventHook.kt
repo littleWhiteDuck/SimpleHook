@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import de.robv.android.xposed.XposedHelpers
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.LogBean
 import me.simpleHook.hook.language.tip

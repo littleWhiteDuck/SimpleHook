@@ -4,7 +4,7 @@ import android.provider.Settings.Global
 import android.provider.Settings.Secure
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import de.robv.android.xposed.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XC_MethodHook
 import me.simpleHook.bean.ExtensionConfig
 
 object ADBHook : BaseHook() {

@@ -6,7 +6,7 @@ import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import com.github.kyuubiran.ezxhelper.utils.paramCount
-import de.robv.android.xposed.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XC_MethodHook
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.DialogCancel
 import me.simpleHook.bean.ExtensionConfig

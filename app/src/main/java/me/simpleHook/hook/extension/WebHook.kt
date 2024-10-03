@@ -1,9 +1,9 @@
 package me.simpleHook.hook.extension
 
 import android.webkit.WebView
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedBridge
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ExtensionConfig

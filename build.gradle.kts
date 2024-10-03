@@ -28,6 +28,7 @@ allprojects {
         mavenCentral()
         maven("https://jitpack.io")
         maven("https://api.xposed.info/")
+        mavenLocal()
     }
 }
 

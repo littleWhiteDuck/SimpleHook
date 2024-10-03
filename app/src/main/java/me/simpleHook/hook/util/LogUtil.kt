@@ -3,7 +3,7 @@ package me.simpleHook.hook.util
 import android.net.Uri
 import android.os.Build.VERSION_CODES
 import androidx.core.content.contentValuesOf
-import de.robv.android.xposed.XposedHelpers
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.LogBean
