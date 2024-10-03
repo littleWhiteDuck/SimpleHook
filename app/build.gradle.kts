@@ -1,8 +1,12 @@
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Properties
+import java.util.Random
+import java.util.TimeZone
 
 val configFile = rootProject.file("sign.properties")
 val prop = Properties()
@@ -74,7 +78,7 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    buildToolsVersion = "33.0.1"
+    buildToolsVersion = "34.0.0"
     namespace = "me.simpleHook"
     productFlavors {
         create("root") {
@@ -144,6 +148,7 @@ android {
                 "intermediates",
                 "optimized_processed_res",
                 "${flavor}Release",
+                "optimize${flavor.uppercaseFirstChar()}ReleaseResources",
                 "resources-${flavor}-release-optimize.ap_")
             val optimized = File("${zip}.opt")
             val cmd = exec {
@@ -162,17 +167,17 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.12.0-alpha03")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("io.github.Rosemoe.sora-editor:editor:0.23.4")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // room
     val room_version = "2.6.1"
@@ -185,9 +190,9 @@ dependencies {
     //compileOnly("de.robv.android.xposed:api:82:sources")
     implementation("com.github.kyuubiran:EzXHelper:1.0.3")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    val nav_version = "2.7.7"
+    val nav_version = "2.8.2"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 
@@ -195,14 +200,14 @@ dependencies {
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
 
     //json
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     //splashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     //paging3
-    val pagingVersion = "3.2.1"
+    val pagingVersion = "3.3.2"
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
     implementation("androidx.room:room-paging:$room_version")
 
@@ -223,11 +228,11 @@ dependencies {
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
     //workmanager
-    val work_version = "2.9.0"
+    val work_version = "2.9.1"
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
     // webdav
-    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
+    implementation("com.github.thegrizzlylabs:sardine-android:0.9")
     //leakcanary
 //    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
     //glacne

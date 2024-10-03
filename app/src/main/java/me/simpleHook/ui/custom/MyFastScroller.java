@@ -26,12 +26,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -139,12 +139,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @AnimationState
     int mAnimationState = ANIMATION_STATE_OUT;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide(HIDE_DURATION_MS);
-        }
-    };
+    private final Runnable mHideRunnable = () -> hide(HIDE_DURATION_MS);
     private final RecyclerView.OnScrollListener
             mOnScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -238,7 +233,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
     }
 
     private boolean isLayoutRTL() {
-        return ViewCompat.getLayoutDirection(mRecyclerView) == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return mRecyclerView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     public boolean isDragging() {
@@ -262,6 +257,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
                 mShowHideAnimator.setStartDelay(0);
                 mShowHideAnimator.start();
                 break;
+            default:
         }
         if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(false);
     }
@@ -278,6 +274,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
                 mShowHideAnimator.setDuration(duration);
                 mShowHideAnimator.start();
                 break;
+            default:
         }
         if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(true);
     }
@@ -292,7 +289,7 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
     }
 
     @Override
-    public void onDrawOver(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
+    public void onDrawOver(@NonNull Canvas canvas, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         if (mRecyclerViewWidth != mRecyclerView.getWidth()
                 || mRecyclerViewHeight != mRecyclerView.getHeight()) {
             mRecyclerViewWidth = mRecyclerView.getWidth();
@@ -524,17 +521,17 @@ public class MyFastScroller extends RecyclerView.ItemDecoration implements Recyc
 
     @VisibleForTesting
     boolean isPointInsideVerticalThumb(float x, float y) {
-        return (isLayoutRTL() ? x <= mVerticalThumbWidth / 2
+        return (isLayoutRTL() ? x <= (float) mVerticalThumbWidth / 2
                 : x >= mRecyclerViewWidth - mVerticalThumbWidth)
-                && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2
-                && y <= mVerticalThumbCenterY + mVerticalThumbHeight / 2;
+                && y >= mVerticalThumbCenterY - (float) mVerticalThumbHeight / 2
+                && y <= mVerticalThumbCenterY + (float) mVerticalThumbHeight / 2;
     }
 
     @VisibleForTesting
     boolean isPointInsideHorizontalThumb(float x, float y) {
         return (y >= mRecyclerViewHeight - mHorizontalThumbHeight)
-                && x >= mHorizontalThumbCenterX - mHorizontalThumbWidth / 2
-                && x <= mHorizontalThumbCenterX + mHorizontalThumbWidth / 2;
+                && x >= mHorizontalThumbCenterX - (float) mHorizontalThumbWidth / 2
+                && x <= mHorizontalThumbCenterX + (float) mHorizontalThumbWidth / 2;
     }
 
     @VisibleForTesting
