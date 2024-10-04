@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.core.net.toUri
@@ -30,7 +29,6 @@ import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
 import me.simpleHook.extension.showPopup
 import me.simpleHook.lsposed.LSPosedHelper
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.fragment.HomeVBFragment
@@ -55,8 +53,6 @@ class MainActivity : BaseActivity(), IMenuProvider {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        enableEdgeToEdge()
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         initView()
         checkActive()
         checkUpdate()

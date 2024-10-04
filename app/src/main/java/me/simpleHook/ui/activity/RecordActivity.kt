@@ -37,7 +37,6 @@ import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.RecordAdapter
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
@@ -82,7 +81,6 @@ class RecordActivity : BaseActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         isType = intent.getStringExtra(KEY_PACKAGE_NAME) == null
         typeOrPackageName = if (isType) {
             intent.getStringExtra(KEY_TYPE) ?: throw NullPointerException("Type is null")

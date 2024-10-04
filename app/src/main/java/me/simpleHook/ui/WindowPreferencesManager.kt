@@ -35,6 +35,7 @@ class WindowPreferencesManager(private val context: Context) {
         val systemUiVisibility =
             ((if (edgeToEdgeEnabled) EDGE_TO_EDGE_FLAGS else View.SYSTEM_UI_FLAG_VISIBLE) or currentStatusBar or currentNavBar)
         decorView.systemUiVisibility = systemUiVisibility
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
     }
 
     private fun getNavBarColor(isEdgeToEdgeEnabled: Boolean): Int {

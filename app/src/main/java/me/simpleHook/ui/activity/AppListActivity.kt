@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
@@ -23,7 +22,6 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
 import me.simpleHook.databinding.ActivityAppListBinding
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.AppUtils
@@ -43,8 +41,6 @@ class AppListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAppListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        enableEdgeToEdge()
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isFromAssist = intent.getBooleanExtra("isFromAssist", false)

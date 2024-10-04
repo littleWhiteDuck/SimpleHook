@@ -50,7 +50,6 @@ import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showPopup
 import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.recyclerview.adapter.ConfigAdapter
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
@@ -114,7 +113,6 @@ class ConfigActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val bundle = intent.getBundleExtra("bundle")

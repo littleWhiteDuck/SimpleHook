@@ -28,7 +28,6 @@ class ExtensionActivity : BaseActivity() {
         binding = ActivityExtensionBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-//        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         val bundle =
             intent.getBundleExtra(KEY_CONFIG) ?: throw NullPointerException("Bundle is null")
         extensionConfig = BundleCompat.getParcelable(bundle, KEY_CONFIG)

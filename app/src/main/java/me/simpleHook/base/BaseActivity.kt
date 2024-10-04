@@ -38,6 +38,7 @@ import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.PrintLogAdapter
+import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FlavorUtils
@@ -96,6 +97,7 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
+        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         if (DynamicColors.isDynamicColorAvailable() && GlobalValue.sp.enableSystemAccent) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
