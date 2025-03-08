@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.bean.GuiseSignConfig
@@ -29,37 +28,43 @@ object SignatureHook : BaseHook() {
                     val items = LogUtil.getStackTrace()
                     val byteArray =
                         if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
-                        packInfo.signingInfo.apkContentsSigners[0].toByteArray()
-                    } else {
-                        @Suppress("DEPRECATION") packInfo.signatures[0].toByteArray()
-                    }
+                            packInfo.signingInfo!!.apkContentsSigners[0].toByteArray()
+                        } else {
+                            @Suppress("DEPRECATION") packInfo.signatures!![0].toByteArray()
+                        }
                     val md5 = ToolUtils.getDigest(byteArray)
                     val sha1 = ToolUtils.getDigest(byteArray, "SHA-1")
                     val sha256 = ToolUtils.getDigest(byteArray, "SHA-256")
-                    val list = listOf("Signature(MD5): $md5",
+                    val list = listOf(
+                        "Signature(MD5): $md5",
                         "Signature(SHA-1): $sha1",
-                        "Signature(SHA-256): $sha256")
+                        "Signature(SHA-256): $sha256"
+                    )
                     val logBean = LogBean("Signature", list + items, HookHelper.hostPackageName)
                     LogUtil.outLogMsg(logBean)
                 }
                 val signConfigStr = configBean.guiseSign.info
                 if (configBean.guiseSign.enable && signConfigStr.contains(packInfo.packageName) && signConfigStr.contains(
-                        "true")
+                        "true"
+                    )
                 ) {
                     if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
-                        val guiseSignConfigs = Json.decodeFromString<List<GuiseSignConfig>>(signConfigStr)
+                        val guiseSignConfigs =
+                            Json.decodeFromString<List<GuiseSignConfig>>(signConfigStr)
                         guiseSignConfigs.forEach { config ->
                             if (config.packageName == packInfo.packageName && config.enable) {
-                                packInfo.signingInfo.apkContentsSigners[0] = Signature(config.signData)
+                                packInfo.signingInfo!!.apkContentsSigners[0] =
+                                    Signature(config.signData)
                                 it.result = packInfo
                                 return@hookAfter
                             }
                         }
                     } else {
-                        val guiseSignConfigs = Json.decodeFromString<List<GuiseSignConfig>>(signConfigStr)
+                        val guiseSignConfigs =
+                            Json.decodeFromString<List<GuiseSignConfig>>(signConfigStr)
                         guiseSignConfigs.forEach { config ->
                             if (config.packageName == packInfo.packageName && config.enable) {
-                                packInfo.signatures[0] = Signature(config.signData)
+                                packInfo.signatures!![0] = Signature(config.signData)
                                 it.result = packInfo
                                 return@hookAfter
                             }

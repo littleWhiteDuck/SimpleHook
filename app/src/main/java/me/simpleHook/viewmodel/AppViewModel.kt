@@ -103,7 +103,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             versionName = packageInfo.versionName ?: "null",
             versionCode = packageInfo.verCode.toString(),
             installedTime = TimeUtil.getTime(packageInfo.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
-            targetApi = packageInfo.applicationInfo.targetSdkVersion
+            targetApi = packageInfo.applicationInfo?.targetSdkVersion ?: -1
         )
     }
 

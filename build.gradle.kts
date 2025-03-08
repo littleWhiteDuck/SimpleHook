@@ -1,6 +1,7 @@
 // Top-level(build file where you can add configuration options common to all sub-projects/modules.)
 buildscript {
 
+    val agpVersion by extra("8.7.3")
     repositories {
         /* maven("https://maven.aliyun.com/repository/public")
          maven("https://maven.aliyun.com/repository/google")*/
@@ -9,7 +10,7 @@ buildscript {
         maven("https://jitpack.io")
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.0")
+        classpath("com.android.tools.build:gradle:$agpVersion")
         val kotlinVersion = "2.0.20"
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
         classpath(kotlin("serialization", version = kotlinVersion))

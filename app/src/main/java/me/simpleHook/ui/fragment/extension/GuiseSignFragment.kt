@@ -273,7 +273,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     private fun addApp(appName: String, packageName: String) {
         val packInfo =
             GlobalValue.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-        appSignItems.add(AppInfo(appName, packageName, packInfo.signatures[0].toCharsString()))
+        appSignItems.add(AppInfo(appName, packageName, packInfo.signatures!![0].toCharsString()))
         notifyDataSetChanged(appSignItems.size)
         binding.tip.isVisible = false
     }

@@ -39,12 +39,12 @@ android {
             enableV3Signing = true
         }
     }
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         resourceConfigurations += setOf("zh_CN", "en", "zh_TW")
         applicationId = "me.simpleHook"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 35
         versionCode = verCode
         versionName = verName
         flavorDimensions += "default"
@@ -174,12 +174,12 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("io.github.Rosemoe.sora-editor:editor:0.23.4")
     testImplementation("junit:junit:4.13.2")
@@ -187,10 +187,10 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // room
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     // xposed
     compileOnly("de.robv.android.xposed:api:82")
@@ -201,9 +201,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    val nav_version = "2.8.2"
-    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    val navVersion = "2.8.8"
+    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
 
     //悬浮窗
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
@@ -216,9 +216,9 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     //paging3
-    val pagingVersion = "3.3.2"
+    val pagingVersion = "3.3.6"
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
-    implementation("androidx.room:room-paging:$room_version")
+    implementation("androidx.room:room-paging:$roomVersion")
 
     //glide
     val glideVersion = "4.16.0"
@@ -237,8 +237,8 @@ dependencies {
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
     //workmanager
-    val work_version = "2.9.1"
-    implementation("androidx.work:work-runtime-ktx:$work_version")
+    val workVersion = "2.10.0"
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
 
     // webdav, 0.9版修改了exists函数实现，响应头判断会出问题
     implementation("com.github.thegrizzlylabs:sardine-android:0.8")

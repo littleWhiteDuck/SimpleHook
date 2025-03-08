@@ -77,10 +77,10 @@ class MainActivity : BaseActivity(), IMenuProvider {
         viewModel.backupLocalWorkerID.observe(this) { id ->
             if (id != null) {
                 WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
-                    if (work.state == WorkInfo.State.FAILED) {
+                    if (work?.state == WorkInfo.State.FAILED) {
                         showPopup(getString(R.string.backup_tip_local_auto_backup_failed))
                     }
-                    when (work.state) {
+                    when (work?.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
                             WorkManager.getInstance(this).getWorkInfoByIdLiveData(id)
                                 .removeObservers(this)
@@ -94,10 +94,10 @@ class MainActivity : BaseActivity(), IMenuProvider {
         viewModel.backupCloudWorkerID.observe(this) { id ->
             if (id != null) {
                 WorkManager.getInstance(this).getWorkInfoByIdLiveData(id).observe(this) { work ->
-                    if (work.state == WorkInfo.State.FAILED) {
+                    if (work?.state == WorkInfo.State.FAILED) {
                         showPopup(getString(R.string.backup_tip_cloud_auto_backup_failed))
                     }
-                    when (work.state) {
+                    when (work?.state) {
                         WorkInfo.State.FAILED, WorkInfo.State.SUCCEEDED -> {
                             WorkManager.getInstance(this).getWorkInfoByIdLiveData(id)
                                 .removeObservers(this)
