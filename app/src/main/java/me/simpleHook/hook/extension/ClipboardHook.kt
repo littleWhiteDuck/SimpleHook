@@ -90,7 +90,7 @@ object ClipboardHook : BaseHook() {
         if (clipData != null) {
             for (i in 0 until clipData.itemCount) {
                 // exclude spaces between items
-                val clipDataItem = clipData.getItemAt(i);
+                val clipDataItem = clipData.getItemAt(i)
                 if (clipDataItem.text == null) {
                     clipDataItem.intent?.let { intent ->
                         stringBuilder.append(intent.toString())

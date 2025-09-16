@@ -10,7 +10,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation.findNavController
 import androidx.preference.PreferenceCategory
 import androidx.preference.SeekBarPreference
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment

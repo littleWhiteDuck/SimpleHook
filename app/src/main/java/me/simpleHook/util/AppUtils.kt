@@ -12,7 +12,7 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.extension.showToast
 import androidx.core.net.toUri
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "unused")
 object AppUtils {
 
     fun isAppInstalled(packageName: String): Boolean {

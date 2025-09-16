@@ -27,7 +27,7 @@ object ToastHook : BaseHook() {
                     XposedHelpers.getObjectField(toast, "mText")?.also {
                         list.add(tip.text + it)
                     }
-                } catch (e: NoSuchFieldError) {
+                } catch (_: NoSuchFieldError) {
                     "toast error1".log()
                     try {
                         XposedHelpers.getObjectField(toast, "mNextView")?.also {
@@ -38,7 +38,7 @@ object ToastHook : BaseHook() {
                                 list.add(tip.text + toastView.text.toString())
                             }
                         }
-                    } catch (e: NoSuchFieldError) {
+                    } catch (_: NoSuchFieldError) {
                         "toast error2".log()
                     }
                 }

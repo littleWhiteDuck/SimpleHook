@@ -19,7 +19,7 @@ object JsonUtil {
             JSONArray(json)
             true
         } else false
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 
@@ -28,7 +28,7 @@ object JsonUtil {
             JSONObject(json)
             true
         } else false
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 
@@ -79,6 +79,7 @@ object JsonUtil {
         return sb.toString()
     }
 
+    // TODO optimize
     private fun addIndentBlank(sb: StringBuilder, indent: Int) {
         for (i in 0 until indent) {
             sb.append('\t')

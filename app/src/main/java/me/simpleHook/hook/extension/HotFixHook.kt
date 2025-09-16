@@ -66,7 +66,7 @@ object HotFixHook : BaseHook() {
                 dexElementsField[originalPathListObject] = concatDexElementsObject
             }
 
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             "hot fix error".log()
         }
     }

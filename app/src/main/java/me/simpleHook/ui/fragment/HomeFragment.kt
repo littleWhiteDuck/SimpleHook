@@ -28,22 +28,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
+import me.simpleHook.constant.Constant
 import me.simpleHook.data.ConfigItem
 import me.simpleHook.data.CustomConfigItem
-import me.simpleHook.constant.Constant
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.showPopup
 import me.simpleHook.extension.showPopupWithCopyMsg
-import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.recyclerview.adapter.HomeAdapter
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
@@ -55,6 +52,7 @@ import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.SuUtil
 import me.simpleHook.util.ToolUtils
+import me.simpleHook.viewmodel.AppConfigViewModel
 import kotlin.math.min
 
 

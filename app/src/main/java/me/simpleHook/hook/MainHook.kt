@@ -26,6 +26,7 @@ import me.simpleHook.hook.util.Type.getDataTypeValue
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.LanguageUtils
 import org.json.JSONObject
+import androidx.core.content.edit
 
 
 object MainHook {
@@ -61,12 +62,10 @@ object MainHook {
                 }
             }
         } catch (e: Throwable) {
-            val configTemp = try {
+            val configTemp = runCatching {
                 val appConfig = Json.decodeFromString<AppConfig>(strConfig)
                 JsonUtil.formatJson(appConfig.configs)
-            } catch (e: Throwable) {
-                strConfig
-            }
+            }.getOrDefault(strConfig)
             LogUtil.outLog(
                 arrayListOf(
                     tip.errorType + tip.unknownError,
@@ -156,7 +155,7 @@ object MainHook {
         try {
             val hookObject = Gson().fromJson(values, hookClass)
             param.result = hookObject
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             hookReturnValue(values, param)
         }
     }
@@ -185,15 +184,15 @@ object MainHook {
                         val currentTime = System.currentTimeMillis() / 1000
                         if (currentTime - updateTime >= oldTime) {
                             val result = randomSeed.random(len)
-                            sp.edit().putString("random_$key", result).apply()
-                            sp.edit().putLong("time_$key", currentTime).apply()
+                            sp.edit { putString("random_$key", result) }
+                            sp.edit { putLong("time_$key", currentTime) }
                             param.result = result
                         } else {
                             param.result = oldRandom
                         }
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 param.result = targetValue
             }
         } else {

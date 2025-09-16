@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.simpleHook.compat
 
 import android.content.Context

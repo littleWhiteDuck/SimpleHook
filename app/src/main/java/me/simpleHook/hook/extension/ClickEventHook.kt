@@ -46,7 +46,7 @@ object ClickEventHook : BaseHook() {
                         HookHelper.hostPackageName
                     )
                 )
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "error: click".log()
             }
         }

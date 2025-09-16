@@ -31,16 +31,14 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.data.ConfigBean
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.viewmodel.AppConfigViewModel
+import me.simpleHook.data.ConfigBean
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.databinding.ActivityConfigBinding
@@ -62,6 +60,7 @@ import me.simpleHook.util.HookModeUtil
 import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.ToolUtils
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.CollectionViewModel
 import java.lang.reflect.Field
 import java.util.regex.Pattern
@@ -766,7 +765,7 @@ class ConfigActivity : BaseActivity() {
             JsonUtil.isJsonObject(string) -> {
                 try {
                     configBean = Json.decodeFromString<ConfigBean>(string)
-                } catch (e: java.lang.Exception) {
+                } catch (_: java.lang.Exception) {
                     showPopup(getString(R.string.config_tip_error_config_format))
                 }
                 configBean

@@ -12,14 +12,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.data.ConfigBean
 import me.simpleHook.constant.Constant
+import me.simpleHook.data.ConfigBean
+import me.simpleHook.extension.dp
+import me.simpleHook.extension.random
 import me.simpleHook.hook.util.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.HookModeUtil
-import me.simpleHook.extension.dp
-import me.simpleHook.extension.random
 import org.json.JSONObject
 
 class ConfigAdapter(
@@ -45,14 +45,18 @@ class ConfigAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val configView = if (isCollect) {
             ConfigItemView(parent.context).apply {
-                layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
                 radius = 0f
             }
         } else {
             ConfigItemView(parent.context).apply {
-                layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT).also {
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).also {
                     it.setMargins(5.dp, 5.dp, 5.dp, 0)
                 }
                 cardElevation = 2f.dp
@@ -96,29 +100,36 @@ class ConfigAdapter(
                 Constant.HOOK_BREAK -> {
                     val showText = "${methodConfig.methodName}(${methodConfig.params})"
                     val spannableString = SpannableString(showText).also {
-                        it.setSpan(StrikethroughSpan(),
+                        it.setSpan(
+                            StrikethroughSpan(),
                             0,
                             showText.length,
-                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
                     }
                     tvOtherName.text = spannableString
                 }
+
                 Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> {
                     val showText = "${methodConfig.fieldName} -> ${
                         transformValue(Type.getDataTypeValue(methodConfig.resultValues))
                     }"
                     tvOtherName.text = showText
                 }
+
                 Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS_RETURN -> {
                     val showText = "${methodConfig.methodName}(${methodConfig.params})"
                     val spannableString = SpannableString(showText).also {
-                        it.setSpan(StyleSpan(Typeface.ITALIC),
+                        it.setSpan(
+                            StyleSpan(Typeface.ITALIC),
                             0,
                             showText.length,
-                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
                     }
                     tvOtherName.text = spannableString
                 }
+
                 Constant.HOOK_PARAM -> {
                     if (methodConfig.params == "*" || methodConfig.resultValues == "") {
                         val showText =
@@ -145,13 +156,15 @@ class ConfigAdapter(
                     }
 
                 }
+
                 Constant.HOOK_RETURN -> {
                     val returnValue = Type.getDataTypeValue(methodConfig.resultValues)
                     val resultValue = if (returnValue is String) {
-                        try {
+                        runCatching {
                             val jsonObject = JSONObject(returnValue)
                             if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has(
-                                    "key")
+                                    "key"
+                                )
                             ) {
                                 val randomSeed = jsonObject.optString("random", "abcdefgh123456789")
                                 val len = jsonObject.optInt("length", 10)
@@ -159,9 +172,7 @@ class ConfigAdapter(
                             } else {
                                 transformValue(Type.getDataTypeValue(methodConfig.resultValues))
                             }
-                        } catch (e: Exception) {
-                            transformValue(Type.getDataTypeValue(methodConfig.resultValues))
-                        }
+                        }.getOrDefault(transformValue(Type.getDataTypeValue(methodConfig.resultValues)))
                     } else {
                         transformValue(Type.getDataTypeValue(methodConfig.resultValues))
                     }
@@ -169,6 +180,7 @@ class ConfigAdapter(
                         "${methodConfig.methodName}(${methodConfig.params}) -> $resultValue"
                     tvOtherName.text = showText
                 }
+
                 else -> {
                     tvOtherName.text = methodConfig.methodName.ifEmpty { methodConfig.fieldName }
                 }
@@ -182,10 +194,12 @@ class ConfigAdapter(
 
                 @Suppress("DEPRECATION")
                 val textColor = context.resources.getColor(R.color.config_tag_text_color)
-                it.setSpan(RoundBackgroundColorSpan(bgColor, textColor),
+                it.setSpan(
+                    RoundBackgroundColorSpan(bgColor, textColor),
                     0,
                     tipText.length,
-                    SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+                    SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                )
             }
             tip.text = span
 

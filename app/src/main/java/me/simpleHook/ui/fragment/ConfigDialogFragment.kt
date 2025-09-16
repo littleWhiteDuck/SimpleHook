@@ -15,19 +15,20 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.data.ConfigItem
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.viewmodel.AppConfigViewModel
+import me.simpleHook.data.ConfigItem
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.ImExportAdapter
 import me.simpleHook.ui.activity.MainActivity
-import me.simpleHook.util.*
+import me.simpleHook.util.JsHook
+import me.simpleHook.util.ToolUtils
+import me.simpleHook.util.WindowUtils
+import me.simpleHook.viewmodel.AppConfigViewModel
 
 class ConfigDialogFragment(
     private val configsList: List<ConfigItem>, private val mode: Int
