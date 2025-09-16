@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
-import me.simpleHook.bean.AppItem
+import me.simpleHook.data.AppItem
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.marquee
 import me.simpleHook.ui.view.applist.AppItemView

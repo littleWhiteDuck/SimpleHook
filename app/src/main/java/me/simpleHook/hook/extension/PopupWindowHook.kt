@@ -8,9 +8,9 @@ import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import com.github.kyuubiran.ezxhelper.utils.paramCount
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.DialogCancel
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.DialogCancel
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils

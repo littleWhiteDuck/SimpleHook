@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -18,6 +17,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
@@ -41,25 +40,29 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.JsonUtil
+import me.simpleHook.util.TimeUtil
+import me.simpleHook.viewmodel.RecordViewModel
 import java.io.FileOutputStream
 
 
 class RecordActivity : BaseActivity() {
-    private val appViewModel by viewModels<AppViewModel>()
+    private val recordViewModel by viewModels<RecordViewModel>()
     private lateinit var binding: ActivityRecordBinding
     private var isType = false
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
-            if (!it.read) appViewModel.updateRecord(it.copy(read = true))
+            if (!it.read) recordViewModel.updateRecord(it.copy(read = true))
             RecordDetailActivity.startActivity(this, it.packageName, it.id)
         }, deleteRecord = { printLog ->
-            appViewModel.deleteRecordById(printLog.id)
+            recordViewModel.deleteRecordById(printLog.id)
         }, markRecord = { printLog ->
-            appViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
+            recordViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
         }, onItemLongClick = { printLog ->
-            appViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
+            recordViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
         })
     }
     private val saveMarkedRecord =
@@ -110,15 +113,15 @@ class RecordActivity : BaseActivity() {
     private fun initBack() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (appViewModel.queryPattern.value.isEmpty()) {
+                if (recordViewModel.queryPattern.value.isEmpty()) {
                     onBackPressedCallback.isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 } else {
                     binding.swipeRefreshLayout.isRefreshing = true
-                    appViewModel.queryPattern.value = ""
+                    recordViewModel.queryPattern.value = ""
                     updateTitle()
                     lifecycleScope.launch {
-                        appViewModel.getRecord(typeOrPackageName,
+                        recordViewModel.getRecord(typeOrPackageName,
                             isType,
                             searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
                             recordAdapter.addOnPagesUpdatedListener {
@@ -172,13 +175,13 @@ class RecordActivity : BaseActivity() {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     (viewHolder as RecordAdapter.ViewHolder).id?.let {
-                        appViewModel.deleteRecordById(it)
+                        recordViewModel.deleteRecordById(it)
                     }
                 }
 
 
                 private val fontMetrics = Paint.FontMetrics()
-                private val swipeBackground = ColorDrawable(Color.LTGRAY)
+                private val swipeBackground = Color.LTGRAY.toDrawable()
                 private val swipeText = getString(R.string.record_item_swipe_delete_tip)
                 private val swipeTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).also {
                     it.color = Color.BLACK
@@ -252,7 +255,7 @@ class RecordActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch {
-            appViewModel.getRecord(typeOrPackageName,
+            recordViewModel.getRecord(typeOrPackageName,
                 isType,
                 searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
                 recordAdapter.addOnPagesUpdatedListener {
@@ -288,9 +291,9 @@ class RecordActivity : BaseActivity() {
                     message = getString(R.string.record_waring_dialog_message_delete_all),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteRecordByType(typeOrPackageName)
+                            recordViewModel.deleteRecordByType(typeOrPackageName)
                         } else {
-                            appViewModel.deleteRecordByPack(typeOrPackageName)
+                            recordViewModel.deleteRecordByPack(typeOrPackageName)
                         }
                         refreshData()
                     })
@@ -301,10 +304,10 @@ class RecordActivity : BaseActivity() {
                     message = getString(R.string.record_waring_dialog_message_read),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteReadRecordByType(type = typeOrPackageName,
+                            recordViewModel.deleteReadRecordByType(type = typeOrPackageName,
                                 read = true)
                         } else {
-                            appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
+                            recordViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
                                 read = true)
                         }
                         refreshData()
@@ -316,10 +319,10 @@ class RecordActivity : BaseActivity() {
                     message = getString(R.string.record_waring_dialog_message_unread),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteReadRecordByType(type = typeOrPackageName,
+                            recordViewModel.deleteReadRecordByType(type = typeOrPackageName,
                                 read = false)
                         } else {
-                            appViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
+                            recordViewModel.deleteReadRecordByPack(packageName = typeOrPackageName,
                                 read = false)
                         }
                         refreshData()
@@ -331,9 +334,9 @@ class RecordActivity : BaseActivity() {
                     message = getString(R.string.record_waring_dialog_message_marked),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
+                            recordViewModel.deleteMarkedRecordByType(isMark = true, typeOrPackageName)
                         } else {
-                            appViewModel.deleteMarkedRecordByPack(isMark = true, typeOrPackageName)
+                            recordViewModel.deleteMarkedRecordByPack(isMark = true, typeOrPackageName)
                         }
                         refreshData()
                     })
@@ -344,9 +347,9 @@ class RecordActivity : BaseActivity() {
                     message = getString(R.string.record_warning_dialog_message_unmarked),
                     okClick = {
                         if (isType) {
-                            appViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
+                            recordViewModel.deleteMarkedRecordByType(isMark = false, typeOrPackageName)
                         } else {
-                            appViewModel.deleteMarkedRecordByPack(isMark = false, typeOrPackageName)
+                            recordViewModel.deleteMarkedRecordByPack(isMark = false, typeOrPackageName)
                         }
                         refreshData()
                     })
@@ -373,7 +376,7 @@ class RecordActivity : BaseActivity() {
             val result = runCatching {
                 contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
                     val list =
-                        if (isType) appViewModel.getMarkedRecordByType(typeOrPackageName) else appViewModel.getMarkedRecordByPack(
+                        if (isType) recordViewModel.getMarkedRecordByType(typeOrPackageName) else recordViewModel.getMarkedRecordByPack(
                             typeOrPackageName
                         )
                     list.forEach {
@@ -402,16 +405,16 @@ class RecordActivity : BaseActivity() {
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
-                appViewModel.queryPattern.value = inputView.editText.text.toString().trim()
-                if (appViewModel.queryPattern.value.isNotEmpty()) {
-                    supportActionBar?.title = appViewModel.queryPattern.value
+                recordViewModel.queryPattern.value = inputView.editText.text.toString().trim()
+                if (recordViewModel.queryPattern.value.isNotEmpty()) {
+                    supportActionBar?.title = recordViewModel.queryPattern.value
                     supportActionBar?.subtitle = ""
                 }
                 val loadingDialog =
                     LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
                 lifecycleScope.launch {
-                    appViewModel.getRecord(typeOrPackageName, isType, searchMode).collectLatest {
+                    recordViewModel.getRecord(typeOrPackageName, isType, searchMode).collectLatest {
                         recordAdapter.addOnPagesUpdatedListener {
                             binding.swipeRefreshLayout.isRefreshing = false
                             loadingDialog.dismiss()

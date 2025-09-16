@@ -15,7 +15,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.bean.AppItem
+import me.simpleHook.data.AppItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
@@ -26,12 +26,12 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.AppListFragment
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.SPUtils
-import me.simpleHook.viewmodel.AppViewModel
+import me.simpleHook.viewmodel.AppListViewModel
 
 class AppListActivity : BaseActivity() {
     private lateinit var binding: ActivityAppListBinding
     private var isFromAssist = false
-    private val appViewModel by viewModels<AppViewModel>()
+    private val appListViewModel by viewModels<AppListViewModel>()
     private val sp by lazy { SPUtils(this) }
     private var currentSortSelected = 0
     private var currentSortReverse = false
@@ -51,7 +51,7 @@ class AppListActivity : BaseActivity() {
     private fun initData() {
         currentSortSelected = sp.appListSortSelected
         currentSortReverse = sp.appListReverse
-        appViewModel.fetchData(currentSortSelected, currentSortReverse)
+        appListViewModel.fetchData(currentSortSelected, currentSortReverse)
     }
 
     private fun initView() {
@@ -76,7 +76,7 @@ class AppListActivity : BaseActivity() {
                 }
             }.attach()
             swipeRefreshLayout.setOnRefreshListener {
-                appViewModel.fetchData(currentSortSelected, currentSortReverse)
+                appListViewModel.fetchData(currentSortSelected, currentSortReverse)
             }
             toolbar.setOnClickListener {
                 if (System.currentTimeMillis() - firstClickTime < CLICK_TIME) {
@@ -89,7 +89,7 @@ class AppListActivity : BaseActivity() {
                 }
             }
         }
-        appViewModel.selectAppItem.observe(this) {
+        appListViewModel.selectAppItem.observe(this) {
             if (it != null) clickResponse(it)
         }
 
@@ -123,8 +123,8 @@ class AppListActivity : BaseActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String): Boolean {
-                appViewModel.queryPattern.value = newText.trim()
-                appViewModel.filerAppItems(newText.trim())
+                appListViewModel.queryPattern.value = newText.trim()
+                appListViewModel.filerAppItems(newText.trim())
                 return true
             }
 
@@ -174,7 +174,7 @@ class AppListActivity : BaseActivity() {
             okClick = {
                 sp.appListSortSelected = currentSortSelected
                 sp.appListReverse = currentSortReverse
-                appViewModel.fetchData(currentSortSelected, currentSortReverse)
+                appListViewModel.fetchData(currentSortSelected, currentSortReverse)
                 binding.swipeRefreshLayout.isRefreshing = true
             },
             cancelText = getString(R.string.app_list_sort_dialog_cancel),

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import me.simpleHook.R
-import me.simpleHook.bean.CustomConfigItem
+import me.simpleHook.data.CustomConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.view.main.AppConfigView

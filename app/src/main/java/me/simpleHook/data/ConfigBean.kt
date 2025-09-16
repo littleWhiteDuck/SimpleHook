@@ -1,6 +1,4 @@
-package me.simpleHook.bean
-
-import androidx.annotation.Keep
+package me.simpleHook.data
 
 /**
  * 配置数据类
@@ -14,7 +12,6 @@ import androidx.annotation.Keep
  * @param hookPoint before/after
  */
 @kotlinx.serialization.Serializable
-@Keep
 data class ConfigBean(
     val mode: Int = 0,
     val className: String = "",

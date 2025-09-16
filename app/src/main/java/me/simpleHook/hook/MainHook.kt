@@ -7,9 +7,9 @@ import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ConfigBean
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.extension.random

@@ -15,11 +15,11 @@ object FastScrollerUtil {
         val resources = view.context.resources
         val verticalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
-        verticalThumbDrawable.setTint(view.context.getColorByAttr(com.google.android.material.R.attr.colorPrimary))
+        verticalThumbDrawable.setTint(view.context.getColorByAttr(android.R.attr.colorPrimary))
         val verticalTrackDrawable: Drawable = resources.getDrawable(R.drawable.line_drawable, null)
         val horizontalThumbDrawable =
             resources.getDrawable(R.drawable.thumb_drawable, null) as StateListDrawable
-        horizontalThumbDrawable.setTint(view.context.getColorByAttr(com.google.android.material.R.attr.colorPrimary))
+        horizontalThumbDrawable.setTint(view.context.getColorByAttr(android.R.attr.colorPrimary))
         val horizontalTrackDrawable: Drawable =
             resources.getDrawable(R.drawable.line_drawable, null)
         return MyFastScroller(

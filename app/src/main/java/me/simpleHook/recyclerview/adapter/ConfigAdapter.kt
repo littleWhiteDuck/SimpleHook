@@ -12,14 +12,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
-import me.simpleHook.bean.ConfigBean
+import me.simpleHook.data.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
 import me.simpleHook.util.HookModeUtil
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.marquee
 import me.simpleHook.extension.random
 import org.json.JSONObject
 

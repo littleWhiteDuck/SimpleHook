@@ -51,6 +51,7 @@ fun List<Method>.hook(hookBefore: Boolean, hooker: Hooker) {
 }
 
 fun Method.isSearchMethod(params: String): Boolean {
+    this.parameterTypes
     val methodParams = params.split(",")
     val realSize = if (params == "") 0 else methodParams.size
     if (realSize != paramCount) return false

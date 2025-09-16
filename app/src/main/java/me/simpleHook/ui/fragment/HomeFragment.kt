@@ -33,10 +33,10 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
-import me.simpleHook.bean.ConfigItem
-import me.simpleHook.bean.CustomConfigItem
+import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.CustomConfigItem
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
@@ -61,16 +61,17 @@ import kotlin.math.min
 class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollListener {
 
     private var fabDistance = 0
-    private val viewModel: AppViewModel by activityViewModels()
+    private val viewModel: AppConfigViewModel by activityViewModels()
     private var filterConfigs: List<CustomConfigItem> = ArrayList()
     private var tempConfigs = ArrayList<CustomConfigItem>()
     private lateinit var mContext: Context
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
-        HomeAdapter(menuListener = { appConfig, menu ->
-            onItemCreateContextMenu(appConfig, menu)
-        },
+        HomeAdapter(
+            menuListener = { appConfig, menu ->
+                onItemCreateContextMenu(appConfig, menu)
+            },
             onClick = { appConfig, mode ->
                 onItemClick(mode, appConfig)
             },
@@ -93,11 +94,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
-            if (it.isEmpty()) {
-                binding.emptyTip.visibility = View.VISIBLE
-            } else {
-                binding.emptyTip.visibility = View.GONE
-            }
+            binding.emptyTip.isVisible = it.isEmpty()
             val tempConfigs = ArrayList<CustomConfigItem>()
             it.forEach { appConfig ->
                 tempConfigs.add(CustomConfigItem(appConfig))
@@ -105,8 +102,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
             filterConfigs = tempConfigs
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(filterConfigs)
-                if (binding.progressBar2.visibility != View.GONE) binding.progressBar2.visibility =
-                    View.GONE
+                binding.progressBar.hide()
             } else {
                 toFilterData(currentPattern)
             }
@@ -181,31 +177,28 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private fun deleteConfig(appConfig: AppConfig) {
         if (configSystem.isEnableDelete(appConfig.packageName)) {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.deleteConfigs(appConfig)
-                configSystem.deleteCustomConfig(appConfig.packageName)
-                Snackbar.make(
-                    binding.fab,
-                    getString(R.string.main_home_delete_config_tip),
-                    Snackbar.LENGTH_LONG
-                ).apply {
-                    anchorView = bottomNavigationView
-                }.addCallback(object : Snackbar.Callback() {
-                    override fun onShown(sb: Snackbar?) {
-                        super.onShown(sb)
-                        if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
-                            DecelerateInterpolator(1.5f)
-                    }
+            viewModel.deleteConfigs(appConfig)
+            Snackbar.make(
+                binding.fab,
+                getString(R.string.main_home_delete_config_tip),
+                Snackbar.LENGTH_LONG
+            ).apply {
+                anchorView = bottomNavigationView
+            }.addCallback(object : Snackbar.Callback() {
+                override fun onShown(sb: Snackbar?) {
+                    super.onShown(sb)
+                    if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
+                        DecelerateInterpolator(1.5f)
+                }
 
-                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                        super.onDismissed(transientBottomBar, event)
-                        if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
-                            DecelerateInterpolator(1.5f)
-                    }
-                }).setAction(getString(R.string.main_home_undo_delete_config)) {
-                    saveConfig(appConfig)
-                }.show()
-            }
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
+                        DecelerateInterpolator(1.5f)
+                }
+            }).setAction(getString(R.string.main_home_undo_delete_config)) {
+                saveConfig(appConfig)
+            }.show()
         } else {
             requirePermission(appConfig.packageName)
         }
@@ -284,7 +277,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
             fabDistance = bottomMargin + binding.fab.height * 2
             windowInsets
         }
-        binding.apply {
+        with(binding) {
             addConfig.setOnClickListener { toAddConfig(null) }
             importConfigsFromPaste.setOnClickListener {
                 ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
@@ -294,18 +287,14 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                 showInternetImportConfigDialog()
             }
             sortDone.setOnClickListener {
-                binding.progressBar2.isVisible = true
-                binding.sortDone.isVisible = false
-                binding.fab.isVisible = true
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    val appConfigs = ArrayList<AppConfig>()
-                    tempConfigs.forEach {
-                        appConfigs.add(it.appConfig)
-                    }
-                    viewModel.updateConfigs(*appConfigs.toTypedArray())
-                    isDrag = false
-                }
-
+                progressBar.isVisible = true
+                sortDone.isVisible = false
+                fab.isVisible = true
+                viewModel.updateConfigs(
+                    *tempConfigs.map { it.appConfig }.toTypedArray(),
+                    needWriteToFile = false
+                )
+                isDrag = false
             }
         }
     }
@@ -403,9 +392,6 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         if (configSystem.isEnableSave(appConfig.packageName)) {
             appConfig.enable = isChecked
             viewModel.updateConfigs(appConfig)
-            LSPosedHelper.changeScope(appConfig.packageName, isChecked)
-            val configStr = Json.encodeToString(appConfig)
-            configSystem.saveCustomConfig(appConfig.packageName, configStr)
         } else {
             requirePermission(appConfig.packageName)
         }
@@ -413,11 +399,9 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private fun saveConfig(appConfig: AppConfig) {
         if (configSystem.isEnableSave(appConfig.packageName)) {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.insertConfigs(appConfig)
-                val configStr = Json.encodeToString(appConfig)
-                configSystem.saveCustomConfig(appConfig.packageName, configStr)
-            }
+            viewModel.insertConfigs(appConfig)
+            /*  val configStr = Json.encodeToString(appConfig)
+              configSystem.saveCustomConfig(appConfig.packageName, configStr)*/
         } else {
             requirePermission(appConfig.packageName)
         }

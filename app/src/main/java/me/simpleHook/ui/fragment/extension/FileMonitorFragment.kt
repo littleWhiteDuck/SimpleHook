@@ -14,7 +14,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.bean.FileMonitorConfig
+import me.simpleHook.data.FileMonitorConfig
 import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog

@@ -4,9 +4,9 @@ import android.app.Application
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.Exit
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.Exit
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.hostPackageName
 import me.simpleHook.hook.util.LogUtil.outLogMsg

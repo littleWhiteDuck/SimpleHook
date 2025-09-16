@@ -9,6 +9,7 @@ import me.simpleHook.compat.DocumentCompat.generateAppUri
 import me.simpleHook.compat.DocumentCompat.getDocumentFile
 import me.simpleHook.compat.DocumentCompat.isChildExists
 import me.simpleHook.constant.Constant
+import androidx.core.net.toUri
 
 object DocumentTUtils {
 
@@ -17,7 +18,7 @@ object DocumentTUtils {
         val baseString =
             "${Constant.ANDROID_DATA_URI}%2F$packageName/document/primary%3AAndroid%2Fdata%2F$packageName"
         val path = filePath.replace(Constant.ANDROID_DATA_PATH + packageName, "")
-        return Uri.parse(baseString + path.replace("/", "%2F"))
+        return (baseString + path.replace("/", "%2F")).toUri()
     }
 
 
@@ -45,7 +46,7 @@ object DocumentTUtils {
     ): Boolean {
         return runCatching {
             val paths = "simpleHook/config".split("/")
-            val rootUri = Uri.parse(changeToUri(Constant.ANDROID_DATA_PATH + packageName))
+            val rootUri = changeToUri(Constant.ANDROID_DATA_PATH + packageName).toUri()
             var documentFile = DocumentFile.fromTreeUri(context, rootUri)
             for (i in paths.indices) {
                 if (paths[i].isEmpty()) continue

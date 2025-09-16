@@ -6,9 +6,9 @@ import com.github.kyuubiran.ezxhelper.utils.getObjectOrNullAs
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.paramCount
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.FileMonitorConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.FileMonitorConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil

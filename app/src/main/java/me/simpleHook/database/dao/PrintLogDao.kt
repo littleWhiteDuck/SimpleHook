@@ -6,7 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import me.simpleHook.bean.Record
+import me.simpleHook.data.Record
 import me.simpleHook.database.entity.PrintLog
 
 @Dao

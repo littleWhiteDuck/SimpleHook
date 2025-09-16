@@ -1,6 +1,6 @@
 package me.simpleHook.hook.extension
 
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.util.LanguageUtils
 
 

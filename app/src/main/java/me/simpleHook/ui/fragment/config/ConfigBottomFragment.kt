@@ -9,7 +9,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomFragment
-import me.simpleHook.bean.ConfigBean
+import me.simpleHook.data.ConfigBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState

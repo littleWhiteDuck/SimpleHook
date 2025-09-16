@@ -5,7 +5,7 @@ import android.net.Uri
 import android.provider.ContactsContract
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 
 object ContactHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {

@@ -7,15 +7,13 @@ import android.view.MenuItem
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreferenceCompat
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.bean.RecordConfig
+import me.simpleHook.data.RecordConfig
 import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
@@ -23,7 +21,7 @@ import me.simpleHook.viewmodel.ExViewModel
 class RecordSettingsFragment : BasePreferenceFragment() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+        requireActivity().findNavController(R.id.nav_host_fragment)
     }
     private lateinit var tempConfig: RecordConfig
 

@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.simpleHook.bean.AppItem
+import me.simpleHook.data.AppItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
@@ -20,7 +20,8 @@ import me.simpleHook.extension.verCode
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.TimeUtil
 
-class AppViewModel(application: Application) : AndroidViewModel(application) {
+class AppListViewModel(application: Application) : AndroidViewModel(application) {
+
     private val _userApps = MutableLiveData<List<AppItem>>()
     private val _systemApps = MutableLiveData<List<AppItem>>()
 

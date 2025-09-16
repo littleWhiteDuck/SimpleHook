@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomViewFragment
-import me.simpleHook.bean.ConfigBean
+import me.simpleHook.data.ConfigBean
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.delegate.CollectionEnviDelegate

@@ -6,8 +6,8 @@ import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil
 

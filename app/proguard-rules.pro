@@ -19,7 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--repackageclasses "littleWhiteDuck"
+#-repackageclasses "littleWhiteDuck"
 
 #指定外部模糊字典
 -obfuscationdictionary ./proguard-keys.txt
@@ -99,3 +99,26 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLParameters
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
+
+
+
+-keepattributes InnerClasses, Signature, RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
+
+-if @kotlinx.serialization.Serializable class *
+-keepclassmembers class <1> {
+    <fields>;
+    <init>(...);
+}
+
+-keepclassmembers class *$$serializer {
+    static * INSTANCE;
+}
+
+-keepnames class *$$serializer
+
+-keep class kotlinx.serialization.** { *; }
+-dontnote kotlinx.serialization.**
+
+-keep class * extends kotlinx.serialization.Polymorphic { *; }
+
+-keep class kotlinx.serialization.json.** { *; }

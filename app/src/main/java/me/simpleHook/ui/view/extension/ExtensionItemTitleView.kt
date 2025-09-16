@@ -11,7 +11,7 @@ import me.simpleHook.extension.getColorByAttr
 class ExtensionItemTitleView(context: Context) : AppCompatTextView(context) {
     init {
         setPadding(0, 8.dp, 0, 8.dp)
-        setTextColor(context.getColorByAttr(com.google.android.material.R.attr.colorPrimary))
+        setTextColor(context.getColorByAttr(android.R.attr.colorPrimary))
         textSize = 4.5f.dp
         layoutParams = ViewGroup.MarginLayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT

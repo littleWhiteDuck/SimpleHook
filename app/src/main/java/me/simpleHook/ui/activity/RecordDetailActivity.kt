@@ -19,9 +19,8 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.bean.IntentBean
-import me.simpleHook.bean.LogBean
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.data.IntentBean
+import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
@@ -32,11 +31,12 @@ import me.simpleHook.util.JsonUtil
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.ThemeModeUtil
 import me.simpleHook.util.ToolUtils
+import me.simpleHook.viewmodel.RecordViewModel
 
 
 class RecordDetailActivity : BaseActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
-    private val appViewModel by viewModels<AppViewModel>()
+    private val recordViewModel by viewModels<RecordViewModel>()
     private var currentText = ""
     private var rawData = ""
     private var cryptResult = ""
@@ -64,13 +64,14 @@ class RecordDetailActivity : BaseActivity() {
     private fun initView() {
         binding.editor.colorScheme =
             if (ThemeModeUtil.isDarkMode()) SchemeDarcula() else EditorColorScheme()
+        binding.editor.setTextSize(8f)
         binding.progressBar.show()
     }
 
     private fun initData() {
         lifecycleScope.launch(Dispatchers.IO) {
             val recordId = intent.getIntExtra(KEY_RECORD_ID, -1)
-            printLog = appViewModel.getRecordByID(recordId)
+            printLog = recordViewModel.getRecordByID(recordId)
             val logBean = Json.decodeFromString<LogBean>(printLog.log)
             val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
             if (logBean.type.equals("intent", ignoreCase = true)) {

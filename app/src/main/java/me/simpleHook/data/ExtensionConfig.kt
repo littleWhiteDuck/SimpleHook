@@ -1,9 +1,6 @@
-package me.simpleHook.bean
-
-import androidx.annotation.Keep
+package me.simpleHook.data
 
 @kotlinx.serialization.Serializable
-@Keep
 data class ExtensionConfig(
     var all: Boolean = false,
     var dialog: Boolean = false,
@@ -39,28 +36,24 @@ data class ExtensionConfig(
 )
 
 @kotlinx.serialization.Serializable
-@Keep
 data class ExtensionItemConfig(
     var enable: Boolean = false, var info: String = ""
 )
 
 
 @kotlinx.serialization.Serializable
-@Keep
 data class RecordConfig(
     var enableStack: Boolean = true,
     var enableBase64: Boolean = false
 )
 
 @kotlinx.serialization.Serializable
-@Keep
 data class GuiseSignConfig(
     val packageName: String, val signData: String, val enable: Boolean = false
 )
 
 
 @kotlinx.serialization.Serializable
-@Keep
 data class ClipboardConfig(
     var record: Boolean = false,
     var read: Boolean = false,
@@ -69,7 +62,6 @@ data class ClipboardConfig(
 )
 
 @kotlinx.serialization.Serializable
-@Keep
 data class FileMonitorConfig(
     var createFile: Boolean = false,
     var deleteFile: Boolean = false,
@@ -80,7 +72,6 @@ data class FileMonitorConfig(
 )
 
 @kotlinx.serialization.Serializable
-@Keep
 data class DialogCancel(
     var keywordEnable: Boolean = false,
     var keywords: String = "[]",
@@ -90,7 +81,6 @@ data class DialogCancel(
 
 
 @kotlinx.serialization.Serializable
-@Keep
 data class Exit(
     var finish: Boolean = false,
     var exit: Boolean = false,

@@ -4,7 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 
 object SensorMangerHook : BaseHook() {
     private val sensorTypes =

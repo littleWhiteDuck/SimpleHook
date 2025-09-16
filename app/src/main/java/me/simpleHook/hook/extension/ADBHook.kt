@@ -5,7 +5,7 @@ import android.provider.Settings.Secure
 import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import io.github.qauxv.util.xpcompat.XC_MethodHook
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 
 object ADBHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {

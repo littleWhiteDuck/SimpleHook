@@ -3,7 +3,7 @@ package me.simpleHook.recyclerview.delegate
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.drakeet.multitype.ViewDelegate
-import me.simpleHook.bean.RecordShowPack
+import me.simpleHook.data.RecordShowPack
 import me.simpleHook.ui.view.record.RecordPackItemView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.IconHelper

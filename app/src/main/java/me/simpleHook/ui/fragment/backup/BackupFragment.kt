@@ -28,7 +28,7 @@ import kotlinx.serialization.json.decodeFromStream
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.CollectionEntity
@@ -43,7 +43,7 @@ import java.util.zip.ZipInputStream
 
 class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
-    private val appViewModel by viewModels<AppViewModel>()
+    private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val collViewModel by viewModels<CollectionViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
@@ -272,8 +272,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 collections.forEach {
                     it.id = 0
                 }
-                appViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
+                appConfigViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
                 collViewModel.insertCollections(*collections.toTypedArray())
             }
         }.onSuccess {
@@ -321,8 +321,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                 collections.forEach {
                     it.id = 0
                 }
-                appViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
+                appConfigViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
                 collViewModel.insertCollections(*collections.toTypedArray())
 
             }
@@ -397,7 +397,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun selectBackupPath() {
-        startActivityForData.launch(Uri.parse("content://com.android.externalstorage.documents/tree/primary%3ADocuments"))
+        startActivityForData.launch("content://com.android.externalstorage.documents/tree/primary%3ADocuments".toUri())
     }
 
 }

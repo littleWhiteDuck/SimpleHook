@@ -20,7 +20,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.bean.ClipboardConfig
+import me.simpleHook.data.ClipboardConfig
 import me.simpleHook.databinding.LayoutInputKeywordBinding
 import me.simpleHook.ui.custom.ChipPreference
 import me.simpleHook.ui.custom.MaterialSwitchPreference

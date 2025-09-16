@@ -6,7 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,21 +22,18 @@ import com.drakeet.multitype.MultiTypeAdapter
 import com.drakeet.multitype.ViewDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
-import me.simpleHook.bean.ExtensionConfig
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.databinding.FragmentExtensionManagerBinding
 import me.simpleHook.extension.dp
-import me.simpleHook.extension.showPopup
 import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.extension.snack
 import me.simpleHook.recyclerview.adapter.DividerItemDecoration
@@ -46,7 +45,13 @@ import me.simpleHook.ui.view.extension.ExtensionItemTitleView
 import me.simpleHook.ui.view.extension.SelectItemView
 import me.simpleHook.ui.view.extension.SubNextItemView
 import me.simpleHook.ui.view.extension.SubSelectItemView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FileUtils
+import me.simpleHook.util.FlavorUtils
+import me.simpleHook.util.OSUtils
+import me.simpleHook.util.PermissionUtils
+import me.simpleHook.util.SuUtil
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.ExViewModel
 
 
@@ -57,7 +62,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     }
     private val exViewModel by activityViewModels<ExViewModel>()
     private var editMode: Boolean = true
-    private val appViewModel by viewModels<AppViewModel>()
+    private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val items = ArrayList<Any>()
     private var configBean: ExtensionConfig = ExtensionConfig()
     private var tempConfigStr = ""
@@ -96,7 +101,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 val isInstalled =
-                    AppUtils.isAppInstalled(requireContext(), extensionConfig.packageName)
+                    AppUtils.isAppInstalled(extensionConfig.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
                 menu.findItem(R.id.menu_open_float).isChecked = GlobalValue.sp.startFloat
                 menu.findItem(R.id.menu_open_float).setOnMenuItemClickListener {
@@ -256,9 +261,9 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         extensionConfig.config = config
         extensionConfig.allSwitch = configBean.all
         if (editMode) {
-            appViewModel.updateAssistConfigs(extensionConfig)
+            appConfigViewModel.updateAssistConfigs(extensionConfig)
         } else {
-            appViewModel.insertAssistConfigs(extensionConfig)
+            appConfigViewModel.insertAssistConfigs(extensionConfig)
         }
         if (extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
             saveConfig(extensionConfig.packageName, config)
@@ -664,7 +669,7 @@ data class ExtensionSubNextItem(
 class ManagerItemViewDelegate(val onClick: (tag: String, checked: Boolean) -> Unit) :
     ViewDelegate<ExtensionItem, SelectItemView>() {
     override fun onBindView(view: SelectItemView, item: ExtensionItem) {
-        view.apply {
+        with(view) {
             title.text = item.title
             desc.text = item.desc
             switch.isChecked = item.checked
@@ -686,7 +691,7 @@ class ManagerSubItemViewDelegate(
     val onClick: (tag: String, checked: Boolean) -> Unit, val onSubClick: (tag: String) -> Unit
 ) : ViewDelegate<ExtensionSubItem, SubSelectItemView>() {
     override fun onBindView(view: SubSelectItemView, item: ExtensionSubItem) {
-        view.apply {
+        with(view) {
             containerView.title.text = item.title
             containerView.desc.text = item.desc
             switch.isChecked = item.checked
@@ -711,7 +716,7 @@ class ManagerSubNextItemViewDelegate(
     val onSubClick: (tag: String) -> Unit
 ) : ViewDelegate<ExtensionSubNextItem, SubNextItemView>() {
     override fun onBindView(view: SubNextItemView, item: ExtensionSubNextItem) {
-        view.apply {
+        with(view) {
             title.text = item.title
             desc.text = item.desc
             setOnClickListener {

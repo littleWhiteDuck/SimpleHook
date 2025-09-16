@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.activity.ExtensionActivity
@@ -20,7 +20,7 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
 
     private val modelList = ArrayList<AssistConfig>()
 
-    private val viewModel by viewModels<AppViewModel>()
+    private val viewModel by viewModels<AppConfigViewModel>()
 
     private val adapter by lazy {
         ModelAdapter { position, mode ->

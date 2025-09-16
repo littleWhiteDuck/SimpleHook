@@ -1,4 +1,4 @@
-package me.simpleHook.bean
+package me.simpleHook.data
 
 import me.simpleHook.database.entity.AppConfig
 

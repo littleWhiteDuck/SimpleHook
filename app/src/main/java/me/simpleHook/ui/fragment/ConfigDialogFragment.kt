@@ -18,10 +18,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.bean.ConfigItem
+import me.simpleHook.data.ConfigItem
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.extension.showPopup
@@ -34,7 +34,7 @@ class ConfigDialogFragment(
 ) : DialogFragment() {
     private var _binding: FragmentConfigImExportBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<AppViewModel>()
+    private val viewModel by activityViewModels<AppConfigViewModel>()
     private val mAdapter by lazy {
         ImExportAdapter { checked: Boolean, position: Int ->
             onCheckedChange(checked, position)

@@ -36,11 +36,11 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.bean.ConfigBean
+import me.simpleHook.data.ConfigBean
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.databinding.ActivityConfigBinding
@@ -82,7 +82,7 @@ class ConfigActivity : BaseActivity() {
     private var appConfig: AppConfig? = null
     private var tempPackageName = ""
     private val sp by lazy { SPUtils(this) }
-    private val appViewModel by viewModels<AppViewModel>()
+    private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val mAdapter by lazy {
         ConfigAdapter({ position -> onClick(position) },
             { position, menu -> onItemCreateContextMenu(position, menu) },
@@ -625,9 +625,9 @@ class ConfigActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             val appConfig = getAppConfig()
             if (modify) {
-                appViewModel.updateConfigs(appConfig)
+                appConfigViewModel.updateConfigs(appConfig)
             } else {
-                appViewModel.insertConfigs(appConfig)
+                appConfigViewModel.insertConfigs(appConfig)
             }
             val configStr = Json.encodeToString(appConfig)
             saveConfig(appConfig.packageName, configStr)

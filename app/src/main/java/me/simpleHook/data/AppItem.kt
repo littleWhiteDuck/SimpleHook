@@ -1,4 +1,4 @@
-package me.simpleHook.bean
+package me.simpleHook.data
 
 /**
  * 此类用于appList中的显示

@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getObjectString
 import me.simpleHook.hook.util.LogUtil

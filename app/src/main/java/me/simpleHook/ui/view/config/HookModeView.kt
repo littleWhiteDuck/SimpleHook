@@ -11,8 +11,8 @@ import me.simpleHook.extension.getColorByAttr
 class HookModeView(context: Context) : MaterialCardView(context) {
     val title = AppCompatTextView(context).apply {
         layoutParams = LayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.WRAP_CONTENT
         )
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
         gravity = Gravity.CENTER
@@ -22,10 +22,10 @@ class HookModeView(context: Context) : MaterialCardView(context) {
         addView(title)
         setContentPadding(10.dp, 10.dp, 10.dp, 10.dp)
         strokeWidth = 0
-        strokeColor = context.getColorByAttr(com.google.android.material.R.attr.colorPrimary)
+        strokeColor = context.getColorByAttr(android.R.attr.colorPrimary)
         layoutParams = MarginLayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.WRAP_CONTENT
         ).apply {
             setMargins(5.dp, 5.dp, 5.dp, 0)
         }

@@ -33,7 +33,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseVBFragment
-import me.simpleHook.bean.GuiseSignConfig
+import me.simpleHook.data.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast

@@ -1,8 +1,7 @@
 package me.simpleHook.util
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ConfigItem
+import me.simpleHook.data.ConfigItem
 import me.simpleHook.database.entity.AppConfig
 import org.json.JSONArray
 import org.json.JSONObject

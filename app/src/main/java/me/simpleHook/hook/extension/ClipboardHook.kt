@@ -5,12 +5,10 @@ import android.content.ClipboardManager
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ClipboardConfig
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
+import me.simpleHook.data.ClipboardConfig
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.LogUtil

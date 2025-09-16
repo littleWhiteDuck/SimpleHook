@@ -1,10 +1,9 @@
 package me.simpleHook.util
 
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ConfigBean
-import me.simpleHook.bean.ConfigItem
+import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.ConfigItem
 import me.simpleHook.constant.Constant.HOOK_BREAK
 import me.simpleHook.constant.Constant.HOOK_FIELD
 import me.simpleHook.constant.Constant.HOOK_PARAM

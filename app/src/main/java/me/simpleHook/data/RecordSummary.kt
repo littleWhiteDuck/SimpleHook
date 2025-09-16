@@ -1,4 +1,4 @@
-package me.simpleHook.bean
+package me.simpleHook.data
 
 data class RecordShowPack(val packageName: String, val count: Int = 0)
 

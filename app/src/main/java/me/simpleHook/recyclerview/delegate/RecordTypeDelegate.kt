@@ -2,7 +2,7 @@ package me.simpleHook.recyclerview.delegate
 
 import android.content.Context
 import com.drakeet.multitype.ViewDelegate
-import me.simpleHook.bean.RecordShowType
+import me.simpleHook.data.RecordShowType
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordTypeItemView
 import me.simpleHook.util.IconHelper

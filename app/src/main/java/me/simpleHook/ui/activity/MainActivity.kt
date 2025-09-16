@@ -1,7 +1,6 @@
 package me.simpleHook.ui.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -23,7 +22,7 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.base.IMenuProvider
 import me.simpleHook.constant.Constant
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
@@ -46,7 +45,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
     private lateinit var binding: ActivityMainBinding
     private val sp by lazy { SPUtils(this) }
     private val isActive by lazy { isModuleLive() }
-    private val viewModel by viewModels<AppViewModel>()
+    private val viewModel by viewModels<AppConfigViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -179,7 +178,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
                     okClick = {
                         val intent = Intent(Intent.ACTION_VIEW).also {
                             it.data =
-                                Uri.parse("https://github.com/littleWhiteDuck/SimpleHook/releases/latest")
+                                "https://github.com/littleWhiteDuck/SimpleHook/releases/latest".toUri()
                         }
                         startActivity(intent)
                     },

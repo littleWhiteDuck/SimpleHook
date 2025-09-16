@@ -34,7 +34,7 @@ import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
@@ -56,7 +56,7 @@ import kotlin.math.min
 
 class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
-    private val appViewModel by activityViewModels<AppViewModel>()
+    private val appConfigViewModel by activityViewModels<AppConfigViewModel>()
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
@@ -84,7 +84,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
                 if (currentModel == -1) {
-                    appViewModel.insertAssistConfigs(AssistConfig(appName = appName,
+                    appConfigViewModel.insertAssistConfigs(AssistConfig(appName = appName,
                         packageName = packageName))
                 } else {
                     val modelConfig = modelList[currentModel]
@@ -117,7 +117,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
 
     private fun initData() {
-        appViewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
+        appConfigViewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
             modelList.clear()
             val showList = mutableListOf<AssistConfig>()
             for (assist in it) {
@@ -215,7 +215,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
         if (configSystem.isEnableDelete(assistConfig.packageName)) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 LSPosedHelper.changeScope(assistConfig.packageName, false)
-                appViewModel.deleteAssistConfigs(assistConfig)
+                appConfigViewModel.deleteAssistConfigs(assistConfig)
                 configSystem.deleteExConfig(assistConfig.packageName)
             }
             Snackbar.make(root.addConfig,
@@ -244,7 +244,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
         if (configSystem.isEnableSave(assistConfig.packageName)) {
             lifecycleScope.launch(Dispatchers.IO) {
                 LSPosedHelper.changeScope(assistConfig.packageName, true)
-                appViewModel.insertAssistConfigs(assistConfig)
+                appConfigViewModel.insertAssistConfigs(assistConfig)
                 configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
             }
         } else {

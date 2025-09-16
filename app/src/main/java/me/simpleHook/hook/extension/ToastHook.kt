@@ -6,8 +6,8 @@ import android.widget.TextView
 import android.widget.Toast
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.HookUtils.getAllTextView

@@ -2,7 +2,7 @@ package me.simpleHook.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 
 class ExViewModel : ViewModel() {
     val signInfoEdit = MutableLiveData("")

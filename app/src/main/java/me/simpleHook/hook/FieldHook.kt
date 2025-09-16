@@ -7,8 +7,8 @@ import com.github.kyuubiran.ezxhelper.utils.findConstructor
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import me.simpleHook.bean.ConfigBean
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.appClassLoader

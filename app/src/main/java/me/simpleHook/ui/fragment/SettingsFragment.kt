@@ -21,13 +21,11 @@ import kotlinx.coroutines.withContext
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.IMenuProvider
-import me.simpleHook.bean.ConfigItem
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.config.PrefConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.database.AppViewModel
-import me.simpleHook.database.entity.AppConfig
+import me.simpleHook.data.ConfigItem
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.activity.A33PermissionActivity
@@ -48,15 +46,19 @@ import me.simpleHook.util.PermissionUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.SuUtil
 import me.simpleHook.util.ThemeModeUtil
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.CollectionViewModel
+import me.simpleHook.viewmodel.RecordViewModel
 import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
-    private val viewModel: AppViewModel by viewModels()
+    private val viewModel: AppConfigViewModel by viewModels()
     private val collViewModel by viewModels<CollectionViewModel>()
     private val settingsViewModel by viewModels<SettingsViewModel>()
+
+    private val recordViewModel by viewModels<RecordViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             if (uri != Uri.EMPTY) {
@@ -127,7 +129,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<SimpleMenuPreference>("clearConfigData")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
-                warningDialog(requireContext(),
+                warningDialog(
+                    requireContext(),
                     getString(R.string.settings_clear_warning_dialog_title),
                     getString(R.string.settings_clear_warning_dialog_message),
                     okText = getString(R.string.settings_clear_warning_dialog_confirm),
@@ -267,15 +270,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         lifecycleScope.launch(Dispatchers.IO) {
             when (mode) {
                 0 -> {
-                    val configs = viewModel.getConfigs()
-                    val tempConfigs = ArrayList<AppConfig>()
-                    configs.forEach {
-                        if (configSystem.isEnableDelete(it.packageName)) {
-                            configSystem.deleteCustomConfig(it.packageName)
-                            tempConfigs.add(it)
-                        }
+                    val deleteConfigs = viewModel.getConfigs().filter {
+                        configSystem.isEnableDelete(it.packageName)
                     }
-                    viewModel.deleteConfigs(*tempConfigs.toTypedArray())
+                    viewModel.deleteConfigs(*deleteConfigs.toTypedArray())
                 }
 
                 1 -> {
@@ -292,7 +290,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
 
                 2 -> {
-                    viewModel.deleteAllLogs()
+                    recordViewModel.deleteAllLogs()
                 }
 
                 3 -> {
@@ -315,7 +313,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun showHelp() {
         val intent = Intent(Intent.ACTION_VIEW).also {
-            it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHookShare")
+            it.data = "https://github.com/littleWhiteDuck/SimpleHookShare".toUri()
         }
         startActivity(intent)
     }

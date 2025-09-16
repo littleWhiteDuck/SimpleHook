@@ -3,6 +3,7 @@ package me.simpleHook.compat
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.App
 import me.simpleHook.constant.Constant
@@ -14,7 +15,7 @@ import java.io.FileOutputStream
 object DocumentCompat {
 
     fun generateAppUri(packageName: String): Uri {
-        return Uri.parse(Constant.ANDROID_DATA_URI + "%2F" + packageName)
+        return (Constant.ANDROID_DATA_URI + "%2F" + packageName).toUri()
     }
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
@@ -42,7 +43,7 @@ object DocumentCompat {
             documentFile.listFiles().forEach {
                 if (it.name == dir && it.isDirectory) return it
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return null
         }
         return null
@@ -96,7 +97,7 @@ object DocumentCompat {
     ): Boolean {
         return runCatching {
             val paths = path.replace(Constant.ANDROID_DATA_PATH, "").split("/")
-            val dataUri = Uri.parse(Constant.ANDROID_DATA_URI)
+            val dataUri = Constant.ANDROID_DATA_URI.toUri()
             var documentFile = DocumentFile.fromTreeUri(context, dataUri)
             for (i in paths.indices) {
                 if (paths[i].isEmpty()) continue

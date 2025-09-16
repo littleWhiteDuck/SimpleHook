@@ -32,7 +32,7 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.database.AppViewModel
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
@@ -45,11 +45,14 @@ import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.LogUtils
 import me.simpleHook.util.TimeUtil
+import androidx.core.net.toUri
+import me.simpleHook.viewmodel.RecordViewModel
 
 @Keep
 open class BaseActivity : AppCompatActivity() {
 
-    private val appViewModel by viewModels<AppViewModel>()
+    private val appConfigViewModel by viewModels<AppConfigViewModel>()
+    private val recordViewModel by viewModels<RecordViewModel>()
     private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
     private val list = ArrayList<PrintLog>()
     private val handler = Handler(Looper.getMainLooper())
@@ -62,7 +65,7 @@ open class BaseActivity : AppCompatActivity() {
             handler.postDelayed(this, 500)
         }
     }
-    private val uri = Uri.parse(FlavorUtils.PROVIDER_RECORD_URI)
+    private val uri = FlavorUtils.PROVIDER_RECORD_URI.toUri()
     private var stopPrint = false
     private var currentTime = ""
     private var startTime = ""
@@ -83,9 +86,10 @@ open class BaseActivity : AppCompatActivity() {
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
         return if (menu is MenuBuilder) {
             try {
+                @Suppress("UsePropertyAccessSyntax")
                 menu.setOptionalIconsVisible(true)
                 super.onMenuOpened(featureId, menu)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 super.onMenuOpened(featureId, menu)
             }
         } else super.onMenuOpened(featureId, menu)
@@ -109,30 +113,26 @@ open class BaseActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 if (!::assistConfigs.isInitialized) {
-                    assistConfigs = appViewModel.getAssistConfigs()
+                    assistConfigs = appConfigViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(
-                                this@BaseActivity,
-                                it.packageName
-                            )
+                        if (it.allSwitch && AppUtils.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
-                    configs = appViewModel.getConfigs()
+                    configs = appConfigViewModel.getConfigs()
                     configs.forEach {
                         if (it.enable && AppUtils.isAppInstalled(
-                                this@BaseActivity,
                                 it.packageName
                             )
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
                         val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
-                        appViewModel.insertRecord(*list.toTypedArray())
+                        recordViewModel.insertRecord(*list.toTypedArray())
                     }
                 } else {
                     needCheckPacks.forEach {
                         val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
-                        appViewModel.insertRecord(*list.toTypedArray())
+                        recordViewModel.insertRecord(*list.toTypedArray())
                     }
                 }
 
@@ -186,13 +186,13 @@ open class BaseActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun showPrintFloat() {
         lifecycleScope.launch(Dispatchers.IO) {
-            appViewModel.getAssistConfigs().forEach {
-                if (it.allSwitch && AppUtils.isAppInstalled(this@BaseActivity, it.packageName)) {
+            appConfigViewModel.getAssistConfigs().forEach {
+                if (it.allSwitch && AppUtils.isAppInstalled(it.packageName)) {
                     needCheckPacks.add(it.packageName)
                 }
             }
-            appViewModel.getConfigs().forEach {
-                if (it.enable && AppUtils.isAppInstalled(this@BaseActivity, it.packageName)) {
+            appConfigViewModel.getConfigs().forEach {
+                if (it.enable && AppUtils.isAppInstalled(it.packageName)) {
                     needCheckPacks.add(it.packageName)
                 }
             }
@@ -227,7 +227,7 @@ open class BaseActivity : AppCompatActivity() {
             }
             val clearConfig = it.findViewById<ImageButton>(R.id.clear_record)
             clearConfig.setOnClickListener {
-                appViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
+                recordViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
                 list.clear()
                 mAdapter.notifyDataSetChanged()
             }

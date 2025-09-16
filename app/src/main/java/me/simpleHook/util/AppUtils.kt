@@ -7,21 +7,13 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import me.simpleHook.GlobalValue
 import me.simpleHook.extension.showToast
-
+import androidx.core.net.toUri
 
 @Suppress("DEPRECATION")
 object AppUtils {
-    fun isAppInstalled(context: Context, packageName: String): Boolean {
-        return try {
-            context.packageManager.getPackageInfo(packageName, 0) != null
-        } catch (e: Exception) {
-            false
-        }
-    }
 
     fun isAppInstalled(packageName: String): Boolean {
         return runCatching {
@@ -29,21 +21,11 @@ object AppUtils {
         }.getOrDefault(false)
     }
 
-
-/*    fun appInfo(context: Context, packageName: String): ApplicationInfo? {
-        return try {
-            context.packageManager.getPackageInfo(packageName,
-                PackageManager.GET_CONFIGURATIONS).applicationInfo
-        } catch (_: Throwable) {
-            null
-        }
-    }*/
-
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon(context: Context, packageName: String): Drawable {
         return try {
             context.packageManager.getApplicationIcon(packageName)
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             context.packageManager.defaultActivityIcon
         }
     }
@@ -109,13 +91,14 @@ object AppUtils {
     }
 
     fun getAppName(context: Context, packageName: String): String {
-        return try {
-            context.packageManager.getPackageInfo(packageName,
-                0
-            ).applicationInfo?.loadLabel(context.packageManager).toString()
-        } catch (e: java.lang.Exception) {
-            "未获取到"
-        }
+        return runCatching {
+            getAppName(
+                context, context.packageManager.getPackageInfo(
+                    packageName,
+                    0
+                )
+            )
+        }.getOrDefault("NULL")
     }
 
     fun getAppName(context: Context, packageInfo: PackageInfo): String {
@@ -124,11 +107,9 @@ object AppUtils {
 
 
     fun getAppVersionName(context: Context, packageName: String): String {
-        return try {
+        return runCatching {
             context.packageManager.getPackageInfo(packageName, 0).versionName ?: "not define"
-        } catch (e: Exception) {
-            "未安装"
-        }
+        }.getOrDefault("NULL")
     }
 
     fun getAppVersionCode(context: Context, packageName: String): String {
@@ -150,7 +131,7 @@ object AppUtils {
             if (checkPackInfo(packageName, context)) {
                 context.apply { startActivity(packageManager.getLaunchIntentForPackage(packageName)) }
             }
-        } catch (e: java.lang.Exception) {
+        } catch (_: java.lang.Exception) {
             context.showToast("可能应用被停用了,或者其他错误")
         }
 
@@ -169,7 +150,7 @@ object AppUtils {
     fun jumpAppInfoPage(context: Context, packageName: String) {
         val intent = Intent()
         intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        intent.data = Uri.parse("package:$packageName")
+        intent.data = "package:$packageName".toUri()
         context.startActivity(intent)
     }
 

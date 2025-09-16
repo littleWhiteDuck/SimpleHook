@@ -3,7 +3,7 @@ package me.simpleHook.hook.extension
 
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
-import me.simpleHook.bean.ExtensionConfig
+import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.util.HookHelper
 import me.simpleHook.hook.util.log

@@ -6,10 +6,9 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.bean.LogBean
+import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView

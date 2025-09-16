@@ -3,8 +3,8 @@ buildscript {
 
     val agpVersion by extra("8.7.3")
     repositories {
-        /* maven("https://maven.aliyun.com/repository/public")
-         maven("https://maven.aliyun.com/repository/google")*/
+        maven("https://maven.aliyun.com/repository/public")
+        maven("https://maven.aliyun.com/repository/google")
         google()
         mavenCentral()
         maven("https://jitpack.io")
@@ -23,8 +23,8 @@ buildscript {
 
 allprojects {
     repositories {
-        /* maven("https://maven.aliyun.com/repository/public")
-         maven("https://maven.aliyun.com/repository/google")*/
+        maven("https://maven.aliyun.com/repository/public")
+        maven("https://maven.aliyun.com/repository/google")
         google()
         mavenCentral()
         maven("https://jitpack.io")
