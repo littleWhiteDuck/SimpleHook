@@ -57,7 +57,7 @@ class RecordAdapter(
         val logBean = Json.decodeFromString<LogBean>(printLog.log)
         holder.itemView.setTag(R.id.item_record_position, printLog)
         val context = holder.itemView.context
-        holder.apply {
+        with(holder) {
             id = printLog.id
             title.text = logBean.type
             time.text = printLog.time
@@ -69,9 +69,11 @@ class RecordAdapter(
                 printLog.isMark -> {
                     holder.container.setBackgroundResource(R.drawable.bg_record_mark)
                 }
+
                 printLog.read -> {
                     holder.container.setBackgroundResource(R.drawable.bg_record_read)
                 }
+
                 else -> {
                     holder.container.setBackgroundResource(R.drawable.bg_record)
                 }

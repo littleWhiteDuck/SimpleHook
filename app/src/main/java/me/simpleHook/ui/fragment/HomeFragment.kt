@@ -1,9 +1,7 @@
 package me.simpleHook.ui.fragment
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
 import android.util.Patterns
@@ -11,7 +9,6 @@ import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.SearchView
@@ -33,8 +30,8 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
 import me.simpleHook.constant.Constant
+import me.simpleHook.data.AppConfigItem
 import me.simpleHook.data.ConfigItem
-import me.simpleHook.data.CustomConfigItem
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
@@ -60,9 +57,8 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private var fabDistance = 0
     private val viewModel: AppConfigViewModel by activityViewModels()
-    private var filterConfigs: List<CustomConfigItem> = ArrayList()
-    private var tempConfigs = ArrayList<CustomConfigItem>()
-    private lateinit var mContext: Context
+    private var filterConfigs: List<AppConfigItem> = ArrayList()
+    private var tempConfigs = ArrayList<AppConfigItem>()
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
@@ -85,19 +81,10 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
     private var isFabShow = true
     private var isDrag = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mContext = requireContext()
-    }
-
     private fun initData() {
         viewModel.getAllConfigs().observe(requireActivity()) {
             binding.emptyTip.isVisible = it.isEmpty()
-            val tempConfigs = ArrayList<CustomConfigItem>()
-            it.forEach { appConfig ->
-                tempConfigs.add(CustomConfigItem(appConfig))
-            }
-            filterConfigs = tempConfigs
+            filterConfigs = it.map { appConfig -> AppConfigItem(appConfig) }
             if (currentPattern.isEmpty()) {
                 mAdapter.submitList(filterConfigs)
                 binding.progressBar.hide()
@@ -111,29 +98,13 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                 binding.mainRecycler.scrollToPosition(0)
             }
         })
-        val linearLayoutManager = LinearLayoutManager(requireContext())
-        binding.mainRecycler.apply {
-            this.adapter = mAdapter
-            layoutManager = linearLayoutManager
+        with(binding.mainRecycler) {
+            adapter = mAdapter
+            layoutManager = LinearLayoutManager(requireContext())
             addOnScrollListener(FabScrollListener(this@HomeVBFragment))
+            FastScrollerUtil.bind(this)
         }
-        binding.mainRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-            ) {
-                // Get the position of the view in the recycler view
-                val position = parent.getChildAdapterPosition(view)
-                if (position == RecyclerView.NO_POSITION) {
-                    return
-                }
 
-                if (position == parent.adapter!!.itemCount - 1) {
-                    // Add padding to the last item. You should probably use a @dimen resource.
-                    outRect.bottom = 200
-                }
-            }
-        })
-        FastScrollerUtil.bind(binding.mainRecycler)
         itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.Callback() {
             override fun getMovementFlags(
                 recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder
@@ -209,9 +180,9 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private fun editConfig(appConfig: AppConfig) {
         if (isDrag) return
-        val bundle = Bundle()
-        bundle.putParcelable("appConfig", appConfig)
-        toAddConfig(bundle)
+        toAddConfig(bundle = Bundle().apply {
+            putParcelable("appConfig", appConfig)
+        })
     }
 
     private fun onItemClick(mode: Int, appConfig: AppConfig) {
@@ -398,8 +369,6 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
     private fun saveConfig(appConfig: AppConfig) {
         if (configSystem.isEnableSave(appConfig.packageName)) {
             viewModel.insertConfigs(appConfig)
-            /*  val configStr = Json.encodeToString(appConfig)
-              configSystem.saveCustomConfig(appConfig.packageName, configStr)*/
         } else {
             requirePermission(appConfig.packageName)
         }
@@ -481,7 +450,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_home, menu)
         val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
-        searchView.apply {
+        with(searchView) {
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?) = false

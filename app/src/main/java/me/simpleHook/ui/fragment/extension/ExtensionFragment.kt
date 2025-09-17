@@ -64,7 +64,8 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private var isFabShow = true
     private var fabHideDistance = 0f
     private val mAdapter: AssistAdapter by lazy {
-        AssistAdapter({ assistConfig -> itemOnClick(assistConfig) },
+        AssistAdapter(
+            { assistConfig -> itemOnClick(assistConfig) },
             { assistConfig -> itemOnLongClick(assistConfig) })
     }
     private val startActivityForData =
@@ -84,8 +85,12 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
                 if (currentModel == -1) {
-                    appConfigViewModel.insertAssistConfigs(AssistConfig(appName = appName,
-                        packageName = packageName))
+                    appConfigViewModel.insertAssistConfigs(
+                        AssistConfig(
+                            appName = appName,
+                            packageName = packageName
+                        )
+                    )
                 } else {
                     val modelConfig = modelList[currentModel]
                     modelConfig.appName = appName
@@ -155,7 +160,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             root.recyclerView.updatePadding(bottom = maybeABug / 2)
             windowInsets
         }
-        root.apply {
+        with(root) {
             addConfig.setOnClickListener {
                 addConfig()
             }
@@ -163,7 +168,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 directAddConfig()
                 true
             }
-            recyclerView.apply {
+            with(recyclerView) {
                 adapter = mAdapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -218,9 +223,11 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 appConfigViewModel.deleteAssistConfigs(assistConfig)
                 configSystem.deleteExConfig(assistConfig.packageName)
             }
-            Snackbar.make(root.addConfig,
+            Snackbar.make(
+                root.addConfig,
                 getString(R.string.main_extension_delete_config_tip),
-                Snackbar.LENGTH_LONG).apply {
+                Snackbar.LENGTH_LONG
+            ).apply {
                 anchorView = bottomNavigationView
             }.addCallback(object : Snackbar.Callback() {
                 override fun onShown(sb: Snackbar?) {
@@ -278,7 +285,8 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             textInputLayout.counterMaxLength = 15
             textInputLayout.isCounterEnabled = true
         }
-        customDialog(mContext,
+        customDialog(
+            mContext,
             title = getString(R.string.extension_title_create_template),
             contentView = inputView,
             okText = getString(R.string.extension_go_create_template),
@@ -291,7 +299,8 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                     requireActivity().showPopup(getString(R.string.extension_template_illegal_name))
                 }
             },
-            cancelText = getString(R.string.dialog_cancel)).show()
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
     }
 
     private fun showModelDialog() {
@@ -345,9 +354,11 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
     private fun showAboutModel() {
-        warningDialog(mContext,
+        warningDialog(
+            mContext,
             title = getString(R.string.extension_title_about_template),
-            message = getString(R.string.extension_message_about_template))
+            message = getString(R.string.extension_message_about_template)
+        )
     }
 
     private fun requirePermission(packageName: String) {
@@ -357,8 +368,10 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
-                requestPermissionDialog(requireContext(),
-                    message = getString(R.string.android_13_no_permission)) {
+                requestPermissionDialog(
+                    requireContext(),
+                    message = getString(R.string.android_13_no_permission)
+                ) {
                     val uri = DocumentCompat.generateAppUri(packageName)
                     startActivityForData.launch(uri)
                 }

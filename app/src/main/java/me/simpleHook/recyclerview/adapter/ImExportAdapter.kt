@@ -31,11 +31,9 @@ class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val configItem = dataList[position]
         holder.itemView.setTag(R.id.item_in_export_config_position, position)
-        holder.apply {
-            configItem.apply {
-                tvInformation.text = appConfig.appName
-                checkBox.isChecked = isChecked
-            }
+        with(holder) {
+            tvInformation.text = configItem.appConfig.appName
+            checkBox.isChecked = configItem.isChecked
         }
     }
 

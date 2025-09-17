@@ -5,18 +5,17 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
@@ -99,7 +98,7 @@ object Popup {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         with(popupWindow) {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
             isOutsideTouchable = false
             isFocusable = false
             activePopup = popupWindow
@@ -189,8 +188,8 @@ private class TitleCardView(context: Context) : MaterialCardView(context) {
     val title = TextView(context).apply {
         layoutParams =
             MarginLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
             ).also {
                 it.setMargins(16.dp, 4.dp, 8.dp, 4.dp)
             }

@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.simpleHook.util
 
 import android.content.Context
@@ -5,9 +7,7 @@ import android.graphics.drawable.Drawable
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.custom.CircleTextDrawable
 
-/*
- it
- */
+
 object IconHelper {
 
     private val iconMap = HashMap<String, Drawable>()

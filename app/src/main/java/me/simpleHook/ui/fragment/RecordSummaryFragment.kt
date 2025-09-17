@@ -9,17 +9,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.MultiTypeAdapter
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseViewFragment
+import me.simpleHook.config.RecordsHelper
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
-import me.simpleHook.config.RecordsHelper
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.recyclerview.delegate.RecordPackDelegate
@@ -29,6 +28,7 @@ import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.record.RecordSummaryFragmentView
 import me.simpleHook.util.*
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
 
@@ -127,23 +127,22 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         }, onDeleteClick = {
             deleteRecord(it)
         }))
-        root.recyclerView.apply {
+
+        with(root.recyclerView) {
             adapter = multiTypeAdapter
             layoutManager = LinearLayoutManager(requireContext())
+            FastScrollerUtil.bind(this)
         }
-        FastScrollerUtil.bind(root.recyclerView)
         root.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
         }
     }
 
     private fun deleteRecord(recordSummary: Any) {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            if (recordSummary is RecordShowType) {
-                recordViewModel.deleteRecordByType(recordSummary.type)
-            } else if (recordSummary is RecordShowPack) {
-                recordViewModel.deleteRecordByPack(recordSummary.packageName)
-            }
+        if (recordSummary is RecordShowType) {
+            recordViewModel.deleteRecordByType(recordSummary.type)
+        } else if (recordSummary is RecordShowPack) {
+            recordViewModel.deleteRecordByPack(recordSummary.packageName)
         }
         refreshData(200, true)
     }
@@ -258,7 +257,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         refreshData(0, false)
         refreshData(100, false)
         val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
-        val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior
-        bottomViewNavigationBehavior.slideUp(bottomNavigationView)
+        val bottomViewNavigationBehavior = layoutParams.behavior as HideViewOnScrollBehavior
+        bottomViewNavigationBehavior.slideIn(bottomNavigationView, true)
     }
 }

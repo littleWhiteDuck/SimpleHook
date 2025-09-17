@@ -45,7 +45,7 @@ class PrefConfigHelper : ConfigSystem {
     ): SharedPreferences? {
         return try {
             @Suppress("DEPRECATION") context.getSharedPreferences(name, Context.MODE_WORLD_READABLE)
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             null
         }
     }

@@ -26,7 +26,6 @@ class FileMonitorFragment : BasePreferenceFragment() {
         findNavController(requireActivity(), R.id.nav_host_fragment)
     }
 
-    //    private val tempConfig by lazy { exViewModel.extensionConfig.value?.fileMonitor ?: throw NullPointerException("FileMonitorConfig is null...") }
     private lateinit var tempConfig: FileMonitorConfig
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val fileMonitorInfo = exViewModel.extensionConfig.value?.fileMonitor?.info

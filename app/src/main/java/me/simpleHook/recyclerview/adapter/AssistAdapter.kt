@@ -1,6 +1,5 @@
 package me.simpleHook.recyclerview.adapter
 
-
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -38,7 +37,7 @@ class AssistAdapter(
         val assistItemView = AssistItemView(parent.context)
         val holder = ViewHolder(assistItemView)
         holder.tvAppName.marquee()
-        holder.itemView.apply {
+        with(holder.itemView) {
             setOnClickListener {
                 val assistConfig = it.getTag(R.id.item_assist_config) as AssistConfig
                 onClick(assistConfig)
@@ -55,7 +54,7 @@ class AssistAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val assistConfig = getItem(position)
         holder.itemView.setTag(R.id.item_assist_config, assistConfig)
-        holder.apply {
+        with(holder) {
             tvAppName.text = assistConfig.appName
             Glide.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
             tvVersionName.text =

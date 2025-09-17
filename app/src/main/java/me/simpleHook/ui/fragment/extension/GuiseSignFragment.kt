@@ -77,7 +77,8 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         }
 
     private val adapter by lazy {
-        GuiseSignAdapter(onClick = { onItemClick(it) },
+        GuiseSignAdapter(
+            onClick = { onItemClick(it) },
             onCheckedChange = { position: Int, checked: Boolean ->
                 onItemChanged(position, checked)
             })
@@ -242,7 +243,8 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
             editSignatureView.editText.setText(it)
         }
         viewModel.signInfoEdit.value = appInfo.signData
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.extension_guise_update_sign),
             contentView = editSignatureView,
             okText = getString(R.string.extension_guise_update),
@@ -335,7 +337,7 @@ class GuiseSignAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val appInfo = items[position]
         holder.itemView.setTag(R.id.item_guise_sign_position, position)
-        holder.apply {
+        with(holder) {
             appName.text = appInfo.appName
             packageName.text = appInfo.packageName
             signMd5.text =

@@ -58,10 +58,11 @@ object HookUtils {
     }
 
     fun getObjectString(value: Any): String {
-        return if (value is String) value else try {
-            Gson().toJson(value)
-        } catch (e: Throwable) {
-            value.javaClass.name
-        }
+        return value as? String
+            ?: try {
+                Gson().toJson(value)
+            } catch (_: Throwable) {
+                value.javaClass.name
+            }
     }
 }

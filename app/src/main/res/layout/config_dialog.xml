@@ -59,7 +59,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout2"
+            android:id="@+id/classNameInput"
             style="@style/config_dialog_input_layout_style"
             app:helperText="@string/config_dialog_class_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
@@ -96,7 +96,7 @@
             app:helperText="@string/config_dialog_method_input_helper"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
+            app:layout_constraintTop_toBottomOf="@+id/classNameInput">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/methodNameEdit"

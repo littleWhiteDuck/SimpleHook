@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +18,7 @@ import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
@@ -83,7 +83,8 @@ class ConfigActivity : BaseActivity() {
     private val sp by lazy { SPUtils(this) }
     private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val mAdapter by lazy {
-        ConfigAdapter({ position -> onClick(position) },
+        ConfigAdapter(
+            { position -> onClick(position) },
             { position, menu -> onItemCreateContextMenu(position, menu) },
             { position, isChecked -> onCheckedChange(position, isChecked) })
     }
@@ -123,11 +124,10 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        binding.apply {
-            configRV.apply {
-                this.adapter = mAdapter
-                layoutManager = LinearLayoutManager(this@ConfigActivity)
-            }
+        with(binding) {
+            configRV.adapter = mAdapter
+            configRV.layoutManager = LinearLayoutManager(this@ConfigActivity)
+
             appInfo.setOnClickListener {
                 packageInfo.launch(Intent(this@ConfigActivity, AppListActivity::class.java))
             }
@@ -166,7 +166,7 @@ class ConfigActivity : BaseActivity() {
         appConfig?.let {
             modify = true
             configId = it.id
-            binding.apply {
+            with(binding) {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
                     appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
                     appInfo.containerView.icon.setImageDrawable(
@@ -186,11 +186,10 @@ class ConfigActivity : BaseActivity() {
                 collapsing.title = it.appName
             }
         } ?: run {
-            binding.appInfo.containerView.apply {
+            with(binding.appInfo.containerView) {
                 appName.text = getString(R.string.config_no_app_info)
                 Glide.with(icon).load(BuildConfig.APPLICATION_ID).into(icon)
             }
-
         }
         showIntroductionDialog()
         tempConfigStr = getAppConfig().copy(enable = true).toString()
@@ -214,7 +213,7 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun refreshAppInfo(appInfo: AppInfo) {
-        binding.appInfo.containerView.apply {
+        with(binding.appInfo.containerView) {
             appName.text = appInfo.appName
             packageName.text = appInfo.packageName
             otherInfo.text = getString(
@@ -235,7 +234,7 @@ class ConfigActivity : BaseActivity() {
                 okText = getString(R.string.record_introduction_ok),
                 okClick = {
                     val intent = Intent(ACTION_VIEW).also {
-                        it.data = Uri.parse("https://github.com/littleWhiteDuck/SimpleHook")
+                        it.data = "https://github.com/littleWhiteDuck/SimpleHook".toUri()
                     }
                     startActivity(intent)
                 },
@@ -367,8 +366,8 @@ class ConfigActivity : BaseActivity() {
         configBean: ConfigBean = ConfigBean(), isSmali2Config: Boolean = false
     ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
-        dialogBinding.apply {
-            configBean.apply {
+        with(dialogBinding) {
+            with(configBean) {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
                 paramsTypeEdit.setText(params)
@@ -427,7 +426,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun onModeChange(dialogBinding: ConfigDialogBinding) {
         val checkStateMode = getShowStateMode(hookMode)
-        dialogBinding.apply {
+        with(dialogBinding) {
             showView(
                 checkStateMode isContainState METHOD_NAME_STATE,
                 methodNameInput,
@@ -594,16 +593,16 @@ class ConfigActivity : BaseActivity() {
             val config: ConfigBean? = runCatching {
                 Json.decodeFromString<ConfigBean>(it.config)
             }.getOrNull()
-            config?.let {
+            config?.let { config ->
                 if (sp.bottomConfigDialog) {
                     ConfigBottomFragment(saveConfig = { save ->
                         modifyConfig = false
                         addConfig(save)
                     }, deleteConfig = {
 
-                    }, configBean = it).show(supportFragmentManager, "ADD")
+                    }, configBean = config).show(supportFragmentManager, "ADD")
                 } else {
-                    showDialog(it, isSmali2Config = true)
+                    showDialog(config, isSmali2Config = true)
                 }
             } ?: showPopup(getString(R.string.config_collection_illegal_format))
         }.show(supportFragmentManager, "collect")
@@ -611,7 +610,7 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = true) {
-        if (configList.size == 0) {
+        if (configList.isEmpty()) {
             showPopup(getString(R.string.config_save_empty_config_tip))
             return
         }
@@ -650,11 +649,12 @@ class ConfigActivity : BaseActivity() {
     private fun initBack() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (configList.size == 0) {
+                if (configList.isEmpty()) {
                     onBackPressedCallback.isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 } else if (tempConfigStr != getAppConfig().copy(enable = true).toString()) {
-                    exitDialog(this@ConfigActivity,
+                    exitDialog(
+                        this@ConfigActivity,
                         okClick = { saveConfig(exit = true) },
                         neutralClick = {
                             onBackPressedCallback.isEnabled = false
@@ -789,7 +789,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun tranParam(param: String): String {
         var temp = param
-        temp = temp.replace(Regex(pattern_object_array), "$1[]")
+        temp = temp.replace(Regex(PATTERN_OBJECT_ARRAY), "$1[]")
         if (temp.startsWith("L")) {
             temp = temp.replaceFirst("L", "")
         }
@@ -808,11 +808,11 @@ class ConfigActivity : BaseActivity() {
         paramStr = paramStr.replace("[", ",[")
         paramStr = paramStr.replace("防止加逗号", "[]")
         paramStr = paramStr.replace("VERSION", "防止加逗号")
-        while (paramStr.contains(Regex(pattern_basic))) {
-            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
+        while (paramStr.contains(Regex(PATTERN_BASIC))) {
+            paramStr = paramStr.replace(Regex(PATTERN_BASIC), "$1,$2")
         }
         paramStr = paramStr.replace("防止加逗号", "VERSION")
-        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
+        paramStr = paramStr.replace(Regex(PATTERN_BASIC_ARRAY), "[$1,")
         val paramArray = paramStr.split(Regex("[,;]"))
         val sb = StringBuilder()
         for (i in paramArray.indices) {
@@ -833,17 +833,17 @@ class ConfigActivity : BaseActivity() {
         var isSmali = true
         var paramStr = params
         paramStr = paramStr.replace("[", ",[")
-        while (paramStr.contains(Regex(pattern_basic))) {
-            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
+        while (paramStr.contains(Regex(PATTERN_BASIC))) {
+            paramStr = paramStr.replace(Regex(PATTERN_BASIC), "$1,$2")
         }
-        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
+        paramStr = paramStr.replace(Regex(PATTERN_BASIC_ARRAY), "[$1,")
         val paramArray = paramStr.split(",")
         for (i in paramArray.indices) {
             if (paramArray[i].trim().isEmpty()) continue
             isSmali =
                 paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
                     Regex(
-                        pattern_basic_array
+                        PATTERN_BASIC_ARRAY
                     )
                 ) || paramArray[i].isEmpty()
         }
@@ -879,9 +879,9 @@ class ConfigActivity : BaseActivity() {
     companion object {
         private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
         private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
-        private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
-        private const val pattern_basic_array = """\[([BSIJFDZC])"""
-        private const val pattern_object_array = """\[L(.*)"""
+        private const val PATTERN_BASIC = """([BSIJFDZC])([BSIJFDZCL])"""
+        private const val PATTERN_BASIC_ARRAY = """\[([BSIJFDZC])"""
+        private const val PATTERN_OBJECT_ARRAY = """\[L(.*)"""
         private const val CLASS_NAME_STATE = 1
         private const val METHOD_NAME_STATE = 1 shl 1
         private const val PARAMS_STATE = 1 shl 2

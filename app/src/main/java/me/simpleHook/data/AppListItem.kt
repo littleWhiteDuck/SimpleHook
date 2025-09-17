@@ -8,7 +8,7 @@ package me.simpleHook.data
  * @param installedTime 最后一次安装时间
  */
 
-data class AppItem(
+data class AppListItem(
     val name: String,
     val packageName: String,
     val versionName: String,

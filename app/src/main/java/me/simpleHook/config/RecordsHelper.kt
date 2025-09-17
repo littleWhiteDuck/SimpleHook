@@ -4,7 +4,6 @@ import android.content.Context
 import android.provider.DocumentsContract
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant

@@ -1,13 +1,12 @@
 package me.simpleHook.hook.util
 
-import android.net.Uri
 import android.os.Build.VERSION_CODES
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import me.simpleHook.data.LogBean
 import me.simpleHook.constant.Constant
+import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.util.HookHelper.hostPackageName
@@ -20,7 +19,7 @@ import me.simpleHook.util.TimeUtil
 object LogUtil {
     private const val filterClass =
         """(?i)EdHooker|LspHooker|littleWhiteDuck|me.simpleHook|me.weishu|de.robv.android.xposed|XposedBridge"""
-    private val PRINT_URI = Uri.parse(PROVIDER_RECORD_URI)
+    private val PRINT_URI = PROVIDER_RECORD_URI.toUri()
     fun outLogMsg(logBean: LogBean) {
         if (logBean.type == "null" || !HookHelper.enableRecord) return
         val log = Json.encodeToString(logBean)
@@ -54,7 +53,7 @@ object LogUtil {
                 limitSize = 4096,
                 append = true
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "error occurred while saving log to the file, 此次log打印在下方".log()
             log.log()
         }
@@ -73,7 +72,7 @@ object LogUtil {
                 "isMark" to 0
             )
             HookHelper.appContext.contentResolver?.insert(PRINT_URI, contentValues)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "error occurred while saving log to the database".log()
             outLogFile(log, tempPackageName, type, time)
         }

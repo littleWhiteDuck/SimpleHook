@@ -15,7 +15,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.data.AppItem
+import me.simpleHook.data.AppListItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
@@ -89,25 +89,25 @@ class AppListActivity : BaseActivity() {
                 }
             }
         }
-        appListViewModel.selectAppItem.observe(this) {
+        appListViewModel.selectAppListItem.observe(this) {
             if (it != null) clickResponse(it)
         }
 
     }
 
-    private fun clickResponse(appItem: AppItem) {
-        val appName = appItem.name.ifEmpty { AppUtils.getAppName(this, appItem.packageName) }
+    private fun clickResponse(appListItem: AppListItem) {
+        val appName = appListItem.name.ifEmpty { AppUtils.getAppName(this, appListItem.packageName) }
         if (isFromAssist) {
             val intent = Intent().also {
                 it.putExtra("appName", appName)
-                it.putExtra("packageName", appItem.packageName)
+                it.putExtra("packageName", appListItem.packageName)
             }
             setResult(RESULT_OK, intent)
         } else {
             val intent = Intent().also {
                 it.putExtra("appName", appName)
-                it.putExtra("packageName", appItem.packageName)
-                it.putExtra("versionName", appItem.versionName)
+                it.putExtra("packageName", appListItem.packageName)
+                it.putExtra("versionName", appListItem.versionName)
             }
             setResult(RESULT_OK, intent)
         }

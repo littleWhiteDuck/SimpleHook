@@ -64,8 +64,8 @@ class ConfigAdapter(
             }
         }
         val viewHolder = ViewHolder(configView)
-        viewHolder.apply {
-            itemView.apply {
+        with(viewHolder) {
+            with(itemView) {
                 setOnClickListener {
                     val position: Int = viewHolder.itemView.getTag(R.id.item_position) as Int
                     onClick(position)
@@ -88,7 +88,7 @@ class ConfigAdapter(
         holder.itemView.setTag(R.id.item_position, position)
         val methodConfig = getItem(position)
         val context = holder.itemView.context
-        holder.apply {
+        with(holder) {
             val tempClassName =
                 if (methodConfig.mode == Constant.HOOK_STATIC_FIELD) methodConfig.fieldClassName else methodConfig.className
             if (methodConfig.className.length >= 30) {

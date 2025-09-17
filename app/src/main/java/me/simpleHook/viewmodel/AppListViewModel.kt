@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.simpleHook.data.AppItem
+import me.simpleHook.data.AppListItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
@@ -22,22 +22,22 @@ import me.simpleHook.util.TimeUtil
 
 class AppListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _userApps = MutableLiveData<List<AppItem>>()
-    private val _systemApps = MutableLiveData<List<AppItem>>()
+    private val _userApps = MutableLiveData<List<AppListItem>>()
+    private val _systemApps = MutableLiveData<List<AppListItem>>()
 
     private val appNames = HashMap<String, String>()
 
-    val userApps = MutableLiveData<List<AppItem>>(emptyList())
-    val systemApps = MutableLiveData<List<AppItem>>(emptyList())
+    val userApps = MutableLiveData<List<AppListItem>>(emptyList())
+    val systemApps = MutableLiveData<List<AppListItem>>(emptyList())
 
     val queryPattern = MutableLiveData("")
 
-    private val _selectAppItem = MutableLiveData<AppItem>()
-    val selectAppItem: LiveData<AppItem>
-        get() = _selectAppItem
+    private val _selectAppListItem = MutableLiveData<AppListItem>()
+    val selectAppListItem: LiveData<AppListItem>
+        get() = _selectAppListItem
 
-    fun updateSelectApp(appItem: AppItem) {
-        _selectAppItem.value = appItem
+    fun updateSelectApp(appListItem: AppListItem) {
+        _selectAppListItem.value = appListItem
     }
 
     fun fetchData(sortSelected: Int, reverseChecked: Boolean) = viewModelScope.launch {
@@ -73,7 +73,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun fetchUserData(sortSelected: Int, reverseChecked: Boolean): List<AppItem> {
+    private suspend fun fetchUserData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
         val packageInfoList = AppUtils.getInstalledUserApp(getApplication())
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
@@ -82,7 +82,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun fetchSystemData(sortSelected: Int, reverseChecked: Boolean): List<AppItem> {
+    private suspend fun fetchSystemData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
         val packageInfoList = AppUtils.getInstalledSystemApp(getApplication())
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
@@ -91,14 +91,14 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun getAppItem(packageInfo: PackageInfo, sortSelected: Int): AppItem {
+    private fun getAppItem(packageInfo: PackageInfo, sortSelected: Int): AppListItem {
         val isSortByAppName = sortSelected == APP_LIST_BY_NAME
         val appName = if (isSortByAppName) {
             getAppNameOrPut(packageInfo)
         } else {
             appNames[packageInfo.packageName] ?: ""
         }
-        return AppItem(
+        return AppListItem(
             name = appName,
             packageName = packageInfo.packageName,
             versionName = packageInfo.versionName ?: "null",
@@ -138,8 +138,8 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun getSortAppList(
-        appList: List<AppItem>, sortSelected: Int, reverseChecked: Boolean
-    ): List<AppItem> {
+        appList: List<AppListItem>, sortSelected: Int, reverseChecked: Boolean
+    ): List<AppListItem> {
         val tempList = appList.sortedBy { appItem ->
             when (sortSelected) {
                 APP_LIST_BY_NAME -> appItem.name

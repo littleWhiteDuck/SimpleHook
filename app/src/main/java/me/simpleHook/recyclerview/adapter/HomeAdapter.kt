@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import me.simpleHook.R
-import me.simpleHook.data.CustomConfigItem
+import me.simpleHook.data.AppConfigItem
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.ui.view.main.AppConfigView
@@ -21,7 +21,7 @@ class HomeAdapter(
     private val onClick: (AppConfig, mode: Int) -> Unit,
     private val onChange: (AppConfig, Boolean) -> Unit,
     private val onDrag: (holder: RecyclerView.ViewHolder) -> Unit
-) : ListAdapter<CustomConfigItem, HomeAdapter.ViewHolder>(AppDiffCallback) {
+) : ListAdapter<AppConfigItem, HomeAdapter.ViewHolder>(AppDiffCallback) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -70,8 +70,8 @@ class HomeAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val appConfigBean = getItem(position)
         holder.itemView.setTag(R.id.item_home_position, appConfigBean.appConfig)
-        holder.apply {
-            appConfigBean.appConfig.apply {
+        with(holder) {
+            with(appConfigBean.appConfig) {
                 tvAppName.text = appName
                 tvAppName.marquee()
                 tvConfigDesc.text = if (description.trim().isEmpty()) packageName else description
@@ -100,12 +100,12 @@ class HomeAdapter(
         val dragImage = containerView.dragImage
     }
 
-    object AppDiffCallback : DiffUtil.ItemCallback<CustomConfigItem>() {
-        override fun areItemsTheSame(oldItem: CustomConfigItem, newItem: CustomConfigItem) =
+    object AppDiffCallback : DiffUtil.ItemCallback<AppConfigItem>() {
+        override fun areItemsTheSame(oldItem: AppConfigItem, newItem: AppConfigItem) =
             oldItem.appConfig.id == newItem.appConfig.id
 
         override fun areContentsTheSame(
-            oldItem: CustomConfigItem, newItem: CustomConfigItem
+            oldItem: AppConfigItem, newItem: AppConfigItem
         ): Boolean {
             val oldItemConfig = oldItem.appConfig
             val newItemConfig = newItem.appConfig

@@ -10,6 +10,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.simpleHook.R
 import me.simpleHook.extension.dp
+import androidx.core.content.withStyledAttributes
 
 @SuppressLint("ResourceType")
 class FloatingActionButton(context: Context, attrs: AttributeSet) :
@@ -43,21 +44,21 @@ class FloatingActionButton(context: Context, attrs: AttributeSet) :
         this.removeAllViews()
         clipChildren = false
         clipToPadding = false
-        val typeValue = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionButton)
-        val floatingActionLabelText = typeValue.getText(R.styleable.FloatingActionButton_fab_label)
-        labelText.text = floatingActionLabelText
-        val src = typeValue.getDrawable(R.styleable.FloatingActionButton_fab_src)
-        src?.let {
-            actionButton.setImageDrawable(it)
+        context.withStyledAttributes(attrs, R.styleable.FloatingActionButton) {
+            val floatingActionLabelText = getText(R.styleable.FloatingActionButton_fab_label)
+            labelText.text = floatingActionLabelText
+            val src = getDrawable(R.styleable.FloatingActionButton_fab_src)
+            src?.let {
+                actionButton.setImageDrawable(it)
+            }
+            //val tint = typeValue.getColorStateList(R.styleable.FloatingActionButton_fab_tint)
+            //actionButton.imageTintList = tint
+            cardView.id = R.id.fab_label
+            addView(cardView)
+            actionButton.id = R.id.fab_fab
+            addView(actionButton)
+            isClickable = true
         }
-        //val tint = typeValue.getColorStateList(R.styleable.FloatingActionButton_fab_tint)
-        //actionButton.imageTintList = tint
-        cardView.id = R.id.fab_label
-        addView(cardView)
-        actionButton.id = R.id.fab_fab
-        addView(actionButton)
-        isClickable = true
-        typeValue.recycle()
         refreshShowState()
     }
 

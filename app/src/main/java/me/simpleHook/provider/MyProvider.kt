@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.UriMatcher
 import android.net.Uri
 import me.simpleHook.util.FlavorUtils
+import androidx.core.net.toUri
 
 class MyProvider : ContentProvider() {
     private val configDir = 0
@@ -39,11 +40,11 @@ class MyProvider : ContentProvider() {
         val uriReturn = when (uriMatcher.match(uri)) {
             configDir -> {
                 val newConfigId = db.insert("AppConfig", null, values)
-                Uri.parse("content://$authority/AppConfig/$newConfigId")
+                "content://$authority/AppConfig/$newConfigId".toUri()
             }
             printLogDir -> {
                 val newLogId = db.insert("PrintLog", null, values)
-                Uri.parse("content://$authority/PrintLog/$newLogId")
+                "content://$authority/PrintLog/$newLogId".toUri()
             }
             else -> null
         }

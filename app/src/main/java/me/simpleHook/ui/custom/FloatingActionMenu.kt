@@ -12,6 +12,7 @@ import androidx.core.view.marginBottom
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.simpleHook.R
 import me.simpleHook.extension.dp
+import androidx.core.content.withStyledAttributes
 
 @SuppressLint("RestrictedApi")
 class FloatingActionMenu(context: Context, attrs: AttributeSet) : CustomViewGroup(context, attrs) {
@@ -42,12 +43,12 @@ class FloatingActionMenu(context: Context, attrs: AttributeSet) : CustomViewGrou
     init {
         clipChildren = false
         clipToPadding = false
-        val typeValue = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenu)
-        val srcDrawable = typeValue.getDrawable(R.styleable.FloatingActionMenu_menu_src)
-        srcDrawable?.let { menuButton.setImageDrawable(srcDrawable) }
-        // val tint = typeValue.getColorStateList(R.styleable.FloatingActionMenu_menu_tint)
-        // menuButton.imageTintList = tint
-        typeValue.recycle()
+        context.withStyledAttributes(attrs, R.styleable.FloatingActionMenu) {
+            val srcDrawable = getDrawable(R.styleable.FloatingActionMenu_menu_src)
+            srcDrawable?.let { menuButton.setImageDrawable(srcDrawable) }
+            // val tint = typeValue.getColorStateList(R.styleable.FloatingActionMenu_menu_tint)
+            // menuButton.imageTintList = tint
+        }
         addView(menuButton)
         hideButton()
     }
@@ -69,6 +70,7 @@ class FloatingActionMenu(context: Context, attrs: AttributeSet) : CustomViewGrou
         )
     }
 
+    @SuppressLint("ObjectAnimatorBinding")
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         menuButton.autoLayout(
             0, 0, true, fromBottom = true

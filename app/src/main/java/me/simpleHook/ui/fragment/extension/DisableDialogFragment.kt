@@ -10,7 +10,7 @@ import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
 import com.google.android.material.chip.Chip
 import kotlinx.serialization.json.Json
@@ -29,7 +29,7 @@ import me.simpleHook.viewmodel.ExViewModel
 class DisableDialogFragment : BasePreferenceFragment() {
     private val exViewModel by activityViewModels<ExViewModel>()
     private val navController by lazy {
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+        requireActivity().findNavController(R.id.nav_host_fragment)
     }
 
     private lateinit var tempConfig: DialogCancel

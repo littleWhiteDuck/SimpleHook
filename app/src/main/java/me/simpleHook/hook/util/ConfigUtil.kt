@@ -1,8 +1,7 @@
 package me.simpleHook.hook.util
 
 import android.annotation.SuppressLint
-import android.net.Uri
-import kotlinx.serialization.encodeToString
+import androidx.core.net.toUri
 import kotlinx.serialization.json.Json
 import me.simpleHook.constant.Constant
 import me.simpleHook.database.entity.AppConfig
@@ -14,8 +13,8 @@ import me.simpleHook.util.FlavorUtils.PROVIDER_EXTENSION_CONFIG_URI
 import java.io.File
 
 object ConfigUtil {
-    private val uri = Uri.parse(PROVIDER_CUSTOM_CONFIG_URI)
-    private val extensionUri = Uri.parse(PROVIDER_EXTENSION_CONFIG_URI)
+    private val uri = PROVIDER_CUSTOM_CONFIG_URI.toUri()
+    private val extensionUri = PROVIDER_EXTENSION_CONFIG_URI.toUri()
 
     fun getConfigFromFile(
         configName: String = Constant.CUSTOM_CONFIG_NAME
@@ -56,7 +55,7 @@ object ConfigUtil {
                 close()
             }
             config
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             null
         }
     }
@@ -78,7 +77,7 @@ object ConfigUtil {
                 close()
             }
             config
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             null
         }
     }

@@ -11,14 +11,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
-import me.simpleHook.data.AppItem
+import me.simpleHook.data.AppListItem
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.marquee
 import me.simpleHook.ui.view.applist.AppItemView
 import me.simpleHook.util.AppUtils
 
-class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
-    ListAdapter<AppItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
+class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
+    ListAdapter<AppListItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
 
     inner class ViewHolder(appItem: AppItemView) : RecyclerView.ViewHolder(appItem) {
         private val containerView = appItem.containerView
@@ -35,8 +35,8 @@ class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
         }
         val holder = ViewHolder(appItemView)
         holder.itemView.setOnClickListener {
-            val appItem: AppItem = holder.itemView.getTag(R.id.item_select_position) as AppItem
-            onItemClick(appItem)
+            val appListItem: AppListItem = holder.itemView.getTag(R.id.item_select_position) as AppListItem
+            onItemClick(appListItem)
         }
         return holder
     }
@@ -45,33 +45,33 @@ class AppListAdapter(val onItemClick: (AppItem) -> Unit) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val appItem = getItem(position)
         holder.itemView.setTag(R.id.item_select_position, appItem)
-        holder.apply {
-            appItem.apply {
-                Glide.with(ivIcon).load(packageName).into(ivIcon)
-                if (name.isEmpty()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val result = AppUtils.getAppName(holder.itemView.context, packageName)
-                        withContext(Dispatchers.Main) {
-                            tvAppName.text = result
-                        }
-                    }
-                } else {
-                    tvAppName.text = name
-                }
-                tvAppName.marquee()
-                tvPackageName.text = packageName
-                tvPackageName.marquee()
-                tvOtherInfo.text = "$versionName($versionCode), Target Api $targetApi"
-                tvOtherInfo.marquee()
-            }
+        with(holder) {
+          with(appItem) {
+              Glide.with(ivIcon).load(packageName).into(ivIcon)
+              if (name.isEmpty()) {
+                  CoroutineScope(Dispatchers.IO).launch {
+                      val result = AppUtils.getAppName(holder.itemView.context, packageName)
+                      withContext(Dispatchers.Main) {
+                          tvAppName.text = result
+                      }
+                  }
+              } else {
+                  tvAppName.text = name
+              }
+              tvAppName.marquee()
+              tvPackageName.text = packageName
+              tvPackageName.marquee()
+              tvOtherInfo.text = "$versionName($versionCode), Target Api $targetApi"
+              tvOtherInfo.marquee()
+          }
         }
     }
 
-    object AppDiffCallback : DiffUtil.ItemCallback<AppItem>() {
-        override fun areItemsTheSame(oldItem: AppItem, newItem: AppItem): Boolean =
+    object AppDiffCallback : DiffUtil.ItemCallback<AppListItem>() {
+        override fun areItemsTheSame(oldItem: AppListItem, newItem: AppListItem): Boolean =
             oldItem.packageName == newItem.packageName
 
-        override fun areContentsTheSame(oldItem: AppItem, newItem: AppItem): Boolean =
+        override fun areContentsTheSame(oldItem: AppListItem, newItem: AppListItem): Boolean =
             oldItem.name == newItem.name && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.installedTime == newItem.installedTime
 
     }
