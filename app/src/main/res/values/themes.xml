@@ -6,21 +6,6 @@
         <item name="windowSplashScreenAnimationDuration">500</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
-    <!-- Base application theme. -->
-    <!--    <style name="Theme.SimpleHook" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
-            &lt;!&ndash; Primary brand color. &ndash;&gt;
-            <item name="colorPrimary">#65A3F0</item>
-            <item name="colorPrimaryVariant">#4F9BFA</item>
-            <item name="colorOnPrimary">@color/white</item>
-            &lt;!&ndash; Secondary brand color. &ndash;&gt;
-            <item name="colorSecondary">@color/teal_200</item>
-            <item name="colorSecondaryVariant">@color/teal_700</item>
-            <item name="colorOnSecondary">@color/black</item>
-            &lt;!&ndash; Status bar color. &ndash;&gt;
-            <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-            &lt;!&ndash; Customize your theme here. &ndash;&gt;
-            <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
-        </style>-->
 
     <style name="FloatButtonTheme">
         <item name="android:layout_width">wrap_content</item>
@@ -43,7 +28,7 @@
         <item name="colorControlNormal">@color/menu_item_icon_color</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>

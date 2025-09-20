@@ -51,6 +51,7 @@
     <string name="main_settings_summary_storage_permission">正常运行中</string>
     <string name="main_settings_title_storage_no_permission">缺少必要权限</string>
     <string name="main_settings_summary_storage_no_root">点击获取ROOT权限</string>
+    <string name="main_settings_summary_storage_no_shizuku">点击请求Shizuku权限</string>
     <string name="main_settings_summary_storage_no">点击获取存储权限</string>
     <string name="main_settings_summary_no_alive">模块未激活，无法正常运行</string>
     <string name="main_settings_title_experiment">实验功能</string>
@@ -89,6 +90,12 @@
         <item>record</item>
         <item>favourite</item>
     </string-array>
+
+    <string-array name="main_settings_work_mode_item_entries">
+        <item>Shizuku</item>
+        <item>Root</item>
+    </string-array>
+
     <string-array name="main_settings_theme_mode_item_entries">
         <item>总是关闭</item>
         <item>总是开启</item>
@@ -615,6 +622,29 @@
     <string name="config_dialog_config_item_desc_edit">输入备忘信息</string>
     <string name="record_show_line_number">显示行号</string>
     <string name="record_enable_magnifier">启用放大镜</string>
+    <string name="no_shizuku_tip">暂时不可用，请检查是否安装了Shizuku或重启APP</string>
+    <string name="main_settings_work_mode_title">工作模式</string>
+    <string name="dex_browser_title">Dex浏览器</string>
+    <string name="dex_browser_select_file">选择文件</string>
+    <string name="dex_browser_select_file_tip">请选择一个 DEX 文件开始浏览</string>
+    <string name="dex_browser_method_detail">方法详情</string>
+    <string name="dex_browser_class_name">类名</string>
+    <string name="dex_browser_method_name">方法名</string>
+    <string name="dex_browser_param_type">参数类型</string>
+    <string name="dex_browser_return_type">返回值</string>
+    <string name="dex_browser_type">类型</string>
+    <string name="dex_browser_static_method">静态方法</string>
+    <string name="dex_browser_instance_method">实例方法</string>
+    <string name="dex_browser_button_cancel">取消</string>
+    <string name="dex_browser_button_confirm">选取</string>
+    <string name="dex_browser_field_detail">字段详情</string>
+    <string name="dex_browser_field_name">字段名</string>
+    <string name="dex_browser_field_type">字段类型</string>
+    <string name="dex_browser_static_field">静态字段</string>
+    <string name="dex_browser_instance_field">实例字段</string>
+    <string name="dex_browser_fields">字段:</string>
+    <string name="dex_browser_methods">方法:</string>
+    <string name="dex_browser_field_method_count">%1$d 个字段, %2$d 个方法</string>
 
 
 </resources>

@@ -15,6 +15,7 @@ import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,20 +33,18 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.PrintLogAdapter
-import me.simpleHook.ui.WindowPreferencesManager
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FlavorUtils
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.LogUtils
 import me.simpleHook.util.TimeUtil
-import androidx.core.net.toUri
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
 @Keep
@@ -101,7 +100,6 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
-        WindowPreferencesManager(this).applyEdgeToEdgePreference(window)
         if (DynamicColors.isDynamicColorAvailable() && GlobalValue.sp.enableSystemAccent) {
             DynamicColors.applyToActivityIfAvailable(this)
         }

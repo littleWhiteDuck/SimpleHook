@@ -17,6 +17,7 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.extension.showToast
 import me.simpleHook.util.ToolUtils
+import androidx.core.net.toUri
 
 
 class AboutActivity : AbsAboutActivity() {
@@ -30,16 +31,16 @@ class AboutActivity : AbsAboutActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
-            R.id.feedback -> {
+           /* R.id.feedback -> {
                 ToolUtils.toClip(this, "feedback@fduck.life")
                 showToast(message = getString(R.string.about_clip_email_tip))
             }
             R.id.add_group -> {
                 val intent = Intent(ACTION_VIEW).also {
-                    it.data = Uri.parse("https://t.me/simpleHook")
+                    it.data = "https://t.me/simpleHook".toUri()
                 }
                 startActivity(intent)
-            }
+            }*/
         }
         return true
     }
@@ -57,19 +58,20 @@ class AboutActivity : AbsAboutActivity() {
 
         items.add(Category("Developers"))
         items.add(Contributor(R.drawable.author, "littleWhiteDuck", "Developer & designer"))
-        items.add(
+        items.add(Contributor(R.drawable.xiaoniu, "快乐小牛", "Developer & tester"))
+
+       /* items.add(
             Contributor(
                 R.drawable.ic_github,
                 "Source Code (Hook)",
                 "https://github.com/littleWhiteDuck/SimpleHook",
                 "https://github.com/littleWhiteDuck/SimpleHook"
             )
-        )
+        )*/
 
         items.add(Category("Testers"))
         items.add(Contributor(R.drawable.jian, "简大仙", "Tester and Sponsor"))
         items.add(Contributor(R.drawable.zhengji, "正己", "Tester"))
-        items.add(Contributor(R.drawable.xiaoniu, "快乐小牛", "Tester"))
 
         items.add(Category("App recommendations"))
         items.add(
@@ -181,6 +183,20 @@ class AboutActivity : AbsAboutActivity() {
             License.APACHE_2,
             "https://github.com/thegrizzlylabs/sardine-android"))
 
+        items.add(License("QAuxiliary",
+            "cinit",
+            "General License Agreement, CC BY-NC-SA 4.0",
+            "https://github.com/cinit/QAuxiliary"))
+
+        items.add(License("Shizuku-API",
+            "Rikka",
+            License.MIT,
+            "https://github.com/RikkaApps/Shizuku"))
+
+        items.add(License("smali",
+            "JesusFreke",
+            "BSD 3-clause",
+            "https://github.com/JesusFreke/smali"))
 
         items.add(Category("Acknowledgement"))
         items.add(Card("""

@@ -104,8 +104,8 @@ class RecordActivity : BaseActivity() {
         } else {
             supportActionBar?.title =
                 if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
-                    this@RecordActivity,
-                    typeOrPackageName)
+                    typeOrPackageName
+                )
             supportActionBar?.subtitle = typeOrPackageName
         }
     }

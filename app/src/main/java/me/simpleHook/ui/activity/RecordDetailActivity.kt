@@ -54,7 +54,7 @@ class RecordDetailActivity : BaseActivity() {
         supportActionBar?.title = if (recordPackageName.startsWith("error")) {
             "Hook Error"
         } else {
-            AppUtils.getAppName(this, recordPackageName)
+            AppUtils.getAppName(recordPackageName)
         }
         supportActionBar?.subtitle = recordPackageName
         initView()

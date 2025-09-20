@@ -22,7 +22,6 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.base.IMenuProvider
 import me.simpleHook.constant.Constant
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.extension.fetchJson
 import me.simpleHook.extension.setCurrentItem
@@ -39,6 +38,7 @@ import me.simpleHook.util.OSUtils
 import me.simpleHook.util.PermissionUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.util.SuUtil
+import me.simpleHook.viewmodel.AppConfigViewModel
 
 class MainActivity : BaseActivity(), IMenuProvider {
 
@@ -121,7 +121,8 @@ class MainActivity : BaseActivity(), IMenuProvider {
     private fun initPermission() {
         if (FlavorUtils.liteVersion) {
             if (!isActive) {
-                customDialog(this,
+                customDialog(
+                    this,
                     title = getString(R.string.module_not_activated),
                     message = getString(R.string.module_not_activated_message),
                     okText = getString(R.string.module_not_activated_ok),
@@ -136,7 +137,8 @@ class MainActivity : BaseActivity(), IMenuProvider {
             SuUtil.init()
         } else if (OSUtils.atLeastT()) {
             if (sp.showA13Tip) {
-                customDialog(this,
+                customDialog(
+                    this,
                     title = "Tip",
                     message = getString(R.string.main_android_13_tip),
                     okText = getString(R.string.dialog_cancel),

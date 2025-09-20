@@ -3,13 +3,16 @@ package me.simpleHook.ui.fragment
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.MultiTypeAdapter
-import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +30,10 @@ import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.record.RecordSummaryFragmentView
-import me.simpleHook.util.*
+import me.simpleHook.util.AppUtils
+import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.util.LogUtils
+import me.simpleHook.util.RecordType
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
@@ -257,7 +263,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         refreshData(0, false)
         refreshData(100, false)
         val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
-        val bottomViewNavigationBehavior = layoutParams.behavior as HideViewOnScrollBehavior
-        bottomViewNavigationBehavior.slideIn(bottomNavigationView, true)
+        val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior
+        bottomViewNavigationBehavior.slideUp(bottomNavigationView, true)
     }
 }

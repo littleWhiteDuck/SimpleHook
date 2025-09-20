@@ -3,7 +3,7 @@ package me.simpleHook.util
 
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ConfigBean
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.constant.Constant.HOOK_BREAK
 import me.simpleHook.constant.Constant.HOOK_FIELD
 import me.simpleHook.constant.Constant.HOOK_PARAM
@@ -82,7 +82,7 @@ private const val hostPackageName = "var hostPackageName = runtime.packageName;"
 
 object JsHook {
 
-    fun getStringJSConfig(list: List<ConfigItem>?) = list?.let {
+    fun getStringJSConfig(list: List<AppConfigItem2>?) = list?.let {
         var result = "$hostPackageName\n\n"
         list.forEach { configItem ->
             val appConfig = configItem.appConfig

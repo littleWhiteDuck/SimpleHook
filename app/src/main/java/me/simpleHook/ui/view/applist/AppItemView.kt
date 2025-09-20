@@ -2,7 +2,6 @@ package me.simpleHook.ui.view.applist
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.ViewGroup
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -24,7 +23,7 @@ class AppItemView(context: Context, attrs: AttributeSet?) : MaterialCardView(con
 
     init {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }

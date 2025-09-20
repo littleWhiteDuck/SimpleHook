@@ -31,7 +31,7 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
 import me.simpleHook.constant.Constant
 import me.simpleHook.data.AppConfigItem
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.extension.dp
@@ -39,6 +39,7 @@ import me.simpleHook.extension.fetchText
 import me.simpleHook.extension.showPopup
 import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.recyclerview.adapter.HomeAdapter
+import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -306,9 +307,9 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     private fun shareConfigs() {
         if (filterConfigs.isNotEmpty()) {
-            val dataList = ArrayList<ConfigItem>()
+            val dataList = ArrayList<AppConfigItem2>()
             for (config in filterConfigs) {
-                dataList.add(ConfigItem(config.appConfig))
+                dataList.add(AppConfigItem2(config.appConfig))
             }
             ConfigDialogFragment(
                 dataList,
@@ -329,7 +330,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                     return
                 } else {
                     ConfigDialogFragment(
-                        dataList as ArrayList<ConfigItem>,
+                        dataList as ArrayList<AppConfigItem2>,
                         Constant.CONFIG_IMPORT_MODE
                     ).show(
                         requireActivity().supportFragmentManager,
@@ -374,13 +375,16 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         }
     }
 
-
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_launch -> AppUtils.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
                 if (FlavorUtils.rootVersion) {
-                    SuUtil.forceStopApp(configOfItemMenu.packageName)
+                    if (GlobalValue.isRootWork) {
+                        SuUtil.forceStopApp(configOfItemMenu.packageName)
+                    } else {
+                        ShizukuFileManager.service?.forceStopPackage(configOfItemMenu.packageName)
+                    }
                 } else {
                     AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
@@ -391,7 +395,14 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                     val intent =
                         requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
                     intent?.component?.className?.let { className ->
-                        SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
+                        if (GlobalValue.isRootWork) {
+                            SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
+                        } else {
+                            ShizukuFileManager.service?.reLaunchApp(
+                                configOfItemMenu.packageName,
+                                className
+                            )
+                        }
                     }
                 }
             }
@@ -415,7 +426,6 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         return super.onContextItemSelected(item)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun startDragSort() {
         binding.fab.isVisible = false
         binding.sortDone.isVisible = true

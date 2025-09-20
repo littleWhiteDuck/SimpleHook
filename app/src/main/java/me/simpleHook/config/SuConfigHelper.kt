@@ -1,10 +1,11 @@
 package me.simpleHook.config
 
 import me.simpleHook.GlobalValue
-import me.simpleHook.util.SuFileUtils
+import me.simpleHook.constant.ConfigConstant
 import me.simpleHook.constant.Constant
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.FileUtils
+import me.simpleHook.util.SuFileUtils
 import me.simpleHook.util.SuUtil
 
 class SuConfigHelper : ConfigSystem {
@@ -15,17 +16,14 @@ class SuConfigHelper : ConfigSystem {
     @Synchronized
     override fun saveCustomConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
-        val path =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.CUSTOM_CONFIG_NAME}"
+        val path = String.format(ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, packageName)
         return SuFileUtils.outTextToFile(path, content)
     }
 
     override fun deleteCustomConfig(packageName: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
-        val customPath =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.CUSTOM_CONFIG_NAME}"
-        val extensionPath =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.EXTENSION_CONFIG_NAME}"
+        val customPath = String.format(ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, packageName)
+        val extensionPath = String.format(ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, packageName)
         return if (FileUtils.isFileExists(extensionPath)) {
             SuFileUtils.deleteFile(customPath)
         } else {
@@ -35,17 +33,14 @@ class SuConfigHelper : ConfigSystem {
 
     override fun saveExConfig(packageName: String, content: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
-        val path =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.EXTENSION_CONFIG_NAME}"
+        val path = String.format(ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, packageName)
         return SuFileUtils.outTextToFile(path, content)
     }
 
     override fun deleteExConfig(packageName: String): Boolean {
         if (!AppUtils.isAppInstalled(packageName)) return true
-        val customPath =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.CUSTOM_CONFIG_NAME}"
-        val extensionPath =
-            "${Constant.ROOT_CONFIG_MAIN_DIRECTORY}$packageName/config/${Constant.EXTENSION_CONFIG_NAME}"
+        val customPath = String.format(ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, packageName)
+        val extensionPath = String.format(ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, packageName)
         return if (FileUtils.isFileExists(customPath)) {
             SuFileUtils.deleteFile(extensionPath)
         } else {

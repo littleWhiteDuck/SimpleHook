@@ -18,15 +18,15 @@ import com.bumptech.glide.signature.ObjectKey
 @GlideModule
 class IconGlideModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        registry.prepend(String::class.java, Drawable::class.java, IconModelLoaderFactory(context))
+        registry.prepend(String::class.java, Drawable::class.java, IconModelLoaderFactory())
     }
 
 
 }
 
-class IconModelLoaderFactory(private val context: Context) : ModelLoaderFactory<String, Drawable> {
+class IconModelLoaderFactory() : ModelLoaderFactory<String, Drawable> {
     override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<String, Drawable> {
-        return IconModelLoader(context)
+        return IconModelLoader()
     }
 
     override fun teardown() {
@@ -35,12 +35,12 @@ class IconModelLoaderFactory(private val context: Context) : ModelLoaderFactory<
 
 }
 
-class IconModelLoader(private val context: Context) : ModelLoader<String, Drawable> {
+class IconModelLoader() : ModelLoader<String, Drawable> {
     override fun buildLoadData(
         model: String, width: Int, height: Int, options: Options
     ): ModelLoader.LoadData<Drawable> {
         return ModelLoader.LoadData(
-            ObjectKey(model), IconDataFetcher(context = context, packageName = model)
+            ObjectKey(model), IconDataFetcher(packageName = model)
         )
     }
 
@@ -48,10 +48,10 @@ class IconModelLoader(private val context: Context) : ModelLoader<String, Drawab
 
 }
 
-class IconDataFetcher(private val context: Context, private val packageName: String) :
+class IconDataFetcher(private val packageName: String) :
     DataFetcher<Drawable> {
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in Drawable>) {
-        val icon = AppUtils.getIcon(context, packageName)
+        val icon = AppUtils.getIcon(packageName)
         callback.onDataReady(icon)
     }
 

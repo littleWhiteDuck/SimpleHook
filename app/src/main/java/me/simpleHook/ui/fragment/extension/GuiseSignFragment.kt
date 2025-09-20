@@ -138,7 +138,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         guiseSigns.forEach {
             appSignItems.add(
                 AppInfo(
-                    AppUtils.getAppName(requireContext(), it.packageName),
+                    AppUtils.getAppName(it.packageName),
                     it.packageName,
                     it.signData,
                     it.enable
@@ -343,7 +343,7 @@ class GuiseSignAdapter(
             signMd5.text =
                 "MD5:" + ToolUtils.getDigest(Signature(appInfo.signData).toByteArray())
                     .uppercase()
-            icon.setImageDrawable(AppUtils.getIcon(itemView.context, appInfo.packageName))
+            icon.setImageDrawable(AppUtils.getIcon(appInfo.packageName))
             checkBox.isChecked = appInfo.enable
         }
     }

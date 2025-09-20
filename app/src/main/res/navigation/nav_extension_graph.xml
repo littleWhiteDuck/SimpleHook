@@ -17,8 +17,7 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <argument
-            android:name="extension_config"
-            app:argType="me.simpleHook.database.entity.AssistConfig" />
+            android:name="extension_config"/>
         <action
             android:id="@+id/action_managerFragment_to_clipboardFragment"
             app:destination="@id/clipboardFragment"

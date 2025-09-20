@@ -20,6 +20,7 @@ plugins {
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 val beta = prop.getProperty("beta").toBoolean()
@@ -81,6 +82,8 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        aidl = true
+        compose = true
     }
     namespace = "me.simpleHook"
     productFlavors {
@@ -156,7 +159,7 @@ android {
                 }
 
                 tasks.configureEach {
-                    if (name == taskName) {
+                    if (name == "optimize${flavorName.capitalized()}ReleaseResources") {
                         finalizedBy(optimizeTask)
                     }
                 }
@@ -173,10 +176,12 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("io.github.Rosemoe.sora-editor:editor:0.23.6")
     implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation("androidx.activity:activity:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
@@ -216,7 +221,7 @@ dependencies {
     implementation("androidx.room:room-paging:$roomVersion")
 
     //glide
-    val glideVersion = "5.0.4"
+    val glideVersion = "5.0.5"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     ksp("com.github.bumptech.glide:ksp:$glideVersion")
 
@@ -240,6 +245,28 @@ dependencies {
     //glacne
     debugImplementation("com.guolindev.glance:glance:1.1.0")
 
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    implementation("org.smali:dexlib2:2.5.2")
+
+
+    // Compose BOM
+    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0-alpha03")
+    implementation("androidx.compose.ui:ui-graphics")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.09.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
 

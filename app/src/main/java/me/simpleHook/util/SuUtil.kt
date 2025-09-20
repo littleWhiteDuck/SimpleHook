@@ -33,6 +33,12 @@ object SuUtil {
         return Shell.cmd("chmod -R 644 $path").exec().isSuccess
     }
 
+    fun mvAndChmod(srcPath: String, destPath: String, permissions: String = "644"): Boolean {
+        val destDir = destPath.substringBeforeLast("/")
+        return Shell.cmd("mkdir -p $destDir && cp -f $srcPath $destPath && chmod $permissions $destPath")
+            .exec().isSuccess
+    }
+
     fun isGrantedRoot(): Boolean {
         val isGrantedRoot = Shell.isAppGrantedRoot() == true
         if (!isGrantedRoot) {

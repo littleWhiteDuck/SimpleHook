@@ -4,12 +4,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.recyclerview.adapter.ImExportAdapter.ViewHolder
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.ui.view.main.ShareItemView
 
 class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
     RecyclerView.Adapter<ViewHolder>() {
-    private var dataList: List<ConfigItem> = ArrayList()
+    private var dataList: List<AppConfigItem2> = ArrayList()
 
     inner class ViewHolder(shareItemView: ShareItemView) : RecyclerView.ViewHolder(shareItemView) {
         val tvInformation = shareItemView.information
@@ -39,7 +39,7 @@ class ImExportAdapter(private val onCheckedChange: (Boolean, Int) -> Unit) :
 
     override fun getItemCount() = dataList.size
 
-    fun setDataList(list: List<ConfigItem>) {
+    fun setDataList(list: List<AppConfigItem2>) {
         dataList = list
     }
 }

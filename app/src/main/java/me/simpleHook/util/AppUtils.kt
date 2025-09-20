@@ -8,53 +8,51 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.core.net.toUri
 import me.simpleHook.GlobalValue
 import me.simpleHook.extension.showToast
-import androidx.core.net.toUri
 
 @Suppress("DEPRECATION", "unused")
 object AppUtils {
+    private val pm by lazy { GlobalValue.packageManager }
 
     fun isAppInstalled(packageName: String): Boolean {
         return runCatching {
-            GlobalValue.packageManager.getPackageInfo(packageName, 0) != null
+            pm.getPackageInfo(packageName, 0) != null
         }.getOrDefault(false)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    fun getIcon(context: Context, packageName: String): Drawable {
+    fun getIcon(packageName: String): Drawable {
         return try {
-            context.packageManager.getApplicationIcon(packageName)
+            pm.getApplicationIcon(packageName)
         } catch (_: PackageManager.NameNotFoundException) {
-            context.packageManager.defaultActivityIcon
+            pm.defaultActivityIcon
         }
     }
 
-    fun getApps(context: Context): List<PackageInfo> {
-        val packageManager = context.packageManager
-        return packageManager.getInstalledPackages(0)
+    fun getApps(): List<PackageInfo> {
+        return pm.getInstalledPackages(0)
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    fun getInstalledSystemApp(context: Context): List<PackageInfo> {
-        val packageManager = context.packageManager
-        return packageManager.getInstalledPackages(0).filter {
+    fun getInstalledSystemApp(): List<PackageInfo> {
+
+        return pm.getInstalledPackages(0).filter {
             (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM)) != 0
         }
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    fun getInstalledUserApp(context: Context): List<PackageInfo> {
-        val packageManager = context.packageManager
-        return packageManager.getInstalledPackages(0).filter {
+    fun getInstalledUserApp(): List<PackageInfo> {
+        return pm.getInstalledPackages(0).filter {
             (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM)) == 0
         }
     }
 
-    fun getUserPackageNames(context: Context): List<String> {
-        val packageManager = context.packageManager
+    fun getUserPackageNames(): List<String> {
         val packs = mutableListOf<String>()
-        packageManager.getInstalledPackages(0).filter {
+        pm.getInstalledPackages(0).filter {
             (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM)) == 0
         }.forEach {
             packs.add(it.packageName)
@@ -62,10 +60,9 @@ object AppUtils {
         return packs
     }
 
-    fun getSystemPackageNames(context: Context): List<String> {
-        val packageManager = context.packageManager
+    fun getSystemPackageNames(): List<String> {
         val packs = mutableListOf<String>()
-        packageManager.getInstalledPackages(0).filter {
+        pm.getInstalledPackages(0).filter {
             (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM)) != 0
         }.forEach {
             packs.add(it.packageName)
@@ -73,27 +70,26 @@ object AppUtils {
         return packs
     }
 
-    fun getPackageNames(context: Context): List<String> {
-        val packageManager = context.packageManager
+    fun getPackageNames(): List<String> {
         val packs = mutableListOf<String>()
-        packageManager.getInstalledPackages(0).forEach {
+        pm.getInstalledPackages(0).forEach {
             packs.add(it.packageName)
         }
         return packs
     }
 
 
-    fun getTargetSdkVersion(context: Context, packageName: String): Int {
+    fun getTargetSdkVersion(packageName: String): Int {
         return runCatching {
-            context.packageManager.getPackageInfo(packageName, 0).applicationInfo?.targetSdkVersion
+            pm.getPackageInfo(packageName, 0).applicationInfo?.targetSdkVersion
                 ?: -1
         }.getOrDefault(-1)
     }
 
-    fun getAppName(context: Context, packageName: String): String {
+    fun getAppName(packageName: String): String {
         return runCatching {
             getAppName(
-                context, context.packageManager.getPackageInfo(
+                pm.getPackageInfo(
                     packageName,
                     0
                 )
@@ -101,20 +97,20 @@ object AppUtils {
         }.getOrDefault("NULL")
     }
 
-    fun getAppName(context: Context, packageInfo: PackageInfo): String {
-        return packageInfo.applicationInfo?.loadLabel(context.packageManager).toString()
+    fun getAppName(packageInfo: PackageInfo): String {
+        return packageInfo.applicationInfo?.loadLabel(pm).toString()
     }
 
 
-    fun getAppVersionName(context: Context, packageName: String): String {
+    fun getAppVersionName(packageName: String): String {
         return runCatching {
-            context.packageManager.getPackageInfo(packageName, 0).versionName ?: "not define"
+            pm.getPackageInfo(packageName, 0).versionName ?: "not define"
         }.getOrDefault("NULL")
     }
 
-    fun getAppVersionCode(context: Context, packageName: String): String {
+    fun getAppVersionCode(packageName: String): String {
         return try {
-            val info = context.packageManager.getPackageInfo(packageName, 0)
+            val info = pm.getPackageInfo(packageName, 0)
             val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 info.longVersionCode
             } else {
@@ -128,8 +124,8 @@ object AppUtils {
 
     fun startApp(packageName: String, context: Context) {
         try {
-            if (checkPackInfo(packageName, context)) {
-                context.apply { startActivity(packageManager.getLaunchIntentForPackage(packageName)) }
+            if (checkPackInfo(packageName)) {
+                context.apply { startActivity(pm.getLaunchIntentForPackage(packageName)) }
             }
         } catch (_: java.lang.Exception) {
             context.showToast("可能应用被停用了,或者其他错误")
@@ -137,10 +133,10 @@ object AppUtils {
 
     }
 
-    private fun checkPackInfo(packageName: String, context: Context): Boolean {
+    private fun checkPackInfo(packageName: String): Boolean {
         var packageInfo: PackageInfo? = null
         try {
-            packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            packageInfo = pm.getPackageInfo(packageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }

@@ -28,7 +28,7 @@ class AppConfigView(context: Context, attrs: AttributeSet? = null) :
 
     val editConfig = AppCompatButton(context).apply {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT
+            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
         ).also {
             setPadding(0, 0, 0, 0)
         }
@@ -39,7 +39,7 @@ class AppConfigView(context: Context, attrs: AttributeSet? = null) :
     }
     val shareConfig = AppCompatButton(context).apply {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT
+            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
         ).also {
             setPadding(0, 0, 0, 0)
         }
@@ -50,7 +50,7 @@ class AppConfigView(context: Context, attrs: AttributeSet? = null) :
     }
     val deleteConfig = AppCompatButton(context).apply {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT
+            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
         ).also {
             setPadding(0, 0, 0, 0)
         }
@@ -62,7 +62,7 @@ class AppConfigView(context: Context, attrs: AttributeSet? = null) :
 
     init {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }

@@ -249,11 +249,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     private fun saveConfig(assistConfig: AssistConfig) {
         if (configSystem.isEnableSave(assistConfig.packageName)) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                LSPosedHelper.changeScope(assistConfig.packageName, true)
-                appConfigViewModel.insertAssistConfigs(assistConfig)
-                configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
-            }
+            appConfigViewModel.insertAssistConfigs(assistConfig)
         } else {
             requirePermission(assistConfig.packageName)
         }

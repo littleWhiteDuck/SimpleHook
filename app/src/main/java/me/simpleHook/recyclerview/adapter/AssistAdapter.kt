@@ -58,7 +58,7 @@ class AssistAdapter(
             tvAppName.text = assistConfig.appName
             Glide.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
             tvVersionName.text =
-                AppUtils.getAppVersionName(itemView.context, assistConfig.packageName)
+                AppUtils.getAppVersionName(assistConfig.packageName)
         }
     }
 }

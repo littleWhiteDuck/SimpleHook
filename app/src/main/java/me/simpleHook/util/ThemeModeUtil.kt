@@ -2,8 +2,13 @@ package me.simpleHook.util
 
 import android.content.res.Configuration
 import android.content.res.Resources
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.*
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 
 object ThemeModeUtil {
 

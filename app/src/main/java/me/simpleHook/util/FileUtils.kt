@@ -55,14 +55,45 @@ object FileUtils {
     fun generateFile(filePath: String): File? {
         val file = File(filePath)
         return if (file.exists()) {
-            file
+            if (file.isDirectory) {
+                file.delete()
+                generateFile(filePath)
+            } else {
+                file
+            }
         } else {
             try {
                 makeDirs(file.parentFile)
                 if (file.createNewFile()) file else null
             } catch (e: IOException) {
+                e.printStackTrace()
                 null
             }
+        }
+    }
+
+    fun copyFile(srcPath: String, desPath: String): Boolean {
+        val srcFile = File(srcPath)
+        if (!srcFile.exists() || !srcFile.isFile) {
+            return false
+        }
+
+        return try {
+            val desFile = File(desPath)
+            desFile.parentFile?.let { parentDir ->
+                if (!parentDir.exists()) {
+                    parentDir.mkdirs()
+                }
+            }
+            desFile.outputStream().use { outputStream ->
+                srcFile.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            true
+        } catch (e: IOException) {
+            e.printStackTrace()
+            false
         }
     }
 

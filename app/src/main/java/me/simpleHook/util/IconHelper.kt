@@ -20,7 +20,7 @@ object IconHelper {
 
     fun getAppIcon(context: Context, packageName: String): Drawable {
         if (packageName.startsWith("error")) return getTextIcon(text = "Error")
-        return iconMap[packageName] ?: AppUtils.getIcon(context, packageName).also {
+        return iconMap[packageName] ?: AppUtils.getIcon(packageName).also {
             iconMap[packageName] = it
         }
     }
@@ -31,7 +31,7 @@ object IconHelper {
 
     fun loadIcon(context: Context, packageName: String) {
         if (iconMap[packageName] == null) {
-            AppUtils.getIcon(context, packageName).also {
+            AppUtils.getIcon(packageName).also {
                 iconMap[packageName] = it
             }
         }

@@ -2,6 +2,7 @@
     <!--assist-->
     <string name="extension_start_float_window">開啟懸浮窗</string>
     <!--config-->
+    <string name="xposed_description">自定義hook</string>
     <string name="config_config_smali_to_config">smali轉為配置</string>
     <string name="config_add_config">添加方法配置</string>
     <string name="config_dialog_class_edit_tip">輸入類名</string>
@@ -49,6 +50,7 @@
     <string name="main_settings_summary_storage_permission">正常運行中</string>
     <string name="main_settings_title_storage_no_permission">缺少必要權限</string>
     <string name="main_settings_summary_storage_no_root">點擊獲取ROOT權限</string>
+    <string name="main_settings_summary_storage_no_shizuku">點擊請求Shizuku權限</string>
     <string name="main_settings_summary_no_alive">模塊未激活，無法正常運行</string>
     <string name="main_settings_summary_storage_no">點擊獲取存儲權限</string>
     <string name="main_settings_title_experiment">實驗功能</string>
@@ -522,4 +524,27 @@
     <string name="main_settings_follow_system_theme_color">跟隨系統主題色</string>
     <string name="record_show_line_number">顯示行號</string>
     <string name="record_enable_magnifier">啟用放大鏡</string>
+    <string name="no_shizuku_tip">暫時不可用，請檢查是否安裝了Shizuku或重啟APP</string>
+    <string name="main_settings_work_mode_title">工作模式</string>
+    <string name="dex_browser_title">Dex瀏覽器</string>
+    <string name="dex_browser_select_file">選擇文件</string>
+    <string name="dex_browser_select_file_tip">請選擇一個 DEX 檔案開始瀏覽</string>
+    <string name="dex_browser_method_detail">方法詳情</string>
+    <string name="dex_browser_class_name">類別名稱</string>
+    <string name="dex_browser_method_name">方法名稱</string>
+    <string name="dex_browser_param_type">參數類型</string>
+    <string name="dex_browser_return_type">回傳值</string>
+    <string name="dex_browser_type">類型</string>
+    <string name="dex_browser_static_method">靜態方法</string>
+    <string name="dex_browser_instance_method">實例方法</string>
+    <string name="dex_browser_button_cancel">取消</string>
+    <string name="dex_browser_button_confirm">選取</string>
+    <string name="dex_browser_field_detail">欄位詳情</string>
+    <string name="dex_browser_field_name">欄位名稱</string>
+    <string name="dex_browser_field_type">欄位類型</string>
+    <string name="dex_browser_static_field">靜態欄位</string>
+    <string name="dex_browser_instance_field">實例欄位</string>
+    <string name="dex_browser_fields">欄位:</string>
+    <string name="dex_browser_methods">方法:</string>
+    <string name="dex_browser_field_method_count">%1$d 個欄位, %2$d 個方法</string>
 </resources>

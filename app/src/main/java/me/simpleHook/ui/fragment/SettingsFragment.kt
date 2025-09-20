@@ -1,6 +1,7 @@
 package me.simpleHook.ui.fragment
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,15 +20,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.BuildConfig
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.IMenuProvider
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.config.PrefConfigHelper
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
+import me.simpleHook.data.PermissionState
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showPopup
+import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.ui.activity.A33PermissionActivity
 import me.simpleHook.ui.activity.AboutActivity
 import me.simpleHook.ui.activity.BackupActivity
@@ -51,6 +55,7 @@ import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 import me.simpleHook.viewmodel.SettingsViewModel
 import rikka.preference.SimpleMenuPreference
+import rikka.shizuku.Shizuku
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val sp by lazy { SPUtils(requireContext()) }
@@ -72,7 +77,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
-//        findPreference<MaterialSwitchPreference>("lspScope")?.isVisible = FlavorUtils.rootVersion
         findPreference<MaterialSwitchPreference>("checkPermission")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (!(newValue as Boolean)) {
@@ -183,40 +187,59 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        findPreference<SimpleMenuPreference>("workMode")?.apply {
+            summary = GlobalValue.sp.workMode
+            setOnPreferenceChangeListener { _, newValue ->
+                if (newValue is String) {
+                    summary = newValue
+                    GlobalValue.sp.workMode = newValue
+                    checkPermission()
+                }
+                true
+            }
+        }
     }
 
     private fun checkPermission() {
         if (FlavorUtils.liteVersion) {
             settingsViewModel.permStatus.value =
                 if ((configSystem as PrefConfigHelper).customPref == null) {
-                    Constant.NO_ALIVE
+                    PermissionState.NO_ALIVE
                 } else {
-                    Constant.IS_GRANT
+                    PermissionState.GRANT
                 }
             return
         }
         if (FlavorUtils.rootVersion) {
-            settingsViewModel.permStatus.value = if (SuUtil.isGrantedRoot()) {
-                Constant.IS_GRANT
+            settingsViewModel.permStatus.value = if (GlobalValue.isRootWork) {
+                if (SuUtil.isGrantedRoot()) {
+                    PermissionState.GRANT
+                } else {
+                    PermissionState.NO_ROOT
+                }
             } else {
-                Constant.NO_ROOT
+                if (ShizukuFileManager.isPermissionGranted) {
+                    PermissionState.GRANT
+                } else {
+                    PermissionState.NO_SHIZUKU
+                }
             }
             return
         }
         if (OSUtils.atLeastT()) {
-            settingsViewModel.permStatus.value = Constant.IS_GRANT
+            settingsViewModel.permStatus.value = PermissionState.GRANT
         } else if (OSUtils.atLeastR()) {
             settingsViewModel.permStatus.value = if (PermissionUtils.isGrantData()) {
-                Constant.IS_GRANT
+                PermissionState.GRANT
             } else {
-                Constant.NO_STORAGE
+                PermissionState.NO_STORAGE
             }
         } else {
             settingsViewModel.permStatus.value =
                 if (PermissionUtils.isGrantWritePermission(requireContext())) {
-                    Constant.IS_GRANT
+                    PermissionState.GRANT
                 } else {
-                    Constant.NO_STORAGE
+                    PermissionState.NO_STORAGE
                 }
         }
     }
@@ -231,9 +254,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
                 val apps = when (mode) {
-                    "user" -> AppUtils.getUserPackageNames(requireContext())
-                    "system" -> AppUtils.getSystemPackageNames(requireContext())
-                    else -> AppUtils.getPackageNames(requireContext())
+                    "user" -> AppUtils.getUserPackageNames()
+                    "system" -> AppUtils.getSystemPackageNames()
+                    else -> AppUtils.getPackageNames()
                 }
                 val appPackageNames = viewModel.getAllPackageNames()
                 val extensionPackageNames = viewModel.getAllPackageNames()
@@ -252,12 +275,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun toJSConfig() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val configItems = mutableListOf<ConfigItem>()
+            val appConfigItem2s = mutableListOf<AppConfigItem2>()
             viewModel.getConfigs().forEach {
-                configItems.add(ConfigItem(it))
+                appConfigItem2s.add(AppConfigItem2(it))
             }
             ConfigDialogFragment(
-                configItems,
+                appConfigItem2s,
                 Constant.CONFIG_EXPORT_JS_MODE
             ).show(
                 requireActivity().supportFragmentManager,
@@ -341,37 +364,61 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun initViewModel() {
+        if (FlavorUtils.rootVersion) {
+            Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    ShizukuFileManager.isPermissionGranted = true
+                    if (!ShizukuFileManager.isAvailable) {
+                        ShizukuFileManager.bindService()
+                    }
+                    checkPermission()
+                }
+            }
+        }
         findPreference<Preference>("necessary_permission")?.apply {
             settingsViewModel.permStatus.observe(viewLifecycleOwner) {
                 when (it) {
-                    Constant.IS_GRANT -> {
+                    PermissionState.GRANT -> {
                         title = getString(R.string.main_settings_title_storage_permission)
                         summary = getString(R.string.main_settings_summary_storage_permission)
                     }
 
-                    Constant.NO_ROOT -> {
+                    PermissionState.NO_ROOT -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
                         summary = getString(R.string.main_settings_summary_storage_no_root)
                     }
 
-                    Constant.NO_ALIVE -> {
+                    PermissionState.NO_SHIZUKU -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
-                        summary = getString(R.string.main_settings_summary_no_alive)
+                        summary =getString(R.string.main_settings_summary_storage_no_shizuku)
                     }
 
-                    else -> {
+                    PermissionState.NO_STORAGE -> {
                         title = getString(R.string.main_settings_title_storage_no_permission)
                         summary = getString(R.string.main_settings_summary_storage_no)
+                    }
+
+                    PermissionState.NO_ALIVE -> {
+                        title = getString(R.string.main_settings_title_storage_no_permission)
+                        summary = getString(R.string.main_settings_summary_no_alive)
                     }
                 }
             }
             setOnPreferenceClickListener {
                 when (settingsViewModel.permStatus.value) {
-                    Constant.NO_ROOT -> {
+                    PermissionState.NO_ROOT -> {
                         requireActivity().showPopup(getString(R.string.not_root_tip))
                     }
 
-                    Constant.NO_STORAGE -> {
+                    PermissionState.NO_SHIZUKU -> {
+                        if (ShizukuFileManager.binderAvailable) {
+                            Shizuku.requestPermission(1314)
+                        } else {
+                            requireActivity().showPopup(message = getString(R.string.no_shizuku_tip))
+                        }
+                    }
+
+                    PermissionState.NO_STORAGE -> {
                         if (OSUtils.atR2T()) {
                             if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
                                 requestPermissionDialog(requireContext()) {
@@ -386,17 +433,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             }
                         }
                     }
+
+                    else -> {}
                 }
                 checkPermission()
                 true
             }
         }
         checkPermission()
-        checkPermission()
     }
 
     override fun onResume() {
         super.onResume()
+        checkPermission()
         (activity as? IMenuProvider)?.let {
             it.currentMenuProvider?.let { menuProvider ->
                 activity?.removeMenuProvider(menuProvider)

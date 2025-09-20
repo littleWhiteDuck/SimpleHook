@@ -18,7 +18,9 @@ import me.simpleHook.util.FastScrollerUtil
 import me.simpleHook.viewmodel.AppListViewModel
 
 
-class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView>() {
+open class AppListFragment() : BaseViewFragment<RecyclerView>() {
+
+    protected open val currentLabel = LABEL_USER
 
     private val appListViewModel by activityViewModels<AppListViewModel>()
     private val appAdapter = AppListAdapter {
@@ -30,7 +32,7 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
 
     override fun initRootView(): RecyclerView {
         val recyclerView = RecyclerView(requireContext()).apply {
-            id = if (label == "user") R.id.user_app_recycler else R.id.system_app_recycler
+            id = if (currentLabel == LABEL_USER) R.id.user_app_recycler else R.id.system_app_recycler
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             clipToPadding = false
         }
@@ -52,7 +54,7 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
     }
 
     private fun initData() {
-        if (label == "user") {
+        if (currentLabel == LABEL_USER) {
             appListViewModel.userApps.observe(viewLifecycleOwner) {
                 appAdapter.submitList(it)
                 if (it.isNotEmpty()) swipeRefreshLayout.isRefreshing = false
@@ -70,7 +72,7 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             ViewCompat.onApplyWindowInsets(root, windowInsets)
-            root.setPadding(0, 0, 0, navigationInsets.bottom + 20.dp)
+            root.setPadding(0, 0, 0, navigationInsets.bottom + 24.dp)
             windowInsets
         }
         with(root) {
@@ -81,4 +83,18 @@ class AppListFragment(private val label: String) : BaseViewFragment<RecyclerView
         }
     }
 
+    companion object {
+        const val LABEL_USER = "USER"
+        const val LABEL_SYSTEM = "SYSTEM"
+    }
+
+}
+
+
+class UserAppListFragment() : AppListFragment() {
+    override val currentLabel: String = LABEL_USER
+}
+
+class SystemAppListFragment() : AppListFragment() {
+    override val currentLabel: String = LABEL_SYSTEM
 }

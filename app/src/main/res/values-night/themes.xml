@@ -1,21 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <!--    <style name="Theme.SimpleHook" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-            &lt;!&ndash; Primary brand color. &ndash;&gt;
-            <item name="colorPrimary">#65A3F0</item>
-            <item name="colorPrimaryVariant">#4F9BFA</item>
-            <item name="colorOnPrimary">@color/black</item>
-            &lt;!&ndash; Secondary brand color. &ndash;&gt;
-            <item name="colorSecondary">@color/teal_200</item>
-            <item name="colorSecondaryVariant">@color/teal_200</item>
-            <item name="colorOnSecondary">@color/black</item>
-            &lt;!&ndash; Status bar color. &ndash;&gt;
-            <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-            &lt;!&ndash; Customize your theme here. &ndash;&gt;
-            <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
-        </style>-->
+<resources>
 
-    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>

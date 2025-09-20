@@ -109,7 +109,7 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
         lifecycleScope.launch(Dispatchers.IO) {
             val userAppList = ArrayList<PermissionBean>()
             val systemAppList = ArrayList<PermissionBean>()
-            AppUtils.getInstalledUserApp(this@A33PermissionActivity).forEach {
+            AppUtils.getInstalledUserApp().forEach {
                 val isExists = FileUtils.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
                 if (isExists) {
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
@@ -117,7 +117,7 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
                         userAppList.add(
                             PermissionBean(
                                 it.packageName,
-                                AppUtils.getAppName(this@A33PermissionActivity, it),
+                                AppUtils.getAppName(it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                                 needApplyApps.contains(it.packageName)
                             )
@@ -125,7 +125,7 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
                     }
                 }
             }
-            AppUtils.getInstalledSystemApp(this@A33PermissionActivity).forEach {
+            AppUtils.getInstalledSystemApp().forEach {
                 val isExists = FileUtils.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
                 if (isExists) {
                     val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
@@ -133,7 +133,7 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
                         systemAppList.add(
                             PermissionBean(
                                 it.packageName,
-                                AppUtils.getAppName(this@A33PermissionActivity, it),
+                                AppUtils.getAppName(it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                                 needApplyApps.contains(it.packageName)
                             )

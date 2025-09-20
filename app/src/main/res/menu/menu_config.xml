@@ -9,6 +9,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/menu_dex_browser"
+        android:icon="@drawable/ic_wand_stars_24"
+        android:title="@string/dex_browser_title"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/config_smali_to_config"
         android:icon="@drawable/ic_config_paste"
         android:title="@string/config_config_smali_to_config"

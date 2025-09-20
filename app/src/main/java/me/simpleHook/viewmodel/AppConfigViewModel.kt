@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.config.ConfigSystemUtil
+import me.simpleHook.constant.Constant
 import me.simpleHook.database.AppRepository
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
@@ -94,26 +95,29 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     fun getAllPackageNames() = appRepository.getAllPackageNames()
 
 
+    private fun writeToExternal(assistConfig: AssistConfig) {
+        if (assistConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) return
+        val configStr = Json.encodeToString(assistConfig)
+        // TODO, importing config may result in repeated requests
+        LSPosedHelper.changeScope(assistConfig.packageName, assistConfig.allSwitch)
+        configSystem.saveExConfig(assistConfig.packageName, configStr)
+    }
+
     fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.insertAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion && GlobalValue.sp.lspScope) {
-            val pkgNames = HashSet<String>()
-            assistConfig.forEach {
-                pkgNames.add(it.packageName)
-            }
-            LSPosedHelper.addScope(pkgNames.toTypedArray())
-        }
+        if (FlavorUtils.rootVersion) assistConfig.forEach(::writeToExternal)
         notifyBackupConfig()
     }
 
     fun updateAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.updateAssistConfigs(*assistConfig)
+        if (FlavorUtils.rootVersion) assistConfig.forEach(::writeToExternal)
         notifyBackupConfig()
     }
 
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.deleteAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion && GlobalValue.sp.lspScope) {
+        if (FlavorUtils.rootVersion) {
             val pkgNames = HashSet<String>()
             assistConfig.forEach {
                 val count = getCustomCountByPackageName(it.packageName)

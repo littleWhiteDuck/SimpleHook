@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import me.simpleHook.BuildConfig
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import androidx.core.content.edit
 
 @Suppress("PropertyName")
 open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID + "_preferences") {
@@ -26,14 +27,12 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var permissionReverseSort by SharedPreferenceDelegates.boolean(false)
     var showA13Tip by SharedPreferenceDelegates.boolean(true)
     var checkPermission by SharedPreferenceDelegates.boolean(true)
-    var lspScope by SharedPreferenceDelegates.boolean(false)
     var wordWrap by SharedPreferenceDelegates.boolean(true)
     var record_line_number by SharedPreferenceDelegates.boolean(true)
     var record_magnifier_enable by SharedPreferenceDelegates.boolean(true)
     var backup_scope by SharedPreferenceDelegates.string("BACKUP_SCOPE_ALL")
     var backup_cloud_auto by SharedPreferenceDelegates.boolean(false)
     var backup_local_auto by SharedPreferenceDelegates.boolean(false)
-    var restore_mode by SharedPreferenceDelegates.string("RESTORE_MODE_COVER")
     var backup_path by SharedPreferenceDelegates.string("")
     var backup_cover by SharedPreferenceDelegates.string("BACKUP_OVER_MINUTE")
     var web_dav_host by SharedPreferenceDelegates.string("")
@@ -43,10 +42,13 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
     var config_item_show_desc by SharedPreferenceDelegates.boolean(false)
     var enableSystemAccent by SharedPreferenceDelegates.boolean(true)
 
+    var workMode by SharedPreferenceDelegates.string("Root")
+
     fun remove(key: String) {
-        preferences.edit().remove(key).apply()
+        preferences.edit { remove(key) }
     }
 
+    @Suppress("unused")
     private object SharedPreferenceDelegates {
 
         fun int(defaultValue: Int = 0) = object : ReadWriteProperty<SPUtils, Int> {
@@ -56,7 +58,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
 
             override fun setValue(thisRef: SPUtils, property: KProperty<*>, value: Int) {
-                thisRef.preferences.edit().putInt(property.name, value).apply()
+                thisRef.preferences.edit { putInt(property.name, value) }
             }
         }
 
@@ -67,7 +69,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
 
             override fun setValue(thisRef: SPUtils, property: KProperty<*>, value: Long) {
-                thisRef.preferences.edit().putLong(property.name, value).apply()
+                thisRef.preferences.edit { putLong(property.name, value) }
             }
         }
 
@@ -77,7 +79,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
 
             override fun setValue(thisRef: SPUtils, property: KProperty<*>, value: Boolean) {
-                thisRef.preferences.edit().putBoolean(property.name, value).apply()
+                thisRef.preferences.edit { putBoolean(property.name, value) }
             }
         }
 
@@ -87,7 +89,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
 
             override fun setValue(thisRef: SPUtils, property: KProperty<*>, value: Float) {
-                thisRef.preferences.edit().putFloat(property.name, value).apply()
+                thisRef.preferences.edit { putFloat(property.name, value) }
             }
         }
 
@@ -97,7 +99,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
             }
 
             override fun setValue(thisRef: SPUtils, property: KProperty<*>, value: String?) {
-                thisRef.preferences.edit().putString(property.name, value).apply()
+                thisRef.preferences.edit { putString(property.name, value) }
             }
         }
 
@@ -110,7 +112,7 @@ open class SPUtils(context: Context, name: String = BuildConfig.APPLICATION_ID +
                 override fun setValue(
                     thisRef: SPUtils, property: KProperty<*>, value: Set<String>?
                 ) {
-                    thisRef.preferences.edit().putStringSet(property.name, value).apply()
+                    thisRef.preferences.edit { putStringSet(property.name, value) }
                 }
             }
     }

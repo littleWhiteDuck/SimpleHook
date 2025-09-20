@@ -19,7 +19,7 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.extension.showPopup
@@ -31,7 +31,7 @@ import me.simpleHook.util.WindowUtils
 import me.simpleHook.viewmodel.AppConfigViewModel
 
 class ConfigDialogFragment(
-    private val configsList: List<ConfigItem>, private val mode: Int
+    private val configsList: List<AppConfigItem2>, private val mode: Int
 ) : DialogFragment() {
     private var _binding: FragmentConfigImExportBinding? = null
     private val binding get() = _binding!!
@@ -98,7 +98,7 @@ class ConfigDialogFragment(
                         goMainActivity()
                     }
                 } else {
-                    val tempList = ArrayList<ConfigItem>()
+                    val tempList = ArrayList<AppConfigItem2>()
                     for (item in configsList) {
                         if (item.isChecked) {
                             checkIsZero = false
@@ -172,7 +172,7 @@ class ConfigDialogFragment(
     /**
      * 获取所有配置文本形式
      */
-    private fun getStrConfig(list: List<ConfigItem>?) = list?.let {
+    private fun getStrConfig(list: List<AppConfigItem2>?) = list?.let {
         val appConfigs = ArrayList<AppConfig>()
         list.forEach { configItem ->
             val appConfig = configItem.appConfig

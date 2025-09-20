@@ -11,7 +11,15 @@
             app:key="batch_grant"
             app:summary="@string/main_settings_summary_batch_grant"
             app:title="@string/main_settings_title_batch_grant" />
+        <rikka.preference.SimpleMenuPreference
+            android:entries="@array/main_settings_work_mode_item_entries"
+            android:entryValues="@array/main_settings_work_mode_item_entries"
+            app:defaultValue="Root"
+            app:key="workMode"
+            app:summary="Root"
+            app:title="@string/main_settings_work_mode_title" />
     </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/main_settings_title_custom">
         <me.simpleHook.ui.custom.MaterialSwitchPreference
             android:key="bottomConfigDialog"
@@ -34,11 +42,6 @@
             app:key="toJSConfig"
             app:summary="@string/main_settings_summary_js_config"
             app:title="@string/main_settings_title_JS_config" />
-        <!--       <CheckBoxPreference
-                   app:isPreferenceVisible="false"
-                   app:key="lspScope"
-                   app:summary="@string/main_settings_summary_lsp_scope"
-                   app:title="@string/main_settings_title_lsp_scope" />-->
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/main_settings_title_normal">
 

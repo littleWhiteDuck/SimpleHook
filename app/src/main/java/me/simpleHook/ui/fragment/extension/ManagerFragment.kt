@@ -15,13 +15,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.MultiTypeAdapter
 import com.drakeet.multitype.ViewDelegate
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
@@ -37,6 +34,7 @@ import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopupWithCopyMsg
 import me.simpleHook.extension.snack
 import me.simpleHook.recyclerview.adapter.DividerItemDecoration
+import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.exitDialog
@@ -131,7 +129,11 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     R.id.menu_force_stop -> {
                         showFloatWindow()
                         if (FlavorUtils.rootVersion) {
-                            SuUtil.forceStopApp(extensionConfig.packageName)
+                            if (GlobalValue.isRootWork) {
+                                SuUtil.forceStopApp(extensionConfig.packageName)
+                            } else {
+                                ShizukuFileManager.service?.forceStopPackage(extensionConfig.packageName)
+                            }
                         } else {
                             AppUtils.jumpAppInfoPage(requireContext(), extensionConfig.packageName)
                         }
@@ -143,7 +145,14 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                             val intent =
                                 GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName)
                             intent?.component?.className?.let { className ->
-                                SuUtil.reLaunchApp(extensionConfig.packageName, className)
+                                if (GlobalValue.isRootWork) {
+                                    SuUtil.reLaunchApp(extensionConfig.packageName, className)
+                                } else {
+                                    ShizukuFileManager.service?.reLaunchApp(
+                                        extensionConfig.packageName,
+                                        className
+                                    )
+                                }
                             }
                         }
                     }
@@ -265,9 +274,6 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         } else {
             appConfigViewModel.insertAssistConfigs(extensionConfig)
         }
-        if (extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
-            saveConfig(extensionConfig.packageName, config)
-        }
         Handler(Looper.getMainLooper()).postDelayed({
             getString(R.string.extension_save_success).snack(binding.recyclerView)
             loadingDialog.quickDismiss()
@@ -276,12 +282,6 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             }
         }, 500)
         return true
-    }
-
-    private fun saveConfig(packageName: String, config: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            configSystem.saveExConfig(packageName, config)
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

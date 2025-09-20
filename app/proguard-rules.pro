@@ -101,7 +101,7 @@
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 
 
-
+# Kotlin serialization
 -keepattributes InnerClasses, Signature, RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
 
 -if @kotlinx.serialization.Serializable class *
@@ -122,3 +122,16 @@
 -keep class * extends kotlinx.serialization.Polymorphic { *; }
 
 -keep class kotlinx.serialization.json.** { *; }
+
+# Shizuku
+-keep class me.simpleHook.shizuku.IFileService { *; }
+-keep class me.simpleHook.shizuku.FileService { *; }
+
+# log
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int v(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+}

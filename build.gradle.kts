@@ -11,6 +11,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:$agpVersion")
+        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.2.20")
         val kotlinVersion = "2.2.20"
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
         classpath(kotlin("serialization", version = kotlinVersion))
@@ -34,5 +35,5 @@ allprojects {
 }
 
 tasks.register<Delete>("clean") {
-    delete(layout.projectDirectory)
+    delete(layout.buildDirectory)
 }

@@ -1,7 +1,7 @@
 package me.simpleHook.util
 
 import kotlinx.serialization.json.Json
-import me.simpleHook.data.ConfigItem
+import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.database.entity.AppConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -86,12 +86,12 @@ object JsonUtil {
         }
     }
 
-    fun importConfigs(configs: String): List<ConfigItem> = runCatching {
+    fun importConfigs(configs: String): List<AppConfigItem2> = runCatching {
         val appConfigs = Json.decodeFromString<List<AppConfig>>(configs)
-        val dataList = ArrayList<ConfigItem>()
+        val dataList = ArrayList<AppConfigItem2>()
         appConfigs.forEach { appConfig ->
             appConfig.id = 0
-            dataList.add(ConfigItem(appConfig))
+            dataList.add(AppConfigItem2(appConfig))
         }
         dataList
     }.getOrDefault(emptyList())

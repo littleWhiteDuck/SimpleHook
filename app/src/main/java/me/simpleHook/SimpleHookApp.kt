@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
+import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.util.LanguageUtils
 import me.simpleHook.util.ThemeModeUtil
 
@@ -18,6 +19,7 @@ class SimpleHookApp : Application() {
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
         AppCompatDelegate.setDefaultNightMode(ThemeModeUtil.getDarkMode(GlobalValue.sp.themeMode))
+        ShizukuFileManager.init()
     }
 
     override fun attachBaseContext(base: Context) {

@@ -35,10 +35,6 @@ object Constant {
     //两次点击间隔时间
     const val CLICK_TIME = 500L
 
-    //Config: config.json、assistConfig.json
-    const val CUSTOM_CONFIG_NAME = "config.json"
-    const val EXTENSION_CONFIG_NAME = "assistConfig.json"
-
     const val CUSTOM_CONFIG_NORMAL_NAME = "customConfig.json"
     const val EXTENSION_CONFIG_NORMAL_NAME = "extensionConfig.json"
 
@@ -69,11 +65,6 @@ object Constant {
     const val RECORD_SEARCH_RAW_DATA = 1
     const val RECORD_SEARCH_RESULT = 2
 
-    // permission
-    const val IS_GRANT = 0
-    const val NO_ROOT = 1
-    const val NO_STORAGE = 2
-    const val NO_ALIVE = 3
 
     const val EXTENSION_CONFIG_PREF = "me.simplehook_extension"
     const val CUSTOM_CONFIG_PREF = "simplehook_custom"

@@ -18,7 +18,7 @@ class RecordPackDelegate(
                 icon.setImageDrawable(IconHelper.getTextIcon(text = "Error"))
             } else {
                 Glide.with(icon).load(item.packageName).into(icon)
-                title.text = AppUtils.getAppName(view.context, item.packageName)
+                title.text = AppUtils.getAppName(item.packageName)
             }
 
             desc.text = item.packageName

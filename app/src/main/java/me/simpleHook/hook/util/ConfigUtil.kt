@@ -3,7 +3,7 @@ package me.simpleHook.hook.util
 import android.annotation.SuppressLint
 import androidx.core.net.toUri
 import kotlinx.serialization.json.Json
-import me.simpleHook.constant.Constant
+import me.simpleHook.constant.ConfigConstant
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.hook.util.HookHelper.appContext
 import me.simpleHook.hook.util.HookHelper.hostPackageName
@@ -16,38 +16,51 @@ object ConfigUtil {
     private val uri = PROVIDER_CUSTOM_CONFIG_URI.toUri()
     private val extensionUri = PROVIDER_EXTENSION_CONFIG_URI.toUri()
 
-    fun getConfigFromFile(
-        configName: String = Constant.CUSTOM_CONFIG_NAME
-    ): String? {
+    fun getCustomConfigFromFile(): String? {
         val configPath = if (FlavorUtils.rootVersion) {
-            Constant.ROOT_CONFIG_MAIN_DIRECTORY + hostPackageName + "/config/"
+            String.format(format = ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, hostPackageName)
         } else {
-            Constant.ANDROID_DATA_PATH + hostPackageName + "/simpleHook/config/"
-        } + configName
-        return runCatching {
-            File(configPath).readText()
-        }.onFailure {
-            "failed: $configPath".log()
-        }.getOrNull()
+            String.format(format = ConfigConstant.NORMAL_CUSTOM_CONFIG_PATH, hostPackageName)
+        }
+        return getConfigFromFile(configPath)
     }
+
+    fun getExtConfigFromFile(): String? {
+        val configPath = if (FlavorUtils.rootVersion) {
+            String.format(format = ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, hostPackageName)
+        } else {
+            String.format(format = ConfigConstant.NORMAL_EXTENSION_CONFIG_PATH, hostPackageName)
+        }
+        return getConfigFromFile(configPath)
+    }
+
+    private fun getConfigFromFile(configPath: String): String? = runCatching {
+        File(configPath).readText()
+    }.onFailure {
+        "failed: $configPath".log()
+    }.getOrNull()
 
     @SuppressLint("Range")
     fun getCustomConfigFromDB(): String? {
         return try {
             var config: String? = null
-            appContext.contentResolver?.query(uri,
+            appContext.contentResolver?.query(
+                uri,
                 null,
                 "packageName = ?",
                 arrayOf(hostPackageName),
-                null)?.apply {
+                null
+            )?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("enable")) == 1) {
                         val configString = getString(getColumnIndex("config"))
-                        val appConfig = AppConfig(configs = configString,
+                        val appConfig = AppConfig(
+                            configs = configString,
                             packageName = hostPackageName,
                             appName = "",
                             versionName = "",
-                            description = "")
+                            description = ""
+                        )
                         config = Json.encodeToString(appConfig)
                         break
                     }
@@ -64,11 +77,13 @@ object ConfigUtil {
     fun getExConfigFromDB(): String? {
         return try {
             var config: String? = null
-            appContext.contentResolver?.query(extensionUri,
+            appContext.contentResolver?.query(
+                extensionUri,
                 null,
                 "packageName = ?",
                 arrayOf(hostPackageName),
-                null)?.apply {
+                null
+            )?.apply {
                 while (moveToNext()) {
                     if (getInt(getColumnIndex("allSwitch")) == 1) {
                         config = getString(getColumnIndex("config"))

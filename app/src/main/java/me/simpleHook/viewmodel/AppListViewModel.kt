@@ -53,14 +53,14 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         filerAppItems(queryPattern.value!!)
         if (sortSelected != APP_LIST_BY_NAME) {
             val userAppsDeferred2 = async(Dispatchers.IO) {
-                AppUtils.getInstalledUserApp(getApplication()).map { packageInfo ->
+                AppUtils.getInstalledUserApp().map { packageInfo ->
                     getAppNameOrPut(packageInfo)
                     getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
             }
 
             val systemAppsDeferred2 = async(Dispatchers.IO) {
-                AppUtils.getInstalledSystemApp(getApplication()).map { packageInfo ->
+                AppUtils.getInstalledSystemApp().map { packageInfo ->
                     getAppNameOrPut(packageInfo)
                     getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
@@ -74,7 +74,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private suspend fun fetchUserData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
-        val packageInfoList = AppUtils.getInstalledUserApp(getApplication())
+        val packageInfoList = AppUtils.getInstalledUserApp()
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
         }.let { useApps ->
@@ -83,7 +83,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private suspend fun fetchSystemData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
-        val packageInfoList = AppUtils.getInstalledSystemApp(getApplication())
+        val packageInfoList = AppUtils.getInstalledSystemApp()
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
         }.let { useApps ->
@@ -110,7 +110,6 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
 
     private fun getAppNameOrPut(packageInfo: PackageInfo) =
         appNames[packageInfo.packageName] ?: AppUtils.getAppName(
-            getApplication(),
             packageInfo.packageName
         ).also {
             appNames[packageInfo.packageName] = it

@@ -81,6 +81,7 @@
     <string name="main_settings_summary_storage_permission">Running normally</string>
     <string name="main_settings_title_storage_no_permission">Missing necessary permissions</string>
     <string name="main_settings_summary_storage_no_root">Click to get ROOT permission</string>
+    <string name="main_settings_summary_storage_no_shizuku">Click to request Shizuku permission</string>
     <string name="main_settings_summary_no_alive">Not activated, can\'t run normally</string>
     <string name="main_settings_summary_storage_no">Click to get storage permission</string>
     <string name="main_settings_summary_to_config">See FAQ 2 for details</string>
@@ -120,17 +121,7 @@
     <string name="config_mode_tip_record_param_value">Record param</string>
     <string name="config_mode_tip_record_return_value">Record return</string>
     <string name="config_mode_tip_record_param_return_value">Record param and return</string>
-    <!--    <item>Hook返回值</item>
-        <item>Hook返回值+</item>
-        <item>Hook参数值</item>
-        <item>Hook静态变量</item>
-        <item>Hook实例变量</item>
-        <item>拦截执行</item>
-        <item>记录参数值</item>
-        <item>记录返回值</item>
-        <item>记录参返</item>
-        <item>记录静态变量</item>
-        <item>记录实例变量</item>-->
+
     <string-array name="config_hook_mode_item">
         <item>Hook return value</item>
         <item>Hook return value+</item>
@@ -524,4 +515,27 @@
     <string name="main_settings_follow_system_theme_color">Follow system theme color</string>
     <string name="record_show_line_number">Show line number</string>
     <string name="record_enable_magnifier">Enable magnifier</string>
+    <string name="no_shizuku_tip">Unavailable, please check if Shizuku is installed</string>
+    <string name="main_settings_work_mode_title">Working mode</string>
+    <string name="dex_browser_title">DexBrowser</string>
+    <string name="dex_browser_select_file">Select File</string>
+    <string name="dex_browser_select_file_tip">Please select a DEX file to start browsing</string>
+    <string name="dex_browser_method_detail">Method Details</string>
+    <string name="dex_browser_class_name">Class Name</string>
+    <string name="dex_browser_method_name">Method Name</string>
+    <string name="dex_browser_param_type">Parameter Type</string>
+    <string name="dex_browser_return_type">Return Value</string>
+    <string name="dex_browser_type">Type</string>
+    <string name="dex_browser_static_method">Static Method</string>
+    <string name="dex_browser_instance_method">Instance Method</string>
+    <string name="dex_browser_button_cancel">Cancel</string>
+    <string name="dex_browser_button_confirm">Select</string>
+    <string name="dex_browser_field_detail">Field Details</string>
+    <string name="dex_browser_field_name">Field name</string>
+    <string name="dex_browser_field_type">Field type</string>
+    <string name="dex_browser_static_field">Static field</string>
+    <string name="dex_browser_instance_field">Instance field</string>
+    <string name="dex_browser_fields">Fields:</string>
+    <string name="dex_browser_methods">Methods:</string>
+    <string name="dex_browser_field_method_count">%1$d fields, %2$d methods</string>
 </resources>

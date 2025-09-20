@@ -15,15 +15,16 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.data.AppListItem
 import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.constant.Constant.CLICK_TIME
+import me.simpleHook.data.AppListItem
 import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.ui.fragment.AppListFragment
+import me.simpleHook.ui.fragment.SystemAppListFragment
+import me.simpleHook.ui.fragment.UserAppListFragment
 import me.simpleHook.util.AppUtils
 import me.simpleHook.util.SPUtils
 import me.simpleHook.viewmodel.AppListViewModel
@@ -62,8 +63,8 @@ class AppListActivity : BaseActivity() {
                     override fun getItemCount() = 2
 
                     override fun createFragment(position: Int) = when (position) {
-                        0 -> AppListFragment("user")
-                        else -> AppListFragment("system")
+                        0 -> UserAppListFragment()
+                        else -> SystemAppListFragment()
                     }
                 }
             viewPager.offscreenPageLimit = 1
@@ -96,7 +97,8 @@ class AppListActivity : BaseActivity() {
     }
 
     private fun clickResponse(appListItem: AppListItem) {
-        val appName = appListItem.name.ifEmpty { AppUtils.getAppName(this, appListItem.packageName) }
+        val appName =
+            appListItem.name.ifEmpty { AppUtils.getAppName(appListItem.packageName) }
         if (isFromAssist) {
             val intent = Intent().also {
                 it.putExtra("appName", appName)

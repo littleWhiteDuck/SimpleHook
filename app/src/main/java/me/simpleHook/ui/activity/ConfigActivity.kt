@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.ui.util.fastJoinToString
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,9 +37,12 @@ import me.simpleHook.BuildConfig
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.compat.BundleCompat
+import me.simpleHook.compat.getParcelableExtraCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.FieldInfo
+import me.simpleHook.data.MethodInfo
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.databinding.ActivityConfigBinding
@@ -97,6 +101,15 @@ class ConfigActivity : BaseActivity() {
                 refreshAppInfo(AppInfo(appName, packageName, versionName))
             }
         }
+
+    private val dexBrowserLaunch =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                parseDexBrowserCallback(it.data!!)
+            }
+        }
+
+
     private lateinit var tempConfigStr: String
     private var tempVersionName: String = ""
     private var longClickPosition = 0
@@ -171,7 +184,6 @@ class ConfigActivity : BaseActivity() {
                     appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
                     appInfo.containerView.icon.setImageDrawable(
                         AppUtils.getIcon(
-                            this@ConfigActivity,
                             it.packageName
                         )
                     )
@@ -218,10 +230,10 @@ class ConfigActivity : BaseActivity() {
             packageName.text = appInfo.packageName
             otherInfo.text = getString(
                 R.string.config_version_support,
-                AppUtils.getAppVersionName(this@ConfigActivity, appInfo.packageName),
+                AppUtils.getAppVersionName(appInfo.packageName),
                 appInfo.versionName
             )
-            icon.setImageDrawable(AppUtils.getIcon(this@ConfigActivity, appInfo.packageName))
+            icon.setImageDrawable(AppUtils.getIcon(appInfo.packageName))
         }
         tempVersionName = appInfo.versionName
     }
@@ -584,6 +596,10 @@ class ConfigActivity : BaseActivity() {
             R.id.collect -> {
                 showCollectConfigDialog()
             }
+
+            R.id.menu_dex_browser -> {
+                dexBrowserLaunch.launch(Intent(this, DexBrowserActivity::class.java))
+            }
         }
         return true
     }
@@ -785,6 +801,57 @@ class ConfigActivity : BaseActivity() {
                 showDialog(it, isSmali2Config = true)
             }
         } ?: showPopup(getString(R.string.config_smali_to_config_error))
+    }
+
+
+    private fun parseDexBrowserCallback(data: Intent) {
+        val className = data.getStringExtra("className")!!
+        val methodInfo = data.getParcelableExtraCompat<MethodInfo>("methodInfo")
+        val fieldInfo = data.getParcelableExtraCompat<FieldInfo>("fieldInfo")
+
+        val configBean = if (methodInfo != null) {
+            ConfigBean(
+                className = className,
+                methodName = methodInfo.name,
+                mode = getMode(
+                    methodInfo.returnType,
+                    methodInfo.parameters.fastJoinToString(separator = ",")
+                ),
+                params = methodInfo.parameters.joinToString(separator = ","),
+                resultValues = getReturnValue(methodInfo.returnType),
+                desc = "from dex browser"
+            )
+        } else {
+            if (fieldInfo!!.isStatic) {
+                ConfigBean(
+                    fieldClassName = className,
+                    fieldName = fieldInfo.name,
+                    mode = Constant.HOOK_STATIC_FIELD,
+                    resultValues = getReturnValue(fieldInfo.type),
+                    desc = "from dex browser"
+                )
+            } else {
+                ConfigBean(
+                    className = className,
+                    fieldName = fieldInfo.name,
+                    mode = Constant.HOOK_FIELD,
+                    resultValues = getReturnValue(fieldInfo.type),
+                    desc = "from dex browser"
+                )
+            }
+
+        }
+
+        modifyConfig = false
+        if (sp.bottomConfigDialog) {
+            ConfigBottomFragment(saveConfig = { save ->
+                addConfig(save)
+            }, deleteConfig = {
+
+            }, configBean = configBean).show(supportFragmentManager, "ADD")
+        } else {
+            showDialog(configBean, isSmali2Config = true)
+        }
     }
 
     private fun tranParam(param: String): String {
