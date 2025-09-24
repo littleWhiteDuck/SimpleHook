@@ -40,8 +40,10 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun writeToExternal(appConfig: AppConfig) {
         val configStr = Json.encodeToString(appConfig)
-        // TODO, importing config may result in repeated requests
-        LSPosedHelper.changeScope(appConfig.packageName, appConfig.enable)
+        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
+            // TODO, importing config may result in repeated requests
+            LSPosedHelper.changeScope(appConfig.packageName, appConfig.enable)
+        }
         configSystem.saveCustomConfig(appConfig.packageName, configStr)
     }
 
@@ -96,28 +98,29 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
 
     private fun writeToExternal(assistConfig: AssistConfig) {
-        if (assistConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) return
-        val configStr = Json.encodeToString(assistConfig)
-        // TODO, importing config may result in repeated requests
-        LSPosedHelper.changeScope(assistConfig.packageName, assistConfig.allSwitch)
-        configSystem.saveExConfig(assistConfig.packageName, configStr)
+        if (assistConfig.packageName == Constant.MODEL_EXTENSION_CONFIG) return
+        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
+            // TODO, importing config may result in repeated requests
+            LSPosedHelper.changeScope(assistConfig.packageName, assistConfig.allSwitch)
+        }
+        configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
     }
 
     fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.insertAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion) assistConfig.forEach(::writeToExternal)
+        assistConfig.forEach(::writeToExternal)
         notifyBackupConfig()
     }
 
     fun updateAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.updateAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion) assistConfig.forEach(::writeToExternal)
+        assistConfig.forEach(::writeToExternal)
         notifyBackupConfig()
     }
 
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.deleteAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion) {
+        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
             val pkgNames = HashSet<String>()
             assistConfig.forEach {
                 val count = getCustomCountByPackageName(it.packageName)
