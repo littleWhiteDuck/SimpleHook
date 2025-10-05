@@ -810,14 +810,23 @@ class ConfigActivity : BaseActivity() {
         val fieldInfo = data.getParcelableExtraCompat<FieldInfo>("fieldInfo")
 
         val configBean = if (methodInfo != null) {
+            val params =  methodInfo.parameters.map {
+                if (it.startsWith("[L")) {
+                    it.removePrefix("[L").replace("/", ".").replace(";", "[]")
+                } else if (it.startsWith("L")) {
+                    it.removePrefix("L").removeSuffix(";").replace("/", ".")
+                } else if (it.startsWith("[")) {
+                    "${it.removePrefix("[")}[]"
+                } else it
+            }.fastJoinToString(separator = ",")
             ConfigBean(
                 className = className,
                 methodName = methodInfo.name,
                 mode = getMode(
                     methodInfo.returnType,
-                    methodInfo.parameters.fastJoinToString(separator = ",")
+                    params
                 ),
-                params = methodInfo.parameters.joinToString(separator = ","),
+                params =params,
                 resultValues = getReturnValue(methodInfo.returnType),
                 desc = "from dex browser"
             )

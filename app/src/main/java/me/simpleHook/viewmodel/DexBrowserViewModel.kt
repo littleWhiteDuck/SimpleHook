@@ -164,8 +164,8 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
             val methods = classDef.methods.map { method ->
                 MethodInfo(
                     name = method.name,
-                    parameters = method.parameterTypes.map { it.replace("/", ".") },
-                    returnType = method.returnType.replace("/", "."),
+                    parameters = method.parameterTypes,
+                    returnType = method.returnType,
                     isStatic = (method.accessFlags and 0x8) != 0
                 )
             }
@@ -174,7 +174,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
             val fields = classDef.fields.map { field ->
                 FieldInfo(
                     name = field.name,
-                    type = field.type.replace("/", "."),
+                    type = field.type,
                     isStatic = (field.accessFlags and 0x8) != 0
                 )
             }
