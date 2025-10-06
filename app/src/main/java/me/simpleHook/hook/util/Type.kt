@@ -62,9 +62,12 @@ object Type {
     }
 
     fun getClassTypeName(className: String): String {
-        return if (className.endsWith("[]")) {
+        return if (className.endsWith("[]") && className.contains(".")) {
             "[L${className.removeSuffix("[]")};"
-        } else {
+        } else if (className.endsWith("[]"))
+        {
+          "[${className.removeSuffix("[]")}"
+        } else  {
             getClassType(className)?.name ?: className
         }
     }

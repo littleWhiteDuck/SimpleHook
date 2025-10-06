@@ -1,5 +1,6 @@
 package me.simpleHook.ui.compose.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +43,8 @@ fun CircularBorderChar(
         modifier = modifier
             .size(24.dp)
             .aspectRatio(1f)
+            .clip(CircleShape)
+            .background(color = color.copy(alpha = 0.25f))
             .border(width = 1.dp, color = color, shape = CircleShape)
             .padding(4.dp),
         autoSize = TextAutoSize.StepBased(
