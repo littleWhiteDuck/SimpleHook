@@ -178,10 +178,12 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("io.github.Rosemoe.sora-editor:editor:0.23.6")
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.activity:activity:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.work:work-runtime-ktx:2.10.4")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
@@ -205,15 +207,10 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
 
-    //悬浮窗
     implementation("com.github.princekin-f:EasyFloat:2.0.3")
 
-    //json
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("com.google.code.gson:gson:2.13.2")
-
-    //splashScreen
-    implementation("androidx.core:core-splashscreen:1.0.1")
 
     //paging3
     val pagingVersion = "3.3.6"
@@ -236,19 +233,18 @@ dependencies {
     implementation("com.drakeet.about:about:2.5.2")
     implementation("com.drakeet.multitype:multitype:4.3.0")
 
-    implementation("androidx.work:work-runtime-ktx:2.10.4")
 
     // webdav, 0.9版修改了exists函数实现，响应头判断会出问题
     implementation("com.github.thegrizzlylabs:sardine-android:0.8")
-    //leakcanary
-//    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
-    //glacne
-    debugImplementation("com.guolindev.glance:glance:1.1.0")
+
 
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
 
     implementation("org.smali:dexlib2:2.5.2")
+    implementation("io.github.Rosemoe.sora-editor:editor:0.23.6")
+
+    debugImplementation("com.guolindev.glance:glance:1.1.0")
 
 
     // Compose BOM
@@ -267,6 +263,8 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.09.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+
 }
 
 
