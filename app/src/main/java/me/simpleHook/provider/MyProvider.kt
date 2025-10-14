@@ -4,14 +4,14 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.net.Uri
-import me.simpleHook.util.FlavorUtils
+import me.simpleHook.utils.FlavorUtil
 import androidx.core.net.toUri
 
 class MyProvider : ContentProvider() {
     private val configDir = 0
     private val printLogDir = 1
     private val assistConfig = 2
-    private val authority = FlavorUtils.AUTHORITIES
+    private val authority = FlavorUtil.AUTHORITIES
     private var dbHelper: MyDatabaseHelper? = null
 
     private val uriMatcher by lazy {

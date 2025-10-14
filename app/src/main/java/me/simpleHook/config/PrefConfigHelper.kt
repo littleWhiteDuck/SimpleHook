@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import me.simpleHook.App
 import me.simpleHook.GlobalValue
 import me.simpleHook.constant.Constant
-import me.simpleHook.util.AppUtils
+import me.simpleHook.utils.AppUtil
 
 class PrefConfigHelper : ConfigSystem {
     val customPref by lazy { getHookConfigPref(App) }
@@ -16,26 +16,26 @@ class PrefConfigHelper : ConfigSystem {
     }
 
     override fun isEnableSave(packageName: String): Boolean {
-        return !AppUtils.isAppInstalled(packageName) || !GlobalValue.sp.checkPermission || customPref != null
+        return !AppUtil.isAppInstalled(packageName) || !GlobalValue.sp.checkPermission || customPref != null
     }
 
     override fun saveCustomConfig(packageName: String, content: String): Boolean {
-        if (!AppUtils.isAppInstalled(packageName)) return true
+        if (!AppUtil.isAppInstalled(packageName)) return true
         return customPref?.edit()?.putString(packageName, content)?.commit() ?: false
     }
 
     override fun deleteCustomConfig(packageName: String): Boolean {
-        if (!AppUtils.isAppInstalled(packageName)) return true
+        if (!AppUtil.isAppInstalled(packageName)) return true
         return customPref?.edit()?.remove(packageName)?.commit() ?: false
     }
 
     override fun saveExConfig(packageName: String, content: String): Boolean {
-        if (!AppUtils.isAppInstalled(packageName)) return true
+        if (!AppUtil.isAppInstalled(packageName)) return true
         return exPref?.edit()?.putString(packageName, content)?.commit() ?: false
     }
 
     override fun deleteExConfig(packageName: String): Boolean {
-        if (!AppUtils.isAppInstalled(packageName)) return true
+        if (!AppUtil.isAppInstalled(packageName)) return true
         return exPref?.edit()?.remove(packageName)?.commit() ?: false
     }
 

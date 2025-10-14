@@ -1,7 +1,7 @@
 package me.simpleHook.extension
 
 import android.content.pm.PackageInfo
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.OSUtils
 
 val PackageInfo.verCode
     get() = run {

@@ -9,7 +9,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.OSUtils
 import me.simpleHook.worker.BackupHelper.startBackupConfig
 
 class BackupWorker(private val context: Context, workerParams: WorkerParameters) :

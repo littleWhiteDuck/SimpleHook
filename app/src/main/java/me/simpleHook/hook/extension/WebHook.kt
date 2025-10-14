@@ -7,8 +7,8 @@ import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 
 object WebHook : BaseHook() {
 

@@ -9,9 +9,9 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.App
 import me.simpleHook.constant.Constant
-import me.simpleHook.util.DocumentRUtils
-import me.simpleHook.util.DocumentTUtils
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.DocumentRUtil
+import me.simpleHook.utils.DocumentTUtil
+import me.simpleHook.utils.OSUtils
 import java.io.FileOutputStream
 
 object DocumentCompat {
@@ -22,9 +22,9 @@ object DocumentCompat {
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
         return if (OSUtils.atLeastT()) {
-            DocumentTUtils.generateFileUri(packageName, filePath)
+            DocumentTUtil.generateFileUri(packageName, filePath)
         } else {
-            DocumentRUtils.generateFileUri(packageName, filePath)
+            DocumentRUtil.generateFileUri(packageName, filePath)
         }
     }
 
@@ -73,9 +73,9 @@ object DocumentCompat {
 
     fun makeDirs(context: Context, path: String, packageName: String): Boolean {
         return if (OSUtils.atLeastT()) {
-            DocumentTUtils.makeDirs(context, path, packageName)
+            DocumentTUtil.makeDirs(context, path, packageName)
         } else {
-            DocumentRUtils.makeDirs(context, path)
+            DocumentRUtil.makeDirs(context, path)
         }
     }
 
@@ -87,9 +87,9 @@ object DocumentCompat {
         mimiType: String = "application/json"
     ): Boolean {
         return if (OSUtils.atLeastT()) {
-            DocumentTUtils.outTextToFile(context, packageName, fileName, content, mimiType)
+            DocumentTUtil.outTextToFile(context, packageName, fileName, content, mimiType)
         } else {
-            DocumentRUtils.outTextToFile(context, packageName, fileName, content, mimiType)
+            DocumentRUtil.outTextToFile(context, packageName, fileName, content, mimiType)
         }
     }
 
@@ -122,9 +122,9 @@ object DocumentCompat {
 
     fun getFileUri(context: Context, packageName: String, path: String): Uri? {
         return if (OSUtils.atLeastT()) {
-            DocumentTUtils.getFileUri(context, packageName, path)
+            DocumentTUtil.getFileUri(context, packageName, path)
         } else {
-            DocumentRUtils.getFileUri(context, packageName, path)
+            DocumentRUtil.getFileUri(context, packageName, path)
         }
     }
 

@@ -1,21 +1,21 @@
 package me.simpleHook.shizuku
 
 import me.simpleHook.constant.ConfigConstant
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.SuUtil
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.SuUtil
 
 class FileService : IFileService.Stub() {
 
     override fun copyFile(scrPath: String, desPath: String): Boolean {
         // android/data directory can use the file api , there is no need to use `shell`
-        return FileUtils.copyFile(scrPath, desPath)
+        return FileUtil.copyFile(scrPath, desPath)
     }
 
     override fun writeFile(path: String, content: String): Boolean {
         if (ShizukuFileManager.rootMode) {
-            return FileUtils.outTextToFile(filePath = path, content = content)
+            return FileUtil.outTextToFile(filePath = path, content = content)
         } else {
-            FileUtils.outTextToFile(filePath = ConfigConstant.TEMP_CONFIG_PATH, content)
+            FileUtil.outTextToFile(filePath = ConfigConstant.TEMP_CONFIG_PATH, content)
             return SuUtil.mvAndChmod(srcPath = ConfigConstant.TEMP_CONFIG_PATH, destPath = path)
         }
 
@@ -24,7 +24,7 @@ class FileService : IFileService.Stub() {
 
     override fun deleteFile(path: String): Boolean = runCatching {
         if (ShizukuFileManager.rootMode) {
-            FileUtils.deleteFile(filePath = path)
+            FileUtil.deleteFile(filePath = path)
         } else {
             SuUtil.deleteFile(filePath = path)
         }

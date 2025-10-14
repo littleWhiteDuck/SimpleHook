@@ -1,8 +1,8 @@
 package me.simpleHook.hook.entry
 
 import me.simpleHook.hook.MainHook
-import me.simpleHook.hook.util.ConfigUtil
-import me.simpleHook.hook.util.log
+import me.simpleHook.hook.utils.ConfigUtil
+import me.simpleHook.hook.utils.log
 
 object HookInit {
 

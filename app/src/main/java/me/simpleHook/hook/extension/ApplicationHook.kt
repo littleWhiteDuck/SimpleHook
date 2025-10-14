@@ -8,8 +8,8 @@ import me.simpleHook.data.Exit
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.LogUtil.outLogMsg
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.utils.LogUtil.outLogMsg
 
 object ApplicationHook : BaseHook() {
 

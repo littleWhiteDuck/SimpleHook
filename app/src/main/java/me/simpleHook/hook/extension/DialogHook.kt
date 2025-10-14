@@ -13,10 +13,10 @@ import me.simpleHook.data.DialogCancel
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.HookUtils.getAllTextView
-import me.simpleHook.hook.util.HookUtils.getAllViewIds
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.HookUtils.getAllTextView
+import me.simpleHook.hook.utils.HookUtils.getAllViewIds
+import me.simpleHook.hook.utils.LogUtil
 
 object DialogHook : BaseHook() {
 

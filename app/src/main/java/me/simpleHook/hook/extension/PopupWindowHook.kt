@@ -12,10 +12,10 @@ import me.simpleHook.data.DialogCancel
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.HookUtils
-import me.simpleHook.hook.util.HookUtils.getAllTextView
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.HookUtils
+import me.simpleHook.hook.utils.HookUtils.getAllTextView
+import me.simpleHook.hook.utils.LogUtil
 
 object PopupWindowHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {

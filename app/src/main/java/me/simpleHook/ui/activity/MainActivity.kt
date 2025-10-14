@@ -33,17 +33,17 @@ import me.simpleHook.ui.fragment.HomeVBFragment
 import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.PermissionUtils
-import me.simpleHook.util.SPUtils
-import me.simpleHook.util.SuUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.utils.SPUtil
+import me.simpleHook.utils.SuUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 
 class MainActivity : BaseActivity(), IMenuProvider {
 
     private lateinit var binding: ActivityMainBinding
-    private val sp by lazy { SPUtils(this) }
+    private val sp by lazy { SPUtil(this) }
     private val isActive by lazy { isModuleLive() }
     private val viewModel by viewModels<AppConfigViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,7 +119,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun initPermission() {
-        if (FlavorUtils.liteVersion) {
+        if (FlavorUtil.liteVersion) {
             if (!isActive) {
                 customDialog(
                     this,
@@ -133,7 +133,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
                     cancelText = getString(R.string.dialog_cancel),
                     cancelClick = { it.dismiss() }).show()
             }
-        } else if (FlavorUtils.rootVersion) {
+        } else if (FlavorUtil.rootVersion) {
             SuUtil.init()
         } else if (OSUtils.atLeastT()) {
             if (sp.showA13Tip) {
@@ -148,15 +148,15 @@ class MainActivity : BaseActivity(), IMenuProvider {
                     }).show()
             }
         } else if (OSUtils.atR2T()) {
-            if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
+            if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
                 requestPermissionDialog(this) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }
             }
         } else if (OSUtils.atMostQ()) {
-            if (!PermissionUtils.isGrantWritePermission(this)) {
+            if (!PermissionUtil.isGrantWritePermission(this)) {
                 requestPermissionDialog(this) {
-                    PermissionUtils.verifyStoragePermissions(this)
+                    PermissionUtil.verifyStoragePermissions(this)
                 }
             }
         }
@@ -197,7 +197,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
     private fun initView() {
         binding.apply {
             viewPager.apply {
-                adapter = if (FlavorUtils.liteVersion) {
+                adapter = if (FlavorUtil.liteVersion) {
                     object : FragmentStateAdapter(this@MainActivity) {
                         override fun getItemCount() = 2
 
@@ -227,7 +227,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
                 }
 
             }
-            if (FlavorUtils.liteVersion) {
+            if (FlavorUtil.liteVersion) {
                 binding.bottomNavigationView.menu.removeItem(R.id.assistFragment)
                 binding.bottomNavigationView.menu.removeItem(R.id.recordFragment)
                 binding.bottomNavigationView.setOnItemSelectedListener {

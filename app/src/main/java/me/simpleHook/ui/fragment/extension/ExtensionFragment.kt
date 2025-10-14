@@ -48,10 +48,10 @@ import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ExtensionFragmentView
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.PermissionUtils
+import me.simpleHook.utils.FastScrollerUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.PermissionUtil
 import kotlin.math.min
 
 class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
@@ -358,9 +358,9 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
     private fun requirePermission(packageName: String) {
-        if (FlavorUtils.liteVersion) {
+        if (FlavorUtil.liteVersion) {
             requireActivity().showPopup(getString(R.string.lite_version_not_active))
-        } else if (FlavorUtils.rootVersion) {
+        } else if (FlavorUtil.rootVersion) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
@@ -377,7 +377,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 }
             } else {
                 requestPermissionDialog(requireContext()) {
-                    PermissionUtils.verifyStoragePermissions(requireActivity())
+                    PermissionUtil.verifyStoragePermissions(requireActivity())
                 }
             }
         }

@@ -30,10 +30,10 @@ import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.record.RecordSummaryFragmentView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.LogUtils
-import me.simpleHook.util.RecordType
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FastScrollerUtil
+import me.simpleHook.utils.LogUtils
+import me.simpleHook.utils.RecordType
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
@@ -56,7 +56,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         root.progressBar.hide()
         appConfigViewModel.getAllConfigs().observe(requireActivity()) {
             it.forEach { appConfig ->
-                if (appConfig.enable && AppUtils.isAppInstalled(appConfig.packageName)
+                if (appConfig.enable && AppUtil.isAppInstalled(appConfig.packageName)
                 ) {
                     needCheckPacks.add(appConfig.packageName)
                 }
@@ -64,7 +64,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         }
         appConfigViewModel.getAllAssistConfigs().observe(requireActivity()) {
             it.forEach { exConfig ->
-                if (exConfig.allSwitch && AppUtils.isAppInstalled(exConfig.packageName)
+                if (exConfig.allSwitch && AppUtil.isAppInstalled(exConfig.packageName)
                 ) {
                     needCheckPacks.add(exConfig.packageName)
                 }
@@ -234,12 +234,12 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                 if (!::assistConfigs.isInitialized) {
                     assistConfigs = appConfigViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(it.packageName)
+                        if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appConfigViewModel.getConfigs()
                     configs.forEach {
-                        if (it.enable && AppUtils.isAppInstalled(it.packageName)
+                        if (it.enable && AppUtil.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {

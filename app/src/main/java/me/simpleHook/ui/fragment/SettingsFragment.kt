@@ -41,15 +41,15 @@ import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.AssetsUtil
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.PermissionUtils
-import me.simpleHook.util.SPUtils
-import me.simpleHook.util.SuUtil
-import me.simpleHook.util.ThemeModeUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.AssetsUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.LanguageUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.utils.SPUtil
+import me.simpleHook.utils.SuUtil
+import me.simpleHook.utils.ThemeModeUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.viewmodel.RecordViewModel
@@ -58,7 +58,7 @@ import rikka.preference.SimpleMenuPreference
 import rikka.shizuku.Shizuku
 
 class SettingsFragment : PreferenceFragmentCompat() {
-    private val sp by lazy { SPUtils(requireContext()) }
+    private val sp by lazy { SPUtil(requireContext()) }
     private val viewModel: AppConfigViewModel by viewModels()
     private val collViewModel by viewModels<CollectionViewModel>()
     private val settingsViewModel by viewModels<SettingsViewModel>()
@@ -91,7 +91,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
         findPreference<Preference>("batch_grant")?.apply {
-            isVisible = OSUtils.atLeastT() && FlavorUtils.normalVersion
+            isVisible = OSUtils.atLeastT() && FlavorUtil.normalVersion
             setOnPreferenceClickListener {
                 val intent = Intent(requireContext(), A33PermissionActivity::class.java)
                 startActivity(intent)
@@ -166,7 +166,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<SimpleMenuPreference>("language")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
-                    LanguageUtils.switchLanguage(
+                    LanguageUtil.switchLanguage(
                         newValue,
                         requireActivity(),
                         MainActivity::class.java
@@ -201,7 +201,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermission() {
-        if (FlavorUtils.liteVersion) {
+        if (FlavorUtil.liteVersion) {
             settingsViewModel.permStatus.value =
                 if ((configSystem as PrefConfigHelper).customPref == null) {
                     PermissionState.NO_ALIVE
@@ -210,7 +210,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             return
         }
-        if (FlavorUtils.rootVersion) {
+        if (FlavorUtil.rootVersion) {
             settingsViewModel.permStatus.value = if (GlobalValue.isRootWork) {
                 if (SuUtil.isGrantedRoot()) {
                     PermissionState.GRANT
@@ -229,14 +229,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         if (OSUtils.atLeastT()) {
             settingsViewModel.permStatus.value = PermissionState.GRANT
         } else if (OSUtils.atLeastR()) {
-            settingsViewModel.permStatus.value = if (PermissionUtils.isGrantData()) {
+            settingsViewModel.permStatus.value = if (PermissionUtil.isGrantData()) {
                 PermissionState.GRANT
             } else {
                 PermissionState.NO_STORAGE
             }
         } else {
             settingsViewModel.permStatus.value =
-                if (PermissionUtils.isGrantWritePermission(requireContext())) {
+                if (PermissionUtil.isGrantWritePermission(requireContext())) {
                     PermissionState.GRANT
                 } else {
                     PermissionState.NO_STORAGE
@@ -254,9 +254,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
                 val apps = when (mode) {
-                    "user" -> AppUtils.getUserPackageNames()
-                    "system" -> AppUtils.getSystemPackageNames()
-                    else -> AppUtils.getPackageNames()
+                    "user" -> AppUtil.getUserPackageNames()
+                    "system" -> AppUtil.getSystemPackageNames()
+                    else -> AppUtil.getPackageNames()
                 }
                 val appPackageNames = viewModel.getAllPackageNames()
                 val extensionPackageNames = viewModel.getAllPackageNames()
@@ -364,7 +364,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun initViewModel() {
-        if (FlavorUtils.rootVersion) {
+        if (FlavorUtil.rootVersion) {
             Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
                 if (grantResult == PackageManager.PERMISSION_GRANTED) {
                     ShizukuFileManager.isPermissionGranted = true
@@ -420,15 +420,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
                     PermissionState.NO_STORAGE -> {
                         if (OSUtils.atR2T()) {
-                            if (!PermissionUtils.isGrantData(Constant.ANDROID_DATA_URI)) {
+                            if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
                                 requestPermissionDialog(requireContext()) {
                                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                                 }
                             }
                         } else if (OSUtils.atMostQ()) {
-                            if (!PermissionUtils.isGrantWritePermission(requireContext())) {
+                            if (!PermissionUtil.isGrantWritePermission(requireContext())) {
                                 requestPermissionDialog(requireContext()) {
-                                    PermissionUtils.verifyStoragePermissions(requireActivity())
+                                    PermissionUtil.verifyStoragePermissions(requireActivity())
                                 }
                             }
                         }

@@ -11,13 +11,13 @@ import me.simpleHook.data.ConfigBean
 import me.simpleHook.data.LogBean
 import me.simpleHook.constant.Constant
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.HookHelper.appClassLoader
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.hook.util.Type
-import me.simpleHook.hook.util.hook
-import me.simpleHook.hook.util.isSearchConstructor
-import me.simpleHook.hook.util.isSearchMethod
+import me.simpleHook.hook.utils.HookHelper.appClassLoader
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.Type
+import me.simpleHook.hook.utils.hook
+import me.simpleHook.hook.utils.isSearchConstructor
+import me.simpleHook.hook.utils.isSearchMethod
 
 object FieldHook {
     /**

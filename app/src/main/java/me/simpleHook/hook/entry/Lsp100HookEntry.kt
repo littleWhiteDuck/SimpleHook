@@ -13,7 +13,7 @@ import io.github.libxposed.api.XposedModuleInterface.ModuleLoadedParam
 import io.github.qauxv.loader.sbl.lsp100.Lsp100HookImpl
 import io.github.qauxv.poststartup.StartupInfo
 import me.simpleHook.BuildConfig
-import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.utils.HookHelper
 
 class Lsp100HookEntry(base: XposedInterface, param: ModuleLoadedParam) : XposedModule(base, param) {
 

@@ -11,10 +11,10 @@ import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.ConfigConstant
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.shizuku.ShizukuFileManager
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.LogUtils
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.LogUtils
+import me.simpleHook.utils.OSUtils
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -26,7 +26,7 @@ object RecordsHelper {
         val recordPath = String.format(format = ConfigConstant.RECORD_LOG_TEMP_PATH, packageName)
         val list = mutableListOf<PrintLog>()
         return runCatching {
-            if (FlavorUtils.rootVersion) {
+            if (FlavorUtil.rootVersion) {
                 if (GlobalValue.isRootWork) {
                     if (rootReadRecords(recordPath, list)) return emptyList()
                 } else {
@@ -110,7 +110,7 @@ object RecordsHelper {
             DocumentsContract.deleteDocument(context.contentResolver, fileUri)
             return false
         } else {
-            if (!FileUtils.isFileExists(recordPath)) return true
+            if (!FileUtil.isFileExists(recordPath)) return true
             File(recordPath).useLines {
                 it.iterator().forEach { str ->
                     try {
@@ -121,7 +121,7 @@ object RecordsHelper {
                     }
                 }
             }
-            FileUtils.deleteFile(recordPath)
+            FileUtil.deleteFile(recordPath)
             return false
         }
     }

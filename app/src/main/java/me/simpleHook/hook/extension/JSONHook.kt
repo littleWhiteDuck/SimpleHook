@@ -6,9 +6,9 @@ import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.HookUtils.getObjectString
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.HookUtils.getObjectString
+import me.simpleHook.hook.utils.LogUtil
 import org.json.JSONArray
 import org.json.JSONObject
 

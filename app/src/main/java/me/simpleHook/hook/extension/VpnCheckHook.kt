@@ -3,7 +3,7 @@ package me.simpleHook.hook.extension
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.utils.HookHelper
 
 object VpnCheckHook : BaseHook() {
 

@@ -5,8 +5,8 @@ import com.bumptech.glide.Glide
 import com.drakeet.multitype.ViewDelegate
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.ui.view.record.RecordPackItemView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.IconHelper
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.IconHelper
 
 class RecordPackDelegate(
     val onClick: (RecordShowPack) -> Unit, val onDeleteClick: (RecordShowPack) -> Unit
@@ -18,7 +18,7 @@ class RecordPackDelegate(
                 icon.setImageDrawable(IconHelper.getTextIcon(text = "Error"))
             } else {
                 Glide.with(icon).load(item.packageName).into(icon)
-                title.text = AppUtils.getAppName(item.packageName)
+                title.text = AppUtil.getAppName(item.packageName)
             }
 
             desc.text = item.packageName

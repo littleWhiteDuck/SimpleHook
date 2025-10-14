@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
-import me.simpleHook.util.AssetsUtil
+import me.simpleHook.utils.AssetsUtil
 
 
 class AboutActivity : AbsAboutActivity() {

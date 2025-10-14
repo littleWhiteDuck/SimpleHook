@@ -9,10 +9,10 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.GuiseSignConfig
 import me.simpleHook.data.LogBean
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.ToolUtil
 
 object SignatureHook : BaseHook() {
     @Suppress("DEPRECATION")
@@ -32,9 +32,9 @@ object SignatureHook : BaseHook() {
                         } else {
                             @Suppress("DEPRECATION") packInfo.signatures!![0].toByteArray()
                         }
-                    val md5 = ToolUtils.getDigest(byteArray)
-                    val sha1 = ToolUtils.getDigest(byteArray, "SHA-1")
-                    val sha256 = ToolUtils.getDigest(byteArray, "SHA-256")
+                    val md5 = ToolUtil.getDigest(byteArray)
+                    val sha1 = ToolUtil.getDigest(byteArray, "SHA-1")
+                    val sha256 = ToolUtil.getDigest(byteArray, "SHA-256")
                     val list = listOf(
                         "Signature(MD5): $md5",
                         "Signature(SHA-1): $sha1",

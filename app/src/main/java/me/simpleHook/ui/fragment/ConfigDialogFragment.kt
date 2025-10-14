@@ -25,9 +25,9 @@ import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.ImExportAdapter
 import me.simpleHook.ui.activity.MainActivity
-import me.simpleHook.util.JsHook
-import me.simpleHook.util.ToolUtils
-import me.simpleHook.util.WindowUtils
+import me.simpleHook.utils.JsHook
+import me.simpleHook.utils.ToolUtil
+import me.simpleHook.utils.WindowUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 
 class ConfigDialogFragment(
@@ -112,7 +112,7 @@ class ConfigDialogFragment(
                             if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else JsHook.getStringJSConfig(
                                 tempList
                             )
-                        ToolUtils.toClip(mContext, strConfig)
+                        ToolUtil.toClip(mContext, strConfig)
                         requireActivity().showPopup(getString(R.string.main_home_export_configs_tip))
                         this@ConfigDialogFragment.dismiss()
                     }
@@ -190,7 +190,7 @@ class ConfigDialogFragment(
     override fun onResume() {
         val params: ViewGroup.LayoutParams = dialog!!.window!!.attributes
         params.width = WindowManager.LayoutParams.MATCH_PARENT
-        params.height = (WindowUtils.getAppHeight(requireActivity()) * 0.6).toInt()
+        params.height = (WindowUtil.getAppHeight(requireActivity()) * 0.6).toInt()
         dialog!!.window!!.attributes = params as WindowManager.LayoutParams
         super.onResume()
     }

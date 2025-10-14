@@ -27,11 +27,11 @@ import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.permission.PermissionItemView
 import me.simpleHook.ui.view.permission.PermissionSortView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.PermissionUtils
-import me.simpleHook.util.SPUtils
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.utils.SPUtil
+import me.simpleHook.utils.TimeUtil
 
 
 private const val SHOW_APP_USER = 0
@@ -83,7 +83,7 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
         PermissionAdapter(onClick = { packageName, checked -> onItemClick(packageName, checked) })
     }
 
-    private val sp by lazy { SPUtils(this) }
+    private val sp by lazy { SPUtil(this) }
 
     private fun onItemClick(packageName: String, checked: Boolean) {
         if (checked) {
@@ -109,15 +109,15 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
         lifecycleScope.launch(Dispatchers.IO) {
             val userAppList = ArrayList<PermissionBean>()
             val systemAppList = ArrayList<PermissionBean>()
-            AppUtils.getInstalledUserApp().forEach {
-                val isExists = FileUtils.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
+            AppUtil.getInstalledUserApp().forEach {
+                val isExists = FileUtil.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
                 if (isExists) {
-                    val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
+                    val hasGrant = PermissionUtil.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         userAppList.add(
                             PermissionBean(
                                 it.packageName,
-                                AppUtils.getAppName(it),
+                                AppUtil.getAppName(it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                                 needApplyApps.contains(it.packageName)
                             )
@@ -125,15 +125,15 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
                     }
                 }
             }
-            AppUtils.getInstalledSystemApp().forEach {
-                val isExists = FileUtils.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
+            AppUtil.getInstalledSystemApp().forEach {
+                val isExists = FileUtil.isFileExists(Constant.ANDROID_DATA_PATH, it.packageName)
                 if (isExists) {
-                    val hasGrant = PermissionUtils.isGrantPackage(it.packageName)
+                    val hasGrant = PermissionUtil.isGrantPackage(it.packageName)
                     if (!hasGrant) {
                         systemAppList.add(
                             PermissionBean(
                                 it.packageName,
-                                AppUtils.getAppName(it),
+                                AppUtil.getAppName(it),
                                 TimeUtil.getTime(it.lastUpdateTime, "yyyy-MM-dd HH:mm:ss"),
                                 needApplyApps.contains(it.packageName)
                             )

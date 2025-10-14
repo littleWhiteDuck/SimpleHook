@@ -15,16 +15,16 @@ import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.extension.random
 import me.simpleHook.hook.extension.*
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.*
-import me.simpleHook.hook.util.HookHelper.appContext
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.HookUtils.getObjectString
-import me.simpleHook.hook.util.LogUtil.getStackTrace
-import me.simpleHook.hook.util.LogUtil.outHookError
-import me.simpleHook.hook.util.LogUtil.outLogMsg
-import me.simpleHook.hook.util.Type.getDataTypeValue
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.hook.utils.*
+import me.simpleHook.hook.utils.HookHelper.appContext
+import me.simpleHook.hook.utils.HookHelper.hostPackageName
+import me.simpleHook.hook.utils.HookUtils.getObjectString
+import me.simpleHook.hook.utils.LogUtil.getStackTrace
+import me.simpleHook.hook.utils.LogUtil.outHookError
+import me.simpleHook.hook.utils.LogUtil.outLogMsg
+import me.simpleHook.hook.utils.Type.getDataTypeValue
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.LanguageUtil
 import org.json.JSONObject
 import androidx.core.content.edit
 
@@ -228,7 +228,7 @@ object MainHook {
     private fun recordParamsValue(
         className: String, param: XC_MethodHook.MethodHookParam
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Param value" else "参数值"
+        val type = if (LanguageUtil.isNotChinese()) "Param value" else "参数值"
         val list = mutableListOf<String>()
         list.add(tip.className + className)
         list.add(tip.methodName + param.method.name)
@@ -249,7 +249,7 @@ object MainHook {
         className: String, param: XC_MethodHook.MethodHookParam
     ) {
         val list = mutableListOf<String>()
-        val type = if (LanguageUtils.isNotChinese()) "Return value" else "返回值"
+        val type = if (LanguageUtil.isNotChinese()) "Return value" else "返回值"
         list.add(tip.className + className)
         list.add(tip.methodName + param.method.name)
         val result = getObjectString(param.result ?: "null")
@@ -262,7 +262,7 @@ object MainHook {
     private fun recordParamsAndReturn(
         className: String, param: XC_MethodHook.MethodHookParam
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Param&Return Value" else "参返"
+        val type = if (LanguageUtil.isNotChinese()) "Param&Return Value" else "参返"
         val list = mutableListOf<String>()
         list.add(tip.className + className)
         list.add(tip.methodName + param.method.name)

@@ -4,14 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.ExtraBean
 import me.simpleHook.data.IntentBean
 import me.simpleHook.data.LogBean
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 
 private const val ACTIVITY = "android.app.Activity"
 private const val CONTEXT_WRAPPER = "android.content.ContextWrapper"

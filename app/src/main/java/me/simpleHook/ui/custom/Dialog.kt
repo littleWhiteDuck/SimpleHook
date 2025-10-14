@@ -7,7 +7,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.simpleHook.R
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.OSUtils
 
 
 fun exitDialog(

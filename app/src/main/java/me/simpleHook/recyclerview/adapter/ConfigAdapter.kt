@@ -16,10 +16,10 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.data.ConfigBean
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.random
-import me.simpleHook.hook.util.Type
+import me.simpleHook.hook.utils.Type
 import me.simpleHook.ui.view.config.ConfigItemView
 import me.simpleHook.ui.view.config.RoundBackgroundColorSpan
-import me.simpleHook.util.HookModeUtil
+import me.simpleHook.utils.HookModeUtil
 import org.json.JSONObject
 
 class ConfigAdapter(

@@ -17,8 +17,8 @@ import me.simpleHook.constant.Constant.APP_LIST_BY_INSTALLED_TIME
 import me.simpleHook.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.extension.verCode
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.TimeUtil
 
 class AppListViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -53,14 +53,14 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         filerAppItems(queryPattern.value!!)
         if (sortSelected != APP_LIST_BY_NAME) {
             val userAppsDeferred2 = async(Dispatchers.IO) {
-                AppUtils.getInstalledUserApp().map { packageInfo ->
+                AppUtil.getInstalledUserApp().map { packageInfo ->
                     getAppNameOrPut(packageInfo)
                     getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
             }
 
             val systemAppsDeferred2 = async(Dispatchers.IO) {
-                AppUtils.getInstalledSystemApp().map { packageInfo ->
+                AppUtil.getInstalledSystemApp().map { packageInfo ->
                     getAppNameOrPut(packageInfo)
                     getAppItem(packageInfo = packageInfo, sortSelected = sortSelected)
                 }
@@ -74,7 +74,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private suspend fun fetchUserData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
-        val packageInfoList = AppUtils.getInstalledUserApp()
+        val packageInfoList = AppUtil.getInstalledUserApp()
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
         }.let { useApps ->
@@ -83,7 +83,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private suspend fun fetchSystemData(sortSelected: Int, reverseChecked: Boolean): List<AppListItem> {
-        val packageInfoList = AppUtils.getInstalledSystemApp()
+        val packageInfoList = AppUtil.getInstalledSystemApp()
         return packageInfoList.map { packageInfo ->
             getAppItem(packageInfo, sortSelected)
         }.let { useApps ->
@@ -109,7 +109,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun getAppNameOrPut(packageInfo: PackageInfo) =
-        appNames[packageInfo.packageName] ?: AppUtils.getAppName(
+        appNames[packageInfo.packageName] ?: AppUtil.getAppName(
             packageInfo.packageName
         ).also {
             appNames[packageInfo.packageName] = it

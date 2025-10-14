@@ -43,12 +43,12 @@ import me.simpleHook.ui.view.extension.ExtensionItemTitleView
 import me.simpleHook.ui.view.extension.SelectItemView
 import me.simpleHook.ui.view.extension.SubNextItemView
 import me.simpleHook.ui.view.extension.SubSelectItemView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.PermissionUtils
-import me.simpleHook.util.SuUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.utils.SuUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.ExViewModel
 
@@ -99,7 +99,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 val isInstalled =
-                    AppUtils.isAppInstalled(extensionConfig.packageName)
+                    AppUtil.isAppInstalled(extensionConfig.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
                 menu.findItem(R.id.menu_open_float).isChecked = GlobalValue.sp.startFloat
                 menu.findItem(R.id.menu_open_float).setOnMenuItemClickListener {
@@ -107,7 +107,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     GlobalValue.sp.startFloat = it.isChecked
                     true
                 }
-                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtils.rootVersion) {
+                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtil.rootVersion) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
                 if (!isInstalled) {
@@ -122,26 +122,26 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 when (menuItem.itemId) {
                     R.id.menu_launch -> {
                         showFloatWindow()
-                        AppUtils.startApp(extensionConfig.packageName, requireContext())
+                        AppUtil.startApp(extensionConfig.packageName, requireContext())
                     }
 
                     R.id.menu_save_config -> saveConfig()
                     R.id.menu_force_stop -> {
                         showFloatWindow()
-                        if (FlavorUtils.rootVersion) {
+                        if (FlavorUtil.rootVersion) {
                             if (GlobalValue.isRootWork) {
                                 SuUtil.forceStopApp(extensionConfig.packageName)
                             } else {
                                 ShizukuFileManager.service?.forceStopPackage(extensionConfig.packageName)
                             }
                         } else {
-                            AppUtils.jumpAppInfoPage(requireContext(), extensionConfig.packageName)
+                            AppUtil.jumpAppInfoPage(requireContext(), extensionConfig.packageName)
                         }
                     }
 
                     R.id.menu_relaunch -> {
                         showFloatWindow()
-                        if (FlavorUtils.rootVersion) {
+                        if (FlavorUtil.rootVersion) {
                             val intent =
                                 GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName)
                             intent?.component?.className?.let { className ->
@@ -157,7 +157,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         }
                     }
 
-                    R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
+                    R.id.menu_app_info -> AppUtil.jumpAppInfoPage(
                         requireContext(),
                         extensionConfig.packageName
                     )
@@ -216,7 +216,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
 
     private fun createDexDirectory() {
-        val filePath = if (FlavorUtils.rootVersion) {
+        val filePath = if (FlavorUtil.rootVersion) {
             val path = Constant.ROOT_CONFIG_MAIN_DIRECTORY + extensionConfig.packageName + "/dex"
             SuUtil.makeDirs(path)
             path
@@ -225,7 +225,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             if (OSUtils.atLeastR()) {
                 DocumentCompat.makeDirs(requireContext(), path, extensionConfig.packageName)
             } else {
-                FileUtils.makeDirs(path)
+                FileUtil.makeDirs(path)
             }
             path
         }
@@ -244,7 +244,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
 
     private fun checkPermission(): Boolean {
-        if (FlavorUtils.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtils.isGrantPackage(
+        if (FlavorUtil.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
                 extensionConfig.packageName
             )
         ) {
@@ -288,7 +288,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     private fun initView() {
         editMode = requireActivity().intent.getBooleanExtra("EXTENSION_CONFIG_EDIT", true)
         val dexPosition = getString(R.string.extension_dex_position)
-        val dexPath = if (FlavorUtils.normalVersion) {
+        val dexPath = if (FlavorUtil.normalVersion) {
             dexPosition + "/Android/data/${extensionConfig.packageName}/simpleHook/dex/"
         } else {
             dexPosition + "/data/local/tmp/simpleHook/${extensionConfig.packageName}/dex/"

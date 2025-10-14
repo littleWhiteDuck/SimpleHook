@@ -14,7 +14,7 @@ import me.simpleHook.database.AppRepository
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.lsposed.LSPosedHelper
-import me.simpleHook.util.FlavorUtils
+import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.worker.BackupHelper
 import java.util.UUID
 
@@ -40,7 +40,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun writeToExternal(appConfig: AppConfig) {
         val configStr = Json.encodeToString(appConfig)
-        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
+        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
             // TODO, importing config may result in repeated requests
             LSPosedHelper.changeScope(appConfig.packageName, appConfig.enable)
         }
@@ -77,7 +77,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
             configSystem.deleteCustomConfig(config.packageName)
         }
 
-        if (FlavorUtils.rootVersion) {
+        if (FlavorUtil.rootVersion) {
             val pkgNames = appConfig.filter { getExCountByPackageName(it.packageName) < 1 }
                 .mapTo(HashSet()) { it.packageName }
             LSPosedHelper.removeScope(pkgNames.toTypedArray())
@@ -99,7 +99,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun writeToExternal(assistConfig: AssistConfig) {
         if (assistConfig.packageName == Constant.MODEL_EXTENSION_CONFIG) return
-        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
+        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
             // TODO, importing config may result in repeated requests
             LSPosedHelper.changeScope(assistConfig.packageName, assistConfig.allSwitch)
         }
@@ -120,7 +120,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
         appRepository.deleteAssistConfigs(*assistConfig)
-        if (FlavorUtils.rootVersion || FlavorUtils.liteVersion) {
+        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
             val pkgNames = HashSet<String>()
             assistConfig.forEach {
                 val count = getCustomCountByPackageName(it.packageName)

@@ -3,8 +3,6 @@ package me.simpleHook.extension
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
-import android.app.Activity
-import android.content.Context
 import android.content.res.Resources
 import android.text.TextUtils
 import android.util.TypedValue
@@ -12,14 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
-import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.simpleHook.util.Popup
 import org.json.JSONObject
 import java.net.URL
 import kotlin.math.roundToInt

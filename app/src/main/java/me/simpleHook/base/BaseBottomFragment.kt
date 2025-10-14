@@ -17,8 +17,8 @@ import com.google.android.material.shape.ShapeAppearanceModel
 import me.simpleHook.R
 import me.simpleHook.extension.inflateBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.WindowUtils
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.WindowUtil
 
 
 abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(), IBinding<VB> {
@@ -86,7 +86,7 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
 
     private fun updateBottomSheetHeights() {
         val params = binding.root.layoutParams
-        params.height = WindowUtils.getAppHeight(requireActivity())
+        params.height = WindowUtil.getAppHeight(requireActivity())
         binding.root.layoutParams = params
         behavior.isFitToContents = true
     }

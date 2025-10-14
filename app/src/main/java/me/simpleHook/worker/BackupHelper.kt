@@ -10,13 +10,12 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.database.AppRepository
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.TimeUtil
 import java.io.BufferedOutputStream
 import java.io.File
 import java.util.UUID
@@ -113,8 +112,8 @@ object BackupHelper {
                 result = cloudBackup(cacheFile)
             }
             result
-        }.onFailure { FileUtils.deleteDir(context.externalCacheDir!!) }
-            .onSuccess { FileUtils.deleteDir(context.externalCacheDir!!) }
+        }.onFailure { FileUtil.deleteDir(context.externalCacheDir!!) }
+            .onSuccess { FileUtil.deleteDir(context.externalCacheDir!!) }
             .getOrDefault(false)
     }
 

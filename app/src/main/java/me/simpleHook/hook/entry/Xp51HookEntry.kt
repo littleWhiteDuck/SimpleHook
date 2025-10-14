@@ -11,7 +11,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import io.github.qauxv.loader.sbl.xp51.Xp51HookImpl
 import io.github.qauxv.poststartup.StartupInfo
 import me.simpleHook.BuildConfig
-import me.simpleHook.hook.util.HookHelper
+import me.simpleHook.hook.utils.HookHelper
 
 class Xp51HookEntry : IXposedHookLoadPackage {
 

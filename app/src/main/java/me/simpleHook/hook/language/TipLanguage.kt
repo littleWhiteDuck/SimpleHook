@@ -1,6 +1,6 @@
 package me.simpleHook.hook.language
 
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.utils.LanguageUtil
 
 data class LanguageData(
     val text: String,
@@ -183,6 +183,6 @@ sealed class TipLanguage(val data: LanguageData) {
 }
 
 val tip by lazy {
-    if (LanguageUtils.isNotChinese()) TipLanguage.EN.data
+    if (LanguageUtil.isNotChinese()) TipLanguage.EN.data
     else TipLanguage.CN.data
 }

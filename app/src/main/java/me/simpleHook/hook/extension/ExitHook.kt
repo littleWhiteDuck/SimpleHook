@@ -8,8 +8,8 @@ import me.simpleHook.data.Exit
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.LogBean
 import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.LogUtil
 
 object ExitHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {

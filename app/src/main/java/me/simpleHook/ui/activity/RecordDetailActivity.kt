@@ -26,11 +26,11 @@ import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.lineFeesItem
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.warningDialog
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.ThemeModeUtil
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.LanguageUtil
+import me.simpleHook.utils.ThemeModeUtil
+import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.RecordViewModel
 
 
@@ -54,7 +54,7 @@ class RecordDetailActivity : BaseActivity() {
         supportActionBar?.title = if (recordPackageName.startsWith("error")) {
             "Hook Error"
         } else {
-            AppUtils.getAppName(recordPackageName)
+            AppUtil.getAppName(recordPackageName)
         }
         supportActionBar?.subtitle = recordPackageName
         initView()
@@ -73,7 +73,7 @@ class RecordDetailActivity : BaseActivity() {
             val recordId = intent.getIntExtra(KEY_RECORD_ID, -1)
             printLog = recordViewModel.getRecordByID(recordId)
             val logBean = Json.decodeFromString<LogBean>(printLog.log)
-            val foreStr = if (LanguageUtils.isNotChinese()) "Type: " else "类型："
+            val foreStr = if (LanguageUtil.isNotChinese()) "Type: " else "类型："
             if (logBean.type.equals("intent", ignoreCase = true)) {
                 val intentBean = Json.decodeFromString<IntentBean>(logBean.other[0])
                 val sb = StringBuilder()
@@ -181,27 +181,27 @@ class RecordDetailActivity : BaseActivity() {
             }
 
             R.id.copy_text -> {
-                ToolUtils.toClip(this, currentText)
+                ToolUtil.toClip(this, currentText)
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_json -> {
-                ToolUtils.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
+                ToolUtil.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_raw_data -> {
-                ToolUtils.toClip(this, rawData)
+                ToolUtil.toClip(this, rawData)
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_crypt_result -> {
-                ToolUtils.toClip(this, cryptResult)
+                ToolUtil.toClip(this, cryptResult)
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
             R.id.copy_return_value -> {
-                ToolUtils.toClip(this, returnValue)
+                ToolUtil.toClip(this, returnValue)
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 

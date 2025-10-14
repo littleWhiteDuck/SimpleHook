@@ -15,7 +15,7 @@ import me.simpleHook.data.AppListItem
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.marquee
 import me.simpleHook.ui.view.applist.AppItemView
-import me.simpleHook.util.AppUtils
+import me.simpleHook.utils.AppUtil
 
 class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
     ListAdapter<AppListItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -50,7 +50,7 @@ class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
               Glide.with(ivIcon).load(packageName).into(ivIcon)
               if (name.isEmpty()) {
                   CoroutineScope(Dispatchers.IO).launch {
-                      val result = AppUtils.getAppName(packageName)
+                      val result = AppUtil.getAppName(packageName)
                       withContext(Dispatchers.Main) {
                           tvAppName.text = result
                       }

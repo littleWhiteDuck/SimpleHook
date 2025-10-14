@@ -39,11 +39,11 @@ import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.PrintLogAdapter
 import me.simpleHook.ui.view.ControlView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.LogUtils
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.LanguageUtil
+import me.simpleHook.utils.LogUtils
+import me.simpleHook.utils.TimeUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
@@ -64,7 +64,7 @@ open class BaseActivity : AppCompatActivity() {
             handler.postDelayed(this, 500)
         }
     }
-    private val uri = FlavorUtils.PROVIDER_RECORD_URI.toUri()
+    private val uri = FlavorUtil.PROVIDER_RECORD_URI.toUri()
     private var stopPrint = false
     private var currentTime = ""
     private var startTime = ""
@@ -95,7 +95,7 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LanguageUtils.attachBaseContext(newBase))
+        super.attachBaseContext(LanguageUtil.attachBaseContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,12 +113,12 @@ open class BaseActivity : AppCompatActivity() {
                 if (!::assistConfigs.isInitialized) {
                     assistConfigs = appConfigViewModel.getAssistConfigs()
                     assistConfigs.forEach {
-                        if (it.allSwitch && AppUtils.isAppInstalled(it.packageName)
+                        if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appConfigViewModel.getConfigs()
                     configs.forEach {
-                        if (it.enable && AppUtils.isAppInstalled(
+                        if (it.enable && AppUtil.isAppInstalled(
                                 it.packageName
                             )
                         ) needCheckPacks.add(it.packageName)
@@ -185,12 +185,12 @@ open class BaseActivity : AppCompatActivity() {
     private fun showPrintFloat() {
         lifecycleScope.launch(Dispatchers.IO) {
             appConfigViewModel.getAssistConfigs().forEach {
-                if (it.allSwitch && AppUtils.isAppInstalled(it.packageName)) {
+                if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)) {
                     needCheckPacks.add(it.packageName)
                 }
             }
             appConfigViewModel.getConfigs().forEach {
-                if (it.enable && AppUtils.isAppInstalled(it.packageName)) {
+                if (it.enable && AppUtil.isAppInstalled(it.packageName)) {
                     needCheckPacks.add(it.packageName)
                 }
             }

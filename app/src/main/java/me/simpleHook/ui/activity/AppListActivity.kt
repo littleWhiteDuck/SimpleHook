@@ -25,15 +25,15 @@ import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.fragment.SystemAppListFragment
 import me.simpleHook.ui.fragment.UserAppListFragment
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.SPUtils
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.SPUtil
 import me.simpleHook.viewmodel.AppListViewModel
 
 class AppListActivity : BaseActivity() {
     private lateinit var binding: ActivityAppListBinding
     private var isFromAssist = false
     private val appListViewModel by viewModels<AppListViewModel>()
-    private val sp by lazy { SPUtils(this) }
+    private val sp by lazy { SPUtil(this) }
     private var currentSortSelected = 0
     private var currentSortReverse = false
     private var firstClickTime = 0L
@@ -98,7 +98,7 @@ class AppListActivity : BaseActivity() {
 
     private fun clickResponse(appListItem: AppListItem) {
         val appName =
-            appListItem.name.ifEmpty { AppUtils.getAppName(appListItem.packageName) }
+            appListItem.name.ifEmpty { AppUtil.getAppName(appListItem.packageName) }
         if (isFromAssist) {
             val intent = Intent().also {
                 it.putExtra("appName", appName)

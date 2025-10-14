@@ -9,7 +9,7 @@ import me.simpleHook.R
 import me.simpleHook.recyclerview.adapter.AssistAdapter.ViewHolder
 import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.ui.view.main.AssistItemView
-import me.simpleHook.util.AppUtils
+import me.simpleHook.utils.AppUtil
 import me.simpleHook.extension.marquee
 
 class AssistAdapter(
@@ -58,7 +58,7 @@ class AssistAdapter(
             tvAppName.text = assistConfig.appName
             Glide.with(ivAppIcon).load(assistConfig.packageName).into(ivAppIcon)
             tvVersionName.text =
-                AppUtils.getAppVersionName(assistConfig.packageName)
+                AppUtil.getAppVersionName(assistConfig.packageName)
         }
     }
 }

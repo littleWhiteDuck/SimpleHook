@@ -1,7 +1,7 @@
 package me.simpleHook.hook
 
 import com.google.gson.Gson
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.utils.LanguageUtil
 
 object Tip {
     private const val chineseTip =
@@ -10,7 +10,7 @@ object Tip {
         "{\n" + "\t\"text\": \"Text: \",\n" + "\t\"button\": \"Button: \",\n" + "\t\"callbackType\": \"callbackType: \",\n" + "\t\"viewType\": \"viewType: \",\n" + "\t\"encryptType\": \"Type: encrypt\",\n" + "\t\"rawData\": \"Raw Data: \",\n" + "\t\"encryptResult\": \"Encrypt result: \",\n" + "\t\"decryptResult\": \"Decrypt result: \",\n" + "\t\"key\": \"Key: \",\n" + "\t\"keyAlgorithm\": \"Key algorithm: \",\n" + "\t\"encrypt\": \"encrypt\",\n" + "\t\"decrypt\": \"decrypt\",\n" + "\t\"isDecrypt\": \"Encrypt/Decrypt: decrypt\",\n" + "\t\"isEncrypt\": \"Encrypt/Decrypt: encrypt\",\n" + "\t\"className\": \"Class name: \",\n" + "\t\"methodName\": \"Method name: \",\n" + "\t\"param\": \"Param\",\n" + "\t\"returnValue\": \"Return value: \",\n" + "\t\"startCustomHook\": \"Start custom hook\",\n" + "\t\"startExtensionHook\": \"start extension hook\",\n" + "\t\"errorType\": \"Error type: \",\n" + "\t\"solution\": \"Solution: \",\n" + "\t\"filledClassName\": \"Filled class name: \",\n" + "\t\"filledMethodParams\": \"Filled method (parameters): \",\n" + "\t\"filledMethodOrField\": \"Filled method(parameters)|Field: \",\n" + "\t\"detailReason\": \"Detail reason: \",\n" + "\t\"notFoundClass\": \"Please make sure the class name is correct\",\n" + "\t\"noSuchMethod\": \"Please make sure that the method name/parameters and other data filled in are correct\",\n" + "\t\"paramsNotEqualValues\": \"Please check whether the number of modified values is the same as the number of parameters\",\n" + "\t\"useSmali2Config\": \"There is a problem with filling in your method/parameter/class name, please use [smali to config] to reduce the probability of errors\",\n" + "\t\"useNormalVersion\": \"Please note that your model is not suitable for the ROOT version, please use the normal version\",\n" + "\t\"notHaveParams\": \"Parameters: This method has no parameters!\",\n" + "\t\"unknownError\": \"Unknown error\",\n" + "\t\"encryptOrDecrypt\": \"Encrypt/Decrypt: \",\n" + "\t\"result\": \"result: \",\n" + "\t\"setClipboard\": \"Write clipboard\",\n" + "\t\"getClipboard\": \"Read clipboard\",\n" + "\t\"clipboardInfo\": \"Info: \",\n" + "\t\"fieldName\": \"Field name: \",\n" + "\t\"fieldValue\": \"Field value: \",\n" + "\t\"applicationName\": \"Application name：\",\n" + "\t\"createFile\": \"Create file\",\n" + "\t\"deleteFile\": \"Delete file\",\n" + "\t\"readFile\": \"Read file\",\n" + "\t\"writeFile\": \"Write file\",\n" + "\t\"readAssets\": \"Read Assets file\",\n" + "\t\"path\": \"Path: \",\n" + "\t\"info\": \"Info(Show only the cache size): \",\n" + "\t\"notSetCacheSize\": \"No cache size set\",\n" + "\t\"finish\": \"Exit: by finish()\",\n" + "\t\"exit\": \"Exit: by exit()\",\n" + "\t\"killProcess\": \"Exit: killProcess()\"\n" + "}"
     private val tipMap = Gson().fromJson<Map<String, String>>(chineseTip, Map::class.java)
     private val tipEnglishMap = Gson().fromJson<Map<String, String>>(englishTip, Map::class.java)
-    private val isNotChinese = LanguageUtils.isNotChinese()
+    private val isNotChinese = LanguageUtil.isNotChinese()
 
 
     fun getTip(key: String): String {

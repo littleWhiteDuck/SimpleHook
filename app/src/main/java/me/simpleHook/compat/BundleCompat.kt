@@ -3,7 +3,7 @@ package me.simpleHook.compat
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.core.os.BundleCompat
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.OSUtils
 
 
 @Suppress("DEPRECATION", "unused")

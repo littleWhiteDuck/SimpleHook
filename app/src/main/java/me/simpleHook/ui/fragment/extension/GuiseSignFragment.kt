@@ -36,16 +36,16 @@ import me.simpleHook.data.GuiseSignConfig
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
-import me.simpleHook.hook.util.HookUtils.byte2Sting
+import me.simpleHook.hook.utils.HookUtils.byte2Sting
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.ui.view.extension.EditSignatureView
 import me.simpleHook.ui.view.extension.GuiseSignatureItem
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FileUtils
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FileUtil
+import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.ExViewModel
 import java.io.IOException
 import java.io.InputStream
@@ -138,7 +138,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         guiseSigns.forEach {
             appSignItems.add(
                 AppInfo(
-                    AppUtils.getAppName(it.packageName),
+                    AppUtil.getAppName(it.packageName),
                     it.packageName,
                     it.signData,
                     it.enable
@@ -212,7 +212,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
                         }
                     }
                 }
-                FileUtils.deleteDir(cacheFile)
+                FileUtil.deleteDir(cacheFile)
                 withContext(Dispatchers.Main) {
                     viewModel.signInfoEdit.value = result ?: ""
                     loadingDialog.dismiss()
@@ -222,7 +222,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         }.onFailure {
             requireActivity().showPopup("失败")
         }.recoverCatching {
-            FileUtils.deleteDir(cacheFile)
+            FileUtil.deleteDir(cacheFile)
         }
     }
 
@@ -341,9 +341,9 @@ class GuiseSignAdapter(
             appName.text = appInfo.appName
             packageName.text = appInfo.packageName
             signMd5.text =
-                "MD5:" + ToolUtils.getDigest(Signature(appInfo.signData).toByteArray())
+                "MD5:" + ToolUtil.getDigest(Signature(appInfo.signData).toByteArray())
                     .uppercase()
-            icon.setImageDrawable(AppUtils.getIcon(appInfo.packageName))
+            icon.setImageDrawable(AppUtil.getIcon(appInfo.packageName))
             checkBox.isChecked = appInfo.enable
         }
     }

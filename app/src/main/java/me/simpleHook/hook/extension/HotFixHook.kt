@@ -5,9 +5,9 @@ import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.log
-import me.simpleHook.util.FlavorUtils
+import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.hook.utils.log
+import me.simpleHook.utils.FlavorUtil
 import java.io.File
 
 object HotFixHook : BaseHook() {
@@ -15,7 +15,7 @@ object HotFixHook : BaseHook() {
     override fun startHook(configBean: ExtensionConfig) {
         if (!configBean.hotFix) return
         val dexFilePaths: MutableList<String> = mutableListOf()
-        val pathName = if (FlavorUtils.normalVersion) {
+        val pathName = if (FlavorUtil.normalVersion) {
             Constant.ANDROID_DATA_PATH + HookHelper.hostPackageName + "/simpleHook/dex/"
         } else {
             Constant.ROOT_CONFIG_MAIN_DIRECTORY + HookHelper.hostPackageName + "/dex/"

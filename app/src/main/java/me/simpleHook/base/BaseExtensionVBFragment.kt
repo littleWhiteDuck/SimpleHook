@@ -13,10 +13,10 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.requestPermissionDialog
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.OSUtils
-import me.simpleHook.util.PermissionUtils
-import me.simpleHook.util.SPUtils
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.utils.SPUtil
 
 
 abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() {
@@ -49,7 +49,7 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
         onBackPressedCallback.isEnabled = true
     }
 
-    protected val sp by lazy { SPUtils(requireContext()) }
+    protected val sp by lazy { SPUtil(requireContext()) }
 
     protected val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
@@ -64,9 +64,9 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
 
 
     protected fun requirePermission(packageName: String) {
-        if (FlavorUtils.liteVersion) {
+        if (FlavorUtil.liteVersion) {
             requireActivity().showPopup(getString(R.string.lite_version_not_active))
-        } else if (FlavorUtils.rootVersion) {
+        } else if (FlavorUtil.rootVersion) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
             if (OSUtils.atLeastT()) {
@@ -81,7 +81,7 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
                 }
             } else {
                 requestPermissionDialog(requireContext()) {
-                    PermissionUtils.verifyStoragePermissions(requireActivity())
+                    PermissionUtil.verifyStoragePermissions(requireActivity())
                 }
             }
         }

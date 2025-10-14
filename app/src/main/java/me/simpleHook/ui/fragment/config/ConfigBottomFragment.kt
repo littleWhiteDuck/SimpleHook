@@ -14,7 +14,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
 import me.simpleHook.extension.showPopup
-import me.simpleHook.util.SPUtils
+import me.simpleHook.utils.SPUtil
 import java.util.regex.Pattern
 
 
@@ -69,7 +69,7 @@ class ConfigBottomFragment(
 
     private var hookMode = Constant.HOOK_RETURN
     private var configEnable = true
-    private val sp by lazy { SPUtils(requireContext()) }
+    private val sp by lazy { SPUtil(requireContext()) }
     override var enableUpdateHeight: Boolean = false
 
 

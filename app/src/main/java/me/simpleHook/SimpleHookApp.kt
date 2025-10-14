@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
 import me.simpleHook.shizuku.ShizukuFileManager
-import me.simpleHook.util.LanguageUtils
-import me.simpleHook.util.ThemeModeUtil
+import me.simpleHook.utils.LanguageUtil
+import me.simpleHook.utils.ThemeModeUtil
 
 
 lateinit var App: Application
@@ -23,6 +23,6 @@ class SimpleHookApp : Application() {
     }
 
     override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(LanguageUtils.attachBaseContext(base))
+        super.attachBaseContext(LanguageUtil.attachBaseContext(base))
     }
 }

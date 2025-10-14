@@ -12,8 +12,8 @@ import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView
-import me.simpleHook.util.IconHelper
-import me.simpleHook.util.RecordType
+import me.simpleHook.utils.IconHelper
+import me.simpleHook.utils.RecordType
 
 class RecordAdapter(
     private val isType: Boolean = false,

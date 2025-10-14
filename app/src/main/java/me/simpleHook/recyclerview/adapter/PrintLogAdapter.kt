@@ -17,8 +17,8 @@ import me.simpleHook.data.LogBean
 import me.simpleHook.database.entity.PrintLog
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.ToolUtil
 
 class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(RecordCallback) {
 
@@ -49,7 +49,7 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
             val message = JsonUtil.formatJson(printLog.log.replace("\\u003e", ">"))
             val dialog = MaterialAlertDialogBuilder(parent.context).setMessage(message)
                 .setPositiveButton(parent.context.getString(R.string.record_detail_menu_copy)) { dialog, _ ->
-                    ToolUtils.toClip(parent.context, message)
+                    ToolUtil.toClip(parent.context, message)
                     parent.context.showToast(parent.context.getString(R.string.copied))
                     dialog.dismiss()
                 }.setNegativeButton(itemView.context.getString(R.string.dialog_cancel), null)

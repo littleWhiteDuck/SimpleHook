@@ -14,7 +14,7 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.extension.dp
 import me.simpleHook.recyclerview.adapter.AppListAdapter
-import me.simpleHook.util.FastScrollerUtil
+import me.simpleHook.utils.FastScrollerUtil
 import me.simpleHook.viewmodel.AppListViewModel
 
 

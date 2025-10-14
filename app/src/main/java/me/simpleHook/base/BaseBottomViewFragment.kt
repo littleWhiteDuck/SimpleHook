@@ -13,7 +13,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import me.simpleHook.R
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.util.OSUtils
+import me.simpleHook.utils.OSUtils
 
 abstract class BaseBottomViewFragment<T : View> : BottomSheetDialogFragment() {
 

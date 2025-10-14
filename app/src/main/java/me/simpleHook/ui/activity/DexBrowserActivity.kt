@@ -11,12 +11,12 @@ import androidx.compose.runtime.Composable
 import me.simpleHook.GlobalValue
 import me.simpleHook.ui.compose.page.DexBrowser
 import me.simpleHook.ui.compose.theme.SimpleHookTheme
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.utils.LanguageUtil
 
 class DexBrowserActivity : ComponentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LanguageUtils.attachBaseContext(newBase))
+        super.attachBaseContext(LanguageUtil.attachBaseContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

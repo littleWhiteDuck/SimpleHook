@@ -44,12 +44,12 @@ import me.simpleHook.ui.activity.ConfigActivity
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.view.edit.InputView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.FlavorUtils
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.SuUtil
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FastScrollerUtil
+import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.SuUtil
+import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import kotlin.math.min
 
@@ -198,14 +198,14 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
     private fun onItemCreateContextMenu(appConfig: AppConfig, menu: ContextMenu) {
         if (isDrag) return
         configOfItemMenu = appConfig
-        val isInstalled = AppUtils.isAppInstalled(appConfig.packageName)
+        val isInstalled = AppUtil.isAppInstalled(appConfig.packageName)
         if (isInstalled) {
             requireActivity().menuInflater.inflate(R.menu.menu_app_item, menu)
             if (GlobalValue.packageManager.getLaunchIntentForPackage(appConfig.packageName) == null) {
                 menu.removeItem(R.id.menu_launch)
                 menu.removeItem(R.id.menu_relaunch)
             }
-            if (FlavorUtils.normalVersion || FlavorUtils.liteVersion) {
+            if (FlavorUtil.normalVersion || FlavorUtil.liteVersion) {
                 menu.removeItem(R.id.menu_relaunch)
             }
         } else {
@@ -250,7 +250,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
         with(binding) {
             addConfig.setOnClickListener { toAddConfig(null) }
             importConfigsFromPaste.setOnClickListener {
-                ToolUtils.getClipboardContent(requireContext())?.let { importConfigs(it) }
+                ToolUtil.getClipboardContent(requireContext())?.let { importConfigs(it) }
             }
             shareConfigs.setOnClickListener { shareConfigs() }
             importConfigsFromInternet.setOnClickListener {
@@ -377,21 +377,21 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_launch -> AppUtils.startApp(configOfItemMenu.packageName, requireContext())
+            R.id.menu_launch -> AppUtil.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
-                if (FlavorUtils.rootVersion) {
+                if (FlavorUtil.rootVersion) {
                     if (GlobalValue.isRootWork) {
                         SuUtil.forceStopApp(configOfItemMenu.packageName)
                     } else {
                         ShizukuFileManager.service?.forceStopPackage(configOfItemMenu.packageName)
                     }
                 } else {
-                    AppUtils.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
+                    AppUtil.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
             }
 
             R.id.menu_relaunch -> {
-                if (FlavorUtils.rootVersion) {
+                if (FlavorUtil.rootVersion) {
                     val intent =
                         requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
                     intent?.component?.className?.let { className ->
@@ -407,7 +407,7 @@ class HomeVBFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrol
                 }
             }
 
-            R.id.menu_app_info -> AppUtils.jumpAppInfoPage(
+            R.id.menu_app_info -> AppUtil.jumpAppInfoPage(
                 requireContext(),
                 configOfItemMenu.packageName
             )

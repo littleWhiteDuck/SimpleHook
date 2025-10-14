@@ -40,10 +40,10 @@ import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.edit.InputView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.FastScrollerUtil
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.FastScrollerUtil
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.TimeUtil
 import me.simpleHook.viewmodel.RecordViewModel
 import java.io.FileOutputStream
 
@@ -103,7 +103,7 @@ class RecordActivity : BaseActivity() {
                 if (typeOrPackageName.startsWith("Error")) "Hook Error" else typeOrPackageName
         } else {
             supportActionBar?.title =
-                if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtils.getAppName(
+                if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtil.getAppName(
                     typeOrPackageName
                 )
             supportActionBar?.subtitle = typeOrPackageName

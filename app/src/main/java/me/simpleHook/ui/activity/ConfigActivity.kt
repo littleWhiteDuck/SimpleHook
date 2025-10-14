@@ -59,11 +59,11 @@ import me.simpleHook.ui.fragment.config.CollectionViewFragment
 import me.simpleHook.ui.fragment.config.ConfigBottomFragment
 import me.simpleHook.ui.listener.AppBarStateChangeListener
 import me.simpleHook.ui.view.config.InputCollectionView
-import me.simpleHook.util.AppUtils
-import me.simpleHook.util.HookModeUtil
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.SPUtils
-import me.simpleHook.util.ToolUtils
+import me.simpleHook.utils.AppUtil
+import me.simpleHook.utils.HookModeUtil
+import me.simpleHook.utils.JsonUtil
+import me.simpleHook.utils.SPUtil
+import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.CollectionViewModel
 import java.lang.reflect.Field
@@ -84,7 +84,7 @@ class ConfigActivity : BaseActivity() {
     private lateinit var binding: ActivityConfigBinding
     private var appConfig: AppConfig? = null
     private var tempPackageName = ""
-    private val sp by lazy { SPUtils(this) }
+    private val sp by lazy { SPUtil(this) }
     private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val mAdapter by lazy {
         ConfigAdapter(
@@ -183,7 +183,7 @@ class ConfigActivity : BaseActivity() {
                 if (it.appName.isEmpty() || it.packageName.isEmpty()) {
                     appInfo.containerView.appName.text = getString(R.string.config_no_app_info)
                     appInfo.containerView.icon.setImageDrawable(
-                        AppUtils.getIcon(
+                        AppUtil.getIcon(
                             it.packageName
                         )
                     )
@@ -230,10 +230,10 @@ class ConfigActivity : BaseActivity() {
             packageName.text = appInfo.packageName
             otherInfo.text = getString(
                 R.string.config_version_support,
-                AppUtils.getAppVersionName(appInfo.packageName),
+                AppUtil.getAppVersionName(appInfo.packageName),
                 appInfo.versionName
             )
-            icon.setImageDrawable(AppUtils.getIcon(appInfo.packageName))
+            icon.setImageDrawable(AppUtil.getIcon(appInfo.packageName))
         }
         tempVersionName = appInfo.versionName
     }
@@ -590,7 +590,7 @@ class ConfigActivity : BaseActivity() {
             android.R.id.home -> finish()
             R.id.save_config -> saveConfig()
             R.id.config_smali_to_config -> {
-                ToolUtils.getClipboardContent(this)?.let { patternStr(it.trim()) }
+                ToolUtil.getClipboardContent(this)?.let { patternStr(it.trim()) }
             }
 
             R.id.collect -> {

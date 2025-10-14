@@ -35,7 +35,7 @@ import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
-import me.simpleHook.util.TimeUtil
+import me.simpleHook.utils.TimeUtil
 import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.worker.BackupHelper
 import java.util.zip.ZipEntry
