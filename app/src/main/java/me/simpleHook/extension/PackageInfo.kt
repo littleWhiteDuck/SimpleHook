@@ -1,11 +1,11 @@
 package me.simpleHook.extension
 
 import android.content.pm.PackageInfo
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 
 val PackageInfo.verCode
     get() = run {
-        if (OSUtils.atLeastP()) {
+        if (OSUtil.atLeastP()) {
             longVersionCode
         } else {
             @Suppress("DEPRECATION")

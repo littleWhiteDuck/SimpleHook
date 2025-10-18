@@ -9,7 +9,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomFragment
-import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.HookConfig
 import me.simpleHook.constant.Constant
 import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.extension.isContainState
@@ -62,8 +62,8 @@ private const val SHOW_RECORD_INSTANCE_FIELD =
     HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
 
 class ConfigBottomFragment(
-    private val configBean: ConfigBean,
-    private val saveConfig: (ConfigBean) -> Unit,
+    private val hookConfig: HookConfig,
+    private val saveConfig: (HookConfig) -> Unit,
     private val deleteConfig: () -> Unit
 ) : BaseBottomFragment<FragemntConfigDialogBinding>() {
 
@@ -87,7 +87,7 @@ class ConfigBottomFragment(
             }
             deleteConfig.isVisible = tag != "ADD"
             moreSettings.setOnClickListener { popupSettingMenu(it) }
-            with(configBean) {
+            with(hookConfig) {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
                 paramsTypeEdit.setText(params)
@@ -169,7 +169,7 @@ class ConfigBottomFragment(
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
                 binding.root.showPopup(getString(R.string.config_hook_constructor_tip))
             }
-            val configBean = ConfigBean(
+            val hookConfig = HookConfig(
                 this.hookMode,
                 className,
                 methodName,
@@ -182,7 +182,7 @@ class ConfigBottomFragment(
                 desc = configDesc,
                 enable = configEnable
             )
-            saveConfig(configBean)
+            saveConfig(hookConfig)
             dismiss()
         } else {
             binding.root.showPopup(getString(R.string.config_info_not_match_mode))

@@ -30,8 +30,8 @@ import me.simpleHook.R
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.CollectionEntity
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
@@ -40,6 +40,7 @@ import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.worker.BackupHelper
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import kotlin.collections.toTypedArray
 
 class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
@@ -168,9 +169,13 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     private fun initExternalBackup() {
         if (uri != null) {
             val document = DocumentFile.fromSingleUri(requireContext(), uri) ?: return
-            showRestoreLocal(RestoreItem(document.name!!,
-                document.uri,
-                TimeUtil.calculateRangeToNow(requireContext(), document.lastModified())))
+            showRestoreLocal(
+                RestoreItem(
+                    document.name!!,
+                    document.uri,
+                    TimeUtil.calculateRangeToNow(requireContext(), document.lastModified())
+                )
+            )
         }
     }
 
@@ -185,8 +190,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun isLocalBackupEnable(): Boolean {
-        if (GlobalValue.sp.backup_path.isNullOrEmpty() || DocumentFile.fromTreeUri(requireContext(),
-                GlobalValue.sp.backup_path!!.toUri())?.exists() == false
+        if (GlobalValue.sp.backup_path.isNullOrEmpty() || DocumentFile.fromTreeUri(
+                requireContext(),
+                GlobalValue.sp.backup_path!!.toUri()
+            )?.exists() == false
         ) {
             requireActivity().showPopup(getString(R.string.backup_tip_backup_path_is_empty))
             return false
@@ -213,7 +220,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun showRestoreLocal(restoreItem: RestoreItem) {
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.backup_dialog_title_restore_local_backup),
             message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
             cancelText = getString(R.string.dialog_cancel),
@@ -224,7 +232,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun showRestoreCloud(restoreItem: RestoreCloudItem) {
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.backup_dialog_title_restore_cloud_backup),
             message = getString(R.string.backup_dialog_message, restoreItem.name, restoreItem.time),
             cancelText = getString(R.string.dialog_cancel),
@@ -241,7 +250,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         runCatching {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 var customConfigs: List<AppConfig> = emptyList()
-                var extensionConfigs: List<AssistConfig> = emptyList()
+                var extensionConfigs: List<ExtensionConfigEntity> = emptyList()
                 var collections: List<CollectionEntity> = emptyList()
                 val sardine = OkHttpSardine()
                 sardine.setCredentials(GlobalValue.sp.web_dav_account, GlobalValue.sp.web_dav_pw)
@@ -255,8 +264,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                         if (entry?.name == "custom_config.json") {
                             customConfigs = Json.decodeFromStream(it)
                         }
-                        if (entry?.name == "extension_config.json") {
-                            extensionConfigs = Json.decodeFromStream(it)
+                        runCatching {
+                            if (entry?.name == "extension_config.json") {
+                                extensionConfigs = Json.decodeFromStream(it)
+                            }
                         }
                         if (entry?.name == "collection_config.json") {
                             collections = Json.decodeFromStream(it)
@@ -273,7 +284,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                     it.id = 0
                 }
                 appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appConfigViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                appConfigViewModel.insertExtConfigs(*extensionConfigs.toTypedArray())
                 collViewModel.insertCollections(*collections.toTypedArray())
             }
         }.onSuccess {
@@ -292,7 +303,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         runCatching {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 var customConfigs: List<AppConfig> = emptyList()
-                var extensionConfigs: List<AssistConfig> = emptyList()
+                var extensionConfigs: List<ExtensionConfigEntity> = emptyList()
                 var collections: List<CollectionEntity> = emptyList()
                 val zipInputStream =
                     ZipInputStream(requireActivity().contentResolver.openInputStream(uri))
@@ -304,8 +315,10 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                         if (entry?.name == "custom_config.json") {
                             customConfigs = Json.decodeFromStream(it)
                         }
-                        if (entry?.name == "extension_config.json") {
-                            extensionConfigs = Json.decodeFromStream(it)
+                        runCatching {
+                            if (entry?.name == "extension_config.json") {
+                                extensionConfigs = Json.decodeFromStream(it)
+                            }
                         }
                         if (entry?.name == "collection_config.json") {
                             collections = Json.decodeFromStream(it)
@@ -322,7 +335,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
                     it.id = 0
                 }
                 appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appConfigViewModel.insertAssistConfigs(*extensionConfigs.toTypedArray())
+                appConfigViewModel.insertExtConfigs(*extensionConfigs.toTypedArray())
                 collViewModel.insertCollections(*collections.toTypedArray())
 
             }
@@ -360,14 +373,16 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             loadingDialog.show()
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val scope = GlobalValue.sp.backup_scope
-                val success = BackupHelper.startBackupConfig(requireContext(),
+                val success = BackupHelper.startBackupConfig(
+                    requireContext(),
                     scope == "BACKUP_SCOPE_CUSTOM",
                     scope == "BACKUP_SCOPE_EXTENSION",
                     scope == "BACKUP_SCOPE_COLLECTION",
                     scope == "BACKUP_SCOPE_ALL",
                     local = local,
                     cloud = cloud,
-                    backUri = backUri)
+                    backUri = backUri
+                )
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (success) {
@@ -383,9 +398,13 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     private fun restoreConfigBySelect(it: Uri) {
         val file = DocumentFile.fromSingleUri(requireContext(), it) ?: return
         if (file.name?.endsWith(".shbackup") == true) {
-            showRestoreLocal(RestoreItem(file.name!!,
-                file.uri,
-                TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())))
+            showRestoreLocal(
+                RestoreItem(
+                    file.name!!,
+                    file.uri,
+                    TimeUtil.calculateRangeToNow(requireContext(), file.lastModified())
+                )
+            )
         } else {
             requireActivity().showPopup(getString(R.string.backup_tip_illegal_file_type))
         }

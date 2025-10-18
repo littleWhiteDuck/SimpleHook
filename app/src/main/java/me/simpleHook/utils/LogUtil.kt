@@ -2,8 +2,7 @@ package me.simpleHook.utils
 
 import me.simpleHook.App
 
-object LogUtils {
-    @JvmStatic
+object LogUtil {
     fun outLog(error: String) {
         if (FlavorUtil.betaVersion) {
             FileUtil.outTextToFile(content = error,

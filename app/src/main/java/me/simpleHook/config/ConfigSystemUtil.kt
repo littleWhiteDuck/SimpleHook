@@ -2,7 +2,7 @@ package me.simpleHook.config
 
 import me.simpleHook.GlobalValue
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 
 
 object ConfigSystemUtil {
@@ -17,8 +17,8 @@ object ConfigSystemUtil {
             }
         }
         return when {
-            OSUtils.atLeastT() -> DocumentConfig2Helper()
-            OSUtils.atLeastR() -> DocumentConfigHelper()
+            OSUtil.atLeastT() -> DocumentConfig2Helper()
+            OSUtil.atLeastR() -> DocumentConfigHelper()
             else -> FileConfigHelper()
         }
     }

@@ -11,7 +11,7 @@ import me.simpleHook.App
 import me.simpleHook.constant.Constant
 import me.simpleHook.utils.DocumentRUtil
 import me.simpleHook.utils.DocumentTUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import java.io.FileOutputStream
 
 object DocumentCompat {
@@ -21,7 +21,7 @@ object DocumentCompat {
     }
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
-        return if (OSUtils.atLeastT()) {
+        return if (OSUtil.atLeastT()) {
             DocumentTUtil.generateFileUri(packageName, filePath)
         } else {
             DocumentRUtil.generateFileUri(packageName, filePath)
@@ -72,7 +72,7 @@ object DocumentCompat {
     }
 
     fun makeDirs(context: Context, path: String, packageName: String): Boolean {
-        return if (OSUtils.atLeastT()) {
+        return if (OSUtil.atLeastT()) {
             DocumentTUtil.makeDirs(context, path, packageName)
         } else {
             DocumentRUtil.makeDirs(context, path)
@@ -86,7 +86,7 @@ object DocumentCompat {
         content: String,
         mimiType: String = "application/json"
     ): Boolean {
-        return if (OSUtils.atLeastT()) {
+        return if (OSUtil.atLeastT()) {
             DocumentTUtil.outTextToFile(context, packageName, fileName, content, mimiType)
         } else {
             DocumentRUtil.outTextToFile(context, packageName, fileName, content, mimiType)
@@ -121,7 +121,7 @@ object DocumentCompat {
     }
 
     fun getFileUri(context: Context, packageName: String, path: String): Uri? {
-        return if (OSUtils.atLeastT()) {
+        return if (OSUtil.atLeastT()) {
             DocumentTUtil.getFileUri(context, packageName, path)
         } else {
             DocumentRUtil.getFileUri(context, packageName, path)

@@ -7,26 +7,22 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import me.simpleHook.database.dao.AppConfigDao
-import me.simpleHook.database.dao.AssistConfigDao
 import me.simpleHook.database.dao.CollectionDao
-import me.simpleHook.database.dao.PrintLogDao
+import me.simpleHook.database.dao.ExtensionConfigDao
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.database.entity.CollectionEntity
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.ExtensionConfigEntity
 
 @Database(
-    entities = [AppConfig::class, PrintLog::class, AssistConfig::class, CollectionEntity::class],
-    version = 6,
+    entities = [AppConfig::class, ExtensionConfigEntity::class, CollectionEntity::class],
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getAppConfigDao(): AppConfigDao
 
-    abstract fun getLogDao(): PrintLogDao
-
-    abstract fun getAssistConfigDao(): AssistConfigDao
+    abstract fun getExtensionConfigDao(): ExtensionConfigDao
 
     abstract fun getCollectionDao(): CollectionDao
 
@@ -58,6 +54,14 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE TABLE CollectionEntity(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, config TEXT NOT NULL, type Text NOT NULL)")
             }
         }
+
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE PrintLog")
+                db.execSQL("DROP TABLE AssistConfig")
+                db.execSQL("CREATE TABLE ExtensionConfigEntity(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, appName TEXT NOT NULL, packageName TEXT NOT NULL, config TEXT NOT NULL, enable INTEGER NOT NULL DEFAULT 1)")
+            }
+        }
         private var instance: AppDatabase? = null
 
         @Synchronized
@@ -68,7 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
                 "app_configs.db"
             ).addMigrations(MIGRATION_1_2).addMigrations(MIGRATION_2_3)
                 .addMigrations(MIGRATION_3_4).addMigrations(MIGRATION_4_5)
-                .addMigrations(MIGRATION_5_6).build().also {
+                .addMigrations(MIGRATION_5_6).addMigrations(MIGRATION_6_7).build().also {
                     instance = it
                 }
     }

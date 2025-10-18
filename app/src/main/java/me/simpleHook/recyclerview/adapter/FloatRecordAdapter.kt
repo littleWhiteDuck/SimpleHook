@@ -11,16 +11,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.data.LogBean
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showToast
 import me.simpleHook.utils.JsonUtil
 import me.simpleHook.utils.ToolUtil
 
-class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(RecordCallback) {
+class FloatRecordAdapter :
+    ListAdapter<RecordEntity, FloatRecordAdapter.ViewHolder>(RecordCallback) {
 
     inner class ViewHolder(itemView: AppCompatTextView) : RecyclerView.ViewHolder(itemView) {
         val tvLog = itemView
@@ -45,8 +44,8 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
             }
         val viewHolder = ViewHolder(itemView)
         viewHolder.itemView.setOnClickListener {
-            val printLog = viewHolder.itemView.getTag(R.id.item_print_position) as PrintLog
-            val message = JsonUtil.formatJson(printLog.log.replace("\\u003e", ">"))
+            val recordEntity = viewHolder.itemView.getTag(R.id.item_print_position) as RecordEntity
+            val message = JsonUtil.formatJson(recordEntity.record.replace("\\u003e", ">"))
             val dialog = MaterialAlertDialogBuilder(parent.context).setMessage(message)
                 .setPositiveButton(parent.context.getString(R.string.record_detail_menu_copy)) { dialog, _ ->
                     ToolUtil.toClip(parent.context, message)
@@ -65,20 +64,19 @@ class PrintLogAdapter : ListAdapter<PrintLog, PrintLogAdapter.ViewHolder>(Record
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val printLog = getItem(position)
-        holder.itemView.setTag(R.id.item_print_position, printLog)
-        val logBean = Json.decodeFromString<LogBean>(printLog.log)
-        holder.tvLog.text = logBean.type
+        val recordEntity = getItem(position)
+        holder.itemView.setTag(R.id.item_print_position, recordEntity)
+        holder.tvLog.text = recordEntity.type.name
     }
 
 
-    object RecordCallback : DiffUtil.ItemCallback<PrintLog>() {
-        override fun areItemsTheSame(oldItem: PrintLog, newItem: PrintLog): Boolean {
+    object RecordCallback : DiffUtil.ItemCallback<RecordEntity>() {
+        override fun areItemsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: PrintLog, newItem: PrintLog): Boolean {
-            return oldItem.log == newItem.log && oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
+            return oldItem.record == newItem.record && oldItem.id == newItem.id
         }
 
     }

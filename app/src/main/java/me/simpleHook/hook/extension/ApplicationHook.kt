@@ -6,31 +6,27 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.Exit
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
-import me.simpleHook.hook.utils.LogUtil.outLogMsg
+import me.simpleHook.data.record.RecordApplication
+import me.simpleHook.data.record.RecordCrash
+import me.simpleHook.data.record.RecordType
+import me.simpleHook.hook.utils.RecordOutHelper
 
 object ApplicationHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.application || configBean.exit.enable) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.application || extensionConfig.exit.enable) {
             findMethod(Application::class.java) {
                 name == "onCreate"
             }.hookAfter {
-                if (configBean.application) {
+                if (extensionConfig.application) {
                     val className = it.thisObject.javaClass.name
-                    val type = "Application"
-                    outLogMsg(
-                        LogBean(
-                            type,
-                            listOf(tip.applicationName + className),
-                            hostPackageName
-                        )
+                    RecordOutHelper.outputRecord(
+                        type = RecordType.Application,
+                        RecordApplication(name = className)
                     )
                 }
-                if (configBean.exit.enable) {
-                    val exit = Json.decodeFromString<Exit>(configBean.exit.info)
+                if (extensionConfig.exit.enable) {
+                    val exit = Json.decodeFromString<Exit>(extensionConfig.exit.info)
                     if (exit.recordCrash) recordCrash()
                 }
             }
@@ -41,14 +37,10 @@ object ApplicationHook : BaseHook() {
     private fun recordCrash() {
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             t ?: return@setDefaultUncaughtExceptionHandler
-            val type = if (isShowEnglish) "CrashCaught" else "错误捕获"
-            val isMainThread = t.name == "main"
-            val list = listOf(
-                "Thread name(线程名)：${t.name}",
-                "Main thread(主线程): $isMainThread",
-                e.stackTraceToString()
+            RecordOutHelper.outputRecord(
+                type = RecordType.CrashCaught,
+                record = RecordCrash(threadName = t.name, stackDetail = e.stackTraceToString())
             )
-            outLogMsg(LogBean(type, list, hostPackageName))
         }
     }
 }

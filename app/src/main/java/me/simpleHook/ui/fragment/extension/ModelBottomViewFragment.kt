@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomViewFragment
 import me.simpleHook.constant.Constant
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.viewmodel.AppConfigViewModel
-import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.custom.customDialog
@@ -18,7 +18,7 @@ import me.simpleHook.ui.view.extension.ModelListView
 
 class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragment<ModelListView>() {
 
-    private val modelList = ArrayList<AssistConfig>()
+    private val modelList = ArrayList<ExtensionConfigEntity>()
 
     private val viewModel by viewModels<AppConfigViewModel>()
 
@@ -30,7 +30,7 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
 
     private fun onItemClick(position: Int, mode: Int) {
         if (mode == 1) {
-            viewModel.deleteAssistConfigs(modelList[position])
+            viewModel.deleteExtConfigs(modelList[position])
             dismiss()
         } else if (mode == 0) {
             val extensionConfig = modelList[position]
@@ -49,7 +49,7 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
 
     @SuppressLint("NotifyDataSetChanged")
     override fun init() {
-        viewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
+        viewModel.getAllExtConfigs().observe(viewLifecycleOwner) {
             modelList.clear()
             val items = ArrayList<String>()
             for (extension in it) {
@@ -62,7 +62,7 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
             adapter.notifyDataSetChanged()
         }
         root.clearAll.setOnClickListener {
-            viewModel.deleteAssistConfigsByPackageName(Constant.MODEL_EXTENSION_CONFIG)
+            viewModel.deleteExtConfigsByPackageName(Constant.MODEL_EXTENSION_CONFIG)
             dismiss()
         }
         root.closeButton.setOnClickListener { dismiss() }
@@ -70,13 +70,13 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
 
 
     private fun editModel(
-        assistConfig: AssistConfig
+        extConfigEntity: ExtensionConfigEntity
     ) {
         val inputView = InputView(requireContext()).apply {
             textInputLayout.hint = context.getString(R.string.extension_template_edit_name_hint)
             textInputLayout.counterMaxLength = 15
             textInputLayout.isCounterEnabled = true
-            editText.setText(assistConfig.appName)
+            editText.setText(extConfigEntity.appName)
         }
         customDialog(
             requireContext(),
@@ -86,8 +86,8 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
             okClick = {
                 val modelName = inputView.editText.text.toString()
                 if (modelName.isNotEmpty() && modelName.length < 15) {
-                    assistConfig.appName = modelName
-                    ExtensionActivity.startActivity(requireContext(), assistConfig, true)
+                    extConfigEntity.appName = modelName
+                    ExtensionActivity.startActivity(requireContext(), extConfigEntity, true)
                     dismiss()
                 } else {
                     requireActivity().showPopup(getString(R.string.extension_template_illegal_name))

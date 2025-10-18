@@ -6,47 +6,33 @@ import com.github.kyuubiran.ezxhelper.utils.hookReplace
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.Exit
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.RecordOutHelper
 
 object ExitHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.exit.enable) {
-            val exit = Json.decodeFromString<Exit>(configBean.exit.info)
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.exit.enable) {
+            val exit = Json.decodeFromString<Exit>(extensionConfig.exit.info)
             if (exit.exit) {
                 findMethod(Runtime::class.java) {
                     name == "exit"
                 }.hookReplace {
-                    outLog(tip.exit)
+                    RecordOutHelper.outputExitRecord(type = "exit")
                 }
             }
             if (exit.kill) {
                 findMethod(android.os.Process::class.java) {
                     name == "killProcess"
                 }.hookReplace {
-                    outLog(tip.killProcess)
+                    RecordOutHelper.outputExitRecord(type = "killProcess")
                 }
             }
             if (exit.finish) {
                 findMethod(Activity::class.java) {
                     name == "finish"
                 }.hookReplace {
-                    outLog(tip.finish)
+                    RecordOutHelper.outputExitRecord(type = "finish")
                 }
             }
         }
-    }
-
-    private fun outLog(tip: String) {
-        val type = if (isShowEnglish) "Exit" else "退出"
-        LogUtil.outLogMsg(
-            LogBean(
-                type,
-                listOf(tip) + LogUtil.getStackTrace(),
-                HookHelper.hostPackageName
-            )
-        )
     }
 }

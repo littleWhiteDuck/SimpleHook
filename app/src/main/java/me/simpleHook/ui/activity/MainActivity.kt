@@ -34,7 +34,7 @@ import me.simpleHook.ui.fragment.RecordSummaryFragment
 import me.simpleHook.ui.fragment.SettingsFragment
 import me.simpleHook.ui.fragment.extension.ExtensionFragment
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.SPUtil
 import me.simpleHook.utils.SuUtil
@@ -135,7 +135,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
             }
         } else if (FlavorUtil.rootVersion) {
             SuUtil.init()
-        } else if (OSUtils.atLeastT()) {
+        } else if (OSUtil.atLeastT()) {
             if (sp.showA13Tip) {
                 customDialog(
                     this,
@@ -147,13 +147,13 @@ class MainActivity : BaseActivity(), IMenuProvider {
                         sp.showA13Tip = false
                     }).show()
             }
-        } else if (OSUtils.atR2T()) {
+        } else if (OSUtil.atR2T()) {
             if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
                 requestPermissionDialog(this) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }
             }
-        } else if (OSUtils.atMostQ()) {
+        } else if (OSUtil.atMostQ()) {
             if (!PermissionUtil.isGrantWritePermission(this)) {
                 requestPermissionDialog(this) {
                     PermissionUtil.verifyStoragePermissions(this)

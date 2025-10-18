@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.compose.ui.util.fastJoinToString
 import androidx.lifecycle.lifecycleScope
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import io.github.rosemoe.sora.widget.component.Magnifier
@@ -15,20 +16,15 @@ import io.github.rosemoe.sora.widget.schemes.SchemeDarcula
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
-import me.simpleHook.data.IntentBean
-import me.simpleHook.data.LogBean
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.databinding.ActivityRecordDetailBinding
-import me.simpleHook.extension.lineFeesItem
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.JsonUtil
-import me.simpleHook.utils.LanguageUtil
 import me.simpleHook.utils.ThemeModeUtil
 import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.RecordViewModel
@@ -42,7 +38,7 @@ class RecordDetailActivity : BaseActivity() {
     private var cryptResult = ""
     private var returnValue = ""
     private var currentPattern = ""
-    private lateinit var printLog: PrintLog
+    private lateinit var recordEntity: RecordEntity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +47,7 @@ class RecordDetailActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val recordPackageName = intent.getStringExtra(KEY_PACKAGE_NAME)!!
-        supportActionBar?.title = if (recordPackageName.startsWith("error")) {
-            "Hook Error"
-        } else {
-            AppUtil.getAppName(recordPackageName)
-        }
+        supportActionBar?.title = AppUtil.getAppName(recordPackageName)
         supportActionBar?.subtitle = recordPackageName
         initView()
         initData()
@@ -69,57 +61,21 @@ class RecordDetailActivity : BaseActivity() {
     }
 
     private fun initData() {
+        lifecycleScope.launch {
+            val id = intent.getIntExtra(KEY_RECORD_ID, -1)
+            recordViewModel.fetchRecordDetail(id)
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
-            val recordId = intent.getIntExtra(KEY_RECORD_ID, -1)
-            printLog = recordViewModel.getRecordByID(recordId)
-            val logBean = Json.decodeFromString<LogBean>(printLog.log)
-            val foreStr = if (LanguageUtil.isNotChinese()) "Type: " else "类型："
-            if (logBean.type.equals("intent", ignoreCase = true)) {
-                val intentBean = Json.decodeFromString<IntentBean>(logBean.other[0])
-                val sb = StringBuilder()
-                sb.append("${foreStr + logBean.type}\n")
-                    .append("packageName：${intentBean.packageName}\n")
-                    .append("className：${intentBean.className}\n")
-                    .append("action：${intentBean.action}\n").append("data：${intentBean.data}\n")
-                    .append("extras：\n")
-                intentBean.extras.forEach {
-                    sb.append("   type：${it.type}，key：${it.key}，value：${it.value}\n")
+            recordViewModel.recordDetail.collect {
+                currentText = it.fastJoinToString("\n")
+                withContext(Dispatchers.Main) {
+                    updateView()
+                    binding.progressBar.hide()
                 }
-                currentText = sb.toString()
-            } else {
-                val logList: List<String> = logBean.other
-                val sb = StringBuilder()
-                logList.forEach {
-                    if (it.startsWith("原始数据：") || it.startsWith("Raw Data: ")) {
-                        rawData = it.replaceFirst(Regex("""原始数据：|Raw data: """), "")
-                    } else if (it.startsWith("加密结果：") ||
-                        it.startsWith("解密结果：") ||
-                        it.startsWith("Decrypt result: ") ||
-                        it.startsWith("Encrypt result: ")
-                    ) {
-                        cryptResult = it.replaceFirst(
-                            Regex("""加密结果：|解密结果：|Encrypt result: |Decrypt result: """), ""
-                        )
-                        //返回值|参返|Param&Return Value|Return value
-                    } else if (it.startsWith("返回值：") || it.startsWith("Return value: ")) {
-                        returnValue = it.replaceFirst(Regex("""返回值：|Return value: """), "")
-                    }
-                    sb.append(it).append("\n")
-                }
-                val nLine: Int = -1
-                currentText = StringBuilder().lineFeesItem(
-                    logList,
-                    "${foreStr + logBean.type}\n",
-                    nLine = nLine,
-                    nLineString = ""
-                ).replace("类：", "  ").replace("方法：", "")
-                    .replace("Class : ", "  ").replace("Method : ", "")
-            }
-            withContext(Dispatchers.Main) {
-                updateView()
-                binding.progressBar.hide()
             }
         }
+
     }
 
 
@@ -186,7 +142,10 @@ class RecordDetailActivity : BaseActivity() {
             }
 
             R.id.copy_json -> {
-                ToolUtil.toClip(this, JsonUtil.formatJson(printLog.log).replace("\\u003e", "-> "))
+                ToolUtil.toClip(
+                    this,
+                    JsonUtil.formatJson(recordEntity.record).replace("\\u003e", "-> ")
+                )
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 

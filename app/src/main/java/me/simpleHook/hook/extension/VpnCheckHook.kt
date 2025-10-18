@@ -7,8 +7,8 @@ import me.simpleHook.hook.utils.HookHelper
 
 object VpnCheckHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.vpn) return
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.vpn) return
         XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
             HookHelper.appClassLoader,
             "getName",

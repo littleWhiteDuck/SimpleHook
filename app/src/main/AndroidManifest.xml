@@ -99,7 +99,7 @@
         </activity>
 
         <provider
-            android:name=".provider.MyProvider"
+            android:name=".provider.RecordProvider"
             android:authorities="${PROVIDER}"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />

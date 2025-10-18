@@ -12,7 +12,7 @@ package me.simpleHook.data
  * @param hookPoint before/after
  */
 @kotlinx.serialization.Serializable
-data class ConfigBean(
+data class HookConfig(
     val mode: Int = 0,
     val className: String = "",
     val methodName: String = "",

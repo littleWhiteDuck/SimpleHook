@@ -6,10 +6,8 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.data.LogBean
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.utils.IconHelper
@@ -17,60 +15,56 @@ import me.simpleHook.utils.RecordType
 
 class RecordAdapter(
     private val isType: Boolean = false,
-    private val onItemClick: (PrintLog) -> Unit,
-    private val onItemLongClick: (PrintLog) -> Unit,
-    private val deleteRecord: (PrintLog) -> Unit,
-    private val markRecord: (PrintLog) -> Unit
-) : PagingDataAdapter<PrintLog, RecordAdapter.ViewHolder>(RecordDiff) {
+    private val onItemClick: (RecordEntity) -> Unit,
+    private val onItemLongClick: (RecordEntity) -> Unit,
+    private val deleteRecord: (RecordEntity) -> Unit,
+    private val markRecord: (RecordEntity) -> Unit
+) : PagingDataAdapter<RecordEntity, RecordAdapter.ViewHolder>(RecordDiff) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val recordView = RecordItemView(parent.context)
         val viewHolder = ViewHolder(recordView)
         recordView.container.setOnClickListener {
-            val printLog: PrintLog =
-                viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
-            onItemClick(printLog)
+            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            onItemClick(recordEntity)
         }
         recordView.container.setOnLongClickListener {
-            val printLog: PrintLog =
-                viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
-            onItemLongClick(printLog)
+            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            onItemLongClick(recordEntity)
             true
         }
         recordView.mark.setOnClickListener {
-            val printLog: PrintLog =
-                viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
-            markRecord(printLog)
+            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            markRecord(recordEntity)
         }
         recordView.delete.setOnClickListener {
-            val printLog: PrintLog =
-                viewHolder.itemView.getTag(R.id.item_record_position) as PrintLog
-            deleteRecord(printLog)
+            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            deleteRecord(recordEntity)
         }
         return viewHolder
     }
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val printLog = getItem(position) ?: return
-        val logBean = Json.decodeFromString<LogBean>(printLog.log)
-        holder.itemView.setTag(R.id.item_record_position, printLog)
+        val recordEntity = getItem(position) ?: return
+
+        holder.itemView.setTag(R.id.item_record_position, recordEntity)
         val context = holder.itemView.context
         with(holder) {
-            id = printLog.id
-            title.text = logBean.type
-            time.text = printLog.time
+            id = recordEntity.id
+            title.text = recordEntity.type.name
+            time.text = recordEntity.time
             readState.text =
-                if (printLog.read) context.getString(R.string.record_item_status_read) else context.getString(
+                if (recordEntity.isRead) context.getString(R.string.record_item_status_read) else context.getString(
                     R.string.record_item_status_unread
                 )
             when {
-                printLog.isMark -> {
+                recordEntity.isMark -> {
                     holder.container.setBackgroundResource(R.drawable.bg_record_mark)
                 }
 
-                printLog.read -> {
+                recordEntity.isRead -> {
                     holder.container.setBackgroundResource(R.drawable.bg_record_read)
                 }
 
@@ -78,14 +72,14 @@ class RecordAdapter(
                     holder.container.setBackgroundResource(R.drawable.bg_record)
                 }
             }
-            if (isType && !printLog.type.startsWith("Error")) {
-                Glide.with(icon).load(logBean.packageName).into(icon)
+            if (isType && !recordEntity.type.name.startsWith("Error")) {
+                Glide.with(icon).load(recordEntity.packageName).into(icon)
             } else {
-                val showText = RecordType.getShowText(printLog.type)
+                val showText = RecordType.getShowText(recordEntity.type.name)
                 icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))
             }
             markRecord.text =
-                if (printLog.isMark) context.getString(R.string.cancel_mark) else context.getString(
+                if (recordEntity.isMark) context.getString(R.string.cancel_mark) else context.getString(
                     R.string.mark
                 )
         }
@@ -101,13 +95,13 @@ class RecordAdapter(
         var id: Int? = null
     }
 
-    object RecordDiff : DiffUtil.ItemCallback<PrintLog>() {
-        override fun areItemsTheSame(oldItem: PrintLog, newItem: PrintLog): Boolean {
+    object RecordDiff : DiffUtil.ItemCallback<RecordEntity>() {
+        override fun areItemsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: PrintLog, newItem: PrintLog): Boolean {
-            return oldItem.log == newItem.log && oldItem.read == newItem.read && oldItem.isMark == newItem.isMark
+        override fun areContentsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
+            return oldItem.record == newItem.record && oldItem.isRead == newItem.isRead && oldItem.isMark == newItem.isMark
         }
 
     }

@@ -8,47 +8,34 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.GuiseSignConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
-import me.simpleHook.utils.OSUtils
-import me.simpleHook.utils.ToolUtil
+import me.simpleHook.hook.utils.RecordOutHelper
+import me.simpleHook.utils.OSUtil
 
 object SignatureHook : BaseHook() {
     @Suppress("DEPRECATION")
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.signature || (configBean.guiseSign.enable && configBean.guiseSign.info.isNotEmpty())) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.signature || (extensionConfig.guiseSign.enable && extensionConfig.guiseSign.info.isNotEmpty())) {
             findMethod("android.app.ApplicationPackageManager") {
                 name == "getPackageInfo" && parameterTypes[0] == String::class.java
             }.hookAfter {
                 val flag = it.args[1] as Int
-                @Suppress("DEPRECATION") if (flag != PackageManager.GET_SIGNING_CERTIFICATES && flag != PackageManager.GET_SIGNATURES) return@hookAfter
+                if (flag != PackageManager.GET_SIGNING_CERTIFICATES && flag != PackageManager.GET_SIGNATURES) return@hookAfter
                 val packInfo = it.result as PackageInfo
-                if (configBean.signature) {
-                    val items = LogUtil.getStackTrace()
+                if (extensionConfig.signature) {
                     val byteArray =
-                        if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
+                        if (OSUtil.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
                             packInfo.signingInfo!!.apkContentsSigners[0].toByteArray()
                         } else {
-                            @Suppress("DEPRECATION") packInfo.signatures!![0].toByteArray()
+                            packInfo.signatures!![0].toByteArray()
                         }
-                    val md5 = ToolUtil.getDigest(byteArray)
-                    val sha1 = ToolUtil.getDigest(byteArray, "SHA-1")
-                    val sha256 = ToolUtil.getDigest(byteArray, "SHA-256")
-                    val list = listOf(
-                        "Signature(MD5): $md5",
-                        "Signature(SHA-1): $sha1",
-                        "Signature(SHA-256): $sha256"
-                    )
-                    val logBean = LogBean("Signature", list + items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputSignature(signByteArray = byteArray)
                 }
-                val signConfigStr = configBean.guiseSign.info
-                if (configBean.guiseSign.enable && signConfigStr.contains(packInfo.packageName) && signConfigStr.contains(
+                val signConfigStr = extensionConfig.guiseSign.info
+                if (extensionConfig.guiseSign.enable && signConfigStr.contains(packInfo.packageName) && signConfigStr.contains(
                         "true"
                     )
                 ) {
-                    if (OSUtils.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
+                    if (OSUtil.atLeastP() && flag == PackageManager.GET_SIGNING_CERTIFICATES) {
                         val guiseSignConfigs =
                             Json.decodeFromString<List<GuiseSignConfig>>(signConfigStr)
                         guiseSignConfigs.forEach { config ->

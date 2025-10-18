@@ -28,7 +28,7 @@ import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.databinding.FragmentExtensionManagerBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopupWithCopyMsg
@@ -46,7 +46,7 @@ import me.simpleHook.ui.view.extension.SubSelectItemView
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.FileUtil
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.SuUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
@@ -55,7 +55,7 @@ import me.simpleHook.viewmodel.ExViewModel
 
 class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBinding>() {
 
-    private val extensionConfig: AssistConfig by lazy {
+    private val extensionConfig: ExtensionConfigEntity by lazy {
         BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!
     }
     private val exViewModel by activityViewModels<ExViewModel>()
@@ -222,7 +222,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             path
         } else {
             val path = Constant.ANDROID_DATA_PATH + extensionConfig.packageName + "/simpleHook/dex"
-            if (OSUtils.atLeastR()) {
+            if (OSUtil.atLeastR()) {
                 DocumentCompat.makeDirs(requireContext(), path, extensionConfig.packageName)
             } else {
                 FileUtil.makeDirs(path)
@@ -244,7 +244,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
 
     private fun checkPermission(): Boolean {
-        if (FlavorUtil.normalVersion && OSUtils.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
+        if (FlavorUtil.normalVersion && OSUtil.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
                 extensionConfig.packageName
             )
         ) {
@@ -268,11 +268,11 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         val config = Json.encodeToString(configBean)
         tempConfigStr = configBean.toString()
         extensionConfig.config = config
-        extensionConfig.allSwitch = configBean.all
+        extensionConfig.enable = configBean.all
         if (editMode) {
-            appConfigViewModel.updateAssistConfigs(extensionConfig)
+            appConfigViewModel.updateExtConfigs(extensionConfig)
         } else {
-            appConfigViewModel.insertAssistConfigs(extensionConfig)
+            appConfigViewModel.insertExtConfigs(extensionConfig)
         }
         Handler(Looper.getMainLooper()).postDelayed({
             getString(R.string.extension_save_success).snack(binding.recyclerView)

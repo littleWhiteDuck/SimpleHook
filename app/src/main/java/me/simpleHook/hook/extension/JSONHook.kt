@@ -1,24 +1,22 @@
 package me.simpleHook.hook.extension
 
-import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.utils.HookHelper
+import me.simpleHook.data.record.RecordJsonType
 import me.simpleHook.hook.utils.HookUtils.getObjectString
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.RecordOutHelper
 import org.json.JSONArray
 import org.json.JSONObject
 
 object JSONHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.jsonObject) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.jsonObject) {
             hookJSONObject()
         }
-        if (configBean.jsonArray) {
+        if (extensionConfig.jsonArray) {
             hookJSONArray()
         }
     }
@@ -26,30 +24,28 @@ object JSONHook : BaseHook() {
     private fun hookJSONObject() {
         XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val type = if (isShowEnglish) "JSON put" else "JSON 增加"
                 val name = param.args[0] as String
-                val value = getObjectString(param.args[1] ?: "null")
-                val list = arrayListOf("Name: $name", "Value: $value")
-                val items = LogUtil.getStackTrace()
-                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
-                LogUtil.outLogMsg(logBean)
+                val value = getObjectString(param.args[1])
+                RecordOutHelper.outputJson(
+                    type = RecordJsonType.JsonObjectPut,
+                    values = mapOf(name to value)
+                )
             }
         })
 
         XposedBridge.hookAllConstructors(JSONObject::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val type = if (isShowEnglish) "JSON creation" else "JSON 创建"
-                val jsonObject = param.thisObject
-
+                // 不准确
                 @Suppress("UNCHECKED_CAST")
-                val map = XposedHelpers.getObjectField(jsonObject,
-                    "nameValuePairs") as LinkedHashMap<String, Any>
+                val map = XposedHelpers.getObjectField(
+                    param.thisObject,
+                    "nameValuePairs"
+                ) as LinkedHashMap<String, Any>
                 if (map.isEmpty()) return
-                val value = Gson().toJson(map)
-                val list = arrayListOf("Value: $value")
-                val items = LogUtil.getStackTrace()
-                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
-                LogUtil.outLogMsg(logBean)
+                RecordOutHelper.outputJson(
+                    type = RecordJsonType.JsonObjectCreate,
+                    values = map.mapValues { getObjectString(it.value) }
+                )
             }
         })
     }
@@ -58,29 +54,25 @@ object JSONHook : BaseHook() {
 
         XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val type = if (isShowEnglish) "JSONArray put" else "JSONArray 增加"
                 val name = param.args[0] as String
                 val value = getObjectString(param.args[1] ?: "null")
-                val list = arrayListOf("Name: $name", "Value: $value")
-                val items = LogUtil.getStackTrace()
-                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
-                LogUtil.outLogMsg(logBean)
+                RecordOutHelper.outputJson(
+                    type = RecordJsonType.JsonArrayPut,
+                    values = mapOf(name to value)
+                )
             }
         })
 
         XposedBridge.hookAllConstructors(JSONArray::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val type = if (isShowEnglish) "JSONArray creation" else "JSONArray 创建"
                 val jsonObject = param.thisObject
 
                 @Suppress("UNCHECKED_CAST")
-                val map = XposedHelpers.getObjectField(jsonObject, "values") as List<Any>
-                if (map.isEmpty()) return
-                val value = Gson().toJson(map)
-                val list = arrayListOf("Value: $value")
-                val items = LogUtil.getStackTrace()
-                val logBean = LogBean(type, list + items, HookHelper.hostPackageName)
-                LogUtil.outLogMsg(logBean)
+                val value = XposedHelpers.getObjectField(jsonObject, "values") as List<Any>
+                RecordOutHelper.outputJson(
+                    type = RecordJsonType.JsonArrayCreate,
+                    values = mapOf("JSON_ARRAY" to getObjectString(value))
+                )
             }
         })
     }

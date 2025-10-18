@@ -3,30 +3,34 @@ package me.simpleHook.hook.extension
 
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.DexClassLoader
+import me.simpleHook.constant.ConfigConstant
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.constant.Constant
 import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.log
+import me.simpleHook.hook.utils.xLog
 import me.simpleHook.utils.FlavorUtil
 import java.io.File
 
 object HotFixHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.hotFix) return
-        val dexFilePaths: MutableList<String> = mutableListOf()
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.hotFix) return
+
         val pathName = if (FlavorUtil.normalVersion) {
-            Constant.ANDROID_DATA_PATH + HookHelper.hostPackageName + "/simpleHook/dex/"
+            ConfigConstant.NORMAL_DEX_PATH.format(HookHelper.hostPackageName)
         } else {
-            Constant.ROOT_CONFIG_MAIN_DIRECTORY + HookHelper.hostPackageName + "/dex/"
+            ConfigConstant.ROOT_DEX_PATH.format(HookHelper.hostPackageName)
         }
-        val fileTree: FileTreeWalk = File(pathName).walk()
-        fileTree.maxDepth(1).filter { it.isFile && it.extension == "dex" }.forEach {
-            dexFilePaths.add(it.absolutePath)
-        }
+
+        val dexFilePaths = File(pathName)
+            .walk()
+            .maxDepth(1)
+            .filter { it.isFile && it.extension == "dex" }
+            .map { it.absolutePath }
+            .toList()
+
         try {
             for (index in 0 until dexFilePaths.size) {
-                dexFilePaths[index].log()
+                dexFilePaths[index].xLog()
                 val originalLoader = HookHelper.appClassLoader
                 val classLoader = DexClassLoader(
                     dexFilePaths[index], HookHelper.appContext.cacheDir.path, null, null
@@ -67,7 +71,7 @@ object HotFixHook : BaseHook() {
             }
 
         } catch (_: Throwable) {
-            "hot fix error".log()
+            "hot fix error".xLog()
         }
     }
 }

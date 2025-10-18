@@ -23,7 +23,7 @@ import me.simpleHook.config.RecordsHelper
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.recyclerview.delegate.RecordPackDelegate
 import me.simpleHook.recyclerview.delegate.RecordTypeDelegate
 import me.simpleHook.ui.activity.MainActivity
@@ -32,7 +32,7 @@ import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.record.RecordSummaryFragmentView
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.FastScrollerUtil
-import me.simpleHook.utils.LogUtils
+import me.simpleHook.utils.LogUtil
 import me.simpleHook.utils.RecordType
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
@@ -46,7 +46,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
     private var tempListSize = 0
     private val multiTypeAdapter = MultiTypeAdapter()
-    private lateinit var assistConfigs: List<AssistConfig>
+    private lateinit var extensionConfigEntities: List<ExtensionConfigEntity>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
 
@@ -62,15 +62,15 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                 }
             }
         }
-        appConfigViewModel.getAllAssistConfigs().observe(requireActivity()) {
+        appConfigViewModel.getAllExtConfigs().observe(requireActivity()) {
             it.forEach { exConfig ->
-                if (exConfig.allSwitch && AppUtil.isAppInstalled(exConfig.packageName)
+                if (exConfig.enable && AppUtil.isAppInstalled(exConfig.packageName)
                 ) {
                     needCheckPacks.add(exConfig.packageName)
                 }
             }
         }
-        recordViewModel.filterRecordPT.observe(requireActivity()) {
+        recordViewModel.filterRecordPartPT.observe(requireActivity()) {
             if (it.isEmpty()) {
                 root.emptyTip.visibility = View.VISIBLE
             } else {
@@ -86,9 +86,9 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             }
             val hashSet = HashSet<String>()
             val hasMap = HashMap<String, Int>()
-            it.forEach { printLog ->
+            it.forEach { record ->
                 if (GlobalValue.sp.showByType) {
-                    val type = RecordType.getSimpleText(printLog.type)
+                    val type = RecordType.getSimpleText(record.type)
                     hashSet.add(type)
                     hashSet.forEach { typeStr ->
                         if (typeStr == type) {
@@ -97,9 +97,9 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                         }
                     }
                 } else {
-                    hashSet.add(printLog.packageName)
+                    hashSet.add(record.packageName)
                     hashSet.forEach { pack ->
-                        if (pack == printLog.packageName) {
+                        if (pack == record.packageName) {
                             val tempCount = hasMap[pack] ?: 0
                             hasMap[pack] = tempCount + 1
                         }
@@ -178,7 +178,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_delete_all),
                     okClick = {
-                        recordViewModel.deleteAllLogs()
+                        recordViewModel.deleteAllRecords()
                         refreshData()
                     })
             }
@@ -224,17 +224,15 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             recordViewModel.getAllRecord()
         }, time)
         readFileLogInsert()
-        readFileLogInsert()
     }
 
-    @Synchronized
     private fun readFileLogInsert() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                if (!::assistConfigs.isInitialized) {
-                    assistConfigs = appConfigViewModel.getAssistConfigs()
-                    assistConfigs.forEach {
-                        if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)
+                if (!::extensionConfigEntities.isInitialized) {
+                    extensionConfigEntities = appConfigViewModel.getExtConfigs()
+                    extensionConfigEntities.forEach {
+                        if (it.enable && AppUtil.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appConfigViewModel.getConfigs()
@@ -243,17 +241,17 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
-                        val list = RecordsHelper.insertRecordsFromFile(requireContext(), it)
-                        recordViewModel.insertRecord(*list.toTypedArray())
+                        val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
+                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
                     }
                 } else {
                     needCheckPacks.forEach {
-                        val list = RecordsHelper.insertRecordsFromFile(requireContext(), it)
-                        recordViewModel.insertRecord(*list.toTypedArray())
+                        val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
+                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
                     }
                 }
             } catch (e: Exception) {
-                LogUtils.outLog(e.stackTraceToString())
+                LogUtil.outLog(e.stackTraceToString())
             }
         }
     }

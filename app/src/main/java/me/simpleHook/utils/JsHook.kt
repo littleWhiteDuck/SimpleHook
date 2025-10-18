@@ -2,7 +2,7 @@ package me.simpleHook.utils
 
 
 import kotlinx.serialization.json.Json
-import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.HookConfig
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.constant.Constant.HOOK_BREAK
 import me.simpleHook.constant.Constant.HOOK_FIELD
@@ -94,7 +94,7 @@ object JsHook {
     } ?: ""
 
     private fun toJSConfig(configStr: String): String {
-        val configs = Json.decodeFromString<List<ConfigBean>>(configStr)
+        val configs = Json.decodeFromString<List<HookConfig>>(configStr)
         var result = ""
         configs.forEach {
             it.apply {

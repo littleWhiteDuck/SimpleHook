@@ -8,29 +8,28 @@ import com.github.kyuubiran.ezxhelper.utils.paramCount
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.FileMonitorConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.data.record.RecordFileOpType
+import me.simpleHook.hook.utils.RecordOutHelper
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.charset.Charset
 
 object FileHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.fileMonitor.enable && configBean.fileMonitor.info.contains("true")) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.fileMonitor.enable && extensionConfig.fileMonitor.info.contains("true")) {
             val fileMonitorConfig =
-                Json.decodeFromString<FileMonitorConfig>(configBean.fileMonitor.info)
+                Json.decodeFromString<FileMonitorConfig>(extensionConfig.fileMonitor.info)
             if (fileMonitorConfig.createFile) {
                 findMethod(File::class.java) {
                     name == "createNewFile"
                 }.hookAfter {
                     val file = it.thisObject as File
                     if (file.path.contains("simpleHook")) return@hookAfter
-                    val items = listOf(tip.path + file.path) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type = tip.createFile, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputFileOperation(
+                        fileOpType = RecordFileOpType.Create,
+                        path = file.path
+                    )
                 }
             }
 
@@ -39,9 +38,10 @@ object FileHook : BaseHook() {
                     name == "delete"
                 }.hookAfter {
                     val file = it.thisObject as File
-                    val items = listOf(tip.path + file.path) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type = tip.deleteFile, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputFileOperation(
+                        fileOpType = RecordFileOpType.Delete,
+                        path = file.path
+                    )
                 }
             }
             if (fileMonitorConfig.inputFile) {
@@ -56,12 +56,11 @@ object FileHook : BaseHook() {
                     val offset = it.args[1] as Int
                     val data = it.args[0] as ByteArray
                     val info = copyPartData(fileMonitorConfig.cacheSize, length, offset, data)
-                    val items = listOf(
-                        tip.path + path,
-                        tip.info + info
-                    ) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type = tip.readFile, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputFileOperation(
+                        fileOpType = RecordFileOpType.Read,
+                        path = path,
+                        partData = info
+                    )
                 }
             }
             if (fileMonitorConfig.outputFile) {
@@ -76,12 +75,11 @@ object FileHook : BaseHook() {
                     val offset = it.args[1] as Int
                     val length = it.args[2] as Int
                     val info = copyPartData(fileMonitorConfig.cacheSize, length, offset, data)
-                    val items = listOf(
-                        tip.path + path,
-                        tip.info + info
-                    ) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type = tip.writeFile, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputFileOperation(
+                        fileOpType = RecordFileOpType.Write,
+                        path = path,
+                        partData = info
+                    )
                 }
             }
             if (fileMonitorConfig.assetsFile) {
@@ -89,9 +87,10 @@ object FileHook : BaseHook() {
                     name == "open" && paramCount == 2
                 }.hookAfter {
                     val filePath = it.args[0] as String
-                    val items = listOf(tip.path + filePath) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type = tip.readAssets, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputFileOperation(
+                        fileOpType = RecordFileOpType.Assets,
+                        path = filePath
+                    )
                 }
             }
         }
@@ -99,9 +98,9 @@ object FileHook : BaseHook() {
 
     private fun copyPartData(
         cacheSize: Int, length: Int, offset: Int, data: ByteArray
-    ): String {
+    ): String? {
         return if (cacheSize == 0) {
-            tip.notSetCacheSize
+            null
         } else if (length - offset <= cacheSize) {
             data.copyOfRange(offset, length).toString(Charset.defaultCharset())
         } else {

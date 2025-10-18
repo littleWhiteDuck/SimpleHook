@@ -8,8 +8,8 @@ import io.github.qauxv.util.xpcompat.XC_MethodHook
 import me.simpleHook.data.ExtensionConfig
 
 object ADBHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.adb) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.adb) {
             findAllMethods(Secure::class.java) {
                 name == "getInt"
             }.hookBefore {

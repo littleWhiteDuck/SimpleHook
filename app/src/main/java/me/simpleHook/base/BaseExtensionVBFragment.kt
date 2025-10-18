@@ -14,7 +14,7 @@ import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.requestPermissionDialog
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.SPUtil
 
@@ -69,13 +69,13 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
         } else if (FlavorUtil.rootVersion) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
-            if (OSUtils.atLeastT()) {
+            if (OSUtil.atLeastT()) {
                 requestPermissionDialog(requireContext(),
                     message = getString(R.string.android_13_no_permission)) {
                     val uri = DocumentCompat.generateAppUri(packageName)
                     startActivityForData.launch(uri)
                 }
-            } else if (OSUtils.atLeastR()) {
+            } else if (OSUtil.atLeastR()) {
                 requestPermissionDialog(requireContext()) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }

@@ -179,6 +179,114 @@
     <string name="record_detail_menu_copy_crypt_result">加密/解密结果</string>
     <string name="record_detail_menu_copy_return_value">复制返回值</string>
 
+
+    <string name="record_type_format">类型：%s</string>
+    <string name="record_call_stack">调用堆栈：</string>
+
+    <string name="record_raw_data_str_format">原始数据(字符串)：%s</string>
+    <string name="record_raw_data_base64_format">原始数据(Base64)：%s</string>
+    <string name="record_raw_data_hex_format">原始数据(Hex)：%s</string>
+
+    <string name="record_application_name_format">Application入口名：%s</string>
+
+    <string name="record_base64_code_type_format">编码/解码：</string>
+    <string name="record_base64_encode">编码</string>
+    <string name="record_base64_decode">解码</string>
+
+    <string name="record_result_data_str_format">%s结果(字符串)：%s</string>
+    <string name="record_result_data_base64_format">%s结果(Base64)：%s</string>
+    <string name="record_result_data_hex_format">%s结果(Hex)：%s</string>
+
+    <string name="record_key_str_format">密钥Key(字符串)：%s</string>
+    <string name="record_key_base64_format">密钥Key(Base64)：%s</string>
+    <string name="record_key_hex_format">密钥Key(Hex)：%s</string>
+
+    <string name="record_iv_str_format">初始化向量(IV)(字符串)：%s</string>
+    <string name="record_iv_base64_format">初始化向量(IV)(Base64)：%s</string>
+    <string name="record_iv_hex_format">初始化向量(IV)(Hex)：%s</string>
+
+    <string name="record_cipher_crypt_type_format">加密/解密：%s</string>
+    <string name="record_cipher_encrypt">加密</string>
+    <string name="record_cipher_decrypt">解密</string>
+    <string name="record_cipher_wrap">密钥包装</string>
+    <string name="record_cipher_unwrap">密钥解包</string>
+    <string name="record_cipher_unknown">未知</string>
+
+    <string name="record_type_click_event">点击事件</string>
+    <string name="record_view_type_format">控件类型：</string>
+    <string name="record_callback_class_format">回调类名：</string>
+    <string name="record_id_format">ID：%s</string>
+    <string name="record_text_format">文本：%s</string>
+
+    <string name="record_type_signature">签名</string>
+    <string name="record_signature_type_format">签名(%s)：%s</string>
+
+    <string name="record_type_toast">Toast</string>
+
+    <string name="record_type_web_url">Web加载链接</string>
+    <string name="record_url_format">链接：%s</string>
+
+    <string name="record_type_return_value">记录返回值</string>
+    <string name="record_class_name_format">类名：%s</string>
+    <string name="record_method_sign_format">方法名(参数)：%s</string>
+
+    <string name="record_return_value_format">返回值(%s)：%s</string>
+
+    <string name="record_type_param_value">记录参数值</string>
+    <string name="record_param_value_format">参数值%d(%s)：%s</string>
+
+
+    <string name="record_type_field">记录变量值</string>
+    <string name="record_field_class_name_format">变量所在类的类名：%s</string>
+    <string name="record_field_name_format">变量名：%s</string>
+    <string name="record_field_value_format">变量值(%s)：%s</string>
+
+    <string name="record_type_exit">退出</string>
+    <string name="record_exit_type_format">退出类型：%s</string>
+    
+    <string name="record_type_crash">Crash</string>
+    <string name="record_crash_thread_name_format">线程名：%s</string>
+    
+    <string name="record_type_clipboard">剪贴板监听</string>
+    <string name="record_clipboard_read_or_write_format">读取/写入：%s</string>
+    <string name="record_read_clipboard">读取剪贴板</string>
+    <string name="record_write_clipboard">写入剪贴板</string>
+    <string name="record_clipboard_content_format">内容：%s</string>
+    
+    <string name="record_type_dialog">弹窗</string>
+    <string name="record_dialog_listen">弹窗监听</string>
+    <string name="record_dialog_block_keyword">弹窗拦截(关键词)</string>
+    <string name="record_dialog_block_id">弹窗拦截(ID)</string>
+
+    <string name="record_type_popup">PopupWindow</string>
+    <string name="record_popup_listen">PopupWindow监听</string>
+    <string name="record_popup_block_keyword">PopupWindow拦截(关键词)</string>
+    <string name="record_popup_block_id">PopupWindow拦截(ID)</string>
+    
+    <string name="record_type_json">Json</string>
+    <string name="record_json_object_create">JsonObject创建</string>
+    <string name="record_json_object_put">JsonObject添加</string>
+    <string name="record_json_array_create">JsonArray创建</string>
+    <string name="record_json_array_put">JsonArray添加</string>
+    
+    <string name="record_type_file">文件操作</string>
+    <string name="record_file_create">文件创建</string>
+    <string name="record_file_delete">文件删除</string>
+    <string name="record_file_read">文件读取</string>
+    <string name="record_file_write">文件写入</string>
+    <string name="record_file_assets">读取Assets</string>
+    <string name="record_file_path_format">文件路径：%s</string>
+    <string name="record_file_op_content">操作内容(部分)：</string>
+
+
+    <string name="record_error_type_format">错误类型：%s</string>
+    <string name="record_error_method">搜索方法错误</string>
+    <string name="record_error_class">搜索类错误</string>
+    <string name="record_error_field">搜索变量错误</string>
+    <string name="record_error_other">其他错误</string>
+    <string name="record_error_config_info">配置信息：</string>
+    
+
     <!--about-->
     <string name="about_menu_add_group">加入TG群</string>
     <string name="about_menu_feedback">反馈</string>

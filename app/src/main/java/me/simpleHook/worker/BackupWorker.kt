@@ -9,7 +9,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.worker.BackupHelper.startBackupConfig
 
 class BackupWorker(private val context: Context, workerParams: WorkerParameters) :
@@ -31,7 +31,7 @@ class BackupWorker(private val context: Context, workerParams: WorkerParameters)
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if (OSUtils.atLeastO()) {
+        if (OSUtil.atLeastO()) {
             val channel =
                 NotificationChannel("Backup", "Backup", NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)

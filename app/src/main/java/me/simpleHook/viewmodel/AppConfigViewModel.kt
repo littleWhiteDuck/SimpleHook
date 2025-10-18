@@ -10,15 +10,18 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
+import me.simpleHook.database.AppDatabase
 import me.simpleHook.database.AppRepository
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.lsposed.LSPosedHelper
 import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.worker.BackupHelper
 import java.util.UUID
 
 class AppConfigViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val extensionConfigDao = AppDatabase.getDatabase(application).getExtensionConfigDao()
 
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 
@@ -97,53 +100,60 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     fun getAllPackageNames() = appRepository.getAllPackageNames()
 
 
-    private fun writeToExternal(assistConfig: AssistConfig) {
-        if (assistConfig.packageName == Constant.MODEL_EXTENSION_CONFIG) return
+    private fun writeToExternal(extConfigEntity: ExtensionConfigEntity) {
+        if (extConfigEntity.packageName == Constant.MODEL_EXTENSION_CONFIG) return
         if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
             // TODO, importing config may result in repeated requests
-            LSPosedHelper.changeScope(assistConfig.packageName, assistConfig.allSwitch)
+            LSPosedHelper.changeScope(
+                extConfigEntity.packageName,
+                extConfigEntity.enable
+            )
         }
-        configSystem.saveExConfig(assistConfig.packageName, assistConfig.config)
+        configSystem.saveExConfig(extConfigEntity.packageName, extConfigEntity.config)
     }
 
-    fun insertAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
-        appRepository.insertAssistConfigs(*assistConfig)
-        assistConfig.forEach(::writeToExternal)
-        notifyBackupConfig()
-    }
-
-    fun updateAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
-        appRepository.updateAssistConfigs(*assistConfig)
-        assistConfig.forEach(::writeToExternal)
-        notifyBackupConfig()
-    }
-
-    fun deleteAssistConfigs(vararg assistConfig: AssistConfig) = viewModelScope.launch {
-        appRepository.deleteAssistConfigs(*assistConfig)
-        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
-            val pkgNames = HashSet<String>()
-            assistConfig.forEach {
-                val count = getCustomCountByPackageName(it.packageName)
-                if (count < 1) {
-                    pkgNames.add(it.packageName)
-                }
-            }
-            LSPosedHelper.removeScope(pkgNames.toTypedArray())
-        }
-        notifyBackupConfig()
-    }
-
-
-    fun deleteAssistConfigsByPackageName(packageName: String) =
-        viewModelScope.launch(Dispatchers.IO) {
-            appRepository.deleteAssistConfigsByPackageName(packageName)
+    fun insertExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
+        viewModelScope.launch(
+            Dispatchers.IO
+        ) {
+            extensionConfigDao.insertExtConfigs(*extConfigEntity)
+            extConfigEntity.forEach(::writeToExternal)
             notifyBackupConfig()
         }
 
-    fun getAllAssistConfigs() = appRepository.getAllAssistConfigs()
-    fun getAssistConfigs() = appRepository.getAssistConfigs()
+    fun updateExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
+        viewModelScope.launch {
+            extensionConfigDao.updateExtConfigs(*extConfigEntity)
+            extConfigEntity.forEach(::writeToExternal)
+            notifyBackupConfig()
+        }
 
-    private suspend fun getExCountByPackageName(packageName: String) =
-        appRepository.getExCountByPackageName(packageName)
+    fun deleteExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
+        viewModelScope.launch {
+            extensionConfigDao.deleteExtConfigs(*extConfigEntity)
+            if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
+                val pkgNames = HashSet<String>()
+                extConfigEntity.forEach {
+                    val count = getCustomCountByPackageName(it.packageName)
+                    if (count < 1) {
+                        pkgNames.add(it.packageName)
+                    }
+                }
+                LSPosedHelper.removeScope(pkgNames.toTypedArray())
+            }
+            notifyBackupConfig()
+        }
+
+
+    fun deleteExtConfigsByPackageName(packageName: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            extensionConfigDao.deleteExtConfigsByPackageName(packageName)
+            notifyBackupConfig()
+        }
+
+    fun getAllExtConfigs() = extensionConfigDao.getAllExtConfigs()
+    fun getExtConfigs() = extensionConfigDao.getExtConfigs()
+
+    private suspend fun getExCountByPackageName(packageName: String) = extensionConfigDao.getExtCountByPackageName(packageName)
 
 }

@@ -7,12 +7,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity
-@kotlinx.serialization.Serializable
-data class AssistConfig(
+data class ExtensionConfigEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
-    var config: String = "",
-    var allSwitch: Boolean = false,
     var appName: String,
-    var packageName: String
-) : Parcelable
+    var packageName: String,
+    var config: String = "",
+    var enable: Boolean = true,
+): Parcelable

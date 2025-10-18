@@ -3,7 +3,7 @@ package me.simpleHook.utils
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 
-object OSUtils {
+object OSUtil {
 
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
     fun atLeastP(): Boolean {

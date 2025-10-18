@@ -17,7 +17,7 @@ import com.google.android.material.shape.ShapeAppearanceModel
 import me.simpleHook.R
 import me.simpleHook.extension.inflateBinding
 import me.simpleHook.ui.WindowPreferencesManager
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.WindowUtil
 
 
@@ -54,7 +54,7 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
             override fun onAttachedToWindow() {
                 super.onAttachedToWindow()
                 window?.let {
-                    if (OSUtils.atLeastS()) {
+                    if (OSUtil.atLeastS()) {
                         it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
                         it.attributes.blurBehindRadius = 50
                         it.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)

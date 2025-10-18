@@ -40,7 +40,7 @@ import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.getParcelableExtraCompat
 import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
-import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.HookConfig
 import me.simpleHook.data.FieldInfo
 import me.simpleHook.data.MethodInfo
 import me.simpleHook.database.entity.AppConfig
@@ -74,7 +74,7 @@ import java.util.regex.Pattern.matches
 class ConfigActivity : BaseActivity() {
 
     private val smaliPattern = """^L.*;"""
-    private var configList = ArrayList<ConfigBean>()
+    private var configList = ArrayList<HookConfig>()
     private var hookMode = Constant.HOOK_RETURN
     private var modify = false
     private var modifyConfig = false
@@ -151,7 +151,7 @@ class ConfigActivity : BaseActivity() {
                         addConfig(it)
                     }, deleteConfig = {
 
-                    }, configBean = ConfigBean()).show(supportFragmentManager, "ADD")
+                    }, hookConfig = HookConfig()).show(supportFragmentManager, "ADD")
                 } else {
                     showDialog()
                 }
@@ -355,9 +355,9 @@ class ConfigActivity : BaseActivity() {
             okClick = {
                 val name = inputCollectionView.nameEditText.text.toString()
                 val config: String? = runCatching {
-                    val configBean =
-                        Json.decodeFromString<ConfigBean>(inputCollectionView.configEditText.text.toString())
-                    Json.encodeToString(configBean)
+                    val hookConfig =
+                        Json.decodeFromString<HookConfig>(inputCollectionView.configEditText.text.toString())
+                    Json.encodeToString(hookConfig)
                 }.getOrNull()
                 config?.let {
                     collectionViewModel.insertCollections(
@@ -375,11 +375,11 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun showDialog(
-        configBean: ConfigBean = ConfigBean(), isSmali2Config: Boolean = false
+        hookConfig: HookConfig = HookConfig(), isSmali2Config: Boolean = false
     ) {
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         with(dialogBinding) {
-            with(configBean) {
+            with(hookConfig) {
                 classNameEdit.setText(className)
                 methodNameEdit.setText(methodName)
                 paramsTypeEdit.setText(params)
@@ -394,7 +394,7 @@ class ConfigActivity : BaseActivity() {
         }
         val list = resources.getStringArray(R.array.config_hook_mode_item)
         val listValue = resources.getIntArray(R.array.config_hook_mode_item_value)
-        val realPosition = listValue.indexOf(configBean.mode)
+        val realPosition = listValue.indexOf(hookConfig.mode)
         dialogBinding.modeSelectSpinner.adapter =
             ArrayAdapter(this@ConfigActivity, android.R.layout.simple_spinner_dropdown_item, list)
         dialogBinding.modeSelectSpinner.setSelection(realPosition)
@@ -410,16 +410,16 @@ class ConfigActivity : BaseActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         modifyConfig =
-            if (isSmali2Config) false else configBean.className.isNotEmpty() || (configBean.className.isEmpty() && configBean.mode == Constant.HOOK_STATIC_FIELD || configBean.mode == Constant.HOOK_RECORD_STATIC_FIELD)
+            if (isSmali2Config) false else hookConfig.className.isNotEmpty() || (hookConfig.className.isEmpty() && hookConfig.mode == Constant.HOOK_STATIC_FIELD || hookConfig.mode == Constant.HOOK_RECORD_STATIC_FIELD)
         val okText =
             if (modifyConfig) getString(R.string.config_dialog_alter_this) else getString(R.string.config_dialog_add_a_new)
         val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
         customDialog(this, okText = okText, okClick = { dialog ->
-            dialogDismiss(dialog, toCheck(dialogBinding, hookMode, configBean.enable))
+            dialogDismiss(dialog, toCheck(dialogBinding, hookMode, hookConfig.enable))
         }, cancelText = getString(R.string.config_dialog_cancel), cancelClick = { dialogInterface ->
             dialogDismiss(dialogInterface, true)
         }, neutralText = neutralText, neutralClick = { dialogInterface ->
-            deleteConfig(configBean)
+            deleteConfig(hookConfig)
             dialogDismiss(dialogInterface, true)
         }, cancelAble = false, contentView = dialogBinding.root).show()
     }
@@ -502,7 +502,7 @@ class ConfigActivity : BaseActivity() {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
                 showPopup(getString(R.string.config_hook_constructor_tip))
             }
-            val configBean = ConfigBean(
+            val hookConfig = HookConfig(
                 this.hookMode,
                 className,
                 methodName,
@@ -514,7 +514,7 @@ class ConfigActivity : BaseActivity() {
                 returnClassName = returnClassName,
                 enable = enable
             )
-            addConfig(configBean)
+            addConfig(hookConfig)
         } else {
             showPopup(getString(R.string.config_info_not_match_mode))
         }
@@ -555,25 +555,25 @@ class ConfigActivity : BaseActivity() {
 
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun addConfig(configBean: ConfigBean) {
+    private fun addConfig(hookConfig: HookConfig) {
         if (modifyConfig) {
-            configList[modifyConfigPosition] = configBean
+            configList[modifyConfigPosition] = hookConfig
             mAdapter.submitList(configList)
             mAdapter.notifyDataSetChanged()
         } else {
-            addRemoveItem(configBean)
+            addRemoveItem(hookConfig)
         }
     }
 
-    private fun deleteConfig(configBean: ConfigBean) {
-        addRemoveItem(configBean, false)
+    private fun deleteConfig(hookConfig: HookConfig) {
+        addRemoveItem(hookConfig, false)
         if (!visibleFab) binding.addMethodConfig.show()
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun addRemoveItem(configBean: ConfigBean, isAdd: Boolean = true) {
+    private fun addRemoveItem(hookConfig: HookConfig, isAdd: Boolean = true) {
         configList.apply {
-            if (isAdd) add(configBean) else remove(configBean)
+            if (isAdd) add(hookConfig) else remove(hookConfig)
         }
         mAdapter.submitList(configList)
         mAdapter.notifyDataSetChanged()
@@ -606,8 +606,8 @@ class ConfigActivity : BaseActivity() {
 
     private fun showCollectConfigDialog() {
         CollectionViewFragment {
-            val config: ConfigBean? = runCatching {
-                Json.decodeFromString<ConfigBean>(it.config)
+            val config: HookConfig? = runCatching {
+                Json.decodeFromString<HookConfig>(it.config)
             }.getOrNull()
             config?.let { config ->
                 if (sp.bottomConfigDialog) {
@@ -616,7 +616,7 @@ class ConfigActivity : BaseActivity() {
                         addConfig(save)
                     }, deleteConfig = {
 
-                    }, configBean = config).show(supportFragmentManager, "ADD")
+                    }, hookConfig = config).show(supportFragmentManager, "ADD")
                 } else {
                     showDialog(config, isSmali2Config = true)
                 }
@@ -706,8 +706,8 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun patternStr(string: String) {
-        var configBean: ConfigBean? = null
-        val config: ConfigBean? = when {
+        var hookConfig: HookConfig? = null
+        val config: HookConfig? = when {
             matches(PATTERN_METHOD, string) -> {
                 val matcher = Pattern.compile(PATTERN_METHOD).matcher(string)
                 if (matcher.find()) {
@@ -717,7 +717,7 @@ class ConfigActivity : BaseActivity() {
                     val returnType = matcher.group(5)!!
 
                     if (getMode(returnType, params) == Constant.HOOK_RETURN) {
-                        configBean = ConfigBean(
+                        hookConfig = HookConfig(
                             Constant.HOOK_RETURN,
                             className,
                             methodName,
@@ -728,7 +728,7 @@ class ConfigActivity : BaseActivity() {
                         )
 
                     } else {
-                        configBean = ConfigBean(
+                        hookConfig = HookConfig(
                             getMode(returnType, params),
                             smali2Java(className),
                             methodName,
@@ -741,7 +741,7 @@ class ConfigActivity : BaseActivity() {
                     }
 
                 }
-                configBean
+                hookConfig
             }
 
             matches(PATTERN_FIELD, string) -> {
@@ -752,8 +752,8 @@ class ConfigActivity : BaseActivity() {
                     val fieldType = matcher.group(4)!!
                     val fieldMode =
                         if (string.startsWith("iget") || string.startsWith("iput")) Constant.HOOK_FIELD else Constant.HOOK_STATIC_FIELD
-                    configBean = if (fieldMode == Constant.HOOK_STATIC_FIELD) {
-                        ConfigBean(
+                    hookConfig = if (fieldMode == Constant.HOOK_STATIC_FIELD) {
+                        HookConfig(
                             mode = Constant.HOOK_STATIC_FIELD,
                             "",
                             "",
@@ -763,7 +763,7 @@ class ConfigActivity : BaseActivity() {
                             resultValues = getReturnValue(fieldType)
                         )
                     } else {
-                        ConfigBean(
+                        HookConfig(
                             fieldMode,
                             className = smali2Java(className),
                             "",
@@ -775,16 +775,16 @@ class ConfigActivity : BaseActivity() {
                     }
 
                 }
-                configBean
+                hookConfig
             }
 
             JsonUtil.isJsonObject(string) -> {
                 try {
-                    configBean = Json.decodeFromString<ConfigBean>(string)
+                    hookConfig = Json.decodeFromString<HookConfig>(string)
                 } catch (_: java.lang.Exception) {
                     showPopup(getString(R.string.config_tip_error_config_format))
                 }
-                configBean
+                hookConfig
             }
 
             else -> null
@@ -796,7 +796,7 @@ class ConfigActivity : BaseActivity() {
                     addConfig(save)
                 }, deleteConfig = {
 
-                }, configBean = it).show(supportFragmentManager, "ADD")
+                }, hookConfig = it).show(supportFragmentManager, "ADD")
             } else {
                 showDialog(it, isSmali2Config = true)
             }
@@ -809,7 +809,7 @@ class ConfigActivity : BaseActivity() {
         val methodInfo = data.getParcelableExtraCompat<MethodInfo>("methodInfo")
         val fieldInfo = data.getParcelableExtraCompat<FieldInfo>("fieldInfo")
 
-        val configBean = if (methodInfo != null) {
+        val hookConfig = if (methodInfo != null) {
             val params =  methodInfo.parameters.map {
                 if (it.startsWith("[L")) {
                     it.removePrefix("[L").replace("/", ".").replace(";", "[]")
@@ -819,7 +819,7 @@ class ConfigActivity : BaseActivity() {
                     "${it.removePrefix("[")}[]"
                 } else it
             }.fastJoinToString(separator = ",")
-            ConfigBean(
+            HookConfig(
                 className = className,
                 methodName = methodInfo.name,
                 mode = getMode(
@@ -832,7 +832,7 @@ class ConfigActivity : BaseActivity() {
             )
         } else {
             if (fieldInfo!!.isStatic) {
-                ConfigBean(
+                HookConfig(
                     fieldClassName = className,
                     fieldName = fieldInfo.name,
                     mode = Constant.HOOK_STATIC_FIELD,
@@ -840,7 +840,7 @@ class ConfigActivity : BaseActivity() {
                     desc = "from dex browser"
                 )
             } else {
-                ConfigBean(
+                HookConfig(
                     className = className,
                     fieldName = fieldInfo.name,
                     mode = Constant.HOOK_FIELD,
@@ -857,9 +857,9 @@ class ConfigActivity : BaseActivity() {
                 addConfig(save)
             }, deleteConfig = {
 
-            }, configBean = configBean).show(supportFragmentManager, "ADD")
+            }, hookConfig = hookConfig).show(supportFragmentManager, "ADD")
         } else {
-            showDialog(configBean, isSmali2Config = true)
+            showDialog(hookConfig, isSmali2Config = true)
         }
     }
 

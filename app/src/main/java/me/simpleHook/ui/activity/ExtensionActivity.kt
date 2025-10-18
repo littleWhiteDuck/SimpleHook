@@ -13,14 +13,14 @@ import androidx.navigation.ui.navigateUp
 import me.simpleHook.R
 import me.simpleHook.base.BaseActivity
 import me.simpleHook.compat.BundleCompat
-import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.databinding.ActivityExtensionBinding
 
 class ExtensionActivity : BaseActivity() {
     private lateinit var binding: ActivityExtensionBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var extensionConfig: AssistConfig
+    private lateinit var extensionConfig: ExtensionConfigEntity
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +75,7 @@ class ExtensionActivity : BaseActivity() {
         private const val KEY_CONFIG = "EXTENSION_CONFIG"
         private const val KEY_CONFIG_EDIT = "EXTENSION_CONFIG_EDIT"
 
-        fun startActivity(context: Context, extensionConfig: AssistConfig, isEdit: Boolean = true) {
+        fun startActivity(context: Context, extensionConfig: ExtensionConfigEntity, isEdit: Boolean = true) {
             val bundle = Bundle()
             bundle.putParcelable(KEY_CONFIG, extensionConfig)
             val intent = Intent(context, ExtensionActivity::class.java).apply {

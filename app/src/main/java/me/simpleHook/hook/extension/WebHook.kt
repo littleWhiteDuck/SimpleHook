@@ -4,19 +4,19 @@ import android.webkit.WebView
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import kotlinx.serialization.json.Json
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
+import me.simpleHook.data.record.RecordType
+import me.simpleHook.data.record.RecordWebLoadUrl
 import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.RecordOutHelper
 
 object WebHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.webLoadUrl) {
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.webLoadUrl) {
             hookWebLoadUrl()
         }
-        if (configBean.webDebug) {
+        if (extensionConfig.webDebug) {
             hookWebDebug()
         }
     }
@@ -25,18 +25,20 @@ object WebHook : BaseHook() {
     private fun hookWebLoadUrl() {
         XposedBridge.hookAllMethods(WebView::class.java, "loadUrl", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val type = "WEB"
                 val url = param.args[0] as String
-                val list = mutableListOf<String>()
-                list.add("Url: $url")
-                if (param.args.size == 2) {
+                val headers = if (param.args.size == 2) {
                     @Suppress("UNCHECKED_CAST")
-                    val map = param.args[1] as Map<String, String>
-                    val headers = Json.encodeToString(map)
-                    list.add("Header: $headers")
+                    param.args[1] as Map<String, String>
+                } else {
+                    emptyMap()
                 }
-                val logBean = LogBean(type, list, HookHelper.hostPackageName)
-                LogUtil.outLogMsg(logBean)
+
+                RecordOutHelper.outputRecord(
+                    type = RecordType.WebLoadUrl, record = RecordWebLoadUrl(
+                        url = url,
+                        headers = headers
+                    )
+                )
             }
         })
     }
@@ -48,7 +50,8 @@ object WebHook : BaseHook() {
                 XposedHelpers.callStaticMethod(webClass, "setWebContentsDebuggingEnabled", true)
             }
         })
-        XposedHelpers.findAndHookMethod(webClass,
+        XposedHelpers.findAndHookMethod(
+            webClass,
             "setWebContentsDebuggingEnabled",
             Boolean::class.java,
             object : XC_MethodHook() {

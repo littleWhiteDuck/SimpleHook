@@ -71,6 +71,6 @@ fun Constructor<*>.isSearchConstructor(params: String): Boolean {
 }
 
 //xposed log
-fun String.log() {
+fun String.xLog() {
     XposedBridge.log("simpleHook(${HookHelper.hostPackageName}): $this")
 }

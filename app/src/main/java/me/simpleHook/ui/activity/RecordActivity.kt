@@ -55,14 +55,14 @@ class RecordActivity : BaseActivity() {
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
-            if (!it.read) recordViewModel.updateRecord(it.copy(read = true))
+            if (!it.isRead) recordViewModel.updateRecord(it.copy(isRead = true))
             RecordDetailActivity.startActivity(this, it.packageName, it.id)
-        }, deleteRecord = { printLog ->
-            recordViewModel.deleteRecordById(printLog.id)
-        }, markRecord = { printLog ->
-            recordViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
-        }, onItemLongClick = { printLog ->
-            recordViewModel.updateRecord(printLog.copy(isMark = !printLog.isMark))
+        }, deleteRecord = { recordEntity ->
+            recordViewModel.deleteRecordById(recordEntity.id)
+        }, markRecord = { recordEntity ->
+            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
+        }, onItemLongClick = { recordEntity ->
+            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
         })
     }
     private val saveMarkedRecord =
@@ -121,9 +121,7 @@ class RecordActivity : BaseActivity() {
                     recordViewModel.queryPattern.value = ""
                     updateTitle()
                     lifecycleScope.launch {
-                        recordViewModel.getRecord(typeOrPackageName,
-                            isType,
-                            searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
+                        recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
                             recordAdapter.addOnPagesUpdatedListener {
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     binding.swipeRefreshLayout.isRefreshing = false
@@ -255,9 +253,7 @@ class RecordActivity : BaseActivity() {
 
     private fun initData() {
         lifecycleScope.launch {
-            recordViewModel.getRecord(typeOrPackageName,
-                isType,
-                searchMode = Constant.RECORD_SEARCH_GLOBAL).collectLatest {
+            recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
                 recordAdapter.addOnPagesUpdatedListener {
                     binding.progressBar.isVisible = false
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -273,7 +269,6 @@ class RecordActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             recordAdapter.refresh()
         }, delayTime)
-        readFileLogInsert()
         readFileLogInsert()
     }
 
@@ -414,7 +409,7 @@ class RecordActivity : BaseActivity() {
                     LoadingDialog(this, getString(R.string.record_loading_tip_searching))
                 loadingDialog.show()
                 lifecycleScope.launch {
-                    recordViewModel.getRecord(typeOrPackageName, isType, searchMode).collectLatest {
+                    recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
                         recordAdapter.addOnPagesUpdatedListener {
                             binding.swipeRefreshLayout.isRefreshing = false
                             loadingDialog.dismiss()

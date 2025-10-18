@@ -63,7 +63,7 @@ object BackupHelper {
             val customConfigs =
                 if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
             val extensionConfigs =
-                if (backupAll || backupExtension) appRepository.getAssistConfigs() else emptyList()
+                if (backupAll || backupExtension) appRepository.getExtConfigs() else emptyList()
             val collections =
                 if (backupAll || backupCollection) appRepository.getCollections() else emptyList()
             if (customConfigs.isEmpty() && extensionConfigs.isEmpty() && collections.isEmpty()) return@runCatching true

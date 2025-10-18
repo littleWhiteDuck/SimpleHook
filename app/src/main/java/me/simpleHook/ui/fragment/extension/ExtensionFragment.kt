@@ -34,12 +34,12 @@ import me.simpleHook.config.ConfigSystemUtil
 import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.viewmodel.AppConfigViewModel
-import me.simpleHook.database.entity.AssistConfig
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
 import me.simpleHook.lsposed.LSPosedHelper
-import me.simpleHook.recyclerview.adapter.AssistAdapter
+import me.simpleHook.recyclerview.adapter.ExtensionAdapter
 import me.simpleHook.ui.activity.AppListActivity
 import me.simpleHook.ui.activity.ExtensionActivity
 import me.simpleHook.ui.activity.MainActivity
@@ -50,7 +50,7 @@ import me.simpleHook.ui.view.edit.InputView
 import me.simpleHook.ui.view.extension.ExtensionFragmentView
 import me.simpleHook.utils.FastScrollerUtil
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
 import kotlin.math.min
 
@@ -63,10 +63,10 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private lateinit var mContext: Context
     private var isFabShow = true
     private var fabHideDistance = 0f
-    private val mAdapter: AssistAdapter by lazy {
-        AssistAdapter(
-            { assistConfig -> itemOnClick(assistConfig) },
-            { assistConfig -> itemOnLongClick(assistConfig) })
+    private val mAdapter: ExtensionAdapter by lazy {
+        ExtensionAdapter(
+            { extConfigEntity -> itemOnClick(extConfigEntity) },
+            { extConfigEntity -> itemOnLongClick(extConfigEntity) })
     }
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
@@ -85,8 +85,8 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 val appName = data.getStringExtra("appName")!!
                 val packageName = data.getStringExtra("packageName")!!
                 if (currentModel == -1) {
-                    appConfigViewModel.insertAssistConfigs(
-                        AssistConfig(
+                    appConfigViewModel.insertExtConfigs(
+                        ExtensionConfigEntity(
                             appName = appName,
                             packageName = packageName
                         )
@@ -101,7 +101,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 }
             }
         }
-    private var modelList = mutableListOf<AssistConfig>()
+    private var modelList = mutableListOf<ExtensionConfigEntity>()
     private var currentModel = -1
 
 
@@ -122,9 +122,9 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
 
     private fun initData() {
-        appConfigViewModel.getAllAssistConfigs().observe(viewLifecycleOwner) {
+        appConfigViewModel.getAllExtConfigs().observe(viewLifecycleOwner) {
             modelList.clear()
-            val showList = mutableListOf<AssistConfig>()
+            val showList = mutableListOf<ExtensionConfigEntity>()
             for (assist in it) {
                 if (assist.packageName == MODEL_EXTENSION_CONFIG) {
                     modelList.add(assist)
@@ -216,12 +216,12 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
         isFabShow = false
     }
 
-    private fun itemOnLongClick(assistConfig: AssistConfig) {
-        if (configSystem.isEnableDelete(assistConfig.packageName)) {
+    private fun itemOnLongClick(extConfigEntity: ExtensionConfigEntity) {
+        if (configSystem.isEnableDelete(extConfigEntity.packageName)) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                LSPosedHelper.changeScope(assistConfig.packageName, false)
-                appConfigViewModel.deleteAssistConfigs(assistConfig)
-                configSystem.deleteExConfig(assistConfig.packageName)
+                LSPosedHelper.changeScope(extConfigEntity.packageName, false)
+                appConfigViewModel.deleteExtConfigs(extConfigEntity)
+                configSystem.deleteExConfig(extConfigEntity.packageName)
             }
             Snackbar.make(
                 root.addConfig,
@@ -240,23 +240,23 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                     if (isFabShow) showFab()
                 }
             }).setAction(getString(R.string.main_extension_undo_delete_config)) {
-                saveConfig(assistConfig)
+                saveConfig(extConfigEntity)
             }.show()
         } else {
-            requirePermission(assistConfig.packageName)
+            requirePermission(extConfigEntity.packageName)
         }
     }
 
-    private fun saveConfig(assistConfig: AssistConfig) {
-        if (configSystem.isEnableSave(assistConfig.packageName)) {
-            appConfigViewModel.insertAssistConfigs(assistConfig)
+    private fun saveConfig(extConfigEntity: ExtensionConfigEntity) {
+        if (configSystem.isEnableSave(extConfigEntity.packageName)) {
+            appConfigViewModel.insertExtConfigs(extConfigEntity)
         } else {
-            requirePermission(assistConfig.packageName)
+            requirePermission(extConfigEntity.packageName)
         }
     }
 
-    private fun itemOnClick(assistConfig: AssistConfig) {
-        ExtensionActivity.startActivity(requireContext(), assistConfig)
+    private fun itemOnClick(extConfigEntity: ExtensionConfigEntity) {
+        ExtensionActivity.startActivity(requireContext(), extConfigEntity)
     }
 
     private fun addConfig() {
@@ -275,7 +275,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
     private fun createModel() {
-        val assistConfig = AssistConfig(appName = "", packageName = MODEL_EXTENSION_CONFIG)
+        val extConfigEntity = ExtensionConfigEntity(appName = "", packageName = MODEL_EXTENSION_CONFIG)
         val inputView = InputView(requireContext()).apply {
             textInputLayout.hint = context.getString(R.string.extension_template_edit_name_hint)
             textInputLayout.counterMaxLength = 15
@@ -289,8 +289,8 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             okClick = {
                 val modelName = inputView.editText.text.toString()
                 if (modelName.isNotEmpty() || modelName.length > 15) {
-                    assistConfig.appName = modelName
-                    ExtensionActivity.startActivity(requireContext(), assistConfig, false)
+                    extConfigEntity.appName = modelName
+                    ExtensionActivity.startActivity(requireContext(), extConfigEntity, false)
                 } else {
                     requireActivity().showPopup(getString(R.string.extension_template_illegal_name))
                 }
@@ -363,7 +363,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
         } else if (FlavorUtil.rootVersion) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else {
-            if (OSUtils.atLeastT()) {
+            if (OSUtil.atLeastT()) {
                 requestPermissionDialog(
                     requireContext(),
                     message = getString(R.string.android_13_no_permission)
@@ -371,7 +371,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                     val uri = DocumentCompat.generateAppUri(packageName)
                     startActivityForData.launch(uri)
                 }
-            } else if (OSUtils.atLeastR()) {
+            } else if (OSUtil.atLeastR()) {
                 requestPermissionDialog(requireContext()) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }

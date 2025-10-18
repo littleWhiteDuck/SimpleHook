@@ -10,7 +10,7 @@ object WindowUtil {
 
     @Suppress("unused", "DEPRECATION")
     fun getWindowWidth(activity: Activity): Int {
-        return if (OSUtils.atLeastR()) {
+        return if (OSUtil.atLeastR()) {
             activity.windowManager.currentWindowMetrics.bounds.width()
         } else {
             val metrics = DisplayMetrics()
@@ -21,7 +21,7 @@ object WindowUtil {
 
     @Suppress("DEPRECATION")
     fun getAppHeight(activity: Activity): Int {
-        return if (OSUtils.atLeastR()) {
+        return if (OSUtil.atLeastR()) {
             activity.windowManager.currentWindowMetrics.bounds.height()
         } else {
 //            val rootWindowInsets = ViewCompat.getRootWindowInsets(activity.window.decorView)

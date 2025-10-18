@@ -7,52 +7,43 @@ import android.net.Uri
 import me.simpleHook.utils.FlavorUtil
 import androidx.core.net.toUri
 
-class MyProvider : ContentProvider() {
-    private val configDir = 0
-    private val printLogDir = 1
-    private val assistConfig = 2
+class RecordProvider : ContentProvider() {
+    private val recordsCode = 999
     private val authority = FlavorUtil.AUTHORITIES
-    private var dbHelper: MyDatabaseHelper? = null
+    private var dbHelper: RecordDatabaseHelper? = null
 
     private val uriMatcher by lazy {
         val matcher = UriMatcher(UriMatcher.NO_MATCH)
         matcher.apply {
-            addURI(authority, "app_configs", configDir)
-            addURI(authority, "print_logs", printLogDir)
-            addURI(authority, "assist_configs", assistConfig)
+            addURI(authority, "records", recordsCode)
         }
         matcher
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        TODO("Implement this to handle requests to delete one or more rows")
+        return 0
     }
 
     override fun getType(uri: Uri) = when (uriMatcher.match(uri)) {
-        configDir -> "vnd.android.cursor.item/vnd.littleWhiteDuck.app_configs"
-        printLogDir -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.print_logs"
-        assistConfig -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.assist_configs"
+        recordsCode -> "vnd.android.cursor.dir/vnd.littleWhiteDuck.records"
         else -> null
     }
 
     override fun insert(uri: Uri, values: ContentValues?) = dbHelper?.let {
         val db = it.readableDatabase
         val uriReturn = when (uriMatcher.match(uri)) {
-            configDir -> {
-                val newConfigId = db.insert("AppConfig", null, values)
-                "content://$authority/AppConfig/$newConfigId".toUri()
+            recordsCode -> {
+                val newLogId = db.insert("RecordEntity", null, values)
+                "content://$authority/RecordEntity/$newLogId".toUri()
             }
-            printLogDir -> {
-                val newLogId = db.insert("PrintLog", null, values)
-                "content://$authority/PrintLog/$newLogId".toUri()
-            }
+
             else -> null
         }
         uriReturn
     }
 
     override fun onCreate() = context?.let {
-        dbHelper = MyDatabaseHelper(it, "app_configs.db", 6)
+        dbHelper = RecordDatabaseHelper(it, "records.db", 1)
         true
     } ?: false
 
@@ -65,27 +56,14 @@ class MyProvider : ContentProvider() {
     ) = dbHelper?.let {
         val db = it.writableDatabase
         val cursor = when (uriMatcher.match(uri)) {
-            configDir -> db.query("AppConfig",
-                projection,
+            recordsCode -> db.query(
+                "RecordEntity", projection,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                null)
-            printLogDir -> db.query("PrintLog",
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null)
-            assistConfig -> db.query("AssistConfig",
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null)
+                null
+            )
             else -> null
         }
         cursor
@@ -96,7 +74,7 @@ class MyProvider : ContentProvider() {
     ) = dbHelper?.let {
         val db = it.readableDatabase
         val updateRows = when (uriMatcher.match(uri)) {
-            configDir -> db.update("AppConfig", values, selection, selectionArgs)
+            recordsCode -> db.update("RecordEntity", values, selection, selectionArgs)
             else -> 0
         }
         updateRows

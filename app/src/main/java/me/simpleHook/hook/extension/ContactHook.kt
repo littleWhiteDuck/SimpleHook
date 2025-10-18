@@ -8,8 +8,8 @@ import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import me.simpleHook.data.ExtensionConfig
 
 object ContactHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.contact) return
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.contact) return
         findAllMethods(ContentResolver::class.java) {
             name == "query"
         }.hookBefore {

@@ -11,7 +11,7 @@ import com.drakeet.multitype.MultiTypeAdapter
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BaseBottomViewFragment
-import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.HookConfig
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.delegate.CollectionEnviDelegate
@@ -91,7 +91,7 @@ class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) 
     private fun showEditCollectConfigDialog(collectionEntity: CollectionEntity) {
         val inputCollectionView = InputCollectionView(requireContext()).apply {
             val config = runCatching {
-                json.decodeFromString<ConfigBean>(collectionEntity.config)
+                json.decodeFromString<HookConfig>(collectionEntity.config)
             }.getOrNull()
             config ?: requireActivity().showPopup(message = "error")
             configEditText.setText(json.encodeToString(config))
@@ -111,9 +111,9 @@ class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) 
             okClick = {
                 val name = inputCollectionView.nameEditText.text.toString()
                 val config: String? = runCatching {
-                    val configBean =
-                        Json.decodeFromString<ConfigBean>(inputCollectionView.configEditText.text.toString())
-                    Json.encodeToString(configBean)
+                    val hookConfig =
+                        Json.decodeFromString<HookConfig>(inputCollectionView.configEditText.text.toString())
+                    Json.encodeToString(hookConfig)
                 }.getOrNull()
                 config?.let {
                     collectionViewModel.updateCollections(collectionEntity.copy(name = name,

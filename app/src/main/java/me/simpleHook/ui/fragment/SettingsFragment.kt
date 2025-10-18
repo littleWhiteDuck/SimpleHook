@@ -29,7 +29,7 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.data.PermissionState
-import me.simpleHook.database.entity.AssistConfig
+import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.ui.activity.A33PermissionActivity
@@ -45,7 +45,7 @@ import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.AssetsUtil
 import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.utils.LanguageUtil
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.SPUtil
 import me.simpleHook.utils.SuUtil
@@ -91,7 +91,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
         findPreference<Preference>("batch_grant")?.apply {
-            isVisible = OSUtils.atLeastT() && FlavorUtil.normalVersion
+            isVisible = OSUtil.atLeastT() && FlavorUtil.normalVersion
             setOnPreferenceClickListener {
                 val intent = Intent(requireContext(), A33PermissionActivity::class.java)
                 startActivity(intent)
@@ -226,9 +226,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             return
         }
-        if (OSUtils.atLeastT()) {
+        if (OSUtil.atLeastT()) {
             settingsViewModel.permStatus.value = PermissionState.GRANT
-        } else if (OSUtils.atLeastR()) {
+        } else if (OSUtil.atLeastR()) {
             settingsViewModel.permStatus.value = if (PermissionUtil.isGrantData()) {
                 PermissionState.GRANT
             } else {
@@ -300,20 +300,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
 
                 1 -> {
-                    val configs = viewModel.getAssistConfigs()
-                    val tempConfigs = ArrayList<AssistConfig>()
+                    val configs = viewModel.getExtConfigs()
+                    val tempConfigs = ArrayList<ExtensionConfigEntity>()
                     configs.forEach {
                         if (configSystem.isEnableDelete(it.packageName)) {
                             configSystem.deleteExConfig(it.packageName)
                             tempConfigs.add(it)
-                            viewModel.deleteAssistConfigs(it)
+                            viewModel.deleteExtConfigs(it)
                         }
                     }
-                    viewModel.deleteAssistConfigs(*tempConfigs.toTypedArray())
+                    viewModel.deleteExtConfigs(*tempConfigs.toTypedArray())
                 }
 
                 2 -> {
-                    recordViewModel.deleteAllLogs()
+                    recordViewModel.deleteAllRecords()
                 }
 
                 3 -> {
@@ -419,13 +419,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
 
                     PermissionState.NO_STORAGE -> {
-                        if (OSUtils.atR2T()) {
+                        if (OSUtil.atR2T()) {
                             if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
                                 requestPermissionDialog(requireContext()) {
                                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                                 }
                             }
-                        } else if (OSUtils.atMostQ()) {
+                        } else if (OSUtil.atMostQ()) {
                             if (!PermissionUtil.isGrantWritePermission(requireContext())) {
                                 requestPermissionDialog(requireContext()) {
                                     PermissionUtil.verifyStoragePermissions(requireActivity())

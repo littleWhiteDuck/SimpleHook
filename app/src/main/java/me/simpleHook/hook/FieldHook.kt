@@ -7,37 +7,30 @@ import com.github.kyuubiran.ezxhelper.utils.findConstructor
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedHelpers
-import me.simpleHook.data.ConfigBean
-import me.simpleHook.data.LogBean
 import me.simpleHook.constant.Constant
-import me.simpleHook.hook.language.tip
+import me.simpleHook.data.HookConfig
 import me.simpleHook.hook.utils.HookHelper.appClassLoader
-import me.simpleHook.hook.utils.HookHelper.hostPackageName
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.RecordOutHelper
 import me.simpleHook.hook.utils.Type
 import me.simpleHook.hook.utils.hook
 import me.simpleHook.hook.utils.isSearchConstructor
 import me.simpleHook.hook.utils.isSearchMethod
 
 object FieldHook {
-    /**
-     * @author littleWhiteDuck
-     * @param configBean 配置类
-     */
-    @JvmStatic
-    fun hookStaticField(configBean: ConfigBean) {
-        configBean.apply {
+
+    fun hookStaticField(hookConfig: HookConfig) {
+        with(hookConfig) {
             if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
                 // 直接hook
                 if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                    recordStaticField(fieldClassName, fieldName)
+                    recordStaticField(hookConfig = hookConfig)
                 } else {
                     hookStaticField(fieldClassName, resultValues, fieldName)
                 }
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                { recordStaticField(fieldClassName, fieldName) }
+                { recordStaticField(hookConfig = hookConfig) }
             } else {
                 { hookStaticField(fieldClassName, resultValues, fieldName) }
             }
@@ -45,7 +38,7 @@ object FieldHook {
         }
     }
 
-    private fun ConfigBean.hookField(
+    private fun HookConfig.hookField(
         hooker: Hooker
     ) {
         val isBeforeHook = hookPoint == "before"
@@ -76,23 +69,14 @@ object FieldHook {
                 }
             }
         } catch (e: Throwable) {
-            LogUtil.outHookError(className, "$methodName($params)", e)
+            RecordOutHelper.outputError(throwable = e, hookConfig = this)
         }
     }
 
-    private fun recordStaticField(
-        fieldClassName: String, fieldName: String
-    ) {
-        val hookClass = XposedHelpers.findClass(fieldClassName, appClassLoader)
-        val result = XposedHelpers.getStaticObjectField(hookClass, fieldName)
-        val list = listOf(
-            tip.className + fieldClassName,
-            tip.fieldName + fieldName,
-            tip.fieldValue + result
-        )
-        val logBean =
-            LogBean(type = tip.staticField, other = list, packageName = hostPackageName)
-        LogUtil.outLogMsg(logBean)
+    private fun recordStaticField(hookConfig: HookConfig) {
+        val hookClass = XposedHelpers.findClass(hookConfig.fieldClassName, appClassLoader)
+        val result = XposedHelpers.getStaticObjectField(hookClass, hookConfig.fieldName)
+        RecordOutHelper.outputFieldRecord(filedValue = result, hookConfig = hookConfig)
     }
 
     private fun hookStaticField(
@@ -102,33 +86,23 @@ object FieldHook {
         XposedHelpers.setStaticObjectField(clazz, fieldName, Type.getDataTypeValue(values))
     }
 
-    @JvmStatic
     fun hookInstanceField(
-        configBean: ConfigBean
+        hookConfig: HookConfig
     ) {
-        configBean.apply {
+        with(hookConfig) {
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_INSTANCE_FIELD) {
-                { recordInstanceField(className, it, fieldName) }
+                { recordInstanceField(param = it, hookConfig = hookConfig) }
             } else {
-                { hookInstanceField(it, resultValues, fieldName) }
+                { hookInstanceField(param = it, resultValues, fieldName) }
             }
             hookField(hooker)
         }
     }
 
-    private fun recordInstanceField(
-        className: String, param: XC_MethodHook.MethodHookParam, fieldName: String
-    ) {
+    private fun recordInstanceField(param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig) {
         val thisObj = param.thisObject
-        val result = XposedHelpers.getObjectField(thisObj, fieldName)
-        val list = listOf(
-            tip.className + className,
-            tip.fieldName + fieldName,
-            tip.fieldValue + result
-        )
-        val logBean =
-            LogBean(type = tip.instanceField, other = list, packageName = hostPackageName)
-        LogUtil.outLogMsg(logBean)
+        val result = XposedHelpers.getObjectField(thisObj, hookConfig.fieldName)
+        RecordOutHelper.outputFieldRecord(filedValue = result, hookConfig = hookConfig)
     }
 
     private fun hookInstanceField(

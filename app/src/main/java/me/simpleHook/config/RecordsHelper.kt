@@ -9,23 +9,30 @@ import me.simpleHook.App
 import me.simpleHook.GlobalValue
 import me.simpleHook.compat.DocumentCompat
 import me.simpleHook.constant.ConfigConstant
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.utils.FileUtil
 import me.simpleHook.utils.FlavorUtil
-import me.simpleHook.utils.LogUtils
-import me.simpleHook.utils.OSUtils
+import me.simpleHook.utils.LogUtil
+import me.simpleHook.utils.OSUtil
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 object RecordsHelper {
+    private val locks = ConcurrentHashMap<String, ReentrantLock>()
+    fun getLock(filePath: String): ReentrantLock {
+        return locks.computeIfAbsent(filePath) { ReentrantLock() }
+    }
 
-    @Synchronized
-    fun insertRecordsFromFile(context: Context, packageName: String): List<PrintLog> {
-        val recordPath = String.format(format = ConfigConstant.RECORD_LOG_TEMP_PATH, packageName)
-        val list = mutableListOf<PrintLog>()
-        return runCatching {
+    fun insertRecordsFromFile(context: Context, packageName: String): List<RecordEntity> {
+        val recordPath = String.format(format = ConfigConstant.RECORD_PATH, packageName)
+        val lock = getLock(recordPath)
+        lock.lock()
+        val list = mutableListOf<RecordEntity>()
+        return try {
             if (FlavorUtil.rootVersion) {
                 if (GlobalValue.isRootWork) {
                     if (rootReadRecords(recordPath, list)) return emptyList()
@@ -36,15 +43,18 @@ object RecordsHelper {
                 if (fileReadRecords(packageName, recordPath, context, list)) return emptyList()
             }
             list
-        }.onFailure {
-            LogUtils.outLog(it.stackTraceToString())
-        }.getOrDefault(emptyList())
+        } catch (e: Exception) {
+            LogUtil.outLog(e.stackTraceToString())
+            emptyList()
+        } finally {
+           lock.unlock()
+        }
     }
 
 
     private fun shizukuReadRecords(
         filePath: String,
-        list: MutableList<PrintLog>
+        list: MutableList<RecordEntity>
     ): Boolean {
         if (!ShizukuFileManager.isAvailable) return true
         val file = App.externalCacheDir!!.resolve("logs")
@@ -53,11 +63,8 @@ object RecordsHelper {
         if (!file.canRead()) return true
         file.bufferedReader().useLines {
             it.iterator().forEach { str ->
-                try {
-                    val printLog = Json.decodeFromString<PrintLog>(str)
-                    list.add(printLog)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
+                getRecordEntity(str)?.let { recordEntity ->
+                    list.add(recordEntity)
                 }
             }
         }
@@ -67,17 +74,14 @@ object RecordsHelper {
 
     private fun rootReadRecords(
         filePath: String,
-        list: MutableList<PrintLog>
+        list: MutableList<RecordEntity>
     ): Boolean {
         val suFile = SuFile.open(filePath)
         if (!suFile.canRead()) return true
         SuFileInputStream.open(suFile).bufferedReader().useLines {
             it.iterator().forEach { str ->
-                try {
-                    val printLog = Json.decodeFromString<PrintLog>(str)
-                    list.add(printLog)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
+                getRecordEntity(str)?.let { recordEntity ->
+                    list.add(recordEntity)
                 }
             }
         }
@@ -90,19 +94,17 @@ object RecordsHelper {
         packageName: String,
         recordPath: String,
         context: Context,
-        list: MutableList<PrintLog>
+        list: MutableList<RecordEntity>
     ): Boolean {
-        if (OSUtils.atLeastR()) {
+        if (OSUtil.atLeastR()) {
             val fileUri = DocumentCompat.generateFileUri(packageName, recordPath)
             if (!DocumentCompat.isFileExists(context, fileUri)) return true
             context.contentResolver.openInputStream(fileUri)!!.also { inputStream ->
                 val bufferedReader = BufferedReader(InputStreamReader(inputStream))
                 bufferedReader.useLines {
                     it.iterator().forEach { str ->
-                        try {
-                            list.add(Json.decodeFromString(str))
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                        getRecordEntity(str)?.let { recordEntity ->
+                            list.add(recordEntity)
                         }
                     }
                 }
@@ -113,11 +115,8 @@ object RecordsHelper {
             if (!FileUtil.isFileExists(recordPath)) return true
             File(recordPath).useLines {
                 it.iterator().forEach { str ->
-                    try {
-                        val printLog = Json.decodeFromString<PrintLog>(str)
-                        list.add(printLog)
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
+                    getRecordEntity(str)?.let { recordEntity ->
+                        list.add(recordEntity)
                     }
                 }
             }
@@ -125,4 +124,8 @@ object RecordsHelper {
             return false
         }
     }
+
+    private fun getRecordEntity(recordStr: String): RecordEntity? = runCatching {
+        Json.decodeFromString<RecordEntity>(recordStr)
+    }.getOrNull()
 }

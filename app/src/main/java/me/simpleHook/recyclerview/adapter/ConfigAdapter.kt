@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.constant.Constant
-import me.simpleHook.data.ConfigBean
+import me.simpleHook.data.HookConfig
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.random
 import me.simpleHook.hook.utils.Type
@@ -27,7 +27,7 @@ class ConfigAdapter(
     private val menuListener: (position: Int, menu: ContextMenu) -> Unit,
     private val onCheckedChange: (position: Int, isChecked: Boolean) -> Unit,
     private val isCollect: Boolean = false
-) : ListAdapter<ConfigBean, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
+) : ListAdapter<HookConfig, ConfigAdapter.ViewHolder>(MethodConfigDiffCallback) {
 
 
     inner class ViewHolder(configItemView: ConfigItemView) :
@@ -224,12 +224,12 @@ class ConfigAdapter(
         }
     }
 
-    object MethodConfigDiffCallback : DiffUtil.ItemCallback<ConfigBean>() {
-        override fun areItemsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
+    object MethodConfigDiffCallback : DiffUtil.ItemCallback<HookConfig>() {
+        override fun areItemsTheSame(oldItem: HookConfig, newItem: HookConfig): Boolean {
             return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldClassName == newItem.fieldClassName && oldItem.fieldName == newItem.fieldName
         }
 
-        override fun areContentsTheSame(oldItem: ConfigBean, newItem: ConfigBean): Boolean {
+        override fun areContentsTheSame(oldItem: HookConfig, newItem: HookConfig): Boolean {
             return oldItem.className == newItem.className && oldItem.methodName == newItem.methodName && oldItem.mode == newItem.mode && oldItem.params == newItem.params && oldItem.resultValues == newItem.resultValues && oldItem.fieldClassName == newItem.fieldClassName && oldItem.fieldName == newItem.fieldName
         }
     }

@@ -1,53 +1,42 @@
 package me.simpleHook.hook.extension
 
+import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.HookUtils.getAllTextView
-import me.simpleHook.hook.utils.LogUtil
-import me.simpleHook.hook.utils.log
+import me.simpleHook.data.record.RecordClickEvent
+import me.simpleHook.data.record.RecordType
+import me.simpleHook.hook.utils.HookUtils
+import me.simpleHook.hook.utils.RecordOutHelper
+import me.simpleHook.hook.utils.xLog
 
 object ClickEventHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.click) return
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.click) return
         findMethod(View::class.java) {
             name == "performClick"
         }.hookAfter {
             try {
-                val list = mutableListOf<String>()
-                val type = if (isShowEnglish) "Click Event" else "点击事件"
                 val view = it.thisObject as View
-                val viewType = view.javaClass.name ?: "未获取到"
                 val listenerInfoObject = XposedHelpers.getObjectField(view, "mListenerInfo")
                 val mOnClickListenerObject =
                     XposedHelpers.getObjectField(listenerInfoObject, "mOnClickListener")
-                val callbackType = mOnClickListenerObject.javaClass.name
-                val viewId =
-                    if (view.id == View.NO_ID) "id：NO ID" else "id： " + Integer.toHexString(view.id)
-                list.add(tip.viewType + viewType)
-                list.add(tip.callbackType + callbackType)
-                list.add(viewId)
-                if (view is TextView) {
-                    list.add(tip.text + view.text.toString())
-                } else if (view is ViewGroup) {
-                    list += getAllTextView(view)
-                }
-                LogUtil.outLogMsg(
-                    LogBean(
-                        type,
-                        list + LogUtil.getStackTrace(),
-                        HookHelper.hostPackageName
+                val callbackType = mOnClickListenerObject?.javaClass?.name ?: "NULL"
+                val viewId = Integer.toHexString(view.id).takeIf { view.id != View.NO_ID }
+                RecordOutHelper.outputRecord(
+                    type = RecordType.ClickEvent, RecordClickEvent(
+                        viewType = view.javaClass.name ?: "NULL",
+                        callbackType = callbackType,
+                        viewId = viewId,
+                        textList = HookUtils.getViewAllText(view),
+                        stackDetail = Throwable().stackTraceToString()
                     )
                 )
-            } catch (_: Exception) {
-                "error: click".log()
+            } catch (e: Exception) {
+                "error: click".xLog()
+                Log.e("SimpleHook", "startHook: click-event", e)
             }
         }
     }

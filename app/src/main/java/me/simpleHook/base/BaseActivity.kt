@@ -33,16 +33,17 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.data.record.RecordType
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.AssistConfig
-import me.simpleHook.database.entity.PrintLog
+import me.simpleHook.database.entity.ExtensionConfigEntity
+import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.extension.showPopup
-import me.simpleHook.recyclerview.adapter.PrintLogAdapter
+import me.simpleHook.recyclerview.adapter.FloatRecordAdapter
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.utils.LanguageUtil
-import me.simpleHook.utils.LogUtils
+import me.simpleHook.utils.LogUtil
 import me.simpleHook.utils.TimeUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
@@ -52,8 +53,8 @@ open class BaseActivity : AppCompatActivity() {
 
     private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val recordViewModel by viewModels<RecordViewModel>()
-    private val mAdapter: PrintLogAdapter by lazy { PrintLogAdapter() }
-    private val list = ArrayList<PrintLog>()
+    private val mAdapter: FloatRecordAdapter by lazy { FloatRecordAdapter() }
+    private val list = ArrayList<RecordEntity>()
     private val handler = Handler(Looper.getMainLooper())
     private var dismissFloat = false
     private val refresh = object : Runnable {
@@ -69,7 +70,7 @@ open class BaseActivity : AppCompatActivity() {
     private var currentTime = ""
     private var startTime = ""
     private var tempCount = 0
-    private lateinit var assistConfigs: List<AssistConfig>
+    private lateinit var extConfigList: List<ExtensionConfigEntity>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
     protected val startActivityForData =
@@ -110,10 +111,11 @@ open class BaseActivity : AppCompatActivity() {
     fun readFileLogInsert() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                if (!::assistConfigs.isInitialized) {
-                    assistConfigs = appConfigViewModel.getAssistConfigs()
-                    assistConfigs.forEach {
-                        if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)
+                if (!::extConfigList.isInitialized) {
+                    // TODO optimize
+                    extConfigList = appConfigViewModel.getExtConfigs()
+                    extConfigList.forEach {
+                        if (it.enable && AppUtil.isAppInstalled(it.packageName)
                         ) needCheckPacks.add(it.packageName)
                     }
                     configs = appConfigViewModel.getConfigs()
@@ -124,18 +126,20 @@ open class BaseActivity : AppCompatActivity() {
                         ) needCheckPacks.add(it.packageName)
                     }
                     needCheckPacks.forEach {
-                        val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
-                        recordViewModel.insertRecord(*list.toTypedArray())
+                        val recordEntities =
+                            RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
+                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
                     }
                 } else {
                     needCheckPacks.forEach {
-                        val list = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
-                        recordViewModel.insertRecord(*list.toTypedArray())
+                        val recordEntities =
+                            RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
+                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
                     }
                 }
 
             } catch (e: Exception) {
-                LogUtils.outLog(e.stackTraceToString())
+                LogUtil.outLog(e.stackTraceToString())
             }
         }
     }
@@ -145,10 +149,17 @@ open class BaseActivity : AppCompatActivity() {
         if (stopPrint) return
         contentResolver.query(uri, null, "time > ?", arrayOf(currentTime), null)?.apply {
             while (moveToNext()) {
-                val log = getString(getColumnIndex("log"))
+                val record = getString(getColumnIndex("record"))
                 val packageName = getString(getColumnIndex("packageName"))
                 val time = getString(getColumnIndex("time"))
-                list.add(PrintLog(log = log, packageName = packageName, time = time))
+                list.add(
+                    RecordEntity(
+                        record = record,
+                        packageName = packageName,
+                        time = time,
+                        type = RecordType.RecordReturn
+                    )
+                )
                 currentTime = time
             }
             close()
@@ -184,8 +195,8 @@ open class BaseActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun showPrintFloat() {
         lifecycleScope.launch(Dispatchers.IO) {
-            appConfigViewModel.getAssistConfigs().forEach {
-                if (it.allSwitch && AppUtil.isAppInstalled(it.packageName)) {
+            appConfigViewModel.getExtConfigs().forEach {
+                if (it.enable && AppUtil.isAppInstalled(it.packageName)) {
                     needCheckPacks.add(it.packageName)
                 }
             }

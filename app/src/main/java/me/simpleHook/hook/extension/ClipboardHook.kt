@@ -8,15 +8,12 @@ import com.github.kyuubiran.ezxhelper.utils.hookBefore
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.ClipboardConfig
 import me.simpleHook.data.ExtensionConfig
-import me.simpleHook.data.LogBean
-import me.simpleHook.hook.language.tip
-import me.simpleHook.hook.utils.HookHelper
-import me.simpleHook.hook.utils.LogUtil
+import me.simpleHook.hook.utils.RecordOutHelper
 
 object ClipboardHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.filterClipboard.enable) return
-        val configInfo = configBean.filterClipboard.info
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.filterClipboard.enable) return
+        val configInfo = extensionConfig.filterClipboard.info
         // old config
         if (!configInfo.startsWith("{") || !configInfo.endsWith("}")) return
         val clipboardConfig = Json.decodeFromString<ClipboardConfig>(configInfo)
@@ -32,11 +29,7 @@ object ClipboardHook : BaseHook() {
             }.hookAfter {
                 if (clipboardConfig.record) {
                     val clipData = it.result as ClipData?
-                    val info = getClipInfo(clipData)
-                    val items = listOf(tip.clipboardInfo + info) + LogUtil.getStackTrace()
-                    val logBean =
-                        LogBean(type = tip.getClipboard, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputClipboard(isRead = true, info = getClipInfo(clipData))
                 }
                 if (clipboardConfig.read) {
                     it.result = null
@@ -54,10 +47,7 @@ object ClipboardHook : BaseHook() {
                 val clipData = it.args[0] as ClipData
                 val info = getClipInfo(clipData)
                 if (clipboardConfig.record) {
-                    val items = listOf(tip.clipboardInfo + info) + LogUtil.getStackTrace()
-                    val logBean =
-                        LogBean(type = tip.setClipboard, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputClipboard(isRead = false, info = info)
                 }
                 if (clipboardConfig.write) {
                     val keywords = Json.decodeFromString<List<String>>(clipboardConfig.filter)
