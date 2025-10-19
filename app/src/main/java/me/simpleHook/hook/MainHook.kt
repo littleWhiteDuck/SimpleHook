@@ -217,11 +217,11 @@ object MainHook {
         try {
             if (strConfig.trim().isEmpty()) return
             tip.startExtensionHook.xLog()
-            val configBean = Json.decodeFromString<ExtensionConfig>(strConfig)
-            if (!configBean.all) return
-            if (configBean.tip) appContext.showToast(msg = "SimpleHook: StartHook")
+            val extensionConfig = Json.decodeFromString<ExtensionConfig>(strConfig)
+            if (!extensionConfig.all) return
+            if (extensionConfig.hookTip) appContext.showToast(msg = "SimpleHook: StartHook")
             initExtensionHook(
-                configBean,
+                extensionConfig = extensionConfig,
                 DialogHook,
                 PopupWindowHook,
                 ToastHook,
@@ -250,12 +250,12 @@ object MainHook {
     }
 
     private fun initExtensionHook(
-        configBean: ExtensionConfig, vararg hooks: BaseHook
+        extensionConfig: ExtensionConfig, vararg hooks: BaseHook
     ) {
         hooks.forEach {
             if (it.isInit) return@forEach
             it.isInit
-            it.startHook(configBean)
+            it.startHook(extensionConfig)
         }
     }
 

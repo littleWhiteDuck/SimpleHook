@@ -16,11 +16,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import com.google.android.material.chip.Chip
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.data.ClipboardConfig
+import me.simpleHook.data.ExClipboardConfig
 import me.simpleHook.databinding.LayoutInputKeywordBinding
+import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.ChipPreference
 import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.customDialog
@@ -28,8 +28,7 @@ import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
 class ClipboardFragment : BasePreferenceFragment() {
-    private lateinit var clipboardConfig: ClipboardConfig
-    private var tempConfig = ""
+    private lateinit var clipboardConfig: ExClipboardConfig
     private lateinit var navController: NavController
     private val exViewModel by activityViewModels<ExViewModel>()
 
@@ -73,7 +72,8 @@ class ClipboardFragment : BasePreferenceFragment() {
                 inputView.keywordInput.isErrorEnabled = false
             }
         }
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.extension_clip_add_keyword),
             contentView = inputView.root,
             okText = getString(R.string.dialog_confirm),
@@ -96,42 +96,33 @@ class ClipboardFragment : BasePreferenceFragment() {
 
 
     private fun saveConfig(exit: Boolean) {
-        val chipGroup =
-            findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipGroup ?: throw NullPointerException(
-                "chip is null"
-            )
-        val items = ArrayList<String>()
-        chipGroup.children.iterator().forEach {
-            items.add((it as Chip).text.toString())
-        }
-        val result = Json.encodeToString(items)
-        clipboardConfig.filter = result
-        exViewModel.extensionConfig.value!!.filterClipboard.info =
-            Json.encodeToString(clipboardConfig)
+        val chipGroup = findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipGroup
+            ?: throw NullPointerException("chip is null")
+
+        clipboardConfig.filterKeywords = chipGroup.children.map {
+            (it as Chip).text.toString()
+        }.toList()
+
+        exViewModel.updateFilterClipboard(clipboardConfig = clipboardConfig)
         if (exit) navController.navigateUp()
     }
 
     override fun init() {
         setDividerHeight(0)
-        clipboardConfig =
-            Json.decodeFromString(exViewModel.extensionConfig.value!!.filterClipboard.info)
-        tempConfig = clipboardConfig.toString()
+        clipboardConfig = exViewModel.extensionConfig.value!!.filterClipboard.copy()
         findPreference<MaterialSwitchPreference>(KEY_RECORD_READ_WRITE)?.isChecked =
             clipboardConfig.record
         findPreference<MaterialSwitchPreference>(KEY_READ_CLIPBOARD)?.isChecked =
             clipboardConfig.read
         findPreference<MaterialSwitchPreference>(KEY_WRITE_CLIPBOARD)?.isChecked =
             clipboardConfig.write
-        if (clipboardConfig.filter.isNotEmpty()) {
-            val list = Json.decodeFromString<List<String>>(clipboardConfig.filter)
-            findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipTexts = list
-        }
+        findPreference<ChipPreference>(KEY_CHIP_GROUP)?.chipTexts = clipboardConfig.filterKeywords
         navController = findNavController()
         initMenu()
     }
 
     override fun canBack(): Boolean {
-        return tempConfig == clipboardConfig.toString()
+        return clipboardConfig == exViewModel.extensionConfig.value!!.filterClipboard
     }
 
     override fun notBackTip() {
@@ -211,13 +202,7 @@ class ClipboardFragment : BasePreferenceFragment() {
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.apply {
-            addPreference(recordClip)
-            addPreference(blockGetClip)
-            addPreference(blockWriteClip)
-            addPreference(addKeyWords)
-            addPreference(chipPreference)
-        }
+        preferenceCategory.addPreferences(recordClip, blockGetClip, blockWriteClip, addKeyWords, chipPreference)
         setPreferenceScreen(preferenceScreen)
     }
 

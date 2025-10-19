@@ -9,12 +9,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
-import androidx.preference.SwitchPreferenceCompat
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.data.RecordConfig
+import me.simpleHook.data.ExtRecordSettings
 import me.simpleHook.extension.addPreferences
+import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
 
@@ -23,7 +22,7 @@ class RecordSettingsFragment : BasePreferenceFragment() {
     private val navController by lazy {
         requireActivity().findNavController(R.id.nav_host_fragment)
     }
-    private lateinit var tempConfig: RecordConfig
+    private lateinit var recordSettings: ExtRecordSettings
 
     override fun init() {
         setDividerHeight(0)
@@ -31,7 +30,7 @@ class RecordSettingsFragment : BasePreferenceFragment() {
     }
 
     override fun canBack(): Boolean {
-        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.record.info
+        return recordSettings == exViewModel.extensionConfig.value!!.recordSettings
     }
 
     override fun notBackTip() {
@@ -43,26 +42,25 @@ class RecordSettingsFragment : BasePreferenceFragment() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        val recordConfigInfo = exViewModel.extensionConfig.value?.record?.info
+        recordSettings = exViewModel.extensionConfig.value?.recordSettings?.copy()
             ?: throw NullPointerException("Record Config is null...")
-        tempConfig = Json.decodeFromString(recordConfigInfo)
-        val stack = SwitchPreferenceCompat(requireContext()).apply {
+        val stack = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_record_title_add_stack)
             isIconSpaceReserved = false
-            isChecked = tempConfig.enableStack
+            isChecked = recordSettings.enableStack
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.enableStack = newValue as Boolean
+                recordSettings.enableStack = newValue as Boolean
                 true
             }
         }
-        val base64 = SwitchPreferenceCompat(requireContext()).apply {
+        val base64 = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_record_title_add_base64)
             isIconSpaceReserved = false
-            isChecked = tempConfig.enableBase64
+            isChecked = recordSettings.enableBase64
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.enableBase64 = newValue as Boolean
+                recordSettings.enableBase64 = newValue as Boolean
                 true
             }
         }
@@ -95,7 +93,7 @@ class RecordSettingsFragment : BasePreferenceFragment() {
     }
 
     private fun saveConfig(exit: Boolean) {
-        exViewModel.extensionConfig.value!!.record.info = Json.encodeToString(tempConfig)
+        exViewModel.updateRecordSettings(recordSettings = recordSettings)
         if (exit) navController.navigateUp()
     }
 }

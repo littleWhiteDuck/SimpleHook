@@ -13,11 +13,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
 import com.google.android.material.chip.Chip
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.data.DialogCancel
+import me.simpleHook.data.ExtBlockDialog
 import me.simpleHook.databinding.LayoutInputKeywordBinding
+import me.simpleHook.extension.addPreferences
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.ChipPreference
 import me.simpleHook.ui.custom.MaterialSwitchPreference
@@ -32,25 +32,19 @@ class DisableDialogFragment : BasePreferenceFragment() {
         requireActivity().findNavController(R.id.nav_host_fragment)
     }
 
-    private lateinit var tempConfig: DialogCancel
+    private lateinit var dialogBlockConfig: ExtBlockDialog
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        val dialogCancelInfo = exViewModel.extensionConfig.value?.stopDialog?.info
+        dialogBlockConfig = exViewModel.extensionConfig.value?.popupConfig?.blockDialog?.copy()
             ?: throw NullPointerException("DialogCancel is null...")
-        tempConfig = if (dialogCancelInfo.startsWith("{")) {
-            Json.decodeFromString(dialogCancelInfo)
-        } else {
-            val list = dialogCancelInfo.split("\n")
-            DialogCancel(keywords = Json.encodeToString(list))
-        }
         val keywordSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_dialog_cancel_title_keyword)
             isIconSpaceReserved = false
             summary = getString(R.string.extension_dialog_cancel_summary_keyword)
-            isChecked = tempConfig.keywordEnable
+            isChecked = dialogBlockConfig.keywordEnable
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.keywordEnable = newValue as Boolean
+                dialogBlockConfig.keywordEnable = newValue as Boolean
                 true
             }
         }
@@ -68,16 +62,16 @@ class DisableDialogFragment : BasePreferenceFragment() {
             isIconSpaceReserved = false
             layoutResource = R.layout.layout_chip_group
             key = KEY_CHIP_GROUP
-            chipTexts = Json.decodeFromString(tempConfig.keywords)
+            chipTexts = dialogBlockConfig.keywords
         }
         val idSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_dialog_cancel_title_id)
             isIconSpaceReserved = false
-            isChecked = tempConfig.idEnable
+            isChecked = dialogBlockConfig.idEnable
             summary = getString(R.string.extension_dialog_cancel_summary_id)
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.idEnable = newValue as Boolean
+                dialogBlockConfig.idEnable = newValue as Boolean
                 true
             }
         }
@@ -95,7 +89,7 @@ class DisableDialogFragment : BasePreferenceFragment() {
             isIconSpaceReserved = false
             layoutResource = R.layout.layout_chip_group
             key = KEY_CHIP_GROUP_ID
-            chipTexts = Json.decodeFromString(tempConfig.ids)
+            chipTexts = dialogBlockConfig.ids
         }
 
         val preferenceCategory = PreferenceCategory(requireContext()).apply {
@@ -104,14 +98,14 @@ class DisableDialogFragment : BasePreferenceFragment() {
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.apply {
-            addPreference(keywordSwitch)
-            addPreference(addKeyWords)
-            addPreference(chipPreference)
-            addPreference(idSwitch)
-            addPreference(addIds)
-            addPreference(idChipPreference)
-        }
+        preferenceCategory.addPreferences(
+            keywordSwitch,
+            addKeyWords,
+            chipPreference,
+            idSwitch,
+            addIds,
+            idChipPreference
+        )
         setPreferenceScreen(preferenceScreen)
     }
 
@@ -155,7 +149,8 @@ class DisableDialogFragment : BasePreferenceFragment() {
                 inputView.keywordInput.isErrorEnabled = false
             }
         }
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.extension_clip_add_keyword),
             contentView = inputView.root,
             okText = getString(R.string.dialog_confirm),
@@ -185,7 +180,8 @@ class DisableDialogFragment : BasePreferenceFragment() {
                 context.getString(R.string.extension_dialog_cancel_hint_dec_or_hex)
         }
         chip?.let { inputView.editText.setText(chip.text) }
-        customDialog(requireContext(),
+        customDialog(
+            requireContext(),
             title = getString(R.string.extension_dialog_cancel_add_id),
             contentView = inputView,
             okText = getString(R.string.dialog_confirm),
@@ -218,12 +214,11 @@ class DisableDialogFragment : BasePreferenceFragment() {
             backPressed()
         }, cancelClick = {
             saveConfig(false)
-
         })
     }
 
     override fun canBack(): Boolean {
-        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.stopDialog.info
+        return dialogBlockConfig == exViewModel.extensionConfig.value!!.popupConfig.blockDialog
     }
 
     private fun initMenu() {
@@ -248,17 +243,16 @@ class DisableDialogFragment : BasePreferenceFragment() {
             )
         val idChipGroup = findPreference<ChipPreference>(KEY_CHIP_GROUP_ID)?.chipGroup
             ?: throw NullPointerException("chip is null")
-        val keywords = ArrayList<String>()
-        keywordChipGroup.children.forEach {
-            keywords.add((it as Chip).text.toString())
-        }
-        tempConfig.keywords = Json.encodeToString(keywords)
-        val ids = ArrayList<String>()
-        idChipGroup.children.forEach {
-            ids.add((it as Chip).text.toString())
-        }
-        tempConfig.ids = Json.encodeToString(ids)
-        exViewModel.extensionConfig.value!!.stopDialog.info = Json.encodeToString(tempConfig)
+
+        dialogBlockConfig.keywords = keywordChipGroup.children.map {
+            (it as Chip).text.toString()
+        }.toList()
+
+        dialogBlockConfig.ids = idChipGroup.children.map {
+            (it as Chip).text.toString()
+        }.toList()
+
+        exViewModel.updateDialogBlock(dialogBlockConfig)
         if (exit) navController.navigateUp()
     }
 

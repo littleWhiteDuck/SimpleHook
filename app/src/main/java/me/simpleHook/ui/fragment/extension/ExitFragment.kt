@@ -9,10 +9,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.data.Exit
+import me.simpleHook.data.ExtExitConfig
+import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog
 import me.simpleHook.viewmodel.ExViewModel
@@ -24,7 +24,7 @@ class ExitFragment : BasePreferenceFragment() {
         requireActivity().findNavController(R.id.nav_host_fragment)
     }
 
-    private lateinit var tempConfig: Exit
+    private lateinit var exitConfig: ExtExitConfig
 
     override fun init() {
         setDividerHeight(0)
@@ -50,12 +50,12 @@ class ExitFragment : BasePreferenceFragment() {
     }
 
     private fun saveConfig(exit: Boolean) {
-        exViewModel.extensionConfig.value!!.exit.info = Json.encodeToString(tempConfig)
+        exViewModel.updateExit(exitConfig = exitConfig)
         if (exit) navController.navigateUp()
     }
 
     override fun canBack(): Boolean {
-        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.exit.info
+        return exitConfig == exViewModel.extensionConfig.value!!.exitConfig
     }
 
     override fun notBackTip() {
@@ -67,15 +67,15 @@ class ExitFragment : BasePreferenceFragment() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        tempConfig = Json.decodeFromString(exViewModel.extensionConfig.value!!.exit.info)
+        exitConfig = exViewModel.extensionConfig.value!!.exitConfig.copy()
         val finishSwitch = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_finish)
             isIconSpaceReserved = false
-            isChecked = tempConfig.finish
+            isChecked = exitConfig.finish
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.finish = newValue as Boolean
+                exitConfig.finish = newValue as Boolean
                 true
             }
         }
@@ -84,9 +84,9 @@ class ExitFragment : BasePreferenceFragment() {
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_exit)
             isIconSpaceReserved = false
-            isChecked = tempConfig.exit
+            isChecked = exitConfig.exit
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.exit = newValue as Boolean
+                exitConfig.exit = newValue as Boolean
                 true
             }
         }
@@ -96,9 +96,9 @@ class ExitFragment : BasePreferenceFragment() {
             title = getString(R.string.extension_intercept_app_exit_title)
             summary = getString(R.string.extension_intercept_app_exit_kill_process)
             isIconSpaceReserved = false
-            isChecked = tempConfig.kill
+            isChecked = exitConfig.kill
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.kill = newValue as Boolean
+                exitConfig.kill = newValue as Boolean
                 true
             }
         }
@@ -108,9 +108,9 @@ class ExitFragment : BasePreferenceFragment() {
             title = getString(R.string.extension_exit_title_record_crash)
             summary = getString(R.string.extension_exit_summary_record_crash)
             isIconSpaceReserved = false
-            isChecked = tempConfig.recordCrash
+            isChecked = exitConfig.recordCrash
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.recordCrash = newValue as Boolean
+                exitConfig.recordCrash = newValue as Boolean
                 true
             }
         }
@@ -120,12 +120,7 @@ class ExitFragment : BasePreferenceFragment() {
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.apply {
-            addPreference(finishSwitch)
-            addPreference(exitSwitch)
-            addPreference(killSwitch)
-            addPreference(recordCrashSwitch)
-        }
+        preferenceCategory.addPreferences(finishSwitch,exitSwitch,killSwitch,recordCrashSwitch)
         setPreferenceScreen(preferenceScreen)
     }
 }

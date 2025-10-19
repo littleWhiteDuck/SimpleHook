@@ -31,8 +31,8 @@ class Xp51HookEntry : IXposedHookLoadPackage {
             }.hookAfter {
                 HookHelper.initFields(
                     context = it.args[0] as Context,
-                    lpparam.packageName,
-                    lpparam.appInfo
+                    packageName = lpparam.packageName,
+                    applicationName = it.thisObject.javaClass.name
                 )
                 HookHelper.appContext.getExternalFilesDirs(null)
                 HookInit.startHook()

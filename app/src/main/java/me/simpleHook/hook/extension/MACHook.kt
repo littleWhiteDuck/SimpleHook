@@ -25,7 +25,7 @@ object MACHook : BaseHook() {
 
     private val macContexts = ConcurrentHashMap<Mac, MacContext>()
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (!extensionConfig.hmac) return
+        if (!extensionConfig.algorithmConfig.hmac) return
         XposedBridge.hookAllMethods(Mac::class.java, "init", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val mac = param.thisObject as? Mac ?: return

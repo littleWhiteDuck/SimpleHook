@@ -151,12 +151,12 @@
     <string name="extension_item_desc_dialog">Record dialog call stack and info</string>
     <string name="extension_item_title_dialog_cancel">Dialog</string>
     <string name="extension_item_desc_dialog_cancel">Force cancelable for general dialog</string>
-    <string name="extension_item_desc_encrypt_algorithm">AES, DES, RSA, etc.</string>
-    <string name="extension_item_title_encrypt_algorithm">Encryption Algorithm</string>
-    <string name="extension_item_desc_hmac">Hmac</string>
-    <string name="extension_item_title_hmac">Information Digest Algorithm</string>
-    <string name="extension_item_desc_digest_algorithm">MD5, SHA, etc.</string>
-    <string name="extension_item_title_digest_algorithm">Digest Algorithm</string>
+    <string name="extension_item_desc_crypt_algorithm">AES, DES, RSA, etc.</string>
+    <string name="extension_item_title_crypt_algorithm">En(De)cryption Algorithm</string>
+    <string name="extension_item_desc_hmac">HMAC</string>
+    <string name="extension_item_title_hmac">Keyed hashing algorithm</string>
+    <string name="extension_item_desc_digest_algorithm">Hash algorithms such as MD5 and SHA</string>
+    <string name="extension_item_title_digest_algorithm">Message Digest Algorithm</string>
     <string name="extension_item_desc_base64">Base64 encode, decode</string>
     <string name="extension_item_title_algorithm_analysis">Algorithm Analysis (Alpha)</string>
     <string name="extension_item_title_all_switch">All switch</string>
@@ -248,7 +248,9 @@
     <string name="share">Share</string>
     <string name="record_save_marked_record_tip">Saved</string>
     <string name="cancel_mark">unmark</string>
-    <string name="extension_dex_position">dex on</string>
+    <string name="extension_dex_desc_format">dex need to be placed in %s</string>
+    <string name="extension_dex_extra_desc">DEX file permissions need to be set to read-only</string>
+
     <string name="config_select_hook_mode">Select Hook Mode</string>
     <string name="read_introduction_title">Tip</string>
     <string name="read_introduction_message">It is recommended that you take a look at the configuration writing rules, don\'t take it for granted and fill in at will</string>

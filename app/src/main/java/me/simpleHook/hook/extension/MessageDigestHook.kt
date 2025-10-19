@@ -16,7 +16,7 @@ object MessageDigestHook : BaseHook() {
     private val digestBuffers = ConcurrentHashMap<MessageDigest, ByteArrayOutputStream>()
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (!extensionConfig.digest) return
+        if (!extensionConfig.algorithmConfig.messageDigest) return
         XposedBridge.hookAllMethods(MessageDigest::class.java, "update", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val md = param.thisObject as? MessageDigest ?: return

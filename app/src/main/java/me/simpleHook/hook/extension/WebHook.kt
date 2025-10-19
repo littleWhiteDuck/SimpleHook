@@ -13,10 +13,10 @@ import me.simpleHook.hook.utils.RecordOutHelper
 object WebHook : BaseHook() {
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (extensionConfig.webLoadUrl) {
+        if (extensionConfig.webConfig.recordUrl) {
             hookWebLoadUrl()
         }
-        if (extensionConfig.webDebug) {
+        if (extensionConfig.webConfig.enableDebug) {
             hookWebDebug()
         }
     }

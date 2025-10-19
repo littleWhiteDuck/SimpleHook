@@ -38,8 +38,8 @@ class Lsp100HookEntry(base: XposedInterface, param: ModuleLoadedParam) : XposedM
             }.hookAfter {
                 HookHelper.initFields(
                     context = it.args[0] as Context,
-                    param.packageName,
-                    param.applicationInfo
+                    packageName = param.packageName,
+                    applicationName = it.thisObject.javaClass.name
                 )
                 HookHelper.appContext.getExternalFilesDirs(null)
                 HookInit.startHook()

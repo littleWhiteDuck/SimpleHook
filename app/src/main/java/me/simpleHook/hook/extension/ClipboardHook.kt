@@ -5,23 +5,18 @@ import android.content.ClipboardManager
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import kotlinx.serialization.json.Json
-import me.simpleHook.data.ClipboardConfig
+import me.simpleHook.data.ExClipboardConfig
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.hook.utils.RecordOutHelper
 
 object ClipboardHook : BaseHook() {
     override fun startHook(extensionConfig: ExtensionConfig) {
         if (!extensionConfig.filterClipboard.enable) return
-        val configInfo = extensionConfig.filterClipboard.info
-        // old config
-        if (!configInfo.startsWith("{") || !configInfo.endsWith("}")) return
-        val clipboardConfig = Json.decodeFromString<ClipboardConfig>(configInfo)
-        hookSetClipboard(clipboardConfig)
-        hookGetClipboard(clipboardConfig)
+        hookSetClipboard(extensionConfig.filterClipboard)
+        hookGetClipboard(extensionConfig.filterClipboard)
     }
 
-    private fun hookGetClipboard(clipboardConfig: ClipboardConfig) {
+    private fun hookGetClipboard(clipboardConfig: ExClipboardConfig) {
         if (clipboardConfig.read || clipboardConfig.record) {
             // hook @getItemAt maybe get better effect
             findMethod(ClipboardManager::class.java) {
@@ -39,7 +34,7 @@ object ClipboardHook : BaseHook() {
     }
 
 
-    private fun hookSetClipboard(clipboardConfig: ClipboardConfig) {
+    private fun hookSetClipboard(clipboardConfig: ExClipboardConfig) {
         if (clipboardConfig.write || clipboardConfig.record) {
             findMethod(ClipboardManager::class.java) {
                 name == "setPrimaryClip"
@@ -50,8 +45,7 @@ object ClipboardHook : BaseHook() {
                     RecordOutHelper.outputClipboard(isRead = false, info = info)
                 }
                 if (clipboardConfig.write) {
-                    val keywords = Json.decodeFromString<List<String>>(clipboardConfig.filter)
-                    keywords.forEach { keyword ->
+                    clipboardConfig.filterKeywords.forEach { keyword ->
                         if (keyword == "" || info == "") {
                             it.result = null
                             return@forEach

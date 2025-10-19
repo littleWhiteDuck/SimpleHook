@@ -25,8 +25,10 @@ import me.simpleHook.R
 import me.simpleHook.base.BaseExtensionVBFragment
 import me.simpleHook.compat.BundleCompat
 import me.simpleHook.compat.DocumentCompat
+import me.simpleHook.constant.ConfigConstant
 import me.simpleHook.constant.Constant
 import me.simpleHook.contract.OpenDocumentTreeContract
+import me.simpleHook.data.ExConfigTag
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.databinding.FragmentExtensionManagerBinding
@@ -55,16 +57,16 @@ import me.simpleHook.viewmodel.ExViewModel
 
 class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBinding>() {
 
-    private val extensionConfig: ExtensionConfigEntity by lazy {
+    private val extensionConfigEntity: ExtensionConfigEntity by lazy {
         BundleCompat.getParcelable(requireArguments(), "EXTENSION_CONFIG")!!
     }
     private val exViewModel by activityViewModels<ExViewModel>()
     private var editMode: Boolean = true
     private val appConfigViewModel by viewModels<AppConfigViewModel>()
     private val items = ArrayList<Any>()
-    private var configBean: ExtensionConfig = ExtensionConfig()
+    private var extensionConfig: ExtensionConfig = ExtensionConfig()
     private var tempConfigStr = ""
-    private val adapter = MultiTypeAdapter()
+    private val managerAdapter = MultiTypeAdapter()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             if (uri != Uri.EMPTY) {
@@ -85,13 +87,9 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     }
 
     private fun initData() {
-        if (exViewModel.extensionConfig.value == null) {
-            exViewModel.extensionConfig.value = configBean
-        }
+        exViewModel.initExtensionConfig(extensionConfig)
         exViewModel.extensionConfig.observe(requireActivity()) {
-            it?.let {
-                configBean = it
-            }
+            extensionConfig = it
         }
     }
 
@@ -99,7 +97,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 val isInstalled =
-                    AppUtil.isAppInstalled(extensionConfig.packageName)
+                    AppUtil.isAppInstalled(extensionConfigEntity.packageName)
                 menuInflater.inflate(R.menu.menu_extension_manager, menu)
                 menu.findItem(R.id.menu_open_float).isChecked = GlobalValue.sp.startFloat
                 menu.findItem(R.id.menu_open_float).setOnMenuItemClickListener {
@@ -107,7 +105,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     GlobalValue.sp.startFloat = it.isChecked
                     true
                 }
-                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName) == null || !FlavorUtil.rootVersion) {
+                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfigEntity.packageName) == null || !FlavorUtil.rootVersion) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
                 if (!isInstalled) {
@@ -122,7 +120,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 when (menuItem.itemId) {
                     R.id.menu_launch -> {
                         showFloatWindow()
-                        AppUtil.startApp(extensionConfig.packageName, requireContext())
+                        AppUtil.startApp(extensionConfigEntity.packageName, requireContext())
                     }
 
                     R.id.menu_save_config -> saveConfig()
@@ -130,12 +128,15 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         showFloatWindow()
                         if (FlavorUtil.rootVersion) {
                             if (GlobalValue.isRootWork) {
-                                SuUtil.forceStopApp(extensionConfig.packageName)
+                                SuUtil.forceStopApp(extensionConfigEntity.packageName)
                             } else {
-                                ShizukuFileManager.service?.forceStopPackage(extensionConfig.packageName)
+                                ShizukuFileManager.service?.forceStopPackage(extensionConfigEntity.packageName)
                             }
                         } else {
-                            AppUtil.jumpAppInfoPage(requireContext(), extensionConfig.packageName)
+                            AppUtil.jumpAppInfoPage(
+                                requireContext(),
+                                extensionConfigEntity.packageName
+                            )
                         }
                     }
 
@@ -143,13 +144,15 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         showFloatWindow()
                         if (FlavorUtil.rootVersion) {
                             val intent =
-                                GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfig.packageName)
+                                GlobalValue.packageManager.getLaunchIntentForPackage(
+                                    extensionConfigEntity.packageName
+                                )
                             intent?.component?.className?.let { className ->
                                 if (GlobalValue.isRootWork) {
-                                    SuUtil.reLaunchApp(extensionConfig.packageName, className)
+                                    SuUtil.reLaunchApp(extensionConfigEntity.packageName, className)
                                 } else {
                                     ShizukuFileManager.service?.reLaunchApp(
-                                        extensionConfig.packageName,
+                                        extensionConfigEntity.packageName,
                                         className
                                     )
                                 }
@@ -159,7 +162,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
                     R.id.menu_app_info -> AppUtil.jumpAppInfoPage(
                         requireContext(),
-                        extensionConfig.packageName
+                        extensionConfigEntity.packageName
                     )
                 }
                 return true
@@ -171,7 +174,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun onSubItemClick(tag: String) {
         when (tag) {
-            TAG_STOP_DIALOG -> {
+            TAG_BLOCK_DIALOG -> {
                 navController.navigate(R.id.action_managerFragment_to_disableDialogFragment)
             }
 
@@ -198,18 +201,24 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     }
 
     private fun onItemClick(tag: String, checked: Boolean) {
-        if (tag == "hotFix" && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG) {
+        if (tag == "hotFix" && extensionConfigEntity.packageName != Constant.MODEL_EXTENSION_CONFIG) {
             createDexDirectory()
         }
-        configBean.javaClass.getDeclaredField(tag).apply {
+        enableTag(tag = tag, target = extensionConfig, enabled = checked)
+    }
+
+
+    private fun enableTag(tag: String, target: Any, enabled: Boolean) {
+        val tagSegments = tag.split("_")
+        target.javaClass.getDeclaredField(tagSegments.first()).apply {
             isAccessible = true
-            if (type == Boolean::class.java) {
-                setBoolean(configBean, checked)
+            if (tagSegments.size == 1) {
+                setBoolean(target, enabled)
             } else {
-                type.getDeclaredField("enable").also {
-                    it.isAccessible = true
-                    it.setBoolean(get(configBean), checked)
-                }
+                val remainingTag = tag.substringAfter("_")
+                val nestedTarget =
+                    get(target) ?: throw NullPointerException("check ExtensionConfig field")
+                enableTag(remainingTag, nestedTarget, enabled)
             }
         }
     }
@@ -217,13 +226,13 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun createDexDirectory() {
         val filePath = if (FlavorUtil.rootVersion) {
-            val path = Constant.ROOT_CONFIG_MAIN_DIRECTORY + extensionConfig.packageName + "/dex"
+            val path = ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
             SuUtil.makeDirs(path)
             path
         } else {
-            val path = Constant.ANDROID_DATA_PATH + extensionConfig.packageName + "/simpleHook/dex"
+            val path = ConfigConstant.NORMAL_DEX_PATH.format(extensionConfigEntity.packageName)
             if (OSUtil.atLeastR()) {
-                DocumentCompat.makeDirs(requireContext(), path, extensionConfig.packageName)
+                DocumentCompat.makeDirs(requireContext(), path, extensionConfigEntity.packageName)
             } else {
                 FileUtil.makeDirs(path)
             }
@@ -237,22 +246,22 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun showFloatWindow() {
         if (sp.startFloat) (requireActivity() as ExtensionActivity).initPrintFloat()
-        if (tempConfigStr != configBean.toString()) {
+        if (tempConfigStr != extensionConfig.toString()) {
             saveConfig()
         }
     }
 
 
     private fun checkPermission(): Boolean {
-        if (FlavorUtil.normalVersion && OSUtil.atLeastT() && extensionConfig.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
-                extensionConfig.packageName
+        if (FlavorUtil.normalVersion && OSUtil.atLeastT() && extensionConfigEntity.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
+                extensionConfigEntity.packageName
             )
         ) {
             requestPermissionDialog(
                 requireContext(),
                 message = getString(R.string.android_13_no_permission)
             ) {
-                val uri = DocumentCompat.generateAppUri(extensionConfig.packageName)
+                val uri = DocumentCompat.generateAppUri(extensionConfigEntity.packageName)
                 startActivityForData.launch(uri)
             }
             return false
@@ -265,14 +274,14 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         if (!checkPermission()) return false
         val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.main_loading))
         loadingDialog.show()
-        val config = Json.encodeToString(configBean)
-        tempConfigStr = configBean.toString()
-        extensionConfig.config = config
-        extensionConfig.enable = configBean.all
+        val config = Json.encodeToString(extensionConfig)
+        tempConfigStr = extensionConfig.toString()
+        extensionConfigEntity.config = config
+        extensionConfigEntity.enable = extensionConfig.all
         if (editMode) {
-            appConfigViewModel.updateExtConfigs(extensionConfig)
+            appConfigViewModel.updateExtConfigs(extensionConfigEntity)
         } else {
-            appConfigViewModel.insertExtConfigs(extensionConfig)
+            appConfigViewModel.insertExtConfigs(extensionConfigEntity)
         }
         Handler(Looper.getMainLooper()).postDelayed({
             getString(R.string.extension_save_success).snack(binding.recyclerView)
@@ -287,16 +296,11 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         editMode = requireActivity().intent.getBooleanExtra("EXTENSION_CONFIG_EDIT", true)
-        val dexPosition = getString(R.string.extension_dex_position)
-        val dexPath = if (FlavorUtil.normalVersion) {
-            dexPosition + "/Android/data/${extensionConfig.packageName}/simpleHook/dex/"
-        } else {
-            dexPosition + "/data/local/tmp/simpleHook/${extensionConfig.packageName}/dex/"
-        }
-        val config = extensionConfig.config
-        configBean = if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfig()
-        tempConfigStr = configBean.toString()
-        adapter.apply {
+        val config = extensionConfigEntity.config
+        extensionConfig =
+            if (config.isNotEmpty()) Json.decodeFromString(config) else ExtensionConfig()
+        tempConfigStr = extensionConfig.toString()
+        with(managerAdapter) {
             register(Title::class.java, TitleViewDelegate())
             register(ExtensionItem::class.java, ManagerItemViewDelegate { tag, checked ->
                 onItemClick(tag, checked)
@@ -312,10 +316,14 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 ManagerSubNextItemViewDelegate(onSubClick = { tag -> onSubItemClick(tag) })
             )
         }
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(adapter))
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.isVerticalScrollBarEnabled = false
+
+        with(binding.recyclerView) {
+            addItemDecoration(DividerItemDecoration(managerAdapter))
+            adapter = managerAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            isVerticalScrollBarEnabled = false
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val navigationInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val isGesture =
@@ -331,9 +339,10 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             binding.recyclerView.setPadding(0, 0, 0, paddingBottom + 10.dp)
             windowInsets
         }
+
         if (items.isNotEmpty()) return
-        configBean.apply {
-            items.apply {
+        with(extensionConfig) {
+            with(items) {
                 add(Title(getString(R.string.extension_item_title_basic)))
                 add(
                     ExtensionItem(
@@ -346,50 +355,50 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_hook_success_tip),
-                        tip,
-                        "tip",
+                        hookTip,
+                        "hookTip",
                         getString(R.string.extension_item_desc_hook_success_tip)
                     )
                 )
-                /*  add(
-                      ExtensionSubNextItem(
-                          getString(R.string.extension_item_title_record),
-                          record.enable,
-                          TAG_RECORD,
-                          getString(R.string.extension_item_desc_record)
-                      )
-                  )*/
+                add(
+                    ExtensionSubNextItem(
+                        getString(R.string.extension_item_title_record),
+                        recordSettings.enable,
+                        TAG_RECORD,
+                        getString(R.string.extension_item_desc_record)
+                    )
+                )
                 add(Title(getString(R.string.extension_item_title_algorithm_analysis)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_base64),
-                        base64,
-                        "base64",
+                        algorithmConfig.base64,
+                        ExConfigTag.BASE64,
                         getString(R.string.extension_item_desc_base64)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_digest_algorithm),
-                        digest,
-                        "digest",
+                        algorithmConfig.messageDigest,
+                        ExConfigTag.MASSAGE_DIGEST,
                         getString(R.string.extension_item_desc_digest_algorithm)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_hmac),
-                        hmac,
-                        "hmac",
+                        algorithmConfig.hmac,
+                        ExConfigTag.HMAC,
                         getString(R.string.extension_item_desc_hmac)
                     )
                 )
                 add(
                     ExtensionItem(
-                        getString(R.string.extension_item_title_encrypt_algorithm),
-                        crypt,
-                        "crypt",
-                        getString(R.string.extension_item_desc_encrypt_algorithm)
+                        getString(R.string.extension_item_title_crypt_algorithm),
+                        algorithmConfig.cipher,
+                        ExConfigTag.CIPHER,
+                        getString(R.string.extension_item_desc_crypt_algorithm)
                     )
                 )
                 add(Title(getString(R.string.extension_item_title_hot_fix)))
@@ -398,47 +407,47 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         getString(R.string.extension_item_title_hot_fix_dex),
                         hotFix,
                         "hotFix",
-                        dexPath
+                        getDexDesc()
                     )
                 )
                 add(Title(getString(R.string.extension_item_title_ui)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_dialog),
-                        dialog,
-                        "dialog",
+                        popupConfig.recordDialog,
+                        ExConfigTag.RECORD_DIALOG,
                         getString(R.string.extension_item_desc_dialog)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_dialog_cancel),
-                        diaCancel,
-                        "diaCancel",
+                        popupConfig.cancelDialog,
+                        ExConfigTag.CANCEL_DIALOG,
                         getString(R.string.extension_item_desc_dialog_cancel)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_toast),
-                        toast,
-                        "toast",
+                        popupConfig.recordToast,
+                        ExConfigTag.RECORD_TOAST,
                         getString(R.string.extension_item_desc_toast)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_popup_window),
-                        popup,
-                        "popup",
+                        popupConfig.recordPopup,
+                        ExConfigTag.RECORD_POPUP,
                         getString(R.string.extension_item_desc_popup_window)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_popup_window_cancel),
-                        popCancel,
-                        "popCancel",
+                        popupConfig.cancelPopup,
+                        ExConfigTag.CANCEL_POPUP,
                         getString(R.string.extension_item_desc_popup_window_cancel)
                     )
                 )
@@ -453,8 +462,8 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionSubItem(
                         getString(R.string.extension_item_title_block_dialog),
-                        stopDialog.enable,
-                        TAG_STOP_DIALOG,
+                        popupConfig.blockDialog.enable,
+                        ExConfigTag.BLOCK_DIALOG,
                         getString(R.string.extension_item_desc_block_dialog)
                     )
                 )
@@ -462,16 +471,16 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
-                        disSensorAG,
-                        "disSensorAG",
+                        sensorConfig.disableAG,
+                        ExConfigTag.DISABLE_AG_SENSOR,
                         getString(R.string.extension_item_title_disable_acceleration_gyroscope)
                     )
                 )
                 add(
                     ExtensionItem(
                         title = getString(R.string.extension_item_title_disable_sensor),
-                        disSensorSport,
-                        "disSensorSport",
+                        sensorConfig.disableSport,
+                        ExConfigTag.DISABLE_SPORT_SENSOR,
                         getString(R.string.extension_item_title_disable_sport_sensor)
                     )
                 )
@@ -487,16 +496,16 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_json_object),
-                        jsonObject,
-                        "jsonObject",
+                        jsonConfig.recordObject,
+                        ExConfigTag.RECORD_JSON_OBJECT,
                         getString(R.string.extension_item_desc_json_object)
                     )
                 )
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_json_array),
-                        jsonArray,
-                        "jsonArray",
+                        jsonConfig.recordArray,
+                        ExConfigTag.RECORD_JSON_ARRAY,
                         getString(R.string.extension_item_desc_json_array)
                     )
                 )
@@ -504,16 +513,16 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_signature),
-                        signature,
-                        "signature",
+                        signConfig.recordSignature,
+                        ExConfigTag.RECORD_SIGNATURE,
                         getString(R.string.extension_item_desc_signature)
                     )
                 )
                 add(
                     ExtensionSubItem(
                         getString(R.string.extension_item_title_guise_sign),
-                        guiseSign.enable,
-                        TAG_GUISE_SIGN,
+                        signConfig.guiseSign.enable,
+                        ExConfigTag.GUISE_SIGN,
                         getString(R.string.extension_item_desc_guise_sign)
                     )
                 )
@@ -560,7 +569,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionSubItem(
                         title = getString(R.string.extension_item_title_app_exit),
-                        exit.enable,
+                        exitConfig.enable,
                         TAG_APP_EXIT,
                         getString(R.string.extension_item_desc_app_exit)
                     )
@@ -578,27 +587,42 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 add(
                     ExtensionItem(
                         title = "loadUrl",
-                        webLoadUrl,
-                        "webLoadUrl",
+                        webConfig.recordUrl,
+                        ExConfigTag.RECORD_WEB_URL,
                         getString(R.string.extension_item_desc_web_load_url)
                     )
                 )
                 add(
                     ExtensionItem(
                         title = "Debug",
-                        webDebug,
-                        "webDebug",
+                        webConfig.enableDebug,
+                        ExConfigTag.ENABLE_WEB_DEBUG,
                         getString(R.string.extension_item_desc_web_debug)
                     )
                 )
             }
-            adapter.items = items
-            adapter.notifyDataSetChanged()
         }
+        managerAdapter.items = items
+        managerAdapter.notifyDataSetChanged()
+    }
+
+    private fun getDexDesc(): String {
+        val dexPath = if (FlavorUtil.normalVersion) {
+            ConfigConstant.NORMAL_DEX_PATH.format(extensionConfigEntity.packageName)
+        } else {
+            ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
+        }
+        val dexPathDesc = getString(R.string.extension_dex_desc_format, dexPath)
+        val dexDesc = if (OSUtil.atLeastU()) {
+            dexPathDesc + "\n" + getString(R.string.extension_dex_extra_desc)
+        } else {
+            dexPathDesc
+        }
+        return dexDesc
     }
 
     override fun canBack(): Boolean {
-        return tempConfigStr == configBean.toString()
+        return tempConfigStr == extensionConfig.toString()
     }
 
     override fun performBack() {
@@ -618,11 +642,11 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     }
 
     companion object {
-        private const val TAG_STOP_DIALOG = "stopDialog"
-        private const val TAG_FILTER_CLIPBOARD = "filterClipboard"
-        private const val TAG_GUISE_SIGN = "guiseSign"
-        private const val TAG_FILE_MONITOR = "fileMonitor"
-        private const val TAG_APP_EXIT = "exit"
+        private const val TAG_BLOCK_DIALOG = ExConfigTag.BLOCK_DIALOG
+        private const val TAG_FILTER_CLIPBOARD = ExConfigTag.FILTER_CLIPBOARD
+        private const val TAG_GUISE_SIGN = ExConfigTag.GUISE_SIGN
+        private const val TAG_FILE_MONITOR = ExConfigTag.FILE_MONITOR
+        private const val TAG_APP_EXIT = ExConfigTag.BLOCK_EXIT
         private const val TAG_RECORD = "record"
     }
 

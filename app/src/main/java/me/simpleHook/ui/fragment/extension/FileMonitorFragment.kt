@@ -10,10 +10,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation.findNavController
 import androidx.preference.PreferenceCategory
 import androidx.preference.SeekBarPreference
-import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.base.BasePreferenceFragment
-import me.simpleHook.data.FileMonitorConfig
+import me.simpleHook.data.ExtFileMonitorConfig
 import me.simpleHook.extension.addPreferences
 import me.simpleHook.ui.custom.MaterialSwitchPreference
 import me.simpleHook.ui.custom.exitDialog
@@ -26,18 +25,18 @@ class FileMonitorFragment : BasePreferenceFragment() {
         findNavController(requireActivity(), R.id.nav_host_fragment)
     }
 
-    private lateinit var tempConfig: FileMonitorConfig
+    private lateinit var fileMonitorConfig: ExtFileMonitorConfig
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        val fileMonitorInfo = exViewModel.extensionConfig.value?.fileMonitor?.info
+        fileMonitorConfig = exViewModel.extensionConfig.value?.fileMonitor?.copy()
             ?: throw NullPointerException("FileMonitorConfig is null...")
-        tempConfig = Json.decodeFromString(fileMonitorInfo)
         val createFile = MaterialSwitchPreference(requireContext()).apply {
             isPersistent = false
             title = getString(R.string.extension_file_create_file)
             isIconSpaceReserved = false
-            isChecked = tempConfig.createFile
+            isChecked = fileMonitorConfig.createFile
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.createFile = newValue as Boolean
+                fileMonitorConfig.createFile = newValue as Boolean
                 true
             }
         }
@@ -45,9 +44,9 @@ class FileMonitorFragment : BasePreferenceFragment() {
             isPersistent = false
             title = getString(R.string.extension_file_delete_file)
             isIconSpaceReserved = false
-            isChecked = tempConfig.deleteFile
+            isChecked = fileMonitorConfig.deleteFile
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.deleteFile = newValue as Boolean
+                fileMonitorConfig.deleteFile = newValue as Boolean
                 true
             }
         }
@@ -55,9 +54,9 @@ class FileMonitorFragment : BasePreferenceFragment() {
             isPersistent = false
             title = getString(R.string.extension_file_write_file)
             isIconSpaceReserved = false
-            isChecked = tempConfig.outputFile
+            isChecked = fileMonitorConfig.outputFile
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.outputFile = newValue as Boolean
+                fileMonitorConfig.outputFile = newValue as Boolean
                 true
             }
         }
@@ -65,9 +64,9 @@ class FileMonitorFragment : BasePreferenceFragment() {
             isPersistent = false
             title = getString(R.string.extension_file_read_file)
             isIconSpaceReserved = false
-            isChecked = tempConfig.inputFile
+            isChecked = fileMonitorConfig.inputFile
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.inputFile = newValue as Boolean
+                fileMonitorConfig.inputFile = newValue as Boolean
                 true
             }
         }
@@ -75,9 +74,9 @@ class FileMonitorFragment : BasePreferenceFragment() {
             isPersistent = false
             title = getString(R.string.extension_file_read_assets_file)
             isIconSpaceReserved = false
-            isChecked = tempConfig.assetsFile
+            isChecked = fileMonitorConfig.assetsFile
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.assetsFile = newValue as Boolean
+                fileMonitorConfig.assetsFile = newValue as Boolean
                 true
             }
         }
@@ -87,10 +86,10 @@ class FileMonitorFragment : BasePreferenceFragment() {
             summary = getString(R.string.extension_file_summary_set_cache_size)
             isIconSpaceReserved = false
             max = 512
-            value = tempConfig.cacheSize
+            value = fileMonitorConfig.cacheSize
             showSeekBarValue = true
             setOnPreferenceChangeListener { _, newValue ->
-                tempConfig.cacheSize = newValue as Int
+                fileMonitorConfig.cacheSize = newValue as Int
                 true
             }
         }
@@ -115,7 +114,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
     }
 
     override fun canBack(): Boolean {
-        return Json.encodeToString(tempConfig) == exViewModel.extensionConfig.value!!.fileMonitor.info
+        return fileMonitorConfig == exViewModel.extensionConfig.value!!.fileMonitor
     }
 
     override fun notBackTip() {
@@ -146,7 +145,7 @@ class FileMonitorFragment : BasePreferenceFragment() {
 
 
     private fun saveConfig(exit: Boolean) {
-        exViewModel.extensionConfig.value!!.fileMonitor.info = Json.encodeToString(tempConfig)
+        exViewModel.updateFileMonitor(fileMonitorConfig = fileMonitorConfig)
         if (exit) navController.navigateUp()
     }
 }

@@ -13,10 +13,10 @@ import org.json.JSONObject
 object JSONHook : BaseHook() {
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (extensionConfig.jsonObject) {
+        if (extensionConfig.jsonConfig.recordObject) {
             hookJSONObject()
         }
-        if (extensionConfig.jsonArray) {
+        if (extensionConfig.jsonConfig.recordArray) {
             hookJSONArray()
         }
     }

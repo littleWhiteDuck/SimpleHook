@@ -20,13 +20,13 @@ object SensorMangerHook : BaseHook() {
     // Sensor.TYPE_ACCELEROMETER_UNCALIBRATED
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (extensionConfig.disSensorAG || extensionConfig.disSensorSport) {
+        if (extensionConfig.sensorConfig.disableAG || extensionConfig.sensorConfig.disableSport) {
             findAllMethods(SensorManager::class.java) {
                 name == "getSensorList" || name == "getDynamicSensorList"
             }.hookAfter {
                 val type = it.args[0] as Int
                 val disableSensorTypes =
-                    if (extensionConfig.disSensorSport) sportSensorTypes else sensorTypes
+                    if (extensionConfig.sensorConfig.disableSport) sportSensorTypes else sensorTypes
                 if (type in disableSensorTypes) {
                     it.result = null
                 } else if (type == Sensor.TYPE_ALL) {

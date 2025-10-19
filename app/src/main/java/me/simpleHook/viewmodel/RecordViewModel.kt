@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import me.simpleHook.App
 import me.simpleHook.R
 import me.simpleHook.data.RecordPart
 import me.simpleHook.data.record.Base64Operation

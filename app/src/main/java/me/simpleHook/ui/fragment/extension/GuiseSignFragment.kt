@@ -28,11 +28,10 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.base.BaseVBFragment
-import me.simpleHook.data.GuiseSignConfig
+import me.simpleHook.data.EXtGuiseSignItem
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
@@ -58,7 +57,7 @@ import java.util.zip.ZipFile
 
 class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     private val viewModel by activityViewModels<ExViewModel>()
-    private val appSignItems = ArrayList<AppInfo>()
+    private val appSignItems = ArrayList<EXtGuiseSignItem>()
     private val navController: NavController by lazy { findNavController() }
     private val startActivityForAppInfo =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -83,7 +82,6 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
                 onItemChanged(position, checked)
             })
     }
-    private var tempConfigStr = ""
 
 
     private val loadingDialog by lazy { LoadingDialog(requireActivity(), "loading...") }
@@ -99,7 +97,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         super.onAttach(context)
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (tempConfigStr == appSignItems.toString()) {
+                if (appSignItems == viewModel.extensionConfig.value!!.signConfig.guiseSign.signConfigs) {
                     onBackPressedCallback.isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
@@ -123,29 +121,13 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
 
 
     private fun saveGuiseInfo(exit: Boolean) {
-        val signConfigs = ArrayList<GuiseSignConfig>()
-        appSignItems.forEach {
-            signConfigs.add(GuiseSignConfig(it.packageName, it.signData, it.enable))
-        }
-        viewModel.extensionConfig.value!!.guiseSign.info = Json.encodeToString(signConfigs)
+        viewModel.updateGuiseSign(appSignItems)
         if (exit) navController.navigateUp()
     }
 
 
     private fun initData() {
-        val info = viewModel.extensionConfig.value!!.guiseSign.info
-        val guiseSigns = Json.decodeFromString<List<GuiseSignConfig>>(info)
-        guiseSigns.forEach {
-            appSignItems.add(
-                AppInfo(
-                    AppUtil.getAppName(it.packageName),
-                    it.packageName,
-                    it.signData,
-                    it.enable
-                )
-            )
-        }
-        tempConfigStr = appSignItems.toString()
+        appSignItems.addAll(viewModel.extensionConfig.value!!.signConfig.guiseSign.signConfigs)
         notifyDataSetChanged()
         binding.progressBar.isVisible = false
         binding.tip.isVisible = appSignItems.isEmpty()
@@ -274,7 +256,13 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     private fun addApp(appName: String, packageName: String) {
         val packInfo =
             GlobalValue.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-        appSignItems.add(AppInfo(appName, packageName, packInfo.signatures!![0].toCharsString()))
+        appSignItems.add(
+            EXtGuiseSignItem(
+                appName = appName,
+                packageName = packageName,
+                signData = packInfo.signatures!![0].toCharsString()
+            )
+        )
         notifyDataSetChanged(appSignItems.size)
         binding.tip.isVisible = false
     }
@@ -296,19 +284,12 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
     }
 }
 
-data class AppInfo(
-    val appName: String,
-    val packageName: String,
-    var signData: String,
-    var enable: Boolean = true
-)
-
 class GuiseSignAdapter(
     val onClick: (position: Int) -> Unit,
     val onCheckedChange: (position: Int, checked: Boolean) -> Unit
 ) : RecyclerView.Adapter<GuiseSignAdapter.ViewHolder>() {
 
-    var items = ArrayList<AppInfo>()
+    var items = ArrayList<EXtGuiseSignItem>()
 
     inner class ViewHolder(view: GuiseSignatureItem) : RecyclerView.ViewHolder(view) {
         val icon = view.containerView.icon

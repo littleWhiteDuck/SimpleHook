@@ -213,8 +213,8 @@
     <string name="record_cipher_unknown">未知</string>
 
     <string name="record_type_click_event">点击事件</string>
-    <string name="record_view_type_format">控件类型：</string>
-    <string name="record_callback_class_format">回调类名：</string>
+    <string name="record_view_type_format">控件类型：%s</string>
+    <string name="record_callback_class_format">回调类名：%s</string>
     <string name="record_id_format">ID：%s</string>
     <string name="record_text_format">文本：%s</string>
 
@@ -301,12 +301,12 @@
     <string name="extension_item_title_algorithm_analysis">算法分析(Alpha)</string>
     <string name="extension_item_title_base64" translatable="false">Base64</string>
     <string name="extension_item_desc_base64">Base64编码、解码</string>
-    <string name="extension_item_title_digest_algorithm">摘要算法</string>
-    <string name="extension_item_desc_digest_algorithm">MD5、SHA等</string>
-    <string name="extension_item_title_hmac">信息摘要算法</string>
-    <string name="extension_item_desc_hmac">Hmac</string>
-    <string name="extension_item_title_encrypt_algorithm">加密算法</string>
-    <string name="extension_item_desc_encrypt_algorithm">AES、DES、RSA等</string>
+    <string name="extension_item_title_digest_algorithm">信息摘要算法</string>
+    <string name="extension_item_desc_digest_algorithm">MD5、SHA等哈希算法</string>
+    <string name="extension_item_title_hmac">哈希消息认证码</string>
+    <string name="extension_item_desc_hmac">HMAC等密钥哈希算法</string>
+    <string name="extension_item_title_crypt_algorithm">加密解密算法</string>
+    <string name="extension_item_desc_crypt_algorithm">AES、DES、RSA等</string>
     <string name="extension_item_title_ui">界面</string>
     <string name="extension_item_title_dialog">弹窗</string>
     <string name="extension_item_desc_dialog">打印弹窗调用堆栈和信息</string>
@@ -423,7 +423,8 @@
     <string name="share">分享</string>
     <string name="record_save_marked_record_tip">已保存</string>
     <string name="cancel_mark">取消标记</string>
-    <string name="extension_dex_position">dex放在</string>
+    <string name="extension_dex_desc_format">dex放在%s</string>
+    <string name="extension_dex_extra_desc">需要将dex文件权限设置为只读</string>
 
     <string name="record_introduction_ok">去看看</string>
     <string name="float_window_title">记录</string>

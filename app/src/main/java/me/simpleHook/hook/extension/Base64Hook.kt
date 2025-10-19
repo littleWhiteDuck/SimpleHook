@@ -11,7 +11,7 @@ import me.simpleHook.hook.utils.RecordOutHelper
 object Base64Hook : BaseHook() {
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (!extensionConfig.base64) return
+        if (!extensionConfig.algorithmConfig.base64) return
         runCatching {
             XposedHelpers.findAndHookMethod(
                 "java.util.Base64.Encoder",

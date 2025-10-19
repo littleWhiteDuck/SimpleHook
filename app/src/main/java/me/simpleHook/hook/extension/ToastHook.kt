@@ -11,7 +11,7 @@ import me.simpleHook.hook.utils.RecordOutHelper
 object ToastHook : BaseHook() {
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (!extensionConfig.toast) return
+        if (!extensionConfig.popupConfig.recordToast) return
         XposedHelpers.findAndHookMethod(Toast::class.java, "show", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
                 val textList = mutableListOf<String>()

@@ -29,7 +29,7 @@ object CipherHook : BaseHook() {
     private val cipherContexts = ConcurrentHashMap<Cipher, CipherContext>()
 
     override fun startHook(extensionConfig: ExtensionConfig) {
-        if (!extensionConfig.crypt) return
+        if (!extensionConfig.algorithmConfig.cipher) return
 
         XposedBridge.hookAllMethods(Cipher::class.java, "init", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
