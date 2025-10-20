@@ -9,7 +9,6 @@ import com.github.kyuubiran.ezxhelper.utils.hookReturnConstant
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.record.RecordDialogType
 import me.simpleHook.hook.utils.HookUtils
-import me.simpleHook.hook.utils.HookUtils.getAllViewIds
 import me.simpleHook.hook.utils.RecordOutHelper
 
 object DialogHook : BaseHook() {
@@ -54,7 +53,7 @@ object DialogHook : BaseHook() {
                     }
                     if (blockDialog.idEnable) {
                         dialogView ?: return@hookAfter
-                        val currentIds = getAllViewIds(dialogView)
+                        val currentIds = HookUtils.getViewIds(dialogView)
                         currentIds.forEach {
                             if (it in blockDialog.ids) {
                                 dialog.dismiss()

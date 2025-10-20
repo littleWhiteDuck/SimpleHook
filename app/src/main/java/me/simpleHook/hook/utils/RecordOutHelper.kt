@@ -144,7 +144,7 @@ object RecordOutHelper {
             operation = operation,
             rawData = rawData.recordValue,
             result = resultData.recordValue,
-            stackDetail = Throwable().stackTraceToString()
+            stackDetail = getStackTraceStr()
         )
         outputRecord(type = RecordType.Base64, record = base64Record)
     }
@@ -155,7 +155,7 @@ object RecordOutHelper {
             record = RecordClipboard(
                 isRead = isRead,
                 info = info,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -164,7 +164,7 @@ object RecordOutHelper {
         outputRecord(
             type = RecordType.Exit, record = RecordExit(
                 exitType = type,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -176,7 +176,7 @@ object RecordOutHelper {
                 operation = fileOpType,
                 path = path,
                 partData = partData,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -187,8 +187,8 @@ object RecordOutHelper {
                 md5 = ToolUtil.getDigest(bytes = signByteArray),
                 sha1 = ToolUtil.getDigest(bytes = signByteArray, "SHA-1"),
                 sha256 = ToolUtil.getDigest(bytes = signByteArray, "SHA-256"),
-                charStr = String(signByteArray),
-                stackDetail = Throwable().stackTraceToString()
+                charStr = signByteArray.toHex(lowercase = true),
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -197,7 +197,7 @@ object RecordOutHelper {
         val jsonRecord = RecordJson(
             jsonType = type,
             values = values,
-            stackDetail = Throwable().stackTraceToString()
+            stackDetail = getStackTraceStr()
         )
         outputRecord(type = RecordType.Json, record = jsonRecord)
     }
@@ -207,7 +207,7 @@ object RecordOutHelper {
             type = RecordType.Dialog, record = RecordDialog(
                 dialogType = type,
                 textList = textList,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -217,7 +217,7 @@ object RecordOutHelper {
             type = RecordType.PopupWindow, record = RecordPopupWindow(
                 popupType = type,
                 textList = textList,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -226,35 +226,38 @@ object RecordOutHelper {
         outputRecord(
             type = RecordType.Toast, record = RecordToast(
                 textList = textList,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
             )
         )
     }
 
-    fun outputHmac(algorithm: String, rawData: ByteArray, resultData: ByteArray) {
-        outputRecord(
-            type = RecordType.Hmac, record = RecordHmac(
-                algorithm = algorithm,
-                rawData = rawData.recordValue,
-                resultData = resultData.recordValue,
-                stackDetail = Throwable().stackTraceToString()
-            )
-        )
-    }
-
-    fun outputMac(
+    fun outputHmac(
         algorithm: String,
         key: Map<RecordValueType, String>?,
         rawData: ByteArray,
         resultData: ByteArray
     ) {
         outputRecord(
-            type = RecordType.Mac, record = RecordMac(
+            type = RecordType.Hmac, record = RecordHmac(
                 algorithm = algorithm,
                 key = key,
                 rawData = rawData.recordValue,
                 resultData = resultData.recordValue,
-                stackDetail = Throwable().stackTraceToString()
+                stackDetail = getStackTraceStr()
+            )
+        )
+    }
+
+    fun outputMac(
+        algorithm: String, rawData: ByteArray, resultData: ByteArray
+
+    ) {
+        outputRecord(
+            type = RecordType.Mac, record = RecordMac(
+                algorithm = algorithm,
+                rawData = rawData.recordValue,
+                resultData = resultData.recordValue,
+                stackDetail = getStackTraceStr()
             )
         )
     }
@@ -278,10 +281,14 @@ object RecordOutHelper {
     }
 
 
+    fun getStackTraceStr() = getStackTrace().joinToString("\n")
+
     private fun getStackTrace(): List<String> {
-        return Throwable().stackTrace.map { element ->
+        val stackList = Throwable().stackTrace.map { element ->
             "${element.className} --> ${element.methodName}(line：${element.lineNumber})"
         }
+        val index = stackList.indexOfLast { it.startsWith("LSPHooker_ --> ") }
+        return stackList.subList(index.takeIf { it != -1 } ?: 0, stackList.size)
     }
 
     private val Any?.recordValue: Map<RecordValueType, String>

@@ -189,7 +189,7 @@
 
     <string name="record_application_name_format">Application入口名：%s</string>
 
-    <string name="record_base64_code_type_format">编码/解码：</string>
+    <string name="record_base64_code_type_format">编码/解码：%s</string>
     <string name="record_base64_encode">编码</string>
     <string name="record_base64_decode">解码</string>
 

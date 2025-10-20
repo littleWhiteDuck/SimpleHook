@@ -2,11 +2,9 @@ package me.simpleHook.hook.utils
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.core.view.children
 import com.google.gson.Gson
-import me.simpleHook.hook.language.tip
 
 
 object HookUtils {
@@ -21,36 +19,10 @@ object HookUtils {
         return list
     }
 
-    fun getAllTextView(viewGroup: ViewGroup): List<String> {
-        val list = mutableListOf<String>()
-        viewGroup.children.forEach {
-            when (it) {
-                is Button -> {
-                    if (it.text.toString().isNotEmpty()) {
-                        list.add(tip.button + it.text.toString())
-                    }
-                }
-
-                is TextView -> {
-                    if (it.text.toString().isNotEmpty()) {
-                        list.add(tip.text + it.text.toString())
-                    }
-                }
-
-                is ViewGroup -> {
-                    list += getAllTextView(it)
-                }
-            }
-        }
-        return list
-    }
-
-    fun getAllViewIds(view: View): List<String> {
+    fun getViewIds(view: View): List<String> {
         val list = mutableListOf<String>()
         if (view is ViewGroup) {
-            view.children.forEach {
-                list += getAllViewIds(it)
-            }
+            list.addAll(view.children.map { getViewIds(it) }.flatten())
         } else {
             if (view.id != View.NO_ID) list.add(view.id.toString())
         }

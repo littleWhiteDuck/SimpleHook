@@ -20,28 +20,27 @@ import me.simpleHook.data.HookConfig
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.extension.random
 import me.simpleHook.hook.extension.ADBHook
-import me.simpleHook.hook.extension.CipherHook
 import me.simpleHook.hook.extension.ApplicationHook
 import me.simpleHook.hook.extension.Base64Hook
 import me.simpleHook.hook.extension.BaseHook
+import me.simpleHook.hook.extension.CipherHook
 import me.simpleHook.hook.extension.ClickEventHook
 import me.simpleHook.hook.extension.ClipboardHook
 import me.simpleHook.hook.extension.ContactHook
 import me.simpleHook.hook.extension.DialogHook
 import me.simpleHook.hook.extension.ExitHook
 import me.simpleHook.hook.extension.FileHook
-import me.simpleHook.hook.extension.MACHook
+import me.simpleHook.hook.extension.HmacHook
 import me.simpleHook.hook.extension.HotFixHook
 import me.simpleHook.hook.extension.IntentHook
 import me.simpleHook.hook.extension.JSONHook
-import me.simpleHook.hook.extension.PopupWindowHook
 import me.simpleHook.hook.extension.MessageDigestHook
+import me.simpleHook.hook.extension.PopupWindowHook
 import me.simpleHook.hook.extension.SensorMangerHook
 import me.simpleHook.hook.extension.SignatureHook
 import me.simpleHook.hook.extension.ToastHook
 import me.simpleHook.hook.extension.VpnCheckHook
 import me.simpleHook.hook.extension.WebHook
-import me.simpleHook.hook.language.tip
 import me.simpleHook.hook.utils.HookHelper
 import me.simpleHook.hook.utils.HookHelper.appContext
 import me.simpleHook.hook.utils.RecordOutHelper
@@ -61,7 +60,7 @@ object MainHook {
             val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
             val configs = Json.decodeFromString<List<HookConfig>>(appConfig.configs)
-            tip.startCustomHook.xLog()
+            "start custom hook".xLog()
             configs.forEach { hookConfig ->
                 if (!hookConfig.enable) return@forEach
                 hookConfig.apply {
@@ -216,7 +215,7 @@ object MainHook {
     ) {
         try {
             if (strConfig.trim().isEmpty()) return
-            tip.startExtensionHook.xLog()
+            "start extension hook".xLog()
             val extensionConfig = Json.decodeFromString<ExtensionConfig>(strConfig)
             if (!extensionConfig.all) return
             if (extensionConfig.hookTip) appContext.showToast(msg = "SimpleHook: StartHook")
@@ -231,7 +230,7 @@ object MainHook {
                 VpnCheckHook,
                 Base64Hook,
                 MessageDigestHook,
-                MACHook,
+                HmacHook,
                 CipherHook,
                 JSONHook,
                 WebHook,

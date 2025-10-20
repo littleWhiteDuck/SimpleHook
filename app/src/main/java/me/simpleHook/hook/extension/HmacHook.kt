@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-object MACHook : BaseHook() {
+object HmacHook : BaseHook() {
     private data class MacContext(
         var keyBase: Map<RecordValueType, String>? = null,
         var keyAlgorithm: String? = null,
@@ -100,7 +100,7 @@ object MACHook : BaseHook() {
 
                     val result = param.result as? ByteArray
 
-                    RecordOutHelper.outputMac(
+                    RecordOutHelper.outputHmac(
                         algorithm = ctx.algorithmType ?: "unknown",
                         key = ctx.keyBase,
                         rawData = ctx.dataStream.toByteArray(),

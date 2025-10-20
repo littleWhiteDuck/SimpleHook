@@ -30,10 +30,10 @@ import me.simpleHook.data.record.RecordError
 import me.simpleHook.data.record.RecordExit
 import me.simpleHook.data.record.RecordField
 import me.simpleHook.data.record.RecordFileOperation
-import me.simpleHook.data.record.RecordHmac
+import me.simpleHook.data.record.RecordMac
 import me.simpleHook.data.record.RecordIntent
 import me.simpleHook.data.record.RecordJson
-import me.simpleHook.data.record.RecordMac
+import me.simpleHook.data.record.RecordHmac
 import me.simpleHook.data.record.RecordParam
 import me.simpleHook.data.record.RecordParamReturn
 import me.simpleHook.data.record.RecordPopupWindow
@@ -271,7 +271,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.stackDetail.split("\n"))
                 }
 
-                is RecordHmac -> {
+                is RecordMac -> {
                     add(R.string.record_type_format.string(record.algorithm))
                     addAll(record.rawData.toRawList())
                     addAll(record.resultData.toResultList(""))
@@ -286,7 +286,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.stackDetail.split("\n"))
                 }
 
-                is RecordMac -> {
+                is RecordHmac -> {
                     add(R.string.record_type_format.string(record.algorithm))
                     record.key?.let {
                         addAll(it.toKeyList())

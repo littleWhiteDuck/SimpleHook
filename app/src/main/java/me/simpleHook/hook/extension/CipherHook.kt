@@ -163,7 +163,7 @@ object CipherHook : BaseHook() {
                         iv = ctx.iv,
                         rawData = ctx.dataStream.toByteArray().recordValue,
                         resultData = resultBytes?.recordValue ?: emptyMap(),
-                        stackDetail = Throwable().stackTraceToString()
+                        stackDetail = RecordOutHelper.getStackTraceStr()
                     )
                 )
                 // clear buffer

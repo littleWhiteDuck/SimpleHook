@@ -1,7 +1,5 @@
 package me.simpleHook.hook.extension
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import io.github.qauxv.util.xpcompat.XC_MethodHook
 import io.github.qauxv.util.xpcompat.XposedBridge
 import me.simpleHook.data.ExtensionConfig
@@ -54,31 +52,42 @@ object MessageDigestHook : BaseHook() {
         })
 
         XposedBridge.hookAllMethods(MessageDigest::class.java, "digest", object : XC_MethodHook() {
-            @RequiresApi(Build.VERSION_CODES.O)
+
             override fun afterHookedMethod(param: MethodHookParam) {
                 val md = param.thisObject as? MessageDigest ?: return
                 val baos = digestBuffers.remove(md)
-                val rawBytes = baos?.toByteArray() ?: ByteArray(0)
+
+                // It seems that the `update(byte[] input)` method can't be hooked
+                // when the call comes from `digest(byte[] input)`
+                val rawBytes = if (param.args.size == 1) {
+                    param.args[0] as ByteArray
+                } else {
+                    baos?.toByteArray() ?: ByteArray(0)
+                }
 
                 val resultBytes: ByteArray? = when {
-                    param.args.isEmpty() && param.result is ByteArray -> param.result as ByteArray
-                    param.args.size == 1 && param.args[0] is ByteArray && param.result is ByteArray -> param.result as ByteArray
-                    param.args.size == 3 && param.args[0] is ByteArray && param.result is Int -> {
+                    param.args.isEmpty() -> param.result as ByteArray
+                    param.args.size == 1 -> param.result as ByteArray
+                    param.args.size == 3 -> {
                         val buf = param.args[0] as ByteArray
                         val off = param.args[1] as Int
                         val written = param.result as Int
-                        if (written > 0 && off >= 0 && off + written <= buf.size) buf.copyOfRange(
-                            off,
-                            off + written
-                        ) else null
+                        if (written > 0 && off >= 0 && off + written <= buf.size) {
+                            buf.copyOfRange(
+                                off,
+                                off + written
+                            )
+                        } else {
+                            null
+                        }
                     }
 
-                    else -> if (param.result is ByteArray) param.result as ByteArray else null
+                    else -> null
                 }
 
                 val algorithm = md.algorithm ?: "UNKNOWN"
 
-                RecordOutHelper.outputHmac(
+                RecordOutHelper.outputMac(
                     algorithm = algorithm,
                     rawData = rawBytes,
                     resultData = resultBytes ?: byteArrayOf()

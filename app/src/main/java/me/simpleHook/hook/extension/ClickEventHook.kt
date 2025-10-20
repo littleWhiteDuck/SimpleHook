@@ -31,7 +31,7 @@ object ClickEventHook : BaseHook() {
                         callbackType = callbackType,
                         viewId = viewId,
                         textList = HookUtils.getViewAllText(view),
-                        stackDetail = Throwable().stackTraceToString()
+                        stackDetail = RecordOutHelper.getStackTraceStr()
                     )
                 )
             } catch (e: Exception) {

@@ -57,7 +57,7 @@ object PopupWindowHook : BaseHook() {
                 }
             }
             if (blockDialog.idEnable) {
-                val currentIds = HookUtils.getAllViewIds(contentView)
+                val currentIds = HookUtils.getViewIds(contentView)
                 currentIds.forEach {
                     if (it in blockDialog.ids) {
                         param.result = null
