@@ -11,6 +11,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import me.simpleHook.R
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.custom.CustomViewGroup
+import androidx.core.view.isGone
 
 
 class SelectItemView(context: Context) : CustomViewGroup(context) {
@@ -47,8 +48,7 @@ class SelectItemView(context: Context) : CustomViewGroup(context) {
             measuredWidth - switch.measuredWidthWithMargins - paddingStart - paddingEnd
         title.measure(textViewWidth.toExactlyMeasureSpec(), title.defaultHeightMeasureSpec(this))
         desc.measure(textViewWidth.toExactlyMeasureSpec(), desc.defaultHeightMeasureSpec(this))
-        val height =
-            if (desc.visibility == GONE) paddingTop + title.measuredHeight + paddingBottom else paddingTop + title.measuredHeight + desc.measuredHeightWithMargins + paddingBottom
+        val height = if (desc.isGone) paddingTop + title.measuredHeight + paddingBottom else paddingTop + title.measuredHeight + desc.measuredHeightWithMargins + paddingBottom
         setMeasuredDimension(measuredWidth, height)
     }
 

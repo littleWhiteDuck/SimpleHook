@@ -183,9 +183,8 @@
     <string name="record_type_format">类型：%s</string>
     <string name="record_call_stack">调用堆栈：</string>
 
-    <string name="record_raw_data_str_format">原始数据(字符串)：%s</string>
-    <string name="record_raw_data_base64_format">原始数据(Base64)：%s</string>
-    <string name="record_raw_data_hex_format">原始数据(Hex)：%s</string>
+    <string name="record_raw_data_format_type">原始数据(%s)</string>
+    <string name="record_raw_data_format_type_value">原始数据(%s)：%s</string>
 
     <string name="record_application_name_format">Application入口名：%s</string>
 
@@ -193,17 +192,13 @@
     <string name="record_base64_encode">编码</string>
     <string name="record_base64_decode">解码</string>
 
-    <string name="record_result_data_str_format">%s结果(字符串)：%s</string>
-    <string name="record_result_data_base64_format">%s结果(Base64)：%s</string>
-    <string name="record_result_data_hex_format">%s结果(Hex)：%s</string>
+    <string name="record_result_data_format_type2">%s结果(%s)</string>
 
-    <string name="record_key_str_format">密钥Key(字符串)：%s</string>
-    <string name="record_key_base64_format">密钥Key(Base64)：%s</string>
-    <string name="record_key_hex_format">密钥Key(Hex)：%s</string>
+    <string name="record_result_data_format_type2_value">%s结果(%s)：%s</string>
 
-    <string name="record_iv_str_format">初始化向量(IV)(字符串)：%s</string>
-    <string name="record_iv_base64_format">初始化向量(IV)(Base64)：%s</string>
-    <string name="record_iv_hex_format">初始化向量(IV)(Hex)：%s</string>
+    <string name="record_key_format">密钥Key(%s)：%s</string>
+
+    <string name="record_iv_format">初始化向量(IV)(%s)：%s</string>
 
     <string name="record_cipher_crypt_type_format">加密/解密：%s</string>
     <string name="record_cipher_encrypt">加密</string>
@@ -731,6 +726,7 @@
     <string name="config_dialog_config_item_desc_edit">输入备忘信息</string>
     <string name="record_show_line_number">显示行号</string>
     <string name="record_enable_magnifier">启用放大镜</string>
+    <string name="record_card_style">卡片样式</string>
     <string name="no_shizuku_tip">暂时不可用，请检查是否安装了Shizuku或重启APP</string>
     <string name="main_settings_work_mode_title">工作模式</string>
     <string name="dex_browser_title">Dex浏览器</string>

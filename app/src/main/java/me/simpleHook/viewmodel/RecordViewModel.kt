@@ -30,10 +30,10 @@ import me.simpleHook.data.record.RecordError
 import me.simpleHook.data.record.RecordExit
 import me.simpleHook.data.record.RecordField
 import me.simpleHook.data.record.RecordFileOperation
-import me.simpleHook.data.record.RecordMac
+import me.simpleHook.data.record.RecordHmac
 import me.simpleHook.data.record.RecordIntent
 import me.simpleHook.data.record.RecordJson
-import me.simpleHook.data.record.RecordHmac
+import me.simpleHook.data.record.RecordMac
 import me.simpleHook.data.record.RecordParam
 import me.simpleHook.data.record.RecordParamReturn
 import me.simpleHook.data.record.RecordPopupWindow
@@ -44,6 +44,7 @@ import me.simpleHook.data.record.RecordValueType
 import me.simpleHook.data.record.RecordWebLoadUrl
 import me.simpleHook.database.RecordDatabase
 import me.simpleHook.database.entity.RecordEntity
+import me.simpleHook.data.record.RecordDetailItem as RDItem
 
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -55,6 +56,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
     val recordDetail = _recordDetail
+
+    private val _recordDetailItems = MutableLiveData<List<RDItem>>(emptyList())
+    val recordDetailItems: LiveData<List<RDItem>> = _recordDetailItems
 
     private val pagingConfig =
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
@@ -149,6 +153,309 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun fetchRecordDetail(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         val recordEntity = getRecordByID(id)
         val record = Json.decodeFromString<Record>(recordEntity.record)
+        fetchCodeStyleDetail(record)
+        fetchCardStyleDetail(record)
+    }
+
+    private fun fetchCardStyleDetail(record: Record) {
+        val list = mutableListOf<RDItem>()
+        with(list) {
+            when (record) {
+                is RecordApplication -> {
+                    add(RDItem(title = "类型", content = "Application"))
+                    add(RDItem(title = "入口名", content = record.name))
+                }
+
+                is RecordBase64 -> {
+                    val codeType = when (record.operation) {
+                        Base64Operation.Encode -> R.string.record_base64_encode
+                        Base64Operation.Decode -> R.string.record_base64_decode
+                    }.string()
+                    add(RDItem(title = "类型", content = "Base64"))
+                    add(RDItem(title = "编码/解码", content = codeType))
+                    record.rawData.forEach {
+                        val title = R.string.record_raw_data_format_type.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.resultData.forEach {
+                        val title = R.string.record_result_data_format_type2.string(
+                            codeType,
+                            it.key.displayName
+                        )
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+
+                }
+
+                is RecordCipher -> {
+                    add(RDItem(title = "类型", content = record.algorithm))
+                    add(RDItem(title = "加密/解密", content = record.cryptType.displayId.string()))
+                    record.key?.forEach {
+                        val title = R.string.record_key_format.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.iv?.forEach {
+                        val title = R.string.record_iv_format.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.rawData.forEach {
+                        val title = R.string.record_raw_data_format_type.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.resultData.forEach {
+                        val title = R.string.record_result_data_format_type2.string(
+                            "",
+                            it.key.displayName
+                        )
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordClickEvent -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_click_event.string()))
+                    add(RDItem(title = "控件类型", content = record.viewType))
+                    add(RDItem(title = "回调类名", content = record.callbackType))
+                    add(RDItem(title = "ID", content = record.viewId ?: "NO_ID"))
+                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordClipboard -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_clipboard.string()))
+                    val typeID = R.string.record_read_clipboard.takeIf { record.isRead }
+                        ?: R.string.record_write_clipboard
+                    add(RDItem("写入/读取", content = typeID.string()))
+                    add(RDItem("内容", content = record.info))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordCrash -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_crash.string()))
+                    add(RDItem(title = "线程名", content = record.threadName))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordDialog -> {
+                    add(RDItem(title = "类型", content = record.dialogType.displayId.string()))
+                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordError -> {
+                    add(RDItem(title = "类型", content = record.errorType.displayId.string()))
+                    record.hookConfig?.let {
+                        add(RDItem(title = "配置信息", content = Json.encodeToString(it)))
+                    }
+                    record.supplement?.let {
+                        add(RDItem(title = "补充信息", content = it))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordExit -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_exit.string()))
+                    add(RDItem(title = "退出类型", content = record.exitType))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordField -> {
+                    add(RDItem(title = "记录变量值", content = R.string.record_type_field.string()))
+                    with(record) {
+                        className?.let {
+                            add(RDItem(title = "类名", it))
+                        }
+                        methodName?.let {
+                            val methodSign =
+                                "${record.methodName}(${record.params.joinToString(",")})"
+                            add(RDItem(title = "方法名(参数)", methodSign))
+                        }
+                        fieldClassName?.let {
+                            add(RDItem(title = "变量所在类的类名", content = it))
+                        }
+                        addAll(filedValue.map {
+                            RDItem(title = "变量值(${it.key.displayName})", content = it.value)
+                        })
+                    }
+                }
+
+                is RecordFileOperation -> {
+                    add(RDItem(title = "类型", content = record.operation.displayId.string()))
+                    add(RDItem(title = "路径", content = record.path))
+                    record.partData?.let {
+                        add(RDItem(title = "操作内容", content = it))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordHmac -> {
+                    add(RDItem(title = "类型", content = record.algorithm))
+                    record.key?.forEach {
+                        val title = R.string.record_key_format.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.rawData.forEach {
+                        val title = R.string.record_raw_data_format_type.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.resultData.forEach {
+                        val title = R.string.record_result_data_format_type2.string(
+                            "",
+                            it.key.displayName
+                        )
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordIntent -> {
+                    add(RDItem(title = "类型", content = "Intent"))
+                    add(RDItem(title = "Package name", content = record.packageName))
+                    add(RDItem(title = "Class name", content = record.className))
+                    add(RDItem(title = "Action", content = record.action))
+                    add(RDItem(title = "Data", content = record.data))
+                    record.extras.forEachIndexed { index, extra ->
+                        add(
+                            RDItem(
+                                "Extra${index + 1}", content = """
+                            Type: ${extra.intentType}
+                            Key: ${extra.key}
+                            ${
+                                    extra.value.forEach {
+                                        "Value(${it.key.displayName}): ${it.value}"
+                                    }
+                                }
+                        """.trimIndent()
+                            )
+                        )
+                    }
+                }
+
+                is RecordJson -> {
+                    add(RDItem(title = "类型", content = record.jsonType.displayId.string()))
+                    addAll(record.values.map {
+                        RDItem(title = it.key, content = it.value)
+                    })
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordMac -> {
+                    add(RDItem(title = "类型", content = record.algorithm))
+                    record.rawData.forEach {
+                        val title = R.string.record_raw_data_format_type.string(it.key.displayName)
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    record.resultData.forEach {
+                        val title = R.string.record_result_data_format_type2.string(
+                            "",
+                            it.key.displayName
+                        )
+                        add(RDItem(title = title, content = it.value))
+                    }
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordParam -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = "类名", content = record.className))
+                    val methodSign =
+                        "${record.methodName}(${record.params.joinToString(",")})"
+                    add(RDItem(title = "方法名(参数)", methodSign))
+                    record.paramValues.forEachIndexed { index, map ->
+                        addAll(map.map {
+                            RDItem(
+                                title = "参数值${index + 1}(${it.key.displayName})",
+                                content = it.value
+                            )
+                        })
+                    }
+                    add(
+                        RDItem(
+                            title = R.string.record_call_stack.string(),
+                            record.callStack.joinToString("\n")
+                        )
+                    )
+                }
+
+                is RecordParamReturn -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = "类名", content = record.className))
+                    val methodSign =
+                        "${record.methodName}(${record.params.joinToString(",")})"
+                    add(RDItem(title = "方法名(参数)", methodSign))
+                    record.paramValues.forEachIndexed { index, map ->
+                        addAll(map.map {
+                            RDItem(
+                                title = "参数值${index + 1}(${it.key.displayName})",
+                                content = it.value
+                            )
+                        })
+                    }
+                    addAll(record.returnValue.map {
+                        RDItem(title = "返回值(${it.key.displayName})", content = it.value)
+                    })
+                    add(
+                        RDItem(
+                            title = R.string.record_call_stack.string(),
+                            record.callStack.joinToString("\n")
+                        )
+                    )
+                }
+
+                is RecordPopupWindow -> {
+                    add(RDItem(title = "类型", content = record.popupType.displayId.string()))
+                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordReturn -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = "类名", content = record.className))
+                    val methodSign =
+                        "${record.methodName}(${record.params.joinToString(",")})"
+                    add(RDItem(title = "方法名(参数)", methodSign))
+                    addAll(record.returnValue.map {
+                        RDItem(title = "返回值(${it.key.displayName})", content = it.value)
+                    })
+                    add(
+                        RDItem(
+                            title = R.string.record_call_stack.string(),
+                            record.callStack.joinToString("\n")
+                        )
+                    )
+                }
+
+                is RecordSignature -> {
+                    add(RDItem(title = "类型", content = R.string.record_type_signature.string()))
+                    add(RDItem(title = "MD5", content = record.md5))
+                    add(RDItem(title = "SHA-1", content = record.sha1))
+                    add(RDItem(title = "SHA-256", content = record.sha256))
+                    add(RDItem(title = "CharString", content = record.charStr))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                }
+
+                is RecordToast -> {
+                    add(RDItem(title = "类名", content = R.string.record_type_toast.string()))
+                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+
+                }
+
+                is RecordWebLoadUrl -> {
+                    add(RDItem(title = "类名", content = R.string.record_type_web_url.string()))
+                    add(RDItem(title = "链接Url", content = record.url))
+                    addAll(record.headers.map {
+                        RDItem(title = it.key, content = it.value)
+                    })
+                }
+            }
+        }
+
+        _recordDetailItems.postValue(list)
+    }
+
+    private fun fetchCodeStyleDetail(record: Record) {
         val items = mutableListOf<String>()
 
         with(items) {
@@ -167,7 +474,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_type_format.string("Base64"))
                     add(R.string.record_base64_code_type_format.string(type))
                     addAll(record.rawData.toRawList())
-                    addAll(record.result.toResultList(type = type))
+                    addAll(record.resultData.toResultList(type = type))
                     add(R.string.record_call_stack.string())
                     addAll(record.stackDetail.split("\n"))
                 }
@@ -202,6 +509,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     val typeID = R.string.record_read_clipboard.takeIf { record.isRead }
                         ?: R.string.record_write_clipboard
                     add(R.string.record_clipboard_read_or_write_format.string(typeID.string()))
+                    add(R.string.record_clipboard_content_format.string(record.info))
                     add(R.string.record_call_stack.string())
                     addAll(record.stackDetail.split("\n"))
                 }
@@ -298,7 +606,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordParam -> {
-                    add(R.string.record_type_format.string(R.string.record_type_return_value.string()))
+                    add(R.string.record_type_format.string(R.string.record_type_param_value.string()))
                     add(R.string.record_class_name_format.string(record.className))
                     val methodSign = "${record.methodName}(${record.params.joinToString(",")})"
                     add(R.string.record_method_sign_format.string(methodSign))
@@ -313,6 +621,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                             }
                         )
                     }
+                    add(R.string.record_call_stack.string())
+                    addAll(record.callStack)
                 }
 
                 is RecordParamReturn -> {
@@ -335,6 +645,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.returnValue.map {
                         R.string.record_return_value_format.string(it.key.displayName, it.value)
                     })
+                    add(R.string.record_call_stack.string())
+                    addAll(record.callStack)
                 }
 
                 is RecordPopupWindow -> {
@@ -351,6 +663,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.returnValue.map {
                         R.string.record_return_value_format.string(it.key.displayName, it.value)
                     })
+                    add(R.string.record_call_stack.string())
+                    addAll(record.callStack)
                 }
 
                 is RecordSignature -> {
@@ -387,17 +701,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         add("Type: ${it.intentType}")
                         add("Key: ${it.key}")
                         it.value.forEach { mapEntry ->
-                            when (mapEntry.key) {
-                                RecordValueType.ToString -> {
-                                    add("Value(toString): ${mapEntry.value}")
-                                }
-
-                                RecordValueType.GsonToString -> {
-                                    add("Value(Gson): ${mapEntry.value}")
-                                }
-
-                                else -> Unit
-                            }
+                            add("Value(toString): ${mapEntry.value}")
                         }
                         add("=============================")
                     }
@@ -406,74 +710,34 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         _recordDetail.value = items
-
     }
 
     private fun Map<RecordValueType, String>.toRawList(): List<String> {
         return map {
-            when (it.key) {
-                RecordValueType.BytesToString ->
-                    R.string.record_raw_data_str_format.string(it.value)
-
-                RecordValueType.Base64 ->
-                    R.string.record_raw_data_base64_format.string(it.value)
-
-                RecordValueType.Hex ->
-                    R.string.record_raw_data_hex_format.string(it.value)
-
-                else -> ""
-            }
+            R.string.record_raw_data_format_type_value.string(it.key.displayName, it.value)
         }
     }
 
     private fun Map<RecordValueType, String>.toResultList(type: String): List<String> {
         return map {
-            when (it.key) {
-                RecordValueType.BytesToString ->
-                    R.string.record_result_data_str_format.string(type, it.value)
-
-                RecordValueType.Base64 ->
-                    R.string.record_result_data_base64_format.string(type, it.value)
-
-                RecordValueType.Hex ->
-                    R.string.record_result_data_hex_format.string(type, it.value)
-
-                else -> ""
-            }
+            R.string.record_result_data_format_type2_value.string(
+                type,
+                it.key.displayName,
+                it.value
+            )
         }
     }
 
     private fun Map<RecordValueType, String>.toKeyList(): List<String> {
         return map {
-            when (it.key) {
-                RecordValueType.BytesToString ->
-                    R.string.record_key_str_format.string(it.value)
-
-                RecordValueType.Base64 ->
-                    R.string.record_key_base64_format.string(it.value)
-
-                RecordValueType.Hex ->
-                    R.string.record_key_hex_format.string(it.value)
-
-                else -> ""
-            }
+            R.string.record_key_format.string(it.key.displayName, it.value)
         }
     }
 
     private fun Map<RecordValueType, String>.toIvList(): List<String> {
         return map {
-            when (it.key) {
-                RecordValueType.BytesToString ->
-                    R.string.record_iv_str_format.string(it.value)
+            R.string.record_iv_format.string(it.key.displayName, it.value)
 
-                RecordValueType.Base64 ->
-                    R.string.record_iv_base64_format.string(it.value)
-
-                RecordValueType.Hex ->
-                    R.string.record_iv_hex_format.string(it.value)
-
-                else -> ""
-            }
         }
     }
 }

@@ -13,7 +13,7 @@ enum class Base64Operation {
 data class RecordBase64(
     val operation: Base64Operation,
     val rawData: Map<RecordValueType, String>,
-    val result: Map<RecordValueType, String>,
+    val resultData: Map<RecordValueType, String>,
     val stackDetail: String,
 ) : Record()
 

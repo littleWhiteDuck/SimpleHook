@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import me.simpleHook.R
-import me.simpleHook.data.AppConfigItem
 import me.simpleHook.constant.Constant
+import me.simpleHook.data.AppConfigItem
 import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.ui.view.main.AppConfigView
 import me.simpleHook.extension.marquee
+import me.simpleHook.ui.view.main.AppConfigView
 
 class HomeAdapter(
     private val menuListener: (AppConfig, menu: ContextMenu) -> Unit,

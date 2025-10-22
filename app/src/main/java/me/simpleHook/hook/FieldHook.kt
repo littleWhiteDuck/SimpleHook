@@ -20,7 +20,7 @@ object FieldHook {
 
     fun hookStaticField(hookConfig: HookConfig) {
         with(hookConfig) {
-            if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
+            if (className.isEmpty() || methodName.isEmpty()) {
                 // 直接hook
                 if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
                     recordStaticField(hookConfig = hookConfig)

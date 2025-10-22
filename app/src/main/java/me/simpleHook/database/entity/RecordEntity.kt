@@ -9,7 +9,8 @@ import me.simpleHook.data.record.RecordType
 @Serializable
 @Entity
 data class RecordEntity(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0,
     val type: RecordType,
     val record: String,
     val packageName: String,

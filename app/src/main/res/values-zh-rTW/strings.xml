@@ -525,6 +525,7 @@
     <string name="main_settings_follow_system_theme_color">跟隨系統主題色</string>
     <string name="record_show_line_number">顯示行號</string>
     <string name="record_enable_magnifier">啟用放大鏡</string>
+    <string name="record_card_style">卡片樣式</string>
     <string name="no_shizuku_tip">暫時不可用，請檢查是否安裝了Shizuku或重啟APP</string>
     <string name="main_settings_work_mode_title">工作模式</string>
     <string name="dex_browser_title">Dex瀏覽器</string>

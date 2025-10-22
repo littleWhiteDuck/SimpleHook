@@ -62,11 +62,14 @@ object RecordOutHelper {
     }
 
     fun outputFieldRecord(filedValue: Any?, hookConfig: HookConfig) {
+        val pureStatic = hookConfig.className.isEmpty() || hookConfig.methodName.isEmpty()
+        val instanceHook = hookConfig.mode == 9 || hookConfig.mode == 4
+
         val fieldRecord = RecordField(
-            className = hookConfig.className,
-            methodName = hookConfig.methodName,
-            fieldClassName = hookConfig.fieldClassName,
-            params = hookConfig.params.split(","),
+            className = hookConfig.className.takeIf { !pureStatic },
+            methodName = hookConfig.methodName.takeIf { !pureStatic },
+            fieldClassName = hookConfig.fieldClassName.takeIf { !instanceHook },
+            params = emptyList<String>().takeIf { pureStatic } ?: hookConfig.params.split(","),
             fieldName = hookConfig.fieldName,
             filedValue = filedValue.recordValue
         )
@@ -143,7 +146,7 @@ object RecordOutHelper {
         val base64Record = RecordBase64(
             operation = operation,
             rawData = rawData.recordValue,
-            result = resultData.recordValue,
+            resultData = resultData.recordValue,
             stackDetail = getStackTraceStr()
         )
         outputRecord(type = RecordType.Base64, record = base64Record)

@@ -1,14 +1,21 @@
 package me.simpleHook.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
-import androidx.compose.ui.util.fastJoinToString
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import com.drakeet.multitype.MultiTypeAdapter
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import io.github.rosemoe.sora.widget.component.Magnifier
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -22,6 +29,7 @@ import me.simpleHook.base.BaseActivity
 import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.showPopup
+import me.simpleHook.recyclerview.adapter.RecordDetailAdapter
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.JsonUtil
@@ -34,11 +42,16 @@ class RecordDetailActivity : BaseActivity() {
     private lateinit var binding: ActivityRecordDetailBinding
     private val recordViewModel by viewModels<RecordViewModel>()
     private var currentText = ""
-    private var rawData = ""
-    private var cryptResult = ""
-    private var returnValue = ""
     private var currentPattern = ""
     private lateinit var recordEntity: RecordEntity
+    private val recordAdapter = MultiTypeAdapter()
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private var tempCodeStyle = false
+    private var tempText = ""
+
+    private val fadeTransition = Fade().apply {
+        duration = 300
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,40 +64,86 @@ class RecordDetailActivity : BaseActivity() {
         supportActionBar?.subtitle = recordPackageName
         initView()
         initData()
+        initBack()
     }
 
     private fun initView() {
-        binding.editor.colorScheme =
-            if (ThemeModeUtil.isDarkMode()) SchemeDarcula() else EditorColorScheme()
-        binding.editor.setTextSize(8f)
         binding.progressBar.show()
+
+        with(binding.editor) {
+            colorScheme =
+                if (ThemeModeUtil.isDarkMode()) SchemeDarcula() else EditorColorScheme()
+            setTextSize(14f)
+        }
+
+        with(binding.recyclerView) {
+            isNestedScrollingEnabled = true
+            adapter = recordAdapter
+            layoutManager = LinearLayoutManager(this@RecordDetailActivity)
+        }
+
+        with(binding) {
+            editor.isVisible = !GlobalValue.sp.recordCardStyle
+            recyclerView.isVisible = GlobalValue.sp.recordCardStyle
+        }
+
+        recordAdapter.register(RecordDetailAdapter { recordDetailItem ->
+            tempText = recordDetailItem.content
+            tempCodeStyle = true
+            switchDetailStyle()
+        })
+
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initData() {
-        lifecycleScope.launch {
-            val id = intent.getIntExtra(KEY_RECORD_ID, -1)
-            recordViewModel.fetchRecordDetail(id)
+        val id = intent.getIntExtra(KEY_RECORD_ID, -1)
+        recordViewModel.fetchRecordDetail(id)
+
+        recordViewModel.recordDetailItems.observe(this) {
+            if (it.isNotEmpty()) {
+                recordAdapter.items = it
+                recordAdapter.notifyDataSetChanged()
+                binding.progressBar.hide()
+            }
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
             recordViewModel.recordDetail.collect {
-                currentText = it.fastJoinToString("\n")
-                withContext(Dispatchers.Main) {
-                    updateView()
-                    binding.progressBar.hide()
+                if (it.isNotEmpty()) {
+                    currentText = it.joinToString("\n")
+                    withContext(Dispatchers.Main) {
+                        updateEditorView()
+                        binding.progressBar.hide()
+                    }
                 }
             }
         }
 
     }
 
+    private fun initBack() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (tempCodeStyle) {
+                    tempCodeStyle = false
+                    switchDetailStyle()
+                } else {
+                    onBackPressedCallback.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
+    }
 
-    private fun updateView() {
+
+    private fun updateEditorView() {
         with(binding.editor) {
             isWordwrap = GlobalValue.sp.wordWrap
             isLineNumberEnabled = GlobalValue.sp.record_line_number
             getComponent(Magnifier::class.java).isEnabled = GlobalValue.sp.record_magnifier_enable
-            setText(currentText)
+            setText(if (tempCodeStyle) tempText else currentText)
         }
     }
 
@@ -101,10 +160,13 @@ class RecordDetailActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val cardStyle = GlobalValue.sp.recordCardStyle
+
         menuInflater.inflate(R.menu.menu_record_detail, menu)
         menu.findItem(R.id.menu_word_wrap).isChecked = GlobalValue.sp.wordWrap
         menu.findItem(R.id.menu_magnifier).isChecked = GlobalValue.sp.record_magnifier_enable
         menu.findItem(R.id.menu_line_number).isChecked = GlobalValue.sp.record_line_number
+        menu.findItem(R.id.menu_card_style).isChecked = cardStyle
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.apply {
             queryHint = context.getString(R.string.main_home_toolbar_search_hint)
@@ -119,10 +181,33 @@ class RecordDetailActivity : BaseActivity() {
 
             })
         }
-        menu.findItem(R.id.copy_raw_data).isVisible = rawData.isNotEmpty()
-        menu.findItem(R.id.copy_crypt_result).isVisible = cryptResult.isNotEmpty()
-        menu.findItem(R.id.copy_return_value).isVisible = returnValue.isNotEmpty()
+
+
+        menu.findItem(R.id.menu_word_wrap).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.menu_magnifier).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.menu_line_number).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.menu_word_wrap).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.copy_json).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.search).isVisible = tempCodeStyle || !cardStyle
+
+
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun switchDetailStyle() {
+        TransitionManager.beginDelayedTransition(binding.root, fadeTransition)
+
+        if (tempCodeStyle || !GlobalValue.sp.recordCardStyle) {
+            binding.editor.isInvisible = false
+            binding.recyclerView.isInvisible = true
+
+            updateEditorView()
+        } else {
+            binding.editor.isInvisible = true
+            binding.recyclerView.isInvisible = false
+        }
+
+        invalidateOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -149,37 +234,28 @@ class RecordDetailActivity : BaseActivity() {
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }
 
-            R.id.copy_raw_data -> {
-                ToolUtil.toClip(this, rawData)
-                showPopup(getString(R.string.main_home_export_configs_tip))
-            }
-
-            R.id.copy_crypt_result -> {
-                ToolUtil.toClip(this, cryptResult)
-                showPopup(getString(R.string.main_home_export_configs_tip))
-            }
-
-            R.id.copy_return_value -> {
-                ToolUtil.toClip(this, returnValue)
-                showPopup(getString(R.string.main_home_export_configs_tip))
+            R.id.menu_card_style -> {
+                item.isChecked = !item.isChecked
+                GlobalValue.sp.recordCardStyle = item.isChecked
+                switchDetailStyle()
             }
 
             R.id.menu_word_wrap -> {
                 item.isChecked = !item.isChecked
                 GlobalValue.sp.wordWrap = item.isChecked
-                updateView()
+                updateEditorView()
             }
 
             R.id.menu_line_number -> {
                 item.isChecked = !item.isChecked
                 GlobalValue.sp.record_line_number = item.isChecked
-                updateView()
+                updateEditorView()
             }
 
             R.id.menu_magnifier -> {
                 item.isChecked = !item.isChecked
                 GlobalValue.sp.record_magnifier_enable = item.isChecked
-                updateView()
+                updateEditorView()
             }
         }
         return true

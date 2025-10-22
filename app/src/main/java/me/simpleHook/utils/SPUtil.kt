@@ -44,6 +44,9 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
 
     var workMode by SharedPreferenceDelegates.string("Root")
 
+    var recordCardStyle by SharedPreferenceDelegates.boolean(true)
+
+
     fun remove(key: String) {
         preferences.edit { remove(key) }
     }

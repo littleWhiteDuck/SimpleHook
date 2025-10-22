@@ -9,7 +9,8 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
-    <item android:title="@string/record_detail_menu_copy">
+    <item
+        android:title="@string/record_detail_menu_copy">
         <menu>
             <item
                 android:id="@+id/copy_text"
@@ -19,21 +20,6 @@
                 android:id="@+id/copy_json"
                 android:icon="@drawable/ic_copy"
                 android:title="@string/record_detail_menu_copy_json_format" />
-            <item
-                android:id="@+id/copy_raw_data"
-                android:icon="@drawable/ic_copy"
-                android:title="@string/record_detail_menu_copy_raw_data"
-                android:visible="false" />
-            <item
-                android:id="@+id/copy_crypt_result"
-                android:icon="@drawable/ic_copy"
-                android:title="@string/record_detail_menu_copy_crypt_result"
-                android:visible="false" />
-            <item
-                android:id="@+id/copy_return_value"
-                android:icon="@drawable/ic_copy"
-                android:title="@string/record_detail_menu_copy_return_value"
-                android:visible="false" />
         </menu>
 
     </item>
@@ -55,4 +41,9 @@
         android:checkable="true"
         android:checked="true"
         android:title="@string/record_enable_magnifier" />
+    <item
+        android:id="@+id/menu_card_style"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_card_style" />
 </menu>

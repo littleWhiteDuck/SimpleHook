@@ -39,9 +39,9 @@ enum class RecordFileOpType(val displayId: Int) {
 enum class RecordValueType(val displayName: String) {
     ToString("toString"),
     GsonToString("Gson"),
-    BytesToString(displayName = "string"),
-    Base64("base64"),
-    Hex("hex")
+    BytesToString(displayName = "String"),
+    Base64("Base64"),
+    Hex("Hex")
 }
 
 enum class RecordErrorType(val displayId: Int) {
