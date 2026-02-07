@@ -2,7 +2,6 @@ package me.simpleHook.ui.view.record
 
 import android.content.Context
 import android.graphics.Color
-import android.view.ViewGroup
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.graphics.toColorInt
@@ -16,8 +15,8 @@ class RecordItemView(context: Context) :
     val container = RecordPackItemView.RecordContainerView(context)
     val mark = AppCompatButton(context).apply {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.MATCH_PARENT
         ).also {
             setPadding(0, 0, 0, 0)
         }
@@ -28,8 +27,8 @@ class RecordItemView(context: Context) :
     }
     val delete = AppCompatButton(context).apply {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.MATCH_PARENT
         ).also {
             setPadding(0, 0, 0, 0)
         }
@@ -41,8 +40,8 @@ class RecordItemView(context: Context) :
 
     init {
         layoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.WRAP_CONTENT
         ).also {
             it.setMargins(5.dp, 5.dp, 5.dp, 0)
         }

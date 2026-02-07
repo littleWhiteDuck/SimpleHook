@@ -152,12 +152,14 @@ open class BaseActivity : AppCompatActivity() {
                 val record = getString(getColumnIndex("record"))
                 val packageName = getString(getColumnIndex("packageName"))
                 val time = getString(getColumnIndex("time"))
+                // TODO
                 list.add(
                     RecordEntity(
                         record = record,
                         packageName = packageName,
                         time = time,
-                        type = RecordType.RecordReturn
+                        type = RecordType.RecordReturn,
+                        subType = ""
                     )
                 )
                 currentTime = time

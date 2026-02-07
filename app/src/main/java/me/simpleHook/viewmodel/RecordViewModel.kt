@@ -1,6 +1,7 @@
 package me.simpleHook.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,8 +16,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.data.RecordPart
+import me.simpleHook.data.RecordShowItem
+import me.simpleHook.data.RecordShowPack
+import me.simpleHook.data.RecordShowType
 import me.simpleHook.data.record.Base64Operation
 import me.simpleHook.data.record.Record
 import me.simpleHook.data.record.RecordApplication
@@ -40,8 +44,10 @@ import me.simpleHook.data.record.RecordPopupWindow
 import me.simpleHook.data.record.RecordReturn
 import me.simpleHook.data.record.RecordSignature
 import me.simpleHook.data.record.RecordToast
+import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.RecordValueType
 import me.simpleHook.data.record.RecordWebLoadUrl
+import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.database.RecordDatabase
 import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.data.record.RecordDetailItem as RDItem
@@ -50,8 +56,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val recordDao = RecordDatabase.getDatabase(application).recordDao()
 
-    private var _filterRecordPartPT = MutableLiveData<List<RecordPart>>()
-    val filterRecordPartPT: LiveData<List<RecordPart>> get() = _filterRecordPartPT
+    private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
+    val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
     val queryPattern = MutableStateFlow("")
 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
@@ -66,7 +72,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getRecordEntity(
         typeOrPack: String, isType: Boolean
-    ): Flow<PagingData<RecordEntity>> {
+    ): Flow<PagingData<SmallRecordEntity>> {
         return Pager(config = pagingConfig) {
             if (isType) {
                 recordDao.getRecordByType("%$typeOrPack%", "%${queryPattern.value}%")
@@ -83,8 +89,31 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getRecordByID(id: Int) = recordDao.getRecordById(id)
 
-    fun getAllRecord() = viewModelScope.launch(Dispatchers.IO) {
-        _filterRecordPartPT.postValue(recordDao.getAllRecordPart())
+    fun fetchRecordShowItems() = viewModelScope.launch(Dispatchers.IO) {
+        val recordPartList = recordDao.getAllRecordPart()
+
+        val countHashMap = HashMap<String, Int>()
+        val typeHashMap = HashMap<String, RecordType>()
+        val showByType = GlobalValue.sp.showByType
+
+        recordPartList.forEach { recordPart ->
+            val key = if (showByType) {
+                recordPart.type.name
+            } else {
+                recordPart.packageName
+            }
+            countHashMap[key] = countHashMap.getOrDefault(key, 0) + 1
+        }
+
+        val showItems = if (showByType) {
+            countHashMap.map {
+                RecordShowType(type = RecordType.valueOf(it.key), subType = "", count = it.value)
+            }
+        } else {
+            countHashMap.map { RecordShowPack(packageName = it.key, count = it.value) }
+        }
+
+        _recordShowItems.postValue(showItems)
     }
 
 
@@ -192,11 +221,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(RDItem(title = "类型", content = record.algorithm))
                     add(RDItem(title = "加密/解密", content = record.cryptType.displayId.string()))
                     record.key?.forEach {
-                        val title = R.string.record_key_format.string(it.key.displayName)
+                        val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
                     record.iv?.forEach {
-                        val title = R.string.record_iv_format.string(it.key.displayName)
+                        val title = R.string.record_iv_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
                     record.rawData.forEach {
@@ -261,7 +290,12 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordField -> {
-                    add(RDItem(title = "记录变量值", content = R.string.record_type_field.string()))
+                    add(
+                        RDItem(
+                            title = "记录变量值",
+                            content = R.string.record_type_field_value.string()
+                        )
+                    )
                     with(record) {
                         className?.let {
                             add(RDItem(title = "类名", it))
@@ -292,7 +326,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 is RecordHmac -> {
                     add(RDItem(title = "类型", content = record.algorithm))
                     record.key?.forEach {
-                        val title = R.string.record_key_format.string(it.key.displayName)
+                        val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
                     record.rawData.forEach {
@@ -315,6 +349,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(RDItem(title = "Class name", content = record.className))
                     add(RDItem(title = "Action", content = record.action))
                     add(RDItem(title = "Data", content = record.data))
+                    // TODO
                     record.extras.forEachIndexed { index, extra ->
                         add(
                             RDItem(
@@ -549,7 +584,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordField -> {
-                    add(R.string.record_type_format.string(R.string.record_type_field.string()))
+                    add(R.string.record_type_format.string(R.string.record_type_field_value.string()))
                     with(record) {
                         className?.let {
                             add(R.string.record_class_name_format.string(it))

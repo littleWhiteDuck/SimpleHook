@@ -30,7 +30,6 @@ import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.databinding.ActivityRecordDetailBinding
 import me.simpleHook.extension.showPopup
 import me.simpleHook.recyclerview.adapter.RecordDetailAdapter
-import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.JsonUtil
 import me.simpleHook.utils.ThemeModeUtil
@@ -187,8 +186,8 @@ class RecordDetailActivity : BaseActivity() {
         menu.findItem(R.id.menu_magnifier).isVisible = tempCodeStyle || !cardStyle
         menu.findItem(R.id.menu_line_number).isVisible = tempCodeStyle || !cardStyle
         menu.findItem(R.id.menu_word_wrap).isVisible = tempCodeStyle || !cardStyle
-        menu.findItem(R.id.copy_json).isVisible = tempCodeStyle || !cardStyle
         menu.findItem(R.id.search).isVisible = tempCodeStyle || !cardStyle
+        menu.findItem(R.id.menu_card_style).isVisible = !tempCodeStyle
 
 
         return super.onCreateOptionsMenu(menu)
@@ -213,13 +212,6 @@ class RecordDetailActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> onBackPressedDispatcher.onBackPressed()
-            R.id.help -> {
-                warningDialog(
-                    this,
-                    title = "可能出现的问题",
-                    message = "加解密过程中byte[]与string转换可能会采用不同的编码，会使获取到的数据乱码，造成结果的不准确"
-                )
-            }
 
             R.id.copy_text -> {
                 ToolUtil.toClip(this, currentText)

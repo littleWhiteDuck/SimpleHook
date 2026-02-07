@@ -29,6 +29,10 @@ class AppRepository(context: Context) {
         return appConfigDao.getCountByPackageName(packageName)
     }
 
+    suspend fun getEnabledPackageNames(): Set<String> {
+        return appConfigDao.getEnabledPackageNames().toSet()
+    }
+
     fun deleteAllConfigs() {
         appConfigDao.deleteAllConfigs()
     }

@@ -33,4 +33,11 @@ interface AppConfigDao {
     @Query("SELECT count(*) from AppConfig where packageName = :packageName")
     suspend fun getCountByPackageName(packageName: String): Int
 
+    @Query(
+        "SELECT packageName FROM AppConfig WHERE enable = 1 " +
+                "UNION " +
+                "SELECT packageName FROM ExtensionConfigEntity WHERE enable = 1"
+    )
+    fun getEnabledPackageNames(): List<String>
+
 }

@@ -12,6 +12,7 @@ data class RecordEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     val type: RecordType,
+    val subType: String,
     val record: String,
     val packageName: String,
     val isRead: Boolean = false,

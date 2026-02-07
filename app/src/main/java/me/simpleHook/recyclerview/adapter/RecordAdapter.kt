@@ -7,39 +7,43 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import me.simpleHook.R
-import me.simpleHook.database.entity.RecordEntity
+import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordItemView
 import me.simpleHook.utils.IconHelper
-import me.simpleHook.utils.RecordType
+import me.simpleHook.utils.RecordTypeUtils
 
 class RecordAdapter(
     private val isType: Boolean = false,
-    private val onItemClick: (RecordEntity) -> Unit,
-    private val onItemLongClick: (RecordEntity) -> Unit,
-    private val deleteRecord: (RecordEntity) -> Unit,
-    private val markRecord: (RecordEntity) -> Unit
-) : PagingDataAdapter<RecordEntity, RecordAdapter.ViewHolder>(RecordDiff) {
+    private val onItemClick: (SmallRecordEntity) -> Unit,
+    private val onItemLongClick: (SmallRecordEntity) -> Unit,
+    private val deleteRecord: (SmallRecordEntity) -> Unit,
+    private val markRecord: (SmallRecordEntity) -> Unit
+) : PagingDataAdapter<SmallRecordEntity, RecordAdapter.ViewHolder>(RecordDiff) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val recordView = RecordItemView(parent.context)
         val viewHolder = ViewHolder(recordView)
         recordView.container.setOnClickListener {
-            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            val recordEntity =
+                viewHolder.itemView.getTag(R.id.item_record_position) as SmallRecordEntity
             onItemClick(recordEntity)
         }
         recordView.container.setOnLongClickListener {
-            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            val recordEntity =
+                viewHolder.itemView.getTag(R.id.item_record_position) as SmallRecordEntity
             onItemLongClick(recordEntity)
             true
         }
         recordView.mark.setOnClickListener {
-            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            val recordEntity =
+                viewHolder.itemView.getTag(R.id.item_record_position) as SmallRecordEntity
             markRecord(recordEntity)
         }
         recordView.delete.setOnClickListener {
-            val recordEntity = viewHolder.itemView.getTag(R.id.item_record_position) as RecordEntity
+            val recordEntity =
+                viewHolder.itemView.getTag(R.id.item_record_position) as SmallRecordEntity
             deleteRecord(recordEntity)
         }
         return viewHolder
@@ -53,29 +57,24 @@ class RecordAdapter(
         val context = holder.itemView.context
         with(holder) {
             id = recordEntity.id
-            title.text = recordEntity.type.name
+            title.text = recordEntity.subType
             time.text = recordEntity.time
             readState.text =
                 if (recordEntity.isRead) context.getString(R.string.record_item_status_read) else context.getString(
                     R.string.record_item_status_unread
                 )
-            when {
-                recordEntity.isMark -> {
-                    holder.container.setBackgroundResource(R.drawable.bg_record_mark)
+            // TODO
+            container.setBackgroundResource(
+                when {
+                    recordEntity.isMark -> R.drawable.bg_record_mark
+                    recordEntity.isRead -> R.drawable.bg_record_read
+                    else -> R.drawable.bg_record
                 }
-
-                recordEntity.isRead -> {
-                    holder.container.setBackgroundResource(R.drawable.bg_record_read)
-                }
-
-                else -> {
-                    holder.container.setBackgroundResource(R.drawable.bg_record)
-                }
-            }
-            if (isType && !recordEntity.type.name.startsWith("Error")) {
+            )
+            if (isType) {
                 Glide.with(icon).load(recordEntity.packageName).into(icon)
             } else {
-                val showText = RecordType.getShowText(recordEntity.type.name)
+                val showText = RecordTypeUtils.getShowText(recordEntity.type)
                 icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))
             }
             markRecord.text =
@@ -95,13 +94,23 @@ class RecordAdapter(
         var id: Int? = null
     }
 
-    object RecordDiff : DiffUtil.ItemCallback<RecordEntity>() {
-        override fun areItemsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
+    object RecordDiff : DiffUtil.ItemCallback<SmallRecordEntity>() {
+        override fun areItemsTheSame(
+            oldItem: SmallRecordEntity,
+            newItem: SmallRecordEntity
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: RecordEntity, newItem: RecordEntity): Boolean {
-            return oldItem.record == newItem.record && oldItem.isRead == newItem.isRead && oldItem.isMark == newItem.isMark
+        override fun areContentsTheSame(
+            oldItem: SmallRecordEntity,
+            newItem: SmallRecordEntity
+        ): Boolean {
+            return oldItem.type == newItem.type
+                    && oldItem.subType == newItem.subType
+                    && oldItem.isRead == newItem.isRead
+                    && oldItem.isMark == newItem.isMark
+                    && oldItem.time == newItem.time
         }
 
     }

@@ -26,6 +26,7 @@ object CipherHook : BaseHook() {
         var algorithmType: String? = null,
         val dataStream: ByteArrayOutputStream = ByteArrayOutputStream(256)
     )
+
     private val cipherContexts = ConcurrentHashMap<Cipher, CipherContext>()
 
     override fun startHook(extensionConfig: ExtensionConfig) {
@@ -154,10 +155,11 @@ object CipherHook : BaseHook() {
                 }
 
                 val resultBytes = param.result as? ByteArray
+                val algorithm = ctx.algorithmType ?: "unknown"
 
                 RecordOutHelper.outputRecord(
-                    type = RecordType.Cipher, record = RecordCipher(
-                        algorithm = ctx.algorithmType ?: "unknown",
+                    type = RecordType.Cipher, subType = algorithm, record = RecordCipher(
+                        algorithm = algorithm,
                         cryptType = ctx.cryptType,
                         key = ctx.keyBase,
                         iv = ctx.iv,

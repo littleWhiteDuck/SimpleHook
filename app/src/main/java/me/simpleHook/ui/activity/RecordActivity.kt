@@ -55,14 +55,14 @@ class RecordActivity : BaseActivity() {
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
-            if (!it.isRead) recordViewModel.updateRecord(it.copy(isRead = true))
+//            if (!it.isRead) recordViewModel.updateRecord(it.copy(isRead = true))
             RecordDetailActivity.startActivity(this, it.packageName, it.id)
         }, deleteRecord = { recordEntity ->
             recordViewModel.deleteRecordById(recordEntity.id)
         }, markRecord = { recordEntity ->
-            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
+//            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
         }, onItemLongClick = { recordEntity ->
-            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
+//            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
         })
     }
     private val saveMarkedRecord =

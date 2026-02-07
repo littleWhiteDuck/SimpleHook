@@ -1,8 +1,16 @@
 package me.simpleHook.data
 
+import me.simpleHook.data.record.RecordType
 
-data class RecordPart(val packageName: String, val type: String = "need_update")
 
-data class RecordShowPack(val packageName: String, val count: Int = 0)
+data class RecordPart(val packageName: String, val type: RecordType, val subType: String)
 
-data class RecordShowType(val type: String, val count: Int = 0)
+
+sealed class RecordShowItem
+
+data class RecordShowPack(val packageName: String, val count: Int = 0) : RecordShowItem()
+data class RecordShowType(
+    val type: RecordType,
+    val subType: String,
+    val count: Int = 0,
+) : RecordShowItem()

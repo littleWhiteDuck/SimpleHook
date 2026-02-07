@@ -6,8 +6,8 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,18 +22,14 @@ import me.simpleHook.base.BaseViewFragment
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
-import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.recyclerview.delegate.RecordPackDelegate
 import me.simpleHook.recyclerview.delegate.RecordTypeDelegate
 import me.simpleHook.ui.activity.MainActivity
 import me.simpleHook.ui.activity.RecordActivity
 import me.simpleHook.ui.custom.warningDialog
 import me.simpleHook.ui.view.record.RecordSummaryFragmentView
-import me.simpleHook.utils.AppUtil
 import me.simpleHook.utils.FastScrollerUtil
 import me.simpleHook.utils.LogUtil
-import me.simpleHook.utils.RecordType
 import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.RecordViewModel
 
@@ -44,90 +40,45 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
-    private var tempListSize = 0
+
     private val multiTypeAdapter = MultiTypeAdapter()
-    private lateinit var extensionConfigEntities: List<ExtensionConfigEntity>
-    private lateinit var configs: List<AppConfig>
-    private var needCheckPacks = mutableSetOf<String>()
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         root.swipeRefreshLayout.isRefreshing = true
         root.progressBar.hide()
-        appConfigViewModel.getAllConfigs().observe(requireActivity()) {
-            it.forEach { appConfig ->
-                if (appConfig.enable && AppUtil.isAppInstalled(appConfig.packageName)
-                ) {
-                    needCheckPacks.add(appConfig.packageName)
-                }
-            }
-        }
-        appConfigViewModel.getAllExtConfigs().observe(requireActivity()) {
-            it.forEach { exConfig ->
-                if (exConfig.enable && AppUtil.isAppInstalled(exConfig.packageName)
-                ) {
-                    needCheckPacks.add(exConfig.packageName)
-                }
-            }
-        }
-        recordViewModel.filterRecordPartPT.observe(requireActivity()) {
-            if (it.isEmpty()) {
-                root.emptyTip.visibility = View.VISIBLE
-            } else {
-                root.emptyTip.visibility = View.GONE
-            }
-            if (it.size >= 66666 && !GlobalValue.sp.showMoreDataTip) {
-                warningDialog(
-                    requireContext(),
-                    title = getString(R.string.record_warn_dialog_title),
-                    message = getString(R.string.record_warn_dialog_message_more_data),
-                    okText = getString(R.string.record_warn_dialog_ok_more_data),
-                    okClick = { GlobalValue.sp.showMoreDataTip = true })
-            }
-            val hashSet = HashSet<String>()
-            val hasMap = HashMap<String, Int>()
-            it.forEach { record ->
-                if (GlobalValue.sp.showByType) {
-                    val type = RecordType.getSimpleText(record.type)
-                    hashSet.add(type)
-                    hashSet.forEach { typeStr ->
-                        if (typeStr == type) {
-                            val tempCount = hasMap[typeStr] ?: 0
-                            hasMap[typeStr] = tempCount + 1
-                        }
-                    }
-                } else {
-                    hashSet.add(record.packageName)
-                    hashSet.forEach { pack ->
-                        if (pack == record.packageName) {
-                            val tempCount = hasMap[pack] ?: 0
-                            hasMap[pack] = tempCount + 1
-                        }
-                    }
-                }
-            }
-            val list = mutableListOf<Any>()
-            hashSet.forEach { value ->
-                if (GlobalValue.sp.showByType) {
-                    list.add(RecordShowType(type = value, count = hasMap[value] ?: 0))
-                } else {
-                    list.add(RecordShowPack(packageName = value, count = hasMap[value] ?: 0))
-                }
-            }
-            tempListSize = list.size
-            multiTypeAdapter.items = list
+
+        /*if (it.size >= 66666 && !GlobalValue.sp.showMoreDataTip) {
+            warningDialog(
+                requireContext(),
+                title = getString(R.string.record_warn_dialog_title),
+                message = getString(R.string.record_warn_dialog_message_more_data),
+                okText = getString(R.string.record_warn_dialog_ok_more_data),
+                okClick = { GlobalValue.sp.showMoreDataTip = true })
+        }*/
+
+        recordViewModel.recordShowItems.observe(requireActivity()) { showItems ->
+
+            root.emptyTip.isVisible = showItems.isEmpty()
+
+            multiTypeAdapter.items = showItems
             multiTypeAdapter.notifyDataSetChanged()
-            root.progressBar.visibility = View.GONE
+
+            root.progressBar.hide()
             root.swipeRefreshLayout.isRefreshing = false
         }
+
         if (root.swipeRefreshLayout.isRefreshing) {
             refreshData()
         }
+
         multiTypeAdapter.register(RecordShowType::class.java, RecordTypeDelegate(onClick = {
-            RecordActivity.startActivity(requireContext(), null, it.type)
+            RecordActivity.startActivity(requireContext(), null, it.type.name)
         }, onDeleteClick = {
             deleteRecord(it)
         }))
+
         multiTypeAdapter.register(RecordShowPack::class.java, RecordPackDelegate(onClick = {
             RecordActivity.startActivity(requireContext(), it.packageName, null)
         }, onDeleteClick = {
@@ -139,6 +90,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             layoutManager = LinearLayoutManager(requireContext())
             FastScrollerUtil.bind(this)
         }
+
         root.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
         }
@@ -146,7 +98,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
 
     private fun deleteRecord(recordSummary: Any) {
         if (recordSummary is RecordShowType) {
-            recordViewModel.deleteRecordByType(recordSummary.type)
+            recordViewModel.deleteRecordByType(recordSummary.subType)
         } else if (recordSummary is RecordShowPack) {
             recordViewModel.deleteRecordByPack(recordSummary.packageName)
         }
@@ -221,7 +173,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         if (!root.swipeRefreshLayout.isRefreshing && showRefresh) root.swipeRefreshLayout.isRefreshing =
             true
         Handler(Looper.getMainLooper()).postDelayed({
-            recordViewModel.getAllRecord()
+            recordViewModel.fetchRecordShowItems()
         }, time)
         readFileLogInsert()
     }
@@ -229,26 +181,9 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     private fun readFileLogInsert() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                if (!::extensionConfigEntities.isInitialized) {
-                    extensionConfigEntities = appConfigViewModel.getExtConfigs()
-                    extensionConfigEntities.forEach {
-                        if (it.enable && AppUtil.isAppInstalled(it.packageName)
-                        ) needCheckPacks.add(it.packageName)
-                    }
-                    configs = appConfigViewModel.getConfigs()
-                    configs.forEach {
-                        if (it.enable && AppUtil.isAppInstalled(it.packageName)
-                        ) needCheckPacks.add(it.packageName)
-                    }
-                    needCheckPacks.forEach {
-                        val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
-                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
-                    }
-                } else {
-                    needCheckPacks.forEach {
-                        val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
-                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
-                    }
+                appConfigViewModel.getEnabledPackageNames().forEach {
+                    val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
+                    recordViewModel.insertRecords(*recordEntities.toTypedArray())
                 }
             } catch (e: Exception) {
                 LogUtil.outLog(e.stackTraceToString())

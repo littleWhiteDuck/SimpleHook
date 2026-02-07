@@ -207,16 +207,16 @@
     <string name="record_cipher_unwrap">密钥解包</string>
     <string name="record_cipher_unknown">未知</string>
 
-    <string name="record_type_click_event">点击事件</string>
+<!--    <string name="record_type_click_event">点击事件</string>-->
     <string name="record_view_type_format">控件类型：%s</string>
     <string name="record_callback_class_format">回调类名：%s</string>
     <string name="record_id_format">ID：%s</string>
     <string name="record_text_format">文本：%s</string>
 
-    <string name="record_type_signature">签名</string>
+<!--    <string name="record_type_signature">签名</string>-->
     <string name="record_signature_type_format">签名(%s)：%s</string>
 
-    <string name="record_type_toast">Toast</string>
+<!--    <string name="record_type_toast">Toast</string>-->
 
     <string name="record_type_web_url">Web加载链接</string>
     <string name="record_url_format">链接：%s</string>
@@ -231,24 +231,24 @@
     <string name="record_param_value_format">参数值%d(%s)：%s</string>
 
 
-    <string name="record_type_field">记录变量值</string>
+    <string name="record_type_field_value">记录变量值</string>
     <string name="record_field_class_name_format">变量所在类的类名：%s</string>
     <string name="record_field_name_format">变量名：%s</string>
     <string name="record_field_value_format">变量值(%s)：%s</string>
 
     <string name="record_type_exit">退出</string>
     <string name="record_exit_type_format">退出类型：%s</string>
-    
+
     <string name="record_type_crash">Crash</string>
     <string name="record_crash_thread_name_format">线程名：%s</string>
-    
+
     <string name="record_type_clipboard">剪贴板监听</string>
     <string name="record_clipboard_read_or_write_format">读取/写入：%s</string>
     <string name="record_read_clipboard">读取剪贴板</string>
     <string name="record_write_clipboard">写入剪贴板</string>
     <string name="record_clipboard_content_format">内容：%s</string>
-    
-    <string name="record_type_dialog">弹窗</string>
+
+<!--    <string name="record_type_dialog">弹窗</string>-->
     <string name="record_dialog_listen">弹窗监听</string>
     <string name="record_dialog_block_keyword">弹窗拦截(关键词)</string>
     <string name="record_dialog_block_id">弹窗拦截(ID)</string>
@@ -257,13 +257,13 @@
     <string name="record_popup_listen">PopupWindow监听</string>
     <string name="record_popup_block_keyword">PopupWindow拦截(关键词)</string>
     <string name="record_popup_block_id">PopupWindow拦截(ID)</string>
-    
-    <string name="record_type_json">Json</string>
+
+<!--    <string name="record_type_json">Json</string>-->
     <string name="record_json_object_create">JsonObject创建</string>
     <string name="record_json_object_put">JsonObject添加</string>
     <string name="record_json_array_create">JsonArray创建</string>
     <string name="record_json_array_put">JsonArray添加</string>
-    
+
     <string name="record_type_file">文件操作</string>
     <string name="record_file_create">文件创建</string>
     <string name="record_file_delete">文件删除</string>
@@ -280,7 +280,31 @@
     <string name="record_error_field">搜索变量错误</string>
     <string name="record_error_other">其他错误</string>
     <string name="record_error_config_info">配置信息：</string>
-    
+
+
+    <string name="record_type_error">Hook错误</string>
+    <string name="record_type_param">参数值</string>
+    <string name="record_type_return">返回值</string>
+    <string name="record_type_param_and_return">参返</string>
+    <string name="record_type_field">变量值</string>
+    <string name="record_type_application">Application名</string>
+    <string name="record_type_crash_caught">错误捕获</string>
+    <string name="record_type_click_event">点击事件</string>
+<!--    <string name="record_type_clipboard">剪贴板</string>-->
+<!--    <string name="record_type_exit">应用退出</string>-->
+    <string name="record_type_file_operation">文件操作</string>
+    <string name="record_type_signature">签名读取</string>
+    <string name="record_type_dialog">弹窗(Dialog)</string>
+    <string name="record_type_popup_window">弹窗(PopupWindow)</string>
+<!--    <string name="record_type_web_url">Webview加载链接</string>-->
+    <string name="record_type_json" translatable="false">JSON</string>
+    <string name="record_type_toast" translatable="false">Toast</string>
+    <string name="record_type_base64" translatable="false">Base64</string>
+    <string name="record_type_hmac" translatable="false">哈希消息认证码</string>
+    <string name="record_type_mac" translatable="false">信息摘要算法</string>
+    <string name="record_type_cipher" translatable="false">加密解密算法</string>
+    <string name="record_type_Intent" translatable="false">Intent</string>
+
 
     <!--about-->
     <string name="about_menu_add_group">加入TG群</string>

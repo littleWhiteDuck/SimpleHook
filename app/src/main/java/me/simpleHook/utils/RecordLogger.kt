@@ -12,7 +12,7 @@ object RecordLogger {
     private val executor = Executors.newSingleThreadExecutor()
 
 
-    private const val LIMIT_SIZE_KB: Int = 1024 * 8
+    private const val LIMIT_SIZE_KB: Int = 1024 * 100
 
     init {
         executor.execute {

@@ -6,15 +6,18 @@ import me.simpleHook.data.RecordShowType
 import me.simpleHook.extension.dp
 import me.simpleHook.ui.view.record.RecordTypeItemView
 import me.simpleHook.utils.IconHelper
+import me.simpleHook.utils.RecordTypeUtils
 
 class RecordTypeDelegate(
     val onClick: (RecordShowType) -> Unit, val onDeleteClick: (RecordShowType) -> Unit
 ) : ViewDelegate<RecordShowType, RecordTypeItemView>() {
     override fun onBindView(view: RecordTypeItemView, item: RecordShowType) {
         view.container.apply {
-            title.text = if (item.type.startsWith("Error")) "Hook Error" else item.type
+
+            title.setText(item.type.displayId)
             tip.text = item.count.toString()
-            val showText = me.simpleHook.utils.RecordType.getShowText(item.type)
+
+            val showText = RecordTypeUtils.getShowText(item.type)
             icon.setImageDrawable(IconHelper.getTextIcon(40f.dp, showText))
             setOnClickListener { onClick(item) }
         }

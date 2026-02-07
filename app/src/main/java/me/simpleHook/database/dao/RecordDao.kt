@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import me.simpleHook.data.RecordPart
+import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.database.entity.RecordEntity
 
 
@@ -29,7 +30,7 @@ interface RecordDao {
     @Query("SELECT * FROM RecordEntity WHERE id = :id")
     fun getRecordById(id: Int): RecordEntity
 
-    @Query("SELECT packageName,type FROM RecordEntity")
+    @Query("SELECT packageName,type,subType FROM RecordEntity")
     suspend fun getAllRecordPart(): List<RecordPart>
 
     @Query("SELECT record FROM RecordEntity WHERE type like :type and isMark = 1 ORDER BY time DESC")
@@ -38,11 +39,11 @@ interface RecordDao {
     @Query("SELECT record FROM RecordEntity WHERE packageName = :packageName and isMark = 1 ORDER BY time DESC")
     fun getMarkedRecordByPack(packageName: String): List<String>
 
-    @Query("SELECT * FROM RecordEntity WHERE packageName = :packageName and record like :pattern ORDER BY time DESC")
-    fun getRecordByPack(packageName: String, pattern: String): PagingSource<Int, RecordEntity>
+    @Query("SELECT id,type,subType,packageName,isRead,isMark,time FROM RecordEntity WHERE packageName = :packageName and record like :pattern ORDER BY time DESC")
+    fun getRecordByPack(packageName: String, pattern: String): PagingSource<Int, SmallRecordEntity>
 
-    @Query("SELECT * FROM RecordEntity WHERE type like :type and record like :pattern ORDER BY time DESC")
-    fun getRecordByType(type: String, pattern: String): PagingSource<Int, RecordEntity>
+    @Query("SELECT id,type,subType,packageName,isRead,isMark,time FROM RecordEntity WHERE type like :type and record like :pattern ORDER BY time DESC")
+    fun getRecordByType(type: String, pattern: String): PagingSource<Int, SmallRecordEntity>
 
     @Query("Delete FROM RecordEntity WHERE id = :id")
     suspend fun deleteRecordById(id: Int)

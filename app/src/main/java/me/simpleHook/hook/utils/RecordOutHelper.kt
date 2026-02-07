@@ -36,14 +36,18 @@ import me.simpleHook.data.record.RecordValueType
 import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.utils.GuiseBase64
 import me.simpleHook.utils.RecordLogger
+import me.simpleHook.utils.TextDbHelper
 import me.simpleHook.utils.TimeUtil
 import me.simpleHook.utils.ToolUtil
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
+import java.util.zip.GZIPOutputStream
 
 
 object RecordOutHelper {
     private val recordPath = String.format(ConfigConstant.RECORD_PATH, HookHelper.hostPackageName)
+
+    private val dbHelper by lazy { TextDbHelper(HookHelper.appContext) }
 
     fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {
         val type = when (throwable) {
@@ -74,7 +78,7 @@ object RecordOutHelper {
             filedValue = filedValue.recordValue
         )
 
-        outputRecord(type = RecordType.RecordFiled, record = fieldRecord)
+        outputRecord(type = RecordType.RecordField, record = fieldRecord)
     }
 
     fun outputParamRecord(paramValues: Array<out Any?>, hookConfig: HookConfig) {
@@ -101,10 +105,7 @@ object RecordOutHelper {
             returnValue = returnValue.recordValue,
             callStack = getStackTrace()
         )
-        outputRecord(
-            type = RecordType.RecordParamReturn,
-            record = paramReturnRecord
-        )
+        outputRecord(type = RecordType.RecordParamReturn, record = paramReturnRecord)
     }
 
 
@@ -120,26 +121,47 @@ object RecordOutHelper {
     }
 
 
-    fun outputRecord(type: RecordType, record: Record) {
+    fun outputRecord(type: RecordType, record: Record, subType: String? = null) {
         HookHelper.appContext.getExternalFilesDirs("")
         val recordContent = Json.encodeToString(
             RecordEntity(
                 type = type,
+                subType = subType ?: type.name,
                 record = Json.encodeToString(record),
                 packageName = HookHelper.hostPackageName,
                 time = TimeUtil.getCurrentTime(pattern = "yy-MM-dd HH:mm:ss")
             )
         )
 
+
+        dbHelper.insertText("ddd", compress(Json.encodeToString(record))!!)
+//
+
+
         RecordLogger.write(packageName = HookHelper.hostPackageName, content = recordContent)
 
-        /* FileUtils.outTextToFile(
-             filePath = recordPath,
-             content = recordContent,
-             isNewLine = true,
-             limitSize = 4096,
-             append = true
-         )*/
+        /*        FileUtil.outTextToFile(
+                    filePath = recordPath,
+                    content = recordContent,
+                    isNewLine = true,
+                    limitSize = 4096 * 2,
+                    append = true
+                )*/
+    }
+
+    fun compress(text: String): ByteArray? {
+        return try {
+            ByteArrayOutputStream().use { byteOut ->
+                GZIPOutputStream(byteOut).use { gzipOut ->
+                    // 写入文本（指定 UTF-8 编码）
+                    gzipOut.write(text.toByteArray(Charsets.UTF_8))
+                }
+                byteOut.toByteArray() // 返回压缩后的字节数组
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     fun outputBase64(operation: Base64Operation, rawData: ByteArray, resultData: ByteArray) {
@@ -241,7 +263,7 @@ object RecordOutHelper {
         resultData: ByteArray
     ) {
         outputRecord(
-            type = RecordType.Hmac, record = RecordHmac(
+            type = RecordType.Hmac, subType = algorithm, record = RecordHmac(
                 algorithm = algorithm,
                 key = key,
                 rawData = rawData.recordValue,
@@ -256,7 +278,9 @@ object RecordOutHelper {
 
     ) {
         outputRecord(
-            type = RecordType.Mac, record = RecordMac(
+            type = RecordType.Mac,
+            subType = algorithm,
+            record = RecordMac(
                 algorithm = algorithm,
                 rawData = rawData.recordValue,
                 resultData = resultData.recordValue,
@@ -284,7 +308,7 @@ object RecordOutHelper {
     }
 
 
-    fun getStackTraceStr() = getStackTrace().joinToString("\n")
+    fun getStackTraceStr() = ""
 
     private fun getStackTrace(): List<String> {
         val stackList = Throwable().stackTrace.map { element ->
