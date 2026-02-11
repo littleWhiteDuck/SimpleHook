@@ -2,7 +2,6 @@ package me.simpleHook.ui.fragment.extension
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -69,11 +68,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     private val managerAdapter = MultiTypeAdapter()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
+            PermissionUtil.takePersistableUriPermission(requireContext(), uri)
         }
     private val navController by lazy {
         findNavController(requireActivity(), R.id.nav_host_fragment)

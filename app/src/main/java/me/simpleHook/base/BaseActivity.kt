@@ -2,9 +2,7 @@ package me.simpleHook.base
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -23,8 +21,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.color.DynamicColors
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.anim.DefaultAnimator
 import com.lzf.easyfloat.enums.ShowPattern
@@ -38,12 +36,12 @@ import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.config.RecordsHelper
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.data.record.RecordType
+import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.ExtensionConfigEntity
-import me.simpleHook.extension.showToast
 import me.simpleHook.extension.showPopup
+import me.simpleHook.extension.showToast
 import me.simpleHook.recyclerview.adapter.FloatRecordAdapter
 import me.simpleHook.ui.view.ControlView
 import me.simpleHook.utils.AppUtil
@@ -51,6 +49,7 @@ import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.utils.JsonUtil
 import me.simpleHook.utils.LanguageUtil
 import me.simpleHook.utils.LogUtil
+import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.TimeUtil
 import me.simpleHook.utils.ToolUtil
 import me.simpleHook.viewmodel.AppConfigViewModel
@@ -89,11 +88,7 @@ open class BaseActivity : AppCompatActivity() {
     private var needCheckPacks = mutableSetOf<String>()
     protected val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
+            PermissionUtil.takePersistableUriPermission(this, uri)
         }
 
     @SuppressLint("RestrictedApi")

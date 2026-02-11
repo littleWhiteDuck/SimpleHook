@@ -1,6 +1,5 @@
 package me.simpleHook.ui.fragment.backup
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Patterns
@@ -28,19 +27,19 @@ import kotlinx.serialization.json.decodeFromStream
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.contract.OpenDocumentTreeContract
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.database.entity.AppConfig
 import me.simpleHook.database.entity.CollectionEntity
 import me.simpleHook.database.entity.ExtensionConfigEntity
 import me.simpleHook.extension.showPopup
 import me.simpleHook.ui.custom.LoadingDialog
 import me.simpleHook.ui.custom.customDialog
+import me.simpleHook.utils.PermissionUtil
 import me.simpleHook.utils.TimeUtil
+import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.viewmodel.CollectionViewModel
 import me.simpleHook.worker.BackupHelper
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-import kotlin.collections.toTypedArray
 
 class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
 
@@ -48,12 +47,9 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     private val collViewModel by viewModels<CollectionViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
-                updatePath(uri.toString())
-            }
+            if (uri == Uri.EMPTY) return@registerForActivityResult
+            PermissionUtil.takePersistableUriPermission(requireContext(), uri)
+            updatePath(uri.toString())
         }
     private val restoreConfigs =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->

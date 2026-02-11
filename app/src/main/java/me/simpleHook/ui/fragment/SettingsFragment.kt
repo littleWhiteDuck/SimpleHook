@@ -2,7 +2,6 @@ package me.simpleHook.ui.fragment
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -66,12 +65,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val recordViewModel by viewModels<RecordViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val contentResolver = requireActivity().contentResolver
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
+            PermissionUtil.takePersistableUriPermission(requireContext(), uri)
         }
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
 

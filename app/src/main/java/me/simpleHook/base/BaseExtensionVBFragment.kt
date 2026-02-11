@@ -1,8 +1,6 @@
 package me.simpleHook.base
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.viewbinding.ViewBinding
@@ -55,11 +53,7 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
 
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
+            PermissionUtil.takePersistableUriPermission(requireContext(), uri)
         }
 
 

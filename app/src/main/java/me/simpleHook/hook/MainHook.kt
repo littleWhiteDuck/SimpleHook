@@ -253,7 +253,7 @@ object MainHook {
     ) {
         hooks.forEach {
             if (it.isInit) return@forEach
-            it.isInit
+            it.isInit = true
             it.startHook(extensionConfig)
         }
     }

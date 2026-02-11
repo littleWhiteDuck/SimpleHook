@@ -3,6 +3,7 @@ package me.simpleHook.worker
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -112,8 +113,10 @@ object BackupHelper {
                 result = cloudBackup(cacheFile)
             }
             result
-        }.onFailure { FileUtil.deleteDir(context.externalCacheDir!!) }
-            .onSuccess { FileUtil.deleteDir(context.externalCacheDir!!) }
+        }.onFailure {
+            Log.d("littleWhiteDuck", "backup: ${it.stackTraceToString()}")
+            FileUtil.deleteDir(context.externalCacheDir!!.resolve("backup")) }
+            .onSuccess { FileUtil.deleteDir(context.externalCacheDir!!.resolve("backup")) }
             .getOrDefault(false)
     }
 

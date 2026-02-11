@@ -3,7 +3,6 @@ package me.simpleHook.ui.fragment.extension
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -35,7 +34,6 @@ import me.simpleHook.constant.Constant
 import me.simpleHook.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.database.entity.ExtensionConfigEntity
-import me.simpleHook.viewmodel.AppConfigViewModel
 import me.simpleHook.extension.dp
 import me.simpleHook.extension.showPopup
 import me.simpleHook.lsposed.LSPosedHelper
@@ -52,6 +50,7 @@ import me.simpleHook.utils.FastScrollerUtil
 import me.simpleHook.utils.FlavorUtil
 import me.simpleHook.utils.OSUtil
 import me.simpleHook.utils.PermissionUtil
+import me.simpleHook.viewmodel.AppConfigViewModel
 import kotlin.math.min
 
 class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
@@ -70,11 +69,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
-            if (uri != Uri.EMPTY) {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
+            PermissionUtil.takePersistableUriPermission(requireContext(), uri)
         }
 
     private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }

@@ -51,10 +51,8 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
     private val startActivityForData2 =
         registerForActivityResult(OpenDocumentTreeContract2()) { callBackIntent ->
             callBackIntent?.let {
+                PermissionUtil.takePersistableUriPermissions(this, it)
                 it.data?.let { uri ->
-                    val takeFlags: Int =
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    contentResolver.takePersistableUriPermission(uri, takeFlags)
                     if (uri == DocumentCompat.generateAppUri(needApplyApps.first())) {
                         needApplyApps.remove(needApplyApps.first())
                         batchGrant()
@@ -66,13 +64,6 @@ class A33PermissionActivity : BaseActivity(), SearchView.OnQueryTextListener {
                         fetchData()
                     }
                 } ?: run {
-                    val clipData = it.clipData ?: return@run
-                    for (i in 0 until clipData.itemCount) {
-                        val uri = clipData.getItemAt(i).uri
-                        val takeFlags: Int =
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    }
                     fetchData()
                 }
             }
