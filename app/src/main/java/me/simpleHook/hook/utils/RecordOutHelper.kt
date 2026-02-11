@@ -36,7 +36,6 @@ import me.simpleHook.data.record.RecordValueType
 import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.utils.GuiseBase64
 import me.simpleHook.utils.RecordLogger
-import me.simpleHook.utils.TextDbHelper
 import me.simpleHook.utils.TimeUtil
 import me.simpleHook.utils.ToolUtil
 import java.io.ByteArrayOutputStream
@@ -47,7 +46,6 @@ import java.util.zip.GZIPOutputStream
 object RecordOutHelper {
     private val recordPath = String.format(ConfigConstant.RECORD_PATH, HookHelper.hostPackageName)
 
-    private val dbHelper by lazy { TextDbHelper(HookHelper.appContext) }
 
     fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {
         val type = when (throwable) {
@@ -132,21 +130,11 @@ object RecordOutHelper {
                 time = TimeUtil.getCurrentTime(pattern = "yy-MM-dd HH:mm:ss")
             )
         )
-
-
-        dbHelper.insertText("ddd", compress(Json.encodeToString(record))!!)
 //
 
 
-        RecordLogger.write(packageName = HookHelper.hostPackageName, content = recordContent)
-
-        /*        FileUtil.outTextToFile(
-                    filePath = recordPath,
-                    content = recordContent,
-                    isNewLine = true,
-                    limitSize = 4096 * 2,
-                    append = true
-                )*/
+        val compressedRecordContent = compressToBase64(recordContent) ?: return
+        RecordLogger.write(packageName = HookHelper.hostPackageName, content = compressedRecordContent)
     }
 
     fun compress(text: String): ByteArray? {
@@ -161,6 +149,12 @@ object RecordOutHelper {
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    fun compressToBase64(text: String): String? {
+        return compress(text)?.let { compressedBytes ->
+            GuiseBase64.encodeToString(compressedBytes, GuiseBase64.NO_WRAP)
         }
     }
 

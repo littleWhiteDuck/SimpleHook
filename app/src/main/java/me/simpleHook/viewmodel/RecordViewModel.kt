@@ -77,7 +77,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             if (isType) {
                 recordDao.getRecordByType("%$typeOrPack%", "%${queryPattern.value}%")
             } else {
-                recordDao.getRecordByPack("%$typeOrPack%", "%${queryPattern.value}%")
+                recordDao.getRecordByPack(typeOrPack, "%${queryPattern.value}%")
             }
         }.flow.cachedIn(viewModelScope)
     }

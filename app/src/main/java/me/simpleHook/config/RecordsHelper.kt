@@ -13,13 +13,16 @@ import me.simpleHook.database.entity.RecordEntity
 import me.simpleHook.shizuku.ShizukuFileManager
 import me.simpleHook.utils.FileUtil
 import me.simpleHook.utils.FlavorUtil
+import me.simpleHook.utils.GuiseBase64
 import me.simpleHook.utils.LogUtil
 import me.simpleHook.utils.OSUtil
+import java.io.ByteArrayInputStream
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
+import java.util.zip.GZIPInputStream
 
 object RecordsHelper {
     private val locks = ConcurrentHashMap<String, ReentrantLock>()
@@ -125,7 +128,17 @@ object RecordsHelper {
         }
     }
 
-    private fun getRecordEntity(recordStr: String): RecordEntity? = runCatching {
-        Json.decodeFromString<RecordEntity>(recordStr)
+    private fun getRecordEntity(recordStr: String): RecordEntity? {
+        val jsonRecord = decodeCompressedRecord(recordStr) ?: return null
+        return runCatching {
+            Json.decodeFromString<RecordEntity>(jsonRecord)
+        }.getOrNull()
+    }
+
+    private fun decodeCompressedRecord(compressedRecord: String): String? = runCatching {
+        val compressedBytes = GuiseBase64.decode(compressedRecord, GuiseBase64.DEFAULT)
+        GZIPInputStream(ByteArrayInputStream(compressedBytes)).bufferedReader(Charsets.UTF_8).use {
+            it.readText()
+        }
     }.getOrNull()
 }

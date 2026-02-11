@@ -39,15 +39,12 @@ object RecordLogger {
         RandomAccessFile(file, "rw").use { random ->
             val channel = random.channel
             channel.use {
-                val lock: FileLock = it.lock() // 独占锁（跨进程安全）
+                val lock: FileLock = it.lock()
                 try {
-                    // 检查文件大小（单位 KB）
                     val sizeKb = file.length() / 1024
                     if (sizeKb >= LIMIT_SIZE_KB) {
-                        random.setLength(0L) // 清空
+                        random.setLength(0L)
                     }
-
-                    // 写入末尾
                     random.seek(random.length())
                     random.write("${text}\n".toByteArray())
                 } finally {
@@ -65,13 +62,13 @@ object RecordLogger {
         RandomAccessFile(file, "rw").use { random ->
             val channel = random.channel
             channel.use { it ->
-                it.lock().use { // 独占锁
+                it.lock().use {
                     val length = random.length().toInt()
                     val bytes = ByteArray(length)
                     random.seek(0)
-                    random.readFully(bytes)  // 读取所有内容
+                    random.readFully(bytes)
                     val content = String(bytes, Charsets.UTF_8)
-                    random.setLength(0L)  // 清空文件
+                    random.setLength(0L)
                     return content.lines().filter { it.isNotEmpty() }
                 }
             }
