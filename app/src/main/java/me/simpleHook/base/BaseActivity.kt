@@ -34,7 +34,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.config.RecordsHelper
+import me.simpleHook.config.RecordIngestor
 import me.simpleHook.contract.OpenDocumentTreeContract
 import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.SmallRecordEntity
@@ -122,11 +122,9 @@ open class BaseActivity : AppCompatActivity() {
         readFileJob = lifecycleScope.launch(Dispatchers.IO) {
             try {
                 ensureNeedCheckPackages()
-                needCheckPacks.forEach {
-                    val recordEntities = RecordsHelper.insertRecordsFromFile(this@BaseActivity, it)
-                    if (recordEntities.isNotEmpty()) {
-                        recordViewModel.insertRecords(*recordEntities.toTypedArray())
-                    }
+                val recordEntities = RecordIngestor.readFromPackages(this@BaseActivity, needCheckPacks)
+                if (recordEntities.isNotEmpty()) {
+                    recordViewModel.insertRecords(*recordEntities.toTypedArray())
                 }
 
             } catch (e: Exception) {

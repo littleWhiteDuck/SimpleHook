@@ -18,8 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.config.RecordIngestor
 import me.simpleHook.base.BaseViewFragment
-import me.simpleHook.config.RecordsHelper
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
 import me.simpleHook.recyclerview.delegate.RecordPackDelegate
@@ -181,8 +181,11 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     private fun readFileLogInsert() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                appConfigViewModel.getEnabledPackageNames().forEach {
-                    val recordEntities = RecordsHelper.insertRecordsFromFile(requireContext(), it)
+                val recordEntities = RecordIngestor.readFromPackages(
+                    requireContext(),
+                    appConfigViewModel.getEnabledPackageNames()
+                )
+                if (recordEntities.isNotEmpty()) {
                     recordViewModel.insertRecords(*recordEntities.toTypedArray())
                 }
             } catch (e: Exception) {
