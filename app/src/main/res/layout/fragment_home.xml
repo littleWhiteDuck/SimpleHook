@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:context=".ui.fragment.HomeVBFragment">
+    tools:context=".feature.home.ui.HomeFragment">
 
     <TextView
         android:id="@+id/empty_tip"
@@ -53,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/done_all_24" />
 
-    <me.simpleHook.ui.custom.FloatingActionMenu
+    <me.simpleHook.core.ui.custom.FloatingActionMenu
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu_src="@drawable/ic_add_24">
 
-        <me.simpleHook.ui.custom.FloatingActionButton
+        <me.simpleHook.core.ui.custom.FloatingActionButton
             android:id="@+id/share_configs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
             app:fab_src="@drawable/ic_share"
             app:maxImageSize="15dp" />
 
-        <me.simpleHook.ui.custom.FloatingActionButton
+        <me.simpleHook.core.ui.custom.FloatingActionButton
             android:id="@+id/import_configs_from_internet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
             app:fab_src="@drawable/ic_cloud_download_12"
             app:maxImageSize="15dp" />
 
-        <me.simpleHook.ui.custom.FloatingActionButton
+        <me.simpleHook.core.ui.custom.FloatingActionButton
             android:id="@+id/import_configs_from_paste"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
             app:fab_src="@drawable/ic_paste"
             app:maxImageSize="15dp" />
 
-        <me.simpleHook.ui.custom.FloatingActionButton
+        <me.simpleHook.core.ui.custom.FloatingActionButton
             android:id="@+id/add_config"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -98,5 +98,5 @@
             app:fab_label="@string/home_fab_add_config"
             app:fab_src="@drawable/ic_add_24"
             app:maxImageSize="15dp" />
-    </me.simpleHook.ui.custom.FloatingActionMenu>
+    </me.simpleHook.core.ui.custom.FloatingActionMenu>
 </androidx.constraintlayout.widget.ConstraintLayout>

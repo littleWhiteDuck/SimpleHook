@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/managerFragment"
-        android:name="me.simpleHook.ui.fragment.extension.ManagerVBFragment"
+        android:name="me.simpleHook.feature.extension.ui.ManagerVBFragment"
         android:label="fragment_extension_manager"
         tools:layout="@layout/fragment_extension_manager">
         <action
@@ -56,28 +56,28 @@
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
-        android:name="me.simpleHook.ui.fragment.extension.GuiseSignVBFragment"
+        android:name="me.simpleHook.feature.extension.ui.GuiseSignVBFragment"
         android:label="@string/guise_signature"
         tools:layout="@layout/fragment_guise_sign" />
     <fragment
         android:id="@+id/clipboardFragment"
-        android:name="me.simpleHook.ui.fragment.extension.ClipboardFragment"
+        android:name="me.simpleHook.feature.extension.ui.ClipboardFragment"
         android:label="@string/label_clipboard" />
     <fragment
         android:id="@+id/fileMonitorFragment"
-        android:name="me.simpleHook.ui.fragment.extension.FileMonitorFragment"
+        android:name="me.simpleHook.feature.extension.ui.FileMonitorFragment"
         android:label="@string/label_file" />
     <fragment
         android:id="@+id/dialogCancelFragment"
-        android:name="me.simpleHook.ui.fragment.extension.DisableDialogFragment"
+        android:name="me.simpleHook.feature.extension.ui.DisableDialogFragment"
         android:label="@string/label_dialog" />
     <fragment
         android:id="@+id/exitFragment"
-        android:name="me.simpleHook.ui.fragment.extension.ExitFragment"
+        android:name="me.simpleHook.feature.extension.ui.ExitFragment"
         android:label="@string/label_exit" />
     <fragment
         android:id="@+id/recordSettingsFragment"
-        android:name="me.simpleHook.ui.fragment.extension.RecordSettingsFragment"
+        android:name="me.simpleHook.feature.extension.ui.RecordSettingsFragment"
         android:label="@string/label_record" />
 
 </navigation>

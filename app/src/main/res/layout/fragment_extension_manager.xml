@@ -7,4 +7,4 @@
     android:paddingBottom="30dp"
     android:clipToPadding="false"
     android:background="@color/extension_manager_page_background"
-    tools:context=".ui.fragment.extension.ManagerVBFragment" />
+    tools:context=".feature.extension.ui.ManagerVBFragment" />

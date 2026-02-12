@@ -29,7 +29,7 @@
                 android:paddingTop="?actionBarSize"
                 app:layout_collapseMode="parallax">
 
-                <me.simpleHook.ui.view.applist.AppItemView
+                <me.simpleHook.feature.applist.ui.view.AppItemView
                     android:id="@+id/appInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

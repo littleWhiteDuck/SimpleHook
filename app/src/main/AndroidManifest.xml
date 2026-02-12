@@ -18,7 +18,7 @@
         tools:node="remove" />
 
     <application
-        android:name=".SimpleHookApp"
+        android:name=".core.SimpleHookApp"
         android:allowBackup="false"
         android:description="@string/xposed_description"
         android:icon="@mipmap/ic_launcher"
@@ -29,41 +29,41 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.DexBrowserActivity"
+            android:name=".feature.dexbrowser.ui.DexBrowserActivity"
             android:exported="false"
             android:label="@string/dex_browser_title"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ui.activity.A33PermissionActivity"
+            android:name=".feature.settings.ui.A33PermissionActivity"
             android:exported="false"
             android:label="@string/label_batch_grant" />
         <activity
-            android:name=".ui.activity.RecordDetailActivity"
+            android:name=".feature.record.ui.RecordDetailActivity"
             android:exported="false"
             android:label="@string/app_record" />
         <activity
-            android:name=".ui.activity.RecordActivity"
+            android:name=".feature.record.ui.RecordActivity"
             android:exported="false"
             android:label="@string/app_record" />
         <activity
-            android:name=".ui.activity.AboutActivity"
+            android:name=".feature.about.ui.AboutActivity"
             android:label="@string/app_about"
             android:theme="@style/AppTheme.About" />
         <activity
-            android:name=".ui.activity.ExtensionActivity"
+            android:name=".feature.extension.ui.ExtensionActivity"
             android:label="@string/app_extension"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ui.activity.AppListActivity"
+            android:name=".feature.applist.ui.AppListActivity"
             android:label="@string/app_select_app"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ui.activity.ConfigActivity"
+            android:name=".feature.config.ui.ConfigActivity"
             android:label="@string/app_config"
             android:theme="@style/AppTheme"
             tools:ignore="LockedOrientationActivity" />
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".feature.main.ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AppSplashScreen"
             tools:ignore="LockedOrientationActivity">
@@ -74,7 +74,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.BackupActivity"
+            android:name=".feature.backup.ui.BackupActivity"
             android:exported="true"
             android:label="@string/title_activity_backup">
             <intent-filter
@@ -99,7 +99,7 @@
         </activity>
 
         <provider
-            android:name=".provider.RecordProvider"
+            android:name=".platform.provider.RecordProvider"
             android:authorities="${PROVIDER}"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />

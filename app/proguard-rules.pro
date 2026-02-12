@@ -28,8 +28,8 @@
 #指定package模糊字典
 #-packageobfuscationdictionary ./proguard-keys.txt
 
--keep class me.simpleHook.hook.entry.Xp51HookEntry { *; }
--keep class me.simpleHook.hook.entry.Lsp100HookEntry { *; }
+-keep class me.simpleHook.platform.hook.entry.Xp51HookEntry { *; }
+-keep class me.simpleHook.platform.hook.entry.Lsp100HookEntry { *; }
 
 -keepattributes Signature
 
@@ -75,7 +75,7 @@
 -keep,allowoptimization class * extends androidx.viewbinding.ViewBinding {
   public static * inflate(...);
 }
--keep,allowobfuscation,allowshrinking class * extends me.simpleHook.base.BaseBottomFragment
+-keep,allowobfuscation,allowshrinking class * extends me.simpleHook.core.base.BaseBottomFragment
 
 
 -dontwarn org.xmlpull.v1.**
@@ -124,8 +124,8 @@
 -keep class kotlinx.serialization.json.** { *; }
 
 # Shizuku
--keep class me.simpleHook.shizuku.IFileService { *; }
--keep class me.simpleHook.shizuku.FileService { *; }
+-keep class me.simpleHook.platform.shizuku.IFileService { *; }
+-keep class me.simpleHook.platform.shizuku.FileService { *; }
 
 # log
 -assumenosideeffects class android.util.Log {
