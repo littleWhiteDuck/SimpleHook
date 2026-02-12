@@ -159,6 +159,8 @@
     <string name="record_menu_save_marked_record">导出标记记录</string>
     <string name="record_loading_tip_searching">正在搜索中</string>
     <string name="record_search_dialog_title">搜索</string>
+    <string name="record_search_fast_switch">快速搜索</string>
+    <string name="record_search_fast_tip">启用后搜索更快；复杂符号场景建议关闭快速搜索后再试</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
     <string name="record_warning_dialog_title">警告</string>
     <string name="record_waring_dialog_message_delete_all">你是否确定删除所有记录？</string>

@@ -43,7 +43,7 @@ class RecordProvider : ContentProvider() {
     }
 
     override fun onCreate() = context?.let {
-        dbHelper = RecordDatabaseHelper(it, "records.db", 1)
+        dbHelper = RecordDatabaseHelper(it, "records.db", RecordDatabaseHelper.DB_VERSION)
         true
     } ?: false
 

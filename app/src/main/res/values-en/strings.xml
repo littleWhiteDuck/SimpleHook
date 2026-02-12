@@ -231,6 +231,8 @@
     <string name="record_menu_save_marked_record">Export marked records</string>
     <string name="record_loading_tip_searching">searching,,,</string>
     <string name="record_search_dialog_title">Search</string>
+    <string name="record_search_fast_switch">Fast Search</string>
+    <string name="record_search_fast_tip">Faster search, but symbol-heavy queries may miss results. Turn it off to retry with normal search.</string>
     <string name="record_loading_saving_marked_record">Saving</string>
     <string name="record_warning_dialog_title">Warning</string>
     <string name="record_waring_dialog_message_delete_all">Are you sure to delete all records?</string>

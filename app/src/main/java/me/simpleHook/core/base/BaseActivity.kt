@@ -83,6 +83,7 @@ open class BaseActivity : AppCompatActivity() {
     private var stopPrint = false
     private var currentTime = ""
     private var startTime = ""
+    private var floatWindowStartTime = ""
     private lateinit var extConfigList: List<ExtensionConfigEntity>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
@@ -167,6 +168,9 @@ open class BaseActivity : AppCompatActivity() {
             while (cursor.moveToNext()) {
                 val packageName = cursor.getStringOrEmpty(packageNameIndex)
                 val time = cursor.getStringOrEmpty(timeIndex)
+                if (!isAfterFloatWindowStart(time)) {
+                    continue
+                }
                 val idFromDb = cursor.getIntOrNull(idIndex)
                 val type = enumValues<RecordType>().firstOrNull {
                     it.name == cursor.getStringOrEmpty(typeIndex)
@@ -291,7 +295,8 @@ open class BaseActivity : AppCompatActivity() {
     private fun showPrintFloat() {
         readFileJob?.cancel()
         dismissFloat = false
-        currentTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
+        floatWindowStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
+        currentTime = floatWindowStartTime
         startTime = currentTime
         initLastRecordId()
         list.clear()
@@ -323,13 +328,14 @@ open class BaseActivity : AppCompatActivity() {
             }
             val clearConfig = it.findViewById<ImageButton>(R.id.clear_record)
             clearConfig.setOnClickListener {
-                recordViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
-                list.clear()
-                mAdapter.submitList(emptyList())
-                currentTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
-                startTime = currentTime
-                initLastRecordId()
-            }
+                    recordViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
+                    list.clear()
+                    mAdapter.submitList(emptyList())
+                    floatWindowStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
+                    currentTime = floatWindowStartTime
+                    startTime = currentTime
+                    initLastRecordId()
+                }
             val closeWindow = it.findViewById<ImageButton>(R.id.close_window)
             closeWindow.setOnClickListener {
                 EasyFloat.dismiss("floatPrint")
@@ -387,6 +393,11 @@ open class BaseActivity : AppCompatActivity() {
         return getInt(index) == 1
     }
 
+    private fun isAfterFloatWindowStart(time: String): Boolean {
+        if (time.isEmpty() || floatWindowStartTime.isEmpty()) return true
+        return time >= floatWindowStartTime
+    }
+
     companion object {
         private const val MAX_FLOAT_RECORD_COUNT = 300
         private val FLOAT_QUERY_PROJECTION = arrayOf(
@@ -411,4 +422,3 @@ open class BaseActivity : AppCompatActivity() {
             .setAnimator(DefaultAnimator()).show()
     }
 }
-

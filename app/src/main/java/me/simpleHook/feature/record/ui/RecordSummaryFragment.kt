@@ -98,7 +98,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
 
     private fun deleteRecord(recordSummary: Any) {
         if (recordSummary is RecordShowType) {
-            recordViewModel.deleteRecordByType(recordSummary.subType)
+            recordViewModel.deleteRecordByType(recordSummary.type.name)
         } else if (recordSummary is RecordShowPack) {
             recordViewModel.deleteRecordByPack(recordSummary.packageName)
         }

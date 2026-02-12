@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import androidx.sqlite.db.SimpleSQLiteQuery
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.data.RecordShowItem
@@ -59,6 +60,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
     val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
     val queryPattern = MutableStateFlow("")
+    val fastSearchEnabled = MutableStateFlow(true)
 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
     val recordDetail = _recordDetail
@@ -68,49 +70,57 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val pagingConfig =
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
+    private val ftsTokenRegex = Regex("""[\p{L}\p{N}_]+""")
+    private val ftsEligibleRegex = Regex("""^[\p{L}\p{N}_\s]+$""")
 
 
     fun getRecordEntity(
         typeOrPack: String, isType: Boolean
     ): Flow<PagingData<SmallRecordEntity>> {
+        val pattern = queryPattern.value.trim()
+        val jsonPattern = pattern.toJsonStringContent()
+        val ftsQuery = jsonPattern.toFtsQueryOrNull().takeIf { fastSearchEnabled.value }
         return Pager(config = pagingConfig) {
             if (isType) {
-                recordDao.getRecordByType("%$typeOrPack%", "%${queryPattern.value}%")
+                if (pattern.isEmpty()) {
+                    recordDao.getRecordByTypeNoPattern(typeOrPack)
+                } else if (ftsQuery != null) {
+                    recordDao.getRecordByTypeFts(buildTypeFtsQuery(typeOrPack, ftsQuery))
+                } else {
+                    recordDao.getRecordByType(typeOrPack, jsonPattern, pattern)
+                }
             } else {
-                recordDao.getRecordByPack(typeOrPack, "%${queryPattern.value}%")
+                if (pattern.isEmpty()) {
+                    recordDao.getRecordByPackNoPattern(typeOrPack)
+                } else if (ftsQuery != null) {
+                    recordDao.getRecordByPackFts(buildPackFtsQuery(typeOrPack, ftsQuery))
+                } else {
+                    recordDao.getRecordByPack(typeOrPack, jsonPattern, pattern)
+                }
             }
         }.flow.cachedIn(viewModelScope)
     }
 
 
-    fun getMarkedRecordByType(type: String) = recordDao.getMarkedRecordByType("%$type%")
+    fun getMarkedRecordByType(type: String) = recordDao.getMarkedRecordByType(type)
 
     fun getMarkedRecordByPack(packageName: String) = recordDao.getMarkedRecordByPack(packageName)
 
     fun getRecordByID(id: Int) = recordDao.getRecordById(id)
 
     fun fetchRecordShowItems() = viewModelScope.launch(Dispatchers.IO) {
-        val recordPartList = recordDao.getAllRecordPart()
-
-        val countHashMap = HashMap<String, Int>()
-        val typeHashMap = HashMap<String, RecordType>()
         val showByType = GlobalValue.sp.showByType
 
-        recordPartList.forEach { recordPart ->
-            val key = if (showByType) {
-                recordPart.type.name
-            } else {
-                recordPart.packageName
-            }
-            countHashMap[key] = countHashMap.getOrDefault(key, 0) + 1
-        }
-
         val showItems = if (showByType) {
-            countHashMap.map {
-                RecordShowType(type = RecordType.valueOf(it.key), subType = "", count = it.value)
+            recordDao.getRecordCountByType().mapNotNull { row ->
+                runCatching { RecordType.valueOf(row.type) }.getOrNull()?.let { type ->
+                    RecordShowType(type = type, subType = "", count = row.count)
+                }
             }
         } else {
-            countHashMap.map { RecordShowPack(packageName = it.key, count = it.value) }
+            recordDao.getRecordCountByPack().map { row ->
+                RecordShowPack(packageName = row.packageName, count = row.count)
+            }
         }
 
         _recordShowItems.postValue(showItems)
@@ -119,6 +129,14 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun updateRecord(recordEntity: RecordEntity) = viewModelScope.launch(Dispatchers.IO) {
         recordDao.updateRecords(recordEntity)
+    }
+
+    fun updateRecordReadById(id: Int, isRead: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        recordDao.updateRecordReadById(id = id, isRead = isRead)
+    }
+
+    fun updateRecordMarkById(id: Int, isMark: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        recordDao.updateRecordMarkById(id = id, isMark = isMark)
     }
 
     fun insertRecords(vararg recordEntity: RecordEntity) = viewModelScope.launch(Dispatchers.IO) {
@@ -141,7 +159,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun deleteRecordByType(type: String) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.deleteRecordByType("%$type%")
+        recordDao.deleteRecordByType(type)
     }
 
     fun deleteRecordByPack(packageName: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -160,7 +178,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteReadRecordByType(read: Boolean, type: String) =
         viewModelScope.launch(Dispatchers.IO) {
-            recordDao.deleteReadRecordByType(read, "%$type%")
+            recordDao.deleteReadRecordByType(read, type)
         }
 
     fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String) = viewModelScope.launch(
@@ -172,7 +190,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun deleteMarkedRecordByType(isMark: Boolean, type: String) = viewModelScope.launch(
         Dispatchers.IO
     ) {
-        recordDao.deleteMarkedRecordByType(isMark, "%$type%")
+        recordDao.deleteMarkedRecordByType(isMark, type)
     }
 
 
@@ -774,5 +792,43 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             R.string.record_iv_format.string(it.key.displayName, it.value)
 
         }
+    }
+
+    private fun String.toFtsQueryOrNull(): String? {
+        if (!ftsEligibleRegex.matches(this)) return null
+        val tokens = ftsTokenRegex.findAll(this).map { it.value }.toList()
+        if (tokens.isEmpty()) return null
+        return tokens.joinToString(" AND ") { "\"$it\"*" }
+    }
+
+    private fun buildPackFtsQuery(
+        packageName: String,
+        ftsQuery: String
+    ): SimpleSQLiteQuery {
+        val sql = """
+            SELECT r.id,r.type,r.subType,r.packageName,r.isRead,r.isMark,r.time
+            FROM RecordEntity r
+            JOIN RecordEntityFts ON RecordEntityFts.rowid = r.id
+            WHERE r.packageName = ?
+              AND RecordEntityFts MATCH ?
+            ORDER BY r.time DESC
+        """.trimIndent()
+        return SimpleSQLiteQuery(sql, arrayOf(packageName, ftsQuery))
+    }
+
+    private fun buildTypeFtsQuery(type: String, ftsQuery: String): SimpleSQLiteQuery {
+        val sql = """
+            SELECT r.id,r.type,r.subType,r.packageName,r.isRead,r.isMark,r.time
+            FROM RecordEntity r
+            JOIN RecordEntityFts ON RecordEntityFts.rowid = r.id
+            WHERE r.type = ?
+              AND RecordEntityFts MATCH ?
+            ORDER BY r.time DESC
+        """.trimIndent()
+        return SimpleSQLiteQuery(sql, arrayOf(type, ftsQuery))
+    }
+
+    private fun String.toJsonStringContent(): String {
+        return Json.encodeToString(this).removePrefix("\"").removeSuffix("\"")
     }
 }

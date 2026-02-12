@@ -3,7 +3,8 @@ package me.simpleHook.data
 import me.simpleHook.data.record.RecordType
 
 
-data class RecordPart(val packageName: String, val type: RecordType, val subType: String)
+data class RecordPackageCount(val packageName: String, val count: Int)
+data class RecordTypeCount(val type: String, val count: Int)
 
 
 sealed class RecordShowItem

@@ -10,9 +10,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -25,8 +29,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
@@ -44,6 +50,7 @@ import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.TimeUtil
+import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.feature.record.viewmodel.RecordViewModel
 import java.io.FileOutputStream
 
@@ -55,14 +62,14 @@ class RecordActivity : BaseActivity() {
     private var typeOrPackageName = ""
     private val recordAdapter by lazy {
         RecordAdapter(isType = isType, onItemClick = {
-//            if (!it.isRead) recordViewModel.updateRecord(it.copy(isRead = true))
+            markRecordAsReadIfNeeded(it)
             RecordDetailActivity.startActivity(this, it.packageName, it.id)
         }, deleteRecord = { recordEntity ->
             recordViewModel.deleteRecordById(recordEntity.id)
         }, markRecord = { recordEntity ->
-//            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
+            toggleRecordMark(recordEntity)
         }, onItemLongClick = { recordEntity ->
-//            recordViewModel.updateRecord(recordEntity.copy(isMark = !recordEntity.isMark))
+            toggleRecordMark(recordEntity)
         })
     }
     private val saveMarkedRecord =
@@ -77,6 +84,8 @@ class RecordActivity : BaseActivity() {
     }
 
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private var recordCollectJob: Job? = null
+    private var searchLoadingDialog: LoadingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,16 +129,7 @@ class RecordActivity : BaseActivity() {
                     binding.swipeRefreshLayout.isRefreshing = true
                     recordViewModel.queryPattern.value = ""
                     updateTitle()
-                    lifecycleScope.launch {
-                        recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
-                            recordAdapter.addOnPagesUpdatedListener {
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    binding.swipeRefreshLayout.isRefreshing = false
-                                }, 800)
-                            }
-                            recordAdapter.submitData(it)
-                        }
-                    }
+                    collectRecordPaging()
                 }
             }
         }
@@ -246,23 +246,38 @@ class RecordActivity : BaseActivity() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshData()
         }
+        recordAdapter.addOnPagesUpdatedListener {
+            binding.progressBar.isVisible = false
+            binding.swipeRefreshLayout.isRefreshing = false
+            searchLoadingDialog?.dismiss()
+            searchLoadingDialog = null
+        }
         FastScrollerUtil.bind(binding.recyclerView)
         binding.search.setOnClickListener { showSearchDialog() }
     }
 
 
     private fun initData() {
-        lifecycleScope.launch {
+        collectRecordPaging()
+    }
+
+    private fun collectRecordPaging() {
+        recordCollectJob?.cancel()
+        recordCollectJob = lifecycleScope.launch {
             recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
-                recordAdapter.addOnPagesUpdatedListener {
-                    binding.progressBar.isVisible = false
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        binding.swipeRefreshLayout.isRefreshing = false
-                    }, 500)
-                }
                 recordAdapter.submitData(it)
             }
         }
+    }
+
+    private fun markRecordAsReadIfNeeded(recordEntity: SmallRecordEntity) {
+        if (!recordEntity.isRead) {
+            recordViewModel.updateRecordReadById(recordEntity.id, true)
+        }
+    }
+
+    private fun toggleRecordMark(recordEntity: SmallRecordEntity) {
+        recordViewModel.updateRecordMarkById(recordEntity.id, !recordEntity.isMark)
     }
 
     private fun refreshData(delayTime: Long = 500) {
@@ -374,10 +389,10 @@ class RecordActivity : BaseActivity() {
                         if (isType) recordViewModel.getMarkedRecordByType(typeOrPackageName) else recordViewModel.getMarkedRecordByPack(
                             typeOrPackageName
                         )
-                    list.forEach {
-                        val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
-                        FileOutputStream(parcel.fileDescriptor).use { output ->
-                            output.write(content.toByteArray())
+                    FileOutputStream(parcel.fileDescriptor).bufferedWriter().use { writer ->
+                        list.forEach {
+                            val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
+                            writer.appendLine(content)
                         }
                     }
                 }
@@ -395,29 +410,68 @@ class RecordActivity : BaseActivity() {
 
     private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
         val inputView = InputView(this)
+        inputView.editText.apply {
+            isSingleLine = false
+            minLines = 3
+            maxLines = 10
+            setHorizontallyScrolling(false)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            hint = getString(R.string.main_home_toolbar_search_hint)
+        }
+        val fastSearchSwitch = MaterialSwitch(this).apply {
+            text = getString(R.string.record_search_fast_switch)
+            isChecked = recordViewModel.fastSearchEnabled.value
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(16.dp, 8.dp, 16.dp, 0)
+        }
+        val fastSearchTip = TextView(this).apply {
+            text = getString(R.string.record_search_fast_tip)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(16.dp, 0, 16.dp, 0)
+            alpha = 0.8f
+        }
+        val contentView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 8.dp, 0, 8.dp)
+            addView(inputView)
+            addView(fastSearchSwitch)
+            addView(fastSearchTip)
+        }
+        val scrollContainer = ScrollView(this).apply {
+            isFillViewport = true
+            addView(
+                contentView,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
+        }
         customDialog(this,
             title = getString(R.string.record_search_dialog_title),
-            contentView = inputView,
+            contentView = scrollContainer,
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 recordViewModel.queryPattern.value = inputView.editText.text.toString().trim()
+                recordViewModel.fastSearchEnabled.value = fastSearchSwitch.isChecked
                 if (recordViewModel.queryPattern.value.isNotEmpty()) {
                     supportActionBar?.title = recordViewModel.queryPattern.value
                     supportActionBar?.subtitle = ""
+                } else {
+                    updateTitle()
                 }
-                val loadingDialog =
-                    LoadingDialog(this, getString(R.string.record_loading_tip_searching))
-                loadingDialog.show()
-                lifecycleScope.launch {
-                    recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
-                        recordAdapter.addOnPagesUpdatedListener {
-                            binding.swipeRefreshLayout.isRefreshing = false
-                            loadingDialog.dismiss()
-                        }
-                        recordAdapter.submitData(it)
-
+                searchLoadingDialog?.dismiss()
+                searchLoadingDialog =
+                    LoadingDialog(this, getString(R.string.record_loading_tip_searching)).also {
+                        it.show()
                     }
-                }
+                collectRecordPaging()
                 dialogInterface.dismiss()
             }, cancelText = getString(R.string.dialog_cancel), cancelAble = false).show()
     }
@@ -425,6 +479,13 @@ class RecordActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         refreshData()
+    }
+
+    override fun onDestroy() {
+        recordCollectJob?.cancel()
+        searchLoadingDialog?.dismiss()
+        searchLoadingDialog = null
+        super.onDestroy()
     }
 
     companion object {

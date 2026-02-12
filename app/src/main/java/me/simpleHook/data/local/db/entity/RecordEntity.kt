@@ -1,13 +1,21 @@
 package me.simpleHook.data.local.db.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import me.simpleHook.data.record.RecordType
 
 
 @Serializable
-@Entity
+@Entity(
+    indices = [
+        Index(value = ["packageName", "time"]),
+        Index(value = ["type", "time"]),
+        Index(value = ["isMark", "packageName", "time"]),
+        Index(value = ["isMark", "type", "time"])
+    ]
+)
 data class RecordEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
