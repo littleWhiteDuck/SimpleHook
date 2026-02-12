@@ -1,37 +1,38 @@
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.gradle.AppExtension
-import org.gradle.internal.extensions.stdlib.capitalized
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+﻿import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.dsl.ApplicationExtension
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
 import java.util.Random
 import java.util.TimeZone
 
+fun String.capitalizedCompat(): String = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase() else it.toString()
+}
+
 val configFile = rootProject.file("sign.properties")
 val prop = Properties()
 prop.load(FileInputStream(configFile))
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("com.google.devtools.ksp")
-    id("kotlin-parcelize")
-    id("kotlinx-serialization")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
 }
 
 val beta = prop.getProperty("beta").toBoolean()
 val verName: String = prop.getProperty("verName")
+val verCode = run {
+    val sdf = SimpleDateFormat("yyMMddHH")
+    sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
+    sdf.format(Date()).toInt()
+}
 
-android {
-    val verCode = run {
-        val sdf = SimpleDateFormat("yyMMddHH")
-        sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
-        sdf.format(Date()).toInt()
-    }
+extensions.configure<ApplicationExtension>("android") {
     signingConfigs {
         create("keyStore") {
             keyAlias = prop.getProperty("alias")
@@ -114,15 +115,19 @@ android {
         }
     }
 
-    packagingOptions.resources.excludes += setOf(
-        "okhttp3/**",
-        "kotlin/**",
-        "org/**",
-        "**.properties",
-        "**.bin",
-        "**.json",
-        "**VERSION"
-    )
+    packaging {
+        resources {
+            excludes += setOf(
+                "okhttp3/**",
+                "kotlin/**",
+                "org/**",
+                "**.properties",
+                "**.bin",
+                "**.json",
+                "**VERSION"
+            )
+        }
+    }
 
     lint {
         disable += "AppCompatResource"
@@ -144,204 +149,185 @@ android {
     }
 
     extensions.findByType(ApplicationAndroidComponentsExtension::class)?.let { androidComponents ->
-        // 获取所有release变体
         androidComponents.onVariants { variant ->
             if (variant.buildType == "release") {
-                val flavorName = variant.flavorName!!
+                val flavorName = variant.flavorName.orEmpty()
                 val taskName = if (flavorName.isNotEmpty()) {
-                    "optimize${flavorName.capitalized()}ReleaseRes"
+                    "optimize${flavorName.capitalizedCompat()}ReleaseRes"
                 } else {
                     "optimizeReleaseRes"
                 }
 
-                val optimizeTask = tasks.register<OptimizeReleaseResTask>(taskName) {
-                    this.flavor.set(flavorName)
+                val optimizeTask = tasks.register(taskName) {
+                    doLast {
+                        val androidComponentsExt = project.extensions.findByType(
+                            ApplicationAndroidComponentsExtension::class.java
+                        ) ?: throw GradleException("ApplicationAndroidComponentsExtension not found")
+
+                        val sdkDir = androidComponentsExt.sdkComponents.sdkDirectory.get().asFile
+                        val buildToolsVersion = project.extensions.findByType(
+                            ApplicationExtension::class.java
+                        )?.buildToolsVersion ?: throw GradleException("BuildToolsVersion not found")
+
+                        val aapt2Path = sdkDir.resolve("build-tools/$buildToolsVersion/aapt2")
+                        val aapt2File = if (aapt2Path.exists()) {
+                            aapt2Path
+                        } else {
+                            sdkDir.resolve("build-tools/$buildToolsVersion/aapt2.exe")
+                        }
+                        if (!aapt2File.exists()) {
+                            throw GradleException("aapt2 not found at: $aapt2File")
+                        }
+
+                        val flavorPath = if (flavorName.isNotEmpty()) "${flavorName}Release/" else "release/"
+                        val optimizeDir = if (flavorName.isNotEmpty()) {
+                            "optimize${flavorName.capitalizedCompat()}ReleaseResources"
+                        } else {
+                            "optimizeReleaseResources"
+                        }
+                        val resourceFileName = if (flavorName.isNotEmpty()) {
+                            "resources-${flavorName}-release-optimize.ap_"
+                        } else {
+                            "resources-release-optimize.ap_"
+                        }
+
+                        val zipFile = project.layout.buildDirectory
+                            .file("intermediates/optimized_processed_res/$flavorPath$optimizeDir/$resourceFileName")
+                            .get().asFile
+
+                        if (!zipFile.exists()) {
+                            throw GradleException("Resource file not found: ${zipFile.absolutePath}")
+                        }
+
+                        val optimizedFile = File("${zipFile.absolutePath}.opt")
+                        val result = project.providers.exec {
+                            commandLine(
+                                aapt2File.absolutePath,
+                                "optimize",
+                                "--collapse-resource-names",
+                                "--enable-sparse-encoding",
+                                "-o",
+                                optimizedFile.absolutePath,
+                                zipFile.absolutePath
+                            )
+                            isIgnoreExitValue = true
+                        }.result.get()
+
+                        val exitCode = result.exitValue
+                        if (exitCode == 0 && optimizedFile.exists()) {
+                            if (zipFile.delete()) {
+                                if (optimizedFile.renameTo(zipFile)) {
+                                    logger.lifecycle("Successfully optimized resources: ${zipFile.absolutePath}")
+                                } else {
+                                    throw GradleException("Failed to rename optimized file to original name")
+                                }
+                            } else {
+                                throw GradleException("Failed to delete original resource file")
+                            }
+                        } else {
+                            throw GradleException("aapt2 optimization failed with exit code $exitCode")
+                        }
+                    }
                 }
 
                 tasks.configureEach {
-                    if (name == "optimize${flavorName.capitalized()}ReleaseResources") {
+                    val optimizeReleaseResourcesTaskName = if (flavorName.isNotEmpty()) {
+                        "optimize${flavorName.capitalizedCompat()}ReleaseResources"
+                    } else {
+                        "optimizeReleaseResources"
+                    }
+                    if (name == optimizeReleaseResourcesTaskName) {
                         finalizedBy(optimizeTask)
                     }
                 }
             }
         }
     }
+
 }
 
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    implementation("androidx.core:core-ktx:1.17.0")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.documentfile:documentfile:1.1.0")
-    implementation("androidx.activity:activity:1.11.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.work:work-runtime-ktx:2.10.4")
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.core.splashscreen)
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    testImplementation(libs.junit4)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-    // room
-    val roomVersion = "2.8.0"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
-    // xposed
-    compileOnly("de.robv.android.xposed:api:82")
-    //compileOnly("de.robv.android.xposed:api:82:sources")
-    compileOnly("io.github.libxposed:api:100")
-    implementation("io.github.libxposed:service:100-1.0.0")
-//    implementation("com.github.kyuubiran:EzXHelper:1.0.3")
+    compileOnly(libs.xposed.api)
+    compileOnly(libs.libxposed.api)
+    implementation(libs.libxposed.service)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation(libs.kotlinx.coroutines.android)
 
-    val navVersion = "2.9.4"
-    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
-    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
-    implementation("com.github.princekin-f:EasyFloat:2.0.3")
+    implementation(libs.easyfloat)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.gson)
 
-    //paging3
-    val pagingVersion = "3.3.6"
-    implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
-    implementation("androidx.room:room-paging:$roomVersion")
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.room.paging)
 
-    //glide
-    val glideVersion = "5.0.5"
-    implementation("com.github.bumptech.glide:glide:$glideVersion")
-    ksp("com.github.bumptech.glide:ksp:$glideVersion")
+    implementation(libs.glide)
+    ksp(libs.glide.ksp)
 
-    val libsuVersion = "5.0.4"
-    implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
-    implementation("com.github.topjohnwu.libsu:io:${libsuVersion}")
+    implementation(libs.libsu.core)
+    implementation(libs.libsu.io)
 
     // rikka
     implementation(files("libs/simplemenu-preference-release.aar"))
 
-    //darkeet
-    implementation("com.drakeet.about:about:2.5.2")
-    implementation("com.drakeet.multitype:multitype:4.3.0")
+    implementation(libs.drakeet.about)
+    implementation(libs.drakeet.multitype)
 
 
     // webdav, 0.9版修改了exists函数实现，响应头判断会出问题
-    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
+    implementation(libs.sardine.android)
 
 
-    implementation("dev.rikka.shizuku:api:13.1.5")
-    implementation("dev.rikka.shizuku:provider:13.1.5")
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
 
-    implementation("org.smali:dexlib2:2.5.2")
-    implementation("io.github.Rosemoe.sora-editor:editor:0.23.6")
+    implementation(libs.dexlib2)
+    implementation(libs.sora.editor)
 
-    debugImplementation("com.guolindev.glance:glance:1.1.0")
-
-
-    // Compose BOM
-    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-core")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.activity:activity-compose:1.11.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0-alpha03")
-    implementation("androidx.compose.ui:ui-graphics")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.09.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    debugImplementation(libs.glance)
 
 
-}
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.android)
+    implementation(libs.androidx.compose.ui.graphics)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
 
-
-abstract class OptimizeReleaseResTask @Inject constructor(
-    private val execOperations: ExecOperations
-) : DefaultTask() {
-
-    // 接收flavor名称参数
-    @get:Input
-    abstract val flavor: Property<String>
-
-    @TaskAction
-    fun optimize() {
-        val flavorName = flavor.get()
-        val androidComponents =
-            project.extensions.findByType(ApplicationAndroidComponentsExtension::class.java)
-                ?: throw GradleException("ApplicationAndroidComponentsExtension not found")
-
-        val sdkDir = androidComponents.sdkComponents.sdkDirectory.get().asFile
-
-        val buildToolsVersion = project.extensions.findByType(AppExtension::class.java)
-            ?.buildToolsVersion
-            ?: throw GradleException("BuildToolsVersion not found")
-
-        val aapt2File = sdkDir.resolve("build-tools/$buildToolsVersion/aapt2")
-        if (!aapt2File.exists()) {
-            throw GradleException("aapt2 not found at: $aapt2File")
-        }
-
-        // 根据flavor构建资源文件路径
-        val flavorPath = if (flavorName.isNotEmpty()) "${flavorName}Release/" else "release/"
-        val optimizeDir = if (flavorName.isNotEmpty()) {
-            "optimize${flavorName.capitalized()}ReleaseResources"
-        } else {
-            "optimizeReleaseResources"
-        }
-        val resourceFileName = if (flavorName.isNotEmpty()) {
-            "resources-${flavorName}-release-optimize.ap_"
-        } else {
-            "resources-release-optimize.ap_"
-        }
-
-        val zipFile = project.layout.buildDirectory
-            .file("intermediates/optimized_processed_res/$flavorPath$optimizeDir/$resourceFileName")
-            .get().asFile
-
-        if (!zipFile.exists()) {
-            throw GradleException("Resource file not found: ${zipFile.absolutePath}")
-        }
-
-        val optimizedFile = File("${zipFile.absolutePath}.opt")
-
-        val result = execOperations.exec {
-            commandLine(
-                aapt2File.absolutePath, "optimize",
-                "--collapse-resource-names",
-                "--enable-sparse-encoding",
-                "-o", optimizedFile.absolutePath,
-                zipFile.absolutePath
-            )
-            isIgnoreExitValue = true
-        }
-
-        val exitCode = result.exitValue
-        if (exitCode == 0 && optimizedFile.exists()) {
-            if (zipFile.delete()) {
-                if (optimizedFile.renameTo(zipFile)) {
-                    logger.lifecycle("✅ Successfully optimized resources: ${zipFile.absolutePath}")
-                } else {
-                    throw GradleException("Failed to rename optimized file to original name")
-                }
-            } else {
-                throw GradleException("Failed to delete original resource file")
-            }
-        } else {
-            throw GradleException("aapt2 optimization failed with exit code $exitCode")
-        }
-    }
 }

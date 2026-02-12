@@ -1,37 +1,10 @@
-// Top-level(build file where you can add configuration options common to all sub-projects/modules.)
-buildscript {
-
-    val agpVersion by extra("8.12.3")
-    repositories {
-        maven("https://maven.aliyun.com/repository/public")
-        maven("https://maven.aliyun.com/repository/google")
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:$agpVersion")
-        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.2.20")
-        val kotlinVersion = "2.2.20"
-        classpath(kotlin("gradle-plugin", version = kotlinVersion))
-        classpath(kotlin("serialization", version = kotlinVersion))
-        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.20-2.0.4")
-
-        // NOTE: Do(not place your application dependencies here; they belong)
-        // in(the individual module build.gradle files)
-    }
-}
-
-allprojects {
-    repositories {
-        maven("https://maven.aliyun.com/repository/public")
-        maven("https://maven.aliyun.com/repository/google")
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://jitpack.io")
-        maven("https://api.xposed.info/")
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.ksp) apply false
 }
 
 tasks.register<Delete>("clean") {
