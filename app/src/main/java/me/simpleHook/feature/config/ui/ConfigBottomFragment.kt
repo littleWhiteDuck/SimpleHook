@@ -9,57 +9,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.simpleHook.R
 import me.simpleHook.core.base.BaseBottomFragment
-import me.simpleHook.data.HookConfig
 import me.simpleHook.core.constant.Constant
-import me.simpleHook.databinding.FragemntConfigDialogBinding
 import me.simpleHook.core.extension.isContainState
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.core.utils.SPUtil
-import java.util.regex.Pattern
-
-
-private const val smaliPattern = """^L.*;"""
-private const val pattern_basic = """([BSIJFDZC])([BSIJFDZCL])"""
-private const val pattern_basic_array = """\[([BSIJFDZC])"""
-private const val pattern_object_array = """\[L(.*)"""
-private const val CLASS_NAME_STATE = 1
-private const val METHOD_NAME_STATE = 1 shl 1
-private const val PARAMS_STATE = 1 shl 2
-private const val RESULT_VALUE_STATE = 1 shl 3
-private const val FIELD_NAME_STATE = 1 shl 4
-private const val FIELD_CLASS_NAME_STATE = 1 shl 5
-private const val HOOK_POINT_STATE = 1 shl 6
-private const val RETURN_CLASS_NAME = 1 shl 7
-private const val HOOK_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
-private const val HOOK_RETURN2_CHECK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
-private const val HOOK_PARAM_CHECK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-private const val HOOK_STATIC_FIELD_CHECK =
-    FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
-private const val HOOK_RECORD_STATIC_FIELD_CHECK = FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
-private const val HOOK_FIELD_CHECK =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
-private const val HOOK_RECORD_FIELD_CHECK =
-    CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
-private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-private const val RECORD_PARAMS_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RETURN_PARAMS =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-private const val SHOW_RETURN2 =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
-private const val SHOW_STATIC_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
-    CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-
-private const val SHOW_RECORD_STATIC_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-private const val SHOW_RECORD_INSTANCE_FIELD =
-    HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
+import me.simpleHook.core.utils.SmaliSignatureParser
+import me.simpleHook.data.HookConfig
+import me.simpleHook.databinding.FragemntConfigDialogBinding
 
 class ConfigBottomFragment(
     private val hookConfig: HookConfig,
@@ -71,7 +27,6 @@ class ConfigBottomFragment(
     private var configEnable = true
     private val sp by lazy { SPUtil(requireContext()) }
     override var enableUpdateHeight: Boolean = false
-
 
     override fun init() {
         initView()
@@ -140,7 +95,8 @@ class ConfigBottomFragment(
     }
 
     private fun toCheck() {
-        val className = smali2Java(binding.classNameEdit.text.toString().trim())
+        val className =
+            SmaliSignatureParser.classDescriptorToJavaOrSelf(binding.classNameEdit.text.toString().trim())
         val methodName = binding.methodNameEdit.text.toString().trim()
         val params = tranParams(binding.paramsTypeEdit.text.toString().trim())
         val results = binding.resultValueEdit.text.toString().trim()
@@ -153,17 +109,20 @@ class ConfigBottomFragment(
                 if (it == "before") it else "after"
             }
         }
-        val returnClassName = smali2Java(binding.returnClassNameEdit.text.toString().trim())
+        val returnClassName =
+            SmaliSignatureParser.classDescriptorToJavaOrSelf(binding.returnClassNameEdit.text.toString().trim())
         val configDesc = binding.configItemDescEdit.text.toString().trim()
-        var stateCheck = getCheckStateMode(this.hookMode)
-        if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
-        if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
-        if (params.isNotEmpty()) stateCheck = stateCheck and PARAMS_STATE.inv()
-        if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
-        if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
-        if (fieldClassName.isNotEmpty()) stateCheck = stateCheck and FIELD_CLASS_NAME_STATE.inv()
-        if (hookPoint.isNotEmpty()) stateCheck = stateCheck and HOOK_POINT_STATE.inv()
-        if (returnClassName.isNotEmpty()) stateCheck = stateCheck and RETURN_CLASS_NAME.inv()
+        val stateCheck = ConfigModeState.unresolvedState(
+            mode = this.hookMode,
+            className = className,
+            methodName = methodName,
+            params = params,
+            resultValues = results,
+            fieldName = fieldName,
+            fieldClassName = fieldClassName,
+            hookPoint = hookPoint,
+            returnClassName = returnClassName
+        )
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
@@ -189,99 +148,46 @@ class ConfigBottomFragment(
         }
     }
 
-    private fun smali2Java(strSmali: String) = if (Pattern.matches(smaliPattern, strSmali)) {
-        strSmali.replaceFirst("L", "").replace("/", ".").replace(";", "")
-    } else {
-        strSmali
-    }
-
-    private fun tranParam(param: String): String {
-        var temp = param
-        temp = temp.replace(Regex(pattern_object_array), "$1[]")
-        if (temp.startsWith("L")) {
-            temp = temp.replaceFirst("L", "")
-        }
-        return temp.replace("/", ".")
-    }
-
     private fun tranParams(params: String): String {
         if (!sp.auto_x_param) return params
-        val isSmali = params.contains(Regex("[/;]")) || isPrimitiveType(params)
-        if (!isSmali || params.isEmpty()) return params
-        var paramStr = params
-        val json = "<ON>"
-        if (params.contains("JSON")) {
-            paramStr = paramStr.replace("JSON", json)
-        }
-        paramStr = paramStr.replace("[]", "防止加逗号")
-        paramStr = paramStr.replace("[", ",[")
-        paramStr = paramStr.replace("防止加逗号", "[]")
-        paramStr = paramStr.replace("VERSION", "防止加逗号")
-        while (paramStr.contains(Regex(pattern_basic))) {
-            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
-        }
-        paramStr = paramStr.replace("防止加逗号", "VERSION")
-        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
-        val paramArray = paramStr.split(Regex("[,;]"))
-        val sb = StringBuilder()
-        for (i in paramArray.indices) {
-            if (paramArray[i].trim().isEmpty()) continue
-            sb.append(tranParam(paramArray[i])).append(",")
-        }
-        var temp = sb.toString()
-        if (params.contains("JSON")) {
-            temp = temp.replace(json, "JSON")
-        }
-        if (temp[temp.length - 1] == ',') {
-            temp = temp.substring(0, temp.length - 1)
-        }
-        return temp
-    }
-
-    private fun isPrimitiveType(params: String): Boolean {
-        var isSmali = true
-        var paramStr = params
-        paramStr = paramStr.replace("[", ",[")
-        while (paramStr.contains(Regex(pattern_basic))) {
-            paramStr = paramStr.replace(Regex(pattern_basic), "$1,$2")
-        }
-        paramStr = paramStr.replace(Regex(pattern_basic_array), "[$1,")
-        val paramArray = paramStr.split(",")
-        for (i in paramArray.indices) {
-            if (paramArray[i].trim().isEmpty()) continue
-            isSmali =
-                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
-                    Regex(
-                        pattern_basic_array
-                    )
-                ) || paramArray[i].isEmpty()
-        }
-        return isSmali
+        return SmaliSignatureParser.toJavaParametersOrSelf(params)
     }
 
     private fun onModeChange() {
-        val checkStateMode = getShowStateMode(hookMode)
+        val checkStateMode = ConfigModeState.showState(hookMode)
         binding.apply {
             showView(
-                checkStateMode isContainState METHOD_NAME_STATE,
+                checkStateMode isContainState ConfigModeState.METHOD_NAME,
                 methodNameInput,
                 methodNameEdit
             )
-            showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
-            showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
             showView(
-                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+                checkStateMode isContainState ConfigModeState.PARAMS,
+                paramsTypeInput,
+                paramsTypeEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.FIELD_NAME,
+                fieldNameInput,
+                fieldNameEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.FIELD_CLASS_NAME,
                 fieldClassNameInput,
                 fieldClassNameEdit
             )
             showView(
-                checkStateMode isContainState RESULT_VALUE_STATE,
+                checkStateMode isContainState ConfigModeState.RESULT_VALUE,
                 resultValueInput,
                 resultValueEdit
             )
-            showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
             showView(
-                checkStateMode isContainState RETURN_CLASS_NAME,
+                checkStateMode isContainState ConfigModeState.HOOK_POINT,
+                hookPointInput,
+                hookPointEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.RETURN_CLASS_NAME,
                 returnClassNameInput,
                 returnClassNameEdit
             )
@@ -292,31 +198,4 @@ class ConfigBottomFragment(
         input.visibility = if (isShow) View.VISIBLE else View.GONE
         if (!isShow) edit.setText("")
     }
-
-    private fun getCheckStateMode(mode: Int) = when (mode) {
-        Constant.HOOK_RETURN -> HOOK_RETURN_CHECK
-        Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
-        Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
-        Constant.HOOK_FIELD -> HOOK_FIELD_CHECK
-        Constant.HOOK_RECORD_INSTANCE_FIELD -> HOOK_RECORD_FIELD_CHECK
-        Constant.HOOK_STATIC_FIELD -> HOOK_STATIC_FIELD_CHECK
-        Constant.HOOK_RECORD_STATIC_FIELD -> HOOK_RECORD_STATIC_FIELD_CHECK
-        Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
-        Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
-        Constant.HOOK_RETURN2 -> HOOK_RETURN2_CHECK
-        else -> 0
-    }
-
-
-    private fun getShowStateMode(mode: Int) = when (mode) {
-        Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
-        Constant.HOOK_FIELD -> SHOW_FIELD
-        Constant.HOOK_STATIC_FIELD -> SHOW_STATIC_FIELD
-        Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
-        Constant.HOOK_RECORD_STATIC_FIELD -> SHOW_RECORD_STATIC_FIELD
-        Constant.HOOK_RECORD_INSTANCE_FIELD -> SHOW_RECORD_INSTANCE_FIELD
-        Constant.HOOK_RETURN2 -> SHOW_RETURN2
-        else -> 0
-    }
-
 }

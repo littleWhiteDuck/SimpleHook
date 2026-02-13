@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.ui.util.fastJoinToString
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -42,6 +41,7 @@ import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.HookConfig
 import me.simpleHook.data.FieldInfo
+import me.simpleHook.data.MemberInfo
 import me.simpleHook.data.MethodInfo
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.data.local.db.entity.CollectionEntity
@@ -61,19 +61,17 @@ import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.HookModeUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.SPUtil
+import me.simpleHook.core.utils.SmaliSignatureParser
 import me.simpleHook.core.utils.ToolUtil
 import me.simpleHook.feature.applist.ui.AppListActivity
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 import me.simpleHook.feature.config.viewmodel.CollectionViewModel
 import me.simpleHook.feature.dexbrowser.ui.DexBrowserActivity
 import java.lang.reflect.Field
-import java.util.regex.Pattern
-import java.util.regex.Pattern.matches
 
 
 class ConfigActivity : BaseActivity() {
 
-    private val smaliPattern = """^L.*;"""
     private var configList = ArrayList<HookConfig>()
     private var hookMode = Constant.HOOK_RETURN
     private var modify = false
@@ -437,28 +435,40 @@ class ConfigActivity : BaseActivity() {
     }
 
     private fun onModeChange(dialogBinding: ConfigDialogBinding) {
-        val checkStateMode = getShowStateMode(hookMode)
+        val checkStateMode = ConfigModeState.showState(hookMode)
         with(dialogBinding) {
             showView(
-                checkStateMode isContainState METHOD_NAME_STATE,
+                checkStateMode isContainState ConfigModeState.METHOD_NAME,
                 methodNameInput,
                 methodNameEdit
             )
-            showView(checkStateMode isContainState PARAMS_STATE, paramsTypeInput, paramsTypeEdit)
-            showView(checkStateMode isContainState FIELD_NAME_STATE, fieldNameInput, fieldNameEdit)
             showView(
-                checkStateMode isContainState FIELD_CLASS_NAME_STATE,
+                checkStateMode isContainState ConfigModeState.PARAMS,
+                paramsTypeInput,
+                paramsTypeEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.FIELD_NAME,
+                fieldNameInput,
+                fieldNameEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.FIELD_CLASS_NAME,
                 fieldClassNameInput,
                 fieldClassNameEdit
             )
             showView(
-                checkStateMode isContainState RESULT_VALUE_STATE,
+                checkStateMode isContainState ConfigModeState.RESULT_VALUE,
                 resultValueInput,
                 resultValueEdit
             )
-            showView(checkStateMode isContainState HOOK_POINT_STATE, hookPointInput, hookPointEdit)
             showView(
-                checkStateMode isContainState RETURN_CLASS_NAME,
+                checkStateMode isContainState ConfigModeState.HOOK_POINT,
+                hookPointInput,
+                hookPointEdit
+            )
+            showView(
+                checkStateMode isContainState ConfigModeState.RETURN_CLASS_NAME,
                 returnClassNameInput,
                 returnClassNameEdit
             )
@@ -473,7 +483,8 @@ class ConfigActivity : BaseActivity() {
     private fun toCheck(
         dialogBinding: ConfigDialogBinding, hookMode: Int, enable: Boolean
     ): Boolean {
-        val className = this.smali2Java(dialogBinding.classNameEdit.text.toString().trim())
+        val className =
+            SmaliSignatureParser.classDescriptorToJavaOrSelf(dialogBinding.classNameEdit.text.toString().trim())
         val methodName = dialogBinding.methodNameEdit.text.toString().trim()
         val params = tranParams(dialogBinding.paramsTypeEdit.text.toString().trim())
         val results = dialogBinding.resultValueEdit.text.toString().trim()
@@ -487,16 +498,18 @@ class ConfigActivity : BaseActivity() {
             }
         }
         val returnClassName =
-            this.smali2Java(dialogBinding.returnClassNameEdit.text.toString().trim())
-        var stateCheck = getCheckStateMode(this.hookMode)
-        if (className.isNotEmpty()) stateCheck = stateCheck and CLASS_NAME_STATE.inv()
-        if (methodName.isNotEmpty()) stateCheck = stateCheck and METHOD_NAME_STATE.inv()
-        if (params.isNotEmpty()) stateCheck = stateCheck and PARAMS_STATE.inv()
-        if (results.isNotEmpty()) stateCheck = stateCheck and RESULT_VALUE_STATE.inv()
-        if (fieldName.isNotEmpty()) stateCheck = stateCheck and FIELD_NAME_STATE.inv()
-        if (fieldClassName.isNotEmpty()) stateCheck = stateCheck and FIELD_CLASS_NAME_STATE.inv()
-        if (hookPoint.isNotEmpty()) stateCheck = stateCheck and HOOK_POINT_STATE.inv()
-        if (returnClassName.isNotEmpty()) stateCheck = stateCheck and RETURN_CLASS_NAME.inv()
+            SmaliSignatureParser.classDescriptorToJavaOrSelf(dialogBinding.returnClassNameEdit.text.toString().trim())
+        val stateCheck = ConfigModeState.unresolvedState(
+            mode = this.hookMode,
+            className = className,
+            methodName = methodName,
+            params = params,
+            resultValues = results,
+            fieldName = fieldName,
+            fieldClassName = fieldClassName,
+            hookPoint = hookPoint,
+            returnClassName = returnClassName
+        )
         val canCancel = stateCheck == 0
         if (canCancel) {
             if (methodName == "<init>" && (hookMode == Constant.HOOK_RETURN || hookMode == Constant.HOOK_BREAK)) {
@@ -519,38 +532,6 @@ class ConfigActivity : BaseActivity() {
             showPopup(getString(R.string.config_info_not_match_mode))
         }
         return canCancel
-    }
-
-    private fun getCheckStateMode(mode: Int) = when (mode) {
-        Constant.HOOK_RETURN -> HOOK_RETURN_CHECK
-        Constant.HOOK_PARAM -> HOOK_PARAM_CHECK
-        Constant.HOOK_BREAK -> HOOK_BREAK_CHECK
-        Constant.HOOK_FIELD -> HOOK_FIELD_CHECK
-        Constant.HOOK_RECORD_INSTANCE_FIELD -> HOOK_RECORD_FIELD_CHECK
-        Constant.HOOK_STATIC_FIELD -> HOOK_STATIC_FIELD_CHECK
-        Constant.HOOK_RECORD_STATIC_FIELD -> HOOK_RECORD_STATIC_FIELD_CHECK
-        Constant.HOOK_RECORD_RETURN -> RECORD_RETURN_CHECK
-        Constant.HOOK_RECORD_PARAMS, Constant.HOOK_RECORD_PARAMS_RETURN -> RECORD_PARAMS_CHECK
-        Constant.HOOK_RETURN2 -> HOOK_RETURN2_CHECK
-        else -> 0
-    }
-
-
-    private fun getShowStateMode(mode: Int) = when (mode) {
-        Constant.HOOK_RETURN, Constant.HOOK_PARAM -> SHOW_RETURN_PARAMS
-        Constant.HOOK_FIELD -> SHOW_FIELD
-        Constant.HOOK_STATIC_FIELD -> SHOW_STATIC_FIELD
-        Constant.HOOK_RECORD_RETURN, Constant.HOOK_RECORD_PARAMS, Constant.HOOK_BREAK, Constant.HOOK_RECORD_PARAMS_RETURN -> SHOW_RECORD_RETURN_PARAMS_BREAK
-        Constant.HOOK_RECORD_STATIC_FIELD -> SHOW_RECORD_STATIC_FIELD
-        Constant.HOOK_RECORD_INSTANCE_FIELD -> SHOW_RECORD_INSTANCE_FIELD
-        Constant.HOOK_RETURN2 -> SHOW_RETURN2
-        else -> 0
-    }
-
-    private fun smali2Java(strSmali: String) = if (matches(smaliPattern, strSmali)) {
-        strSmali.replaceFirst("L", "").replace("/", ".").replace(";", "")
-    } else {
-        strSmali
     }
 
 
@@ -609,18 +590,8 @@ class ConfigActivity : BaseActivity() {
             val config: HookConfig? = runCatching {
                 Json.decodeFromString<HookConfig>(it.config)
             }.getOrNull()
-            config?.let { config ->
-                if (sp.bottomConfigDialog) {
-                    ConfigBottomFragment(saveConfig = { save ->
-                        modifyConfig = false
-                        addConfig(save)
-                    }, deleteConfig = {
-
-                    }, hookConfig = config).show(supportFragmentManager, "ADD")
-                } else {
-                    showDialog(config, isSmali2Config = true)
-                }
-            } ?: showPopup(getString(R.string.config_collection_illegal_format))
+            config?.let(::showConfigEditor)
+                ?: showPopup(getString(R.string.config_collection_illegal_format))
         }.show(supportFragmentManager, "collect")
     }
 
@@ -706,101 +677,73 @@ class ConfigActivity : BaseActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun patternStr(string: String) {
-        var hookConfig: HookConfig? = null
-        val config: HookConfig? = when {
-            matches(PATTERN_METHOD, string) -> {
-                val matcher = Pattern.compile(PATTERN_METHOD).matcher(string)
-                if (matcher.find()) {
-                    val className = smali2Java(matcher.group(2)!!)
-                    val methodName = matcher.group(3)!!
-                    val params = matcher.group(4)!!
-                    val returnType = matcher.group(5)!!
+        val config = parseClipboardToConfig(string)
+        config?.let { showConfigEditor(it) } ?: showPopup(getString(R.string.config_smali_to_config_error))
+    }
 
-                    if (getMode(returnType, params) == Constant.HOOK_RETURN) {
-                        hookConfig = HookConfig(
-                            Constant.HOOK_RETURN,
-                            className,
-                            methodName,
-                            tranParams(params),
-                            "",
-                            "",
-                            getReturnValue(returnType)
-                        )
-
-                    } else {
-                        hookConfig = HookConfig(
-                            getMode(returnType, params),
-                            smali2Java(className),
-                            methodName,
-                            tranParams(params),
-                            "",
-                            "",
-                            ""
-                        )
-
-                    }
-
-                }
-                hookConfig
-            }
-
-            matches(PATTERN_FIELD, string) -> {
-                val matcher = Pattern.compile(PATTERN_FIELD).matcher(string)
-                if (matcher.find()) {
-                    val className = smali2Java(matcher.group(2)!!)
-                    val fieldName = matcher.group(3)!!
-                    val fieldType = matcher.group(4)!!
-                    val fieldMode =
-                        if (string.startsWith("iget") || string.startsWith("iput")) Constant.HOOK_FIELD else Constant.HOOK_STATIC_FIELD
-                    hookConfig = if (fieldMode == Constant.HOOK_STATIC_FIELD) {
-                        HookConfig(
-                            mode = Constant.HOOK_STATIC_FIELD,
-                            "",
-                            "",
-                            "",
-                            fieldName = fieldName,
-                            fieldClassName = smali2Java(className),
-                            resultValues = getReturnValue(fieldType)
-                        )
-                    } else {
-                        HookConfig(
-                            fieldMode,
-                            className = smali2Java(className),
-                            "",
-                            "",
-                            fieldName = fieldName,
-                            "",
-                            getReturnValue(fieldType)
-                        )
-                    }
-
-                }
-                hookConfig
-            }
-
-            JsonUtil.isJsonObject(string) -> {
-                try {
-                    hookConfig = Json.decodeFromString<HookConfig>(string)
-                } catch (_: java.lang.Exception) {
-                    showPopup(getString(R.string.config_tip_error_config_format))
-                }
-                hookConfig
-            }
-
-            else -> null
+    private fun parseClipboardToConfig(string: String): HookConfig? {
+        if (JsonUtil.isJsonObject(string)) {
+            return runCatching {
+                Json.decodeFromString<HookConfig>(string)
+            }.onFailure {
+                showPopup(getString(R.string.config_tip_error_config_format))
+            }.getOrNull()
         }
-        config?.also {
-            modifyConfig = false
-            if (sp.bottomConfigDialog) {
-                ConfigBottomFragment(saveConfig = { save ->
-                    addConfig(save)
-                }, deleteConfig = {
 
-                }, hookConfig = it).show(supportFragmentManager, "ADD")
-            } else {
-                showDialog(it, isSmali2Config = true)
+        return when (val info = SmaliSignatureParser.parse(string)) {
+            is MemberInfo.MethodInfo -> {
+                val params = info.parameters.joinToString(",")
+                val mode = getMode(info.returnType, params)
+                HookConfig(
+                    mode = mode,
+                    className = info.className,
+                    methodName = info.methodName,
+                    params = params,
+                    resultValues = if (mode == Constant.HOOK_RETURN) getReturnValue(info.returnType) else ""
+                )
             }
-        } ?: showPopup(getString(R.string.config_smali_to_config_error))
+
+            is MemberInfo.FieldInfo -> {
+                val normalized = string.trim()
+                val isStaticField = info.isStatic || (
+                    !normalized.startsWith("iget") &&
+                        !normalized.startsWith("iput") &&
+                        !normalized.startsWith("sget") &&
+                        !normalized.startsWith("sput")
+                    )
+                val resultValue = getReturnValue(info.fieldType)
+                if (isStaticField) {
+                    HookConfig(
+                        mode = Constant.HOOK_STATIC_FIELD,
+                        fieldName = info.fieldName,
+                        fieldClassName = info.className,
+                        resultValues = resultValue
+                    )
+                } else {
+                    HookConfig(
+                        mode = Constant.HOOK_FIELD,
+                        className = info.className,
+                        fieldName = info.fieldName,
+                        resultValues = resultValue
+                    )
+                }
+            }
+
+            null -> null
+        }
+    }
+
+    private fun showConfigEditor(config: HookConfig) {
+        modifyConfig = false
+        if (sp.bottomConfigDialog) {
+            ConfigBottomFragment(saveConfig = { save ->
+                addConfig(save)
+            }, deleteConfig = {
+
+            }, hookConfig = config).show(supportFragmentManager, "ADD")
+        } else {
+            showDialog(config, isSmali2Config = true)
+        }
     }
 
 
@@ -810,15 +753,9 @@ class ConfigActivity : BaseActivity() {
         val fieldInfo = data.getParcelableExtraCompat<FieldInfo>("fieldInfo")
 
         val hookConfig = if (methodInfo != null) {
-            val params = methodInfo.parameters.map {
-                if (it.startsWith("[L")) {
-                    it.removePrefix("[L").replace("/", ".").replace(";", "[]")
-                } else if (it.startsWith("L")) {
-                    it.removePrefix("L").removeSuffix(";").replace("/", ".")
-                } else if (it.startsWith("[")) {
-                    "${it.removePrefix("[")}[]"
-                } else it
-            }.fastJoinToString(separator = ",")
+            val params = methodInfo.parameters.joinToString(separator = ",") {
+                SmaliSignatureParser.toJavaTypeOrSelf(it)
+            }
             HookConfig(
                 className = className,
                 methodName = methodInfo.name,
@@ -851,100 +788,34 @@ class ConfigActivity : BaseActivity() {
 
         }
 
-        modifyConfig = false
-        if (sp.bottomConfigDialog) {
-            ConfigBottomFragment(saveConfig = { save ->
-                addConfig(save)
-            }, deleteConfig = {
-
-            }, hookConfig = hookConfig).show(supportFragmentManager, "ADD")
-        } else {
-            showDialog(hookConfig, isSmali2Config = true)
-        }
-    }
-
-    private fun tranParam(param: String): String {
-        var temp = param
-        temp = temp.replace(Regex(PATTERN_OBJECT_ARRAY), "$1[]")
-        if (temp.startsWith("L")) {
-            temp = temp.replaceFirst("L", "")
-        }
-        return temp.replace("/", ".")
+        showConfigEditor(hookConfig)
     }
 
     private fun tranParams(params: String): String {
-        val isSmali = params.contains(Regex("[/;]")) || isPrimitiveType(params)
-        if (!isSmali || params.isEmpty()) return params
-        var paramStr = params
-        val json = "<ON>"
-        if (params.contains("JSON")) {
-            paramStr = paramStr.replace("JSON", json)
-        }
-        paramStr = paramStr.replace("[]", "闃叉鍔犻€楀彿")
-        paramStr = paramStr.replace("[", ",[")
-        paramStr = paramStr.replace("闃叉鍔犻€楀彿", "[]")
-        paramStr = paramStr.replace("VERSION", "闃叉鍔犻€楀彿")
-        while (paramStr.contains(Regex(PATTERN_BASIC))) {
-            paramStr = paramStr.replace(Regex(PATTERN_BASIC), "$1,$2")
-        }
-        paramStr = paramStr.replace("闃叉鍔犻€楀彿", "VERSION")
-        paramStr = paramStr.replace(Regex(PATTERN_BASIC_ARRAY), "[$1,")
-        val paramArray = paramStr.split(Regex("[,;]"))
-        val sb = StringBuilder()
-        for (i in paramArray.indices) {
-            if (paramArray[i].trim().isEmpty()) continue
-            sb.append(tranParam(paramArray[i])).append(",")
-        }
-        var temp = sb.toString()
-        if (params.contains("JSON")) {
-            temp = temp.replace(json, "JSON")
-        }
-        if (temp[temp.length - 1] == ',') {
-            temp = temp.substring(0, temp.length - 1)
-        }
-        return temp
-    }
-
-    private fun isPrimitiveType(params: String): Boolean {
-        var isSmali = true
-        var paramStr = params
-        paramStr = paramStr.replace("[", ",[")
-        while (paramStr.contains(Regex(PATTERN_BASIC))) {
-            paramStr = paramStr.replace(Regex(PATTERN_BASIC), "$1,$2")
-        }
-        paramStr = paramStr.replace(Regex(PATTERN_BASIC_ARRAY), "[$1,")
-        val paramArray = paramStr.split(",")
-        for (i in paramArray.indices) {
-            if (paramArray[i].trim().isEmpty()) continue
-            isSmali =
-                paramArray[i].contains(Regex("""[BSIJFDZC]""")) || paramArray[i].contains(
-                    Regex(
-                        PATTERN_BASIC_ARRAY
-                    )
-                ) || paramArray[i].isEmpty()
-        }
-        return isSmali
+        return SmaliSignatureParser.toJavaParametersOrSelf(params)
     }
 
     private fun getReturnValue(returnType: String): String {
-        return when (returnType) {
-            "Z" -> "true"
-            "F" -> "1f"
-            "J" -> "4787107805000l"
-            "D" -> "2d"
-            "Ljava/lang/String;" -> "isVip"
-            "S" -> "1short"
-            "C" -> "1c"
-            "I" -> "1"
-            "B" -> "1"
+        return when (returnType.trim()) {
+            "Z", "boolean" -> "true"
+            "F", "float" -> "1f"
+            "J", "long" -> "4787107805000l"
+            "D", "double" -> "2d"
+            "Ljava/lang/String;", "java.lang.String", "String" -> "isVip"
+            "S", "short" -> "1short"
+            "C", "char" -> "1c"
+            "I", "int" -> "1"
+            "B", "byte" -> "1"
             else -> "null"
         }
     }
 
     private fun getMode(returnType: String, params: String): Int {
-        return if (returnType == "V" && params.isNotEmpty()) {
+        val normalizedReturnType = returnType.trim()
+        val isVoid = normalizedReturnType == "V" || normalizedReturnType == "void"
+        return if (isVoid && params.isNotEmpty()) {
             Constant.HOOK_PARAM
-        } else if (returnType == "V") {
+        } else if (isVoid) {
             Constant.HOOK_BREAK
         } else {
             Constant.HOOK_RETURN
@@ -952,56 +823,7 @@ class ConfigActivity : BaseActivity() {
 
     }
 
-    companion object {
-        private const val PATTERN_METHOD = """(.*, )?(.*)->(.*)\((.*)\)(.*)"""
-        private const val PATTERN_FIELD = """(.*, )?(.*)->(.*):(.*)"""
-        private const val PATTERN_BASIC = """([BSIJFDZC])([BSIJFDZCL])"""
-        private const val PATTERN_BASIC_ARRAY = """\[([BSIJFDZC])"""
-        private const val PATTERN_OBJECT_ARRAY = """\[L(.*)"""
-        private const val CLASS_NAME_STATE = 1
-        private const val METHOD_NAME_STATE = 1 shl 1
-        private const val PARAMS_STATE = 1 shl 2
-        private const val RESULT_VALUE_STATE = 1 shl 3
-        private const val FIELD_NAME_STATE = 1 shl 4
-        private const val FIELD_CLASS_NAME_STATE = 1 shl 5
-        private const val HOOK_POINT_STATE = 1 shl 6
-        private const val RETURN_CLASS_NAME = 1 shl 7
-        private const val HOOK_RETURN_CHECK =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE
-        private const val HOOK_RETURN2_CHECK =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or RETURN_CLASS_NAME
-        private const val HOOK_PARAM_CHECK =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-        private const val HOOK_BREAK_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-        private const val HOOK_STATIC_FIELD_CHECK =
-            FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE
-        private const val HOOK_RECORD_STATIC_FIELD_CHECK =
-            FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE
-        private const val HOOK_FIELD_CHECK =
-            CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE
-        private const val HOOK_RECORD_FIELD_CHECK =
-            CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE
-        private const val RECORD_RETURN_CHECK = CLASS_NAME_STATE or METHOD_NAME_STATE
-        private const val RECORD_PARAMS_CHECK =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-        private const val SHOW_RETURN_PARAMS =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE
-        private const val SHOW_RETURN2 =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or RESULT_VALUE_STATE or PARAMS_STATE or RETURN_CLASS_NAME
-        private const val SHOW_STATIC_FIELD =
-            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-        private const val SHOW_FIELD =
-            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or RESULT_VALUE_STATE or METHOD_NAME_STATE or PARAMS_STATE
-        private const val SHOW_RECORD_RETURN_PARAMS_BREAK =
-            CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-
-        private const val SHOW_RECORD_STATIC_FIELD =
-            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or FIELD_CLASS_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-        private const val SHOW_RECORD_INSTANCE_FIELD =
-            HOOK_POINT_STATE or CLASS_NAME_STATE or FIELD_NAME_STATE or METHOD_NAME_STATE or PARAMS_STATE
-
-    }
-
 }
 
 data class AppInfo(val appName: String, val packageName: String, val versionName: String)
+
