@@ -1,4 +1,4 @@
-package me.simpleHook.feature.record.viewmodel
+﻿package me.simpleHook.feature.record.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -246,44 +246,44 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     }.string()
                     add(RDItem(title = labelType, content = "Base64"))
                     add(RDItem(title = labelEncodeDecode, content = codeType))
-                    record.rawData.forEach {
+                    record.rawData.displayEntries().forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.resultData.forEach {
+                    record.resultData.displayEntries().forEach {
                         val title = R.string.record_result_data_format_type2.string(
                             codeType,
                             it.key.displayName
                         )
                         add(RDItem(title = title, content = it.value))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
 
                 }
 
                 is RecordCipher -> {
                     add(RDItem(title = labelType, content = record.algorithm))
                     add(RDItem(title = labelEncryptDecrypt, content = record.cryptType.displayId.string()))
-                    record.key?.forEach {
+                    record.key?.displayEntries()?.forEach {
                         val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.iv?.forEach {
+                    record.iv?.displayEntries()?.forEach {
                         val title = R.string.record_iv_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.rawData.forEach {
+                    record.rawData.displayEntries().forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.resultData.forEach {
+                    record.resultData.displayEntries().forEach {
                         val title = R.string.record_result_data_format_type2.string(
                             "",
                             it.key.displayName
                         )
                         add(RDItem(title = title, content = it.value))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordClickEvent -> {
@@ -292,7 +292,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(RDItem(title = labelCallbackClass, content = record.callbackType))
                     add(RDItem(title = labelId, content = record.viewId ?: noId))
                     add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordClipboard -> {
@@ -301,19 +301,19 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         ?: R.string.record_write_clipboard
                     add(RDItem(labelWriteRead, content = typeID.string()))
                     add(RDItem(labelContent, content = record.info))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordCrash -> {
                     add(RDItem(title = labelType, content = R.string.record_type_crash.string()))
                     add(RDItem(title = labelThreadName, content = record.threadName))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordDialog -> {
                     add(RDItem(title = labelType, content = record.dialogType.displayId.string()))
                     add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordError -> {
@@ -324,13 +324,13 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     record.supplement?.let {
                         add(RDItem(title = labelSupplementInfo, content = it))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordExit -> {
                     add(RDItem(title = labelType, content = R.string.record_type_exit.string()))
                     add(RDItem(title = labelExitType, content = record.exitType))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordField -> {
@@ -352,7 +352,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         fieldClassName?.let {
                             add(RDItem(title = labelFieldClassName, content = it))
                         }
-                        addAll(filedValue.map {
+                        addAll(filedValue.displayEntries().map {
                             RDItem(
                                 title = R.string.record_label_field_value_format.string(it.key.displayName),
                                 content = it.value
@@ -367,27 +367,27 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     record.partData?.let {
                         add(RDItem(title = labelOperationContent, content = it))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordHmac -> {
                     add(RDItem(title = labelType, content = record.algorithm))
-                    record.key?.forEach {
+                    record.key?.displayEntries()?.forEach {
                         val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.rawData.forEach {
+                    record.rawData.displayEntries().forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.resultData.forEach {
+                    record.resultData.displayEntries().forEach {
                         val title = R.string.record_result_data_format_type2.string(
                             "",
                             it.key.displayName
                         )
                         add(RDItem(title = title, content = it.value))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordIntent -> {
@@ -397,7 +397,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(RDItem(title = labelAction, content = record.action))
                     add(RDItem(title = labelData, content = record.data))
                     record.extras.forEachIndexed { index, extra ->
-                        val extraValues = extra.value.entries.joinToString("\n") {
+                        val extraValues = extra.value.displayEntries().joinToString("\n") {
                             R.string.record_label_extra_value_format.string(it.key.displayName, it.value)
                         }
                         add(
@@ -417,23 +417,23 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.values.map {
                         RDItem(title = it.key, content = it.value)
                     })
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordMac -> {
                     add(RDItem(title = labelType, content = record.algorithm))
-                    record.rawData.forEach {
+                    record.rawData.displayEntries().forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
                     }
-                    record.resultData.forEach {
+                    record.resultData.displayEntries().forEach {
                         val title = R.string.record_result_data_format_type2.string(
                             "",
                             it.key.displayName
                         )
                         add(RDItem(title = title, content = it.value))
                     }
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordParam -> {
@@ -443,7 +443,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         "${record.methodName}(${record.params.joinToString(",")})"
                     add(RDItem(title = labelMethodWithParams, methodSign))
                     record.paramValues.forEachIndexed { index, map ->
-                        addAll(map.map {
+                        addAll(map.displayEntries().map {
                             RDItem(
                                 title = R.string.record_label_param_value_format.string(
                                     index + 1,
@@ -453,12 +453,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                             )
                         })
                     }
-                    add(
-                        RDItem(
-                            title = R.string.record_call_stack.string(),
-                            record.callStack.joinToString("\n")
-                        )
-                    )
+                    addCallStackIfPresent(record.callStack)
                 }
 
                 is RecordParamReturn -> {
@@ -468,7 +463,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         "${record.methodName}(${record.params.joinToString(",")})"
                     add(RDItem(title = labelMethodWithParams, methodSign))
                     record.paramValues.forEachIndexed { index, map ->
-                        addAll(map.map {
+                        addAll(map.displayEntries().map {
                             RDItem(
                                 title = R.string.record_label_param_value_format.string(
                                     index + 1,
@@ -478,24 +473,19 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                             )
                         })
                     }
-                    addAll(record.returnValue.map {
+                    addAll(record.returnValue.displayEntries().map {
                         RDItem(
                             title = R.string.record_label_return_value_format.string(it.key.displayName),
                             content = it.value
                         )
                     })
-                    add(
-                        RDItem(
-                            title = R.string.record_call_stack.string(),
-                            record.callStack.joinToString("\n")
-                        )
-                    )
+                    addCallStackIfPresent(record.callStack)
                 }
 
                 is RecordPopupWindow -> {
                     add(RDItem(title = labelType, content = record.popupType.displayId.string()))
                     add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordReturn -> {
@@ -504,33 +494,36 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     val methodSign =
                         "${record.methodName}(${record.params.joinToString(",")})"
                     add(RDItem(title = labelMethodWithParams, methodSign))
-                    addAll(record.returnValue.map {
+                    addAll(record.returnValue.displayEntries().map {
                         RDItem(
                             title = R.string.record_label_return_value_format.string(it.key.displayName),
                             content = it.value
                         )
                     })
-                    add(
-                        RDItem(
-                            title = R.string.record_call_stack.string(),
-                            record.callStack.joinToString("\n")
-                        )
-                    )
+                    addCallStackIfPresent(record.callStack)
                 }
 
                 is RecordSignature -> {
                     add(RDItem(title = labelType, content = R.string.record_type_signature.string()))
-                    add(RDItem(title = R.string.record_label_md5.string(), content = record.md5))
-                    add(RDItem(title = R.string.record_label_sha1.string(), content = record.sha1))
-                    add(RDItem(title = R.string.record_label_sha256.string(), content = record.sha256))
-                    add(RDItem(title = R.string.record_label_char_string.string(), content = record.charStr))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    record.md5.takeIf { it.hasDisplayValue() }?.let {
+                        add(RDItem(title = R.string.record_label_md5.string(), content = it))
+                    }
+                    record.sha1.takeIf { it.hasDisplayValue() }?.let {
+                        add(RDItem(title = R.string.record_label_sha1.string(), content = it))
+                    }
+                    record.sha256.takeIf { it.hasDisplayValue() }?.let {
+                        add(RDItem(title = R.string.record_label_sha256.string(), content = it))
+                    }
+                    record.charStr.takeIf { it.hasDisplayValue() }?.let {
+                        add(RDItem(title = R.string.record_label_char_string.string(), content = it))
+                    }
+                    addStackDetailIfPresent(record.stackDetail)
                 }
 
                 is RecordToast -> {
                     add(RDItem(title = labelClassName, content = R.string.record_type_toast.string()))
                     add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
-                    add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
+                    addStackDetailIfPresent(record.stackDetail)
 
                 }
 
@@ -568,7 +561,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.rawData.toRawList())
                     addAll(record.resultData.toResultList(type = type))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordCipher -> {
@@ -583,7 +576,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.rawData.toRawList())
                     addAll(record.resultData.toResultList(""))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordClickEvent -> {
@@ -593,7 +586,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_id_format.string(record.viewId ?: R.string.record_no_id.string()))
                     addAll(record.textList.map { R.string.record_text_format.string(it) })
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordClipboard -> {
@@ -603,20 +596,20 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_clipboard_read_or_write_format.string(typeID.string()))
                     add(R.string.record_clipboard_content_format.string(record.info))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordCrash -> {
                     add(R.string.record_type_format.string(R.string.record_type_crash.string()))
                     add(R.string.record_crash_thread_name_format.string(record.threadName))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordDialog -> {
                     add(R.string.record_type_format.string(record.dialogType.displayId.string()))
                     addAll(record.textList.map { R.string.record_text_format.string(it) })
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordError -> {
@@ -630,14 +623,14 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         add(it)
                     }
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordExit -> {
                     add(R.string.record_type_format.string(R.string.record_type_exit.string()))
                     add(R.string.record_exit_type_format.string(record.exitType))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordField -> {
@@ -654,7 +647,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         fieldClassName?.let {
                             add(R.string.record_field_class_name_format.string(it))
                         }
-                        addAll(filedValue.map {
+                        addAll(filedValue.displayEntries().map {
                             R.string.record_field_value_format.string(it.key.displayName, it.value)
                         })
                     }
@@ -668,7 +661,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         add(it)
                     }
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordMac -> {
@@ -676,7 +669,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.rawData.toRawList())
                     addAll(record.resultData.toResultList(""))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordJson -> {
@@ -687,7 +680,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         }
                     )
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordHmac -> {
@@ -698,7 +691,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     addAll(record.rawData.toRawList())
                     addAll(record.resultData.toResultList(""))
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordParam -> {
@@ -708,7 +701,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_method_sign_format.string(methodSign))
                     record.paramValues.forEachIndexed { index, map ->
                         addAll(
-                            map.map {
+                            map.displayEntries().map {
                                 R.string.record_param_value_format.string(
                                     index + 1,
                                     it.key,
@@ -718,7 +711,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         )
                     }
                     add(R.string.record_call_stack.string())
-                    addAll(record.callStack)
+                    addCallStackLinesIfPresent(record.callStack)
                 }
 
                 is RecordParamReturn -> {
@@ -729,7 +722,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_method_sign_format.string(methodSign))
                     record.paramValues.forEachIndexed { index, map ->
                         addAll(
-                            map.map {
+                            map.displayEntries().map {
                                 R.string.record_param_value_format.string(
                                     index + 1,
                                     it.key,
@@ -738,17 +731,17 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                             }
                         )
                     }
-                    addAll(record.returnValue.map {
+                    addAll(record.returnValue.displayEntries().map {
                         R.string.record_return_value_format.string(it.key.displayName, it.value)
                     })
                     add(R.string.record_call_stack.string())
-                    addAll(record.callStack)
+                    addCallStackLinesIfPresent(record.callStack)
                 }
 
                 is RecordPopupWindow -> {
                     add(R.string.record_type_format.string(record.popupType.displayId.string()))
                     addAll(record.textList.map { R.string.record_text_format.string(it) })
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordReturn -> {
@@ -756,28 +749,36 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_type_format.string(R.string.record_type_return_value.string()))
                     add(R.string.record_class_name_format.string(record.className))
                     add(R.string.record_method_sign_format.string(methodSign))
-                    addAll(record.returnValue.map {
+                    addAll(record.returnValue.displayEntries().map {
                         R.string.record_return_value_format.string(it.key.displayName, it.value)
                     })
                     add(R.string.record_call_stack.string())
-                    addAll(record.callStack)
+                    addCallStackLinesIfPresent(record.callStack)
                 }
 
                 is RecordSignature -> {
                     add(R.string.record_type_format.string(R.string.record_type_signature.string()))
-                    add(R.string.record_signature_type_format.string("MD5", record.md5))
-                    add(R.string.record_signature_type_format.string("SHA-1", record.sha1))
-                    add(R.string.record_signature_type_format.string("SHA-256", record.sha256))
-                    add(R.string.record_signature_type_format.string("CharString", record.charStr))
+                    record.md5.takeIf { it.hasDisplayValue() }?.let {
+                        add(R.string.record_signature_type_format.string("MD5", it))
+                    }
+                    record.sha1.takeIf { it.hasDisplayValue() }?.let {
+                        add(R.string.record_signature_type_format.string("SHA-1", it))
+                    }
+                    record.sha256.takeIf { it.hasDisplayValue() }?.let {
+                        add(R.string.record_signature_type_format.string("SHA-256", it))
+                    }
+                    record.charStr.takeIf { it.hasDisplayValue() }?.let {
+                        add(R.string.record_signature_type_format.string("CharString", it))
+                    }
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordToast -> {
                     add(R.string.record_type_format.string(R.string.record_type_toast.string()))
                     addAll(record.textList.map { R.string.record_text_format.string(it) })
                     add(R.string.record_call_stack.string())
-                    addAll(record.stackDetail.split("\n"))
+                    addStackLinesIfPresent(record.stackDetail)
                 }
 
                 is RecordWebLoadUrl -> {
@@ -800,7 +801,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     record.extras.forEach {
                         add(R.string.record_intent_type_format.string(it.intentType))
                         add(R.string.record_intent_key_format.string(it.key))
-                        it.value.forEach { mapEntry ->
+                        it.value.displayEntries().forEach { mapEntry ->
                             add(R.string.record_intent_value_to_string_format.string(mapEntry.value))
                         }
                         add(R.string.record_intent_separator.string())
@@ -812,14 +813,49 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         _recordDetail.value = items
     }
 
+    private fun MutableList<RDItem>.addStackDetailIfPresent(stackDetail: String) {
+        if (stackDetail.hasDisplayValue()) {
+            add(RDItem(title = R.string.record_call_stack.string(), content = stackDetail))
+        }
+    }
+
+    private fun MutableList<RDItem>.addCallStackIfPresent(callStack: List<String>) {
+        val stackText = callStack.filter { it.hasDisplayValue() }.joinToString("\n")
+        if (stackText.hasDisplayValue()) {
+            add(RDItem(title = R.string.record_call_stack.string(), content = stackText))
+        }
+    }
+
+    private fun MutableList<String>.addStackLinesIfPresent(stackDetail: String) {
+        val stackLines = stackDetail.split("\n").filter { it.hasDisplayValue() }
+        if (stackLines.isEmpty()) {
+            if (isNotEmpty() && last() == R.string.record_call_stack.string()) {
+                removeAt(lastIndex)
+            }
+            return
+        }
+        addAll(stackLines)
+    }
+
+    private fun MutableList<String>.addCallStackLinesIfPresent(callStack: List<String>) {
+        val stackLines = callStack.filter { it.hasDisplayValue() }
+        if (stackLines.isEmpty()) {
+            if (isNotEmpty() && last() == R.string.record_call_stack.string()) {
+                removeAt(lastIndex)
+            }
+            return
+        }
+        addAll(stackLines)
+    }
+
     private fun Map<RecordValueType, String>.toRawList(): List<String> {
-        return map {
+        return displayEntries().map {
             R.string.record_raw_data_format_type_value.string(it.key.displayName, it.value)
         }
     }
 
     private fun Map<RecordValueType, String>.toResultList(type: String): List<String> {
-        return map {
+        return displayEntries().map {
             R.string.record_result_data_format_type2_value.string(
                 type,
                 it.key.displayName,
@@ -829,16 +865,27 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun Map<RecordValueType, String>.toKeyList(): List<String> {
-        return map {
+        return displayEntries().map {
             R.string.record_key_format.string(it.key.displayName, it.value)
         }
     }
 
     private fun Map<RecordValueType, String>.toIvList(): List<String> {
-        return map {
+        return displayEntries().map {
             R.string.record_iv_format.string(it.key.displayName, it.value)
 
         }
+    }
+
+    private fun Map<RecordValueType, String>.displayEntries(): List<Map.Entry<RecordValueType, String>> {
+        return entries.filterNot { entry ->
+            (entry.key == RecordValueType.Base64 || entry.key == RecordValueType.Hex) &&
+                    !entry.value.hasDisplayValue()
+        }
+    }
+
+    private fun String?.hasDisplayValue(): Boolean {
+        return !this.isNullOrBlank() && !this.equals("null", ignoreCase = true)
     }
 
     private fun String.toFtsQueryOrNull(): String? {
@@ -879,3 +926,5 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         return Json.encodeToString(this).removePrefix("\"").removeSuffix("\"")
     }
 }
+
+

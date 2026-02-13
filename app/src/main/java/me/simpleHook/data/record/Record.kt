@@ -118,10 +118,10 @@ data class RecordFileOperation(
 @Serializable
 @SerialName("Signature")
 data class RecordSignature(
-    val md5: String,
-    val sha1: String,
-    val sha256: String,
-    val charStr: String,
+    val md5: String? = null,
+    val sha1: String? = null,
+    val sha256: String? = null,
+    val charStr: String? = null,
     val stackDetail: String,
 ) : Record()
 

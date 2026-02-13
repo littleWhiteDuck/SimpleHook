@@ -217,6 +217,7 @@ object MainHook {
             if (strConfig.trim().isEmpty()) return
             "start extension hook".xLog()
             val extensionConfig = Json.decodeFromString<ExtensionConfig>(strConfig)
+            RecordOutHelper.applyRecordSettings(extensionConfig.recordSettings)
             if (!extensionConfig.all) return
             if (extensionConfig.hookTip) appContext.showToast(msg = "SimpleHook: StartHook")
             initExtensionHook(

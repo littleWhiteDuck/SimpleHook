@@ -509,6 +509,7 @@
     <string name="extension_item_desc_record">Adjust the output items of the record</string>
     <string name="extension_record_record">Record</string>
     <string name="extension_record_title_add_base64">The output result is added to Base64</string>
+    <string name="extension_record_title_add_hex">The output result is added to Hex</string>
     <string name="extension_record_title_add_stack">Record call stack</string>
     <string name="config_sort_done">Save sort</string>
     <string name="config_auto_tran_param">Auto conversion params</string>

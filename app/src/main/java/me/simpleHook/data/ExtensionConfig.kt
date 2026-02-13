@@ -121,7 +121,7 @@ data class ExtExitConfig(
 
 @Serializable
 data class ExtRecordSettings(
-    val enable: Boolean = false,
+    val enable: Boolean = true,
     var enableStack: Boolean = true,
     var enableBase64: Boolean = true,
     var enableHex: Boolean = true,

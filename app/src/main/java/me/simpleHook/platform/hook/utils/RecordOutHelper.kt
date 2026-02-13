@@ -4,7 +4,7 @@ import android.content.Intent
 import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
-import me.simpleHook.core.constant.ConfigConstant
+import me.simpleHook.data.ExtRecordSettings
 import me.simpleHook.data.HookConfig
 import me.simpleHook.data.record.Base64Operation
 import me.simpleHook.data.record.Record
@@ -44,7 +44,20 @@ import java.util.zip.GZIPOutputStream
 
 
 object RecordOutHelper {
-    private val recordPath = String.format(ConfigConstant.RECORD_PATH, HookHelper.hostPackageName)
+    private val defaultRecordSettings = ExtRecordSettings()
+    @Volatile
+    private var enableStack: Boolean = defaultRecordSettings.enableStack
+    @Volatile
+    private var enableBase64: Boolean = defaultRecordSettings.enableBase64
+    @Volatile
+    private var enableHex: Boolean = defaultRecordSettings.enableHex
+
+    fun applyRecordSettings(settings: ExtRecordSettings?) {
+        val safeSettings = settings ?: defaultRecordSettings
+        enableStack = safeSettings.enableStack
+        enableBase64 = safeSettings.enableBase64
+        enableHex = safeSettings.enableHex
+    }
 
 
     fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {
@@ -85,7 +98,7 @@ object RecordOutHelper {
             methodName = hookConfig.methodName,
             params = hookConfig.params.split(","),
             paramValues = paramValues.map { it.recordValue },
-            callStack = getStackTrace()
+            callStack = getStackTrace(ignoreSwitch = true)
         )
         outputRecord(type = RecordType.RecordParam, record = paramRecord)
     }
@@ -101,7 +114,7 @@ object RecordOutHelper {
             params = hookConfig.params.split(","),
             paramValues = paramValues.map { it.recordValue },
             returnValue = returnValue.recordValue,
-            callStack = getStackTrace()
+            callStack = getStackTrace(ignoreSwitch = true)
         )
         outputRecord(type = RecordType.RecordParamReturn, record = paramReturnRecord)
     }
@@ -113,7 +126,7 @@ object RecordOutHelper {
             methodName = hookConfig.methodName,
             params = hookConfig.params.split(","),
             returnValue = returnValue.recordValue,
-            callStack = getStackTrace()
+            callStack = getStackTrace(ignoreSwitch = true)
         )
         outputRecord(type = RecordType.RecordReturn, record = returnRecord)
     }
@@ -141,10 +154,9 @@ object RecordOutHelper {
         return try {
             ByteArrayOutputStream().use { byteOut ->
                 GZIPOutputStream(byteOut).use { gzipOut ->
-                    // 写入文本（指定 UTF-8 编码）
                     gzipOut.write(text.toByteArray(Charsets.UTF_8))
                 }
-                byteOut.toByteArray() // 返回压缩后的字节数组
+                byteOut.toByteArray()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -203,10 +215,10 @@ object RecordOutHelper {
     fun outputSignature(signByteArray: ByteArray) {
         outputRecord(
             type = RecordType.Signature, record = RecordSignature(
-                md5 = ToolUtil.getDigest(bytes = signByteArray),
-                sha1 = ToolUtil.getDigest(bytes = signByteArray, "SHA-1"),
-                sha256 = ToolUtil.getDigest(bytes = signByteArray, "SHA-256"),
-                charStr = signByteArray.toHex(lowercase = true),
+                md5 = ToolUtil.getDigest(bytes = signByteArray).takeIf { enableHex },
+                sha1 = ToolUtil.getDigest(bytes = signByteArray, "SHA-1").takeIf { enableHex },
+                sha256 = ToolUtil.getDigest(bytes = signByteArray, "SHA-256").takeIf { enableHex },
+                charStr = signByteArray.toHex(lowercase = true).takeIf { enableHex },
                 stackDetail = getStackTraceStr()
             )
         )
@@ -302,11 +314,15 @@ object RecordOutHelper {
     }
 
 
-    fun getStackTraceStr() = ""
+    fun getStackTraceStr(): String {
+        if (!enableStack) return ""
+        return getStackTrace().joinToString("\n")
+    }
 
-    private fun getStackTrace(): List<String> {
+    private fun getStackTrace(ignoreSwitch: Boolean = false): List<String> {
+        if (!ignoreSwitch && !enableStack) return emptyList()
         val stackList = Throwable().stackTrace.map { element ->
-            "${element.className} --> ${element.methodName}(line：${element.lineNumber})"
+            "${element.className} --> ${element.methodName}(line:${element.lineNumber})"
         }
         val index = stackList.indexOfLast { it.startsWith("LSPHooker_ --> ") }
         return stackList.subList(index.takeIf { it != -1 } ?: 0, stackList.size)
@@ -314,6 +330,7 @@ object RecordOutHelper {
 
     private val Any?.recordValue: Map<RecordValueType, String>
         get() {
+            if (this@recordValue is ByteArray) return this@recordValue.recordValue
             return buildMap {
                 put(RecordValueType.ToString, this@recordValue.toString())
                 put(RecordValueType.GsonToString, Gson().toJson(this@recordValue))
@@ -324,16 +341,19 @@ object RecordOutHelper {
         get() {
             return buildMap {
                 put(RecordValueType.BytesToString, String(this@recordValue))
-                put(
-                    RecordValueType.Base64, GuiseBase64.encodeToString(
-                        this@recordValue,
-                        GuiseBase64.DEFAULT
+                if (enableBase64) {
+                    put(
+                        RecordValueType.Base64, GuiseBase64.encodeToString(
+                            this@recordValue,
+                            GuiseBase64.DEFAULT
+                        )
                     )
-                )
-                put(RecordValueType.Hex, this@recordValue.toHex())
+                }
+                if (enableHex) {
+                    put(RecordValueType.Hex, this@recordValue.toHex())
+                }
             }
         }
-
 
     fun ByteArray.toHex(lowercase: Boolean = false): String {
         val hexChars = if (lowercase) {
@@ -344,13 +364,9 @@ object RecordOutHelper {
 
         val hexBuilder = StringBuilder(size * 2)
         for (b in this) {
-            // 将字节转为无符号整数（0-255），避免负数影响
             val unsignedByte = b.toInt() and 0xFF
-            // 高4位 = 无符号字节 ÷ 16（等价于右移4位）
             val highNibble = unsignedByte / 16
-            // 低4位 = 无符号字节 % 16（等价于 & 0x0F）
             val lowNibble = unsignedByte % 16
-
             hexBuilder.append(hexChars[highNibble])
             hexBuilder.append(hexChars[lowNibble])
         }

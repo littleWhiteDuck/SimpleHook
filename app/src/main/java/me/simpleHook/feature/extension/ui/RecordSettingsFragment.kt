@@ -64,13 +64,23 @@ class RecordSettingsFragment : BasePreferenceFragment() {
                 true
             }
         }
+        val hex = MaterialSwitchPreference(requireContext()).apply {
+            isPersistent = false
+            title = getString(R.string.extension_record_title_add_hex)
+            isIconSpaceReserved = false
+            isChecked = recordSettings.enableHex
+            setOnPreferenceChangeListener { _, newValue ->
+                recordSettings.enableHex = newValue as Boolean
+                true
+            }
+        }
         val preferenceCategory = PreferenceCategory(requireContext()).apply {
             title = getString(R.string.extension_record_record)
             isIconSpaceReserved = false
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.addPreferences(stack, base64)
+        preferenceCategory.addPreferences(stack, base64, hex)
         setPreferenceScreen(preferenceScreen)
     }
 
