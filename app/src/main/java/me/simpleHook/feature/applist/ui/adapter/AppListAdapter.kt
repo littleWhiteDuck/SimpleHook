@@ -61,7 +61,12 @@ class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
               tvAppName.marquee()
               tvPackageName.text = packageName
               tvPackageName.marquee()
-              tvOtherInfo.text = "$versionName($versionCode), Target Api $targetApi"
+              tvOtherInfo.text = ivIcon.context.getString(
+                  R.string.app_list_other_info_format,
+                  versionName,
+                  versionCode,
+                  targetApi
+              )
               tvOtherInfo.marquee()
           }
         }

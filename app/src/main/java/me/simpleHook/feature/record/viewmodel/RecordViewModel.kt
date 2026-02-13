@@ -207,10 +207,36 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private fun fetchCardStyleDetail(record: Record) {
         val list = mutableListOf<RDItem>()
         with(list) {
+            val labelType = R.string.record_label_type.string()
+            val labelEntryName = R.string.record_label_entry_name.string()
+            val labelEncodeDecode = R.string.record_label_encode_decode.string()
+            val labelEncryptDecrypt = R.string.record_label_encrypt_decrypt.string()
+            val labelViewType = R.string.record_label_view_type.string()
+            val labelCallbackClass = R.string.record_label_callback_class.string()
+            val labelId = R.string.record_label_id.string()
+            val labelTextContent = R.string.record_label_text_content.string()
+            val labelWriteRead = R.string.record_label_write_read.string()
+            val labelContent = R.string.record_label_content.string()
+            val labelThreadName = R.string.record_label_thread_name.string()
+            val labelConfigInfo = R.string.record_label_config_info.string()
+            val labelSupplementInfo = R.string.record_label_supplement_info.string()
+            val labelExitType = R.string.record_label_exit_type.string()
+            val labelRecordFieldValue = R.string.record_label_record_field_value.string()
+            val labelClassName = R.string.record_label_class_name.string()
+            val labelMethodWithParams = R.string.record_label_method_name_params.string()
+            val labelFieldClassName = R.string.record_label_field_owner_class_name.string()
+            val labelPath = R.string.record_label_path.string()
+            val labelOperationContent = R.string.record_label_operation_content.string()
+            val labelPackageName = R.string.record_label_package_name.string()
+            val labelAction = R.string.record_label_action.string()
+            val labelData = R.string.record_label_data.string()
+            val labelUrl = R.string.record_label_url.string()
+            val noId = R.string.record_no_id.string()
+
             when (record) {
                 is RecordApplication -> {
-                    add(RDItem(title = "类型", content = "Application"))
-                    add(RDItem(title = "入口名", content = record.name))
+                    add(RDItem(title = labelType, content = "Application"))
+                    add(RDItem(title = labelEntryName, content = record.name))
                 }
 
                 is RecordBase64 -> {
@@ -218,8 +244,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         Base64Operation.Encode -> R.string.record_base64_encode
                         Base64Operation.Decode -> R.string.record_base64_decode
                     }.string()
-                    add(RDItem(title = "类型", content = "Base64"))
-                    add(RDItem(title = "编码/解码", content = codeType))
+                    add(RDItem(title = labelType, content = "Base64"))
+                    add(RDItem(title = labelEncodeDecode, content = codeType))
                     record.rawData.forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
@@ -236,8 +262,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordCipher -> {
-                    add(RDItem(title = "类型", content = record.algorithm))
-                    add(RDItem(title = "加密/解密", content = record.cryptType.displayId.string()))
+                    add(RDItem(title = labelType, content = record.algorithm))
+                    add(RDItem(title = labelEncryptDecrypt, content = record.cryptType.displayId.string()))
                     record.key?.forEach {
                         val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
@@ -261,88 +287,91 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordClickEvent -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_click_event.string()))
-                    add(RDItem(title = "控件类型", content = record.viewType))
-                    add(RDItem(title = "回调类名", content = record.callbackType))
-                    add(RDItem(title = "ID", content = record.viewId ?: "NO_ID"))
-                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = labelType, content = R.string.record_type_click_event.string()))
+                    add(RDItem(title = labelViewType, content = record.viewType))
+                    add(RDItem(title = labelCallbackClass, content = record.callbackType))
+                    add(RDItem(title = labelId, content = record.viewId ?: noId))
+                    add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordClipboard -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_clipboard.string()))
+                    add(RDItem(title = labelType, content = R.string.record_type_clipboard.string()))
                     val typeID = R.string.record_read_clipboard.takeIf { record.isRead }
                         ?: R.string.record_write_clipboard
-                    add(RDItem("写入/读取", content = typeID.string()))
-                    add(RDItem("内容", content = record.info))
+                    add(RDItem(labelWriteRead, content = typeID.string()))
+                    add(RDItem(labelContent, content = record.info))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordCrash -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_crash.string()))
-                    add(RDItem(title = "线程名", content = record.threadName))
+                    add(RDItem(title = labelType, content = R.string.record_type_crash.string()))
+                    add(RDItem(title = labelThreadName, content = record.threadName))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordDialog -> {
-                    add(RDItem(title = "类型", content = record.dialogType.displayId.string()))
-                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = labelType, content = record.dialogType.displayId.string()))
+                    add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordError -> {
-                    add(RDItem(title = "类型", content = record.errorType.displayId.string()))
+                    add(RDItem(title = labelType, content = record.errorType.displayId.string()))
                     record.hookConfig?.let {
-                        add(RDItem(title = "配置信息", content = Json.encodeToString(it)))
+                        add(RDItem(title = labelConfigInfo, content = Json.encodeToString(it)))
                     }
                     record.supplement?.let {
-                        add(RDItem(title = "补充信息", content = it))
+                        add(RDItem(title = labelSupplementInfo, content = it))
                     }
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordExit -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_exit.string()))
-                    add(RDItem(title = "退出类型", content = record.exitType))
+                    add(RDItem(title = labelType, content = R.string.record_type_exit.string()))
+                    add(RDItem(title = labelExitType, content = record.exitType))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordField -> {
                     add(
                         RDItem(
-                            title = "记录变量值",
+                            title = labelRecordFieldValue,
                             content = R.string.record_type_field_value.string()
                         )
                     )
                     with(record) {
                         className?.let {
-                            add(RDItem(title = "类名", it))
+                            add(RDItem(title = labelClassName, it))
                         }
                         methodName?.let {
                             val methodSign =
                                 "${record.methodName}(${record.params.joinToString(",")})"
-                            add(RDItem(title = "方法名(参数)", methodSign))
+                            add(RDItem(title = labelMethodWithParams, methodSign))
                         }
                         fieldClassName?.let {
-                            add(RDItem(title = "变量所在类的类名", content = it))
+                            add(RDItem(title = labelFieldClassName, content = it))
                         }
                         addAll(filedValue.map {
-                            RDItem(title = "变量值(${it.key.displayName})", content = it.value)
+                            RDItem(
+                                title = R.string.record_label_field_value_format.string(it.key.displayName),
+                                content = it.value
+                            )
                         })
                     }
                 }
 
                 is RecordFileOperation -> {
-                    add(RDItem(title = "类型", content = record.operation.displayId.string()))
-                    add(RDItem(title = "路径", content = record.path))
+                    add(RDItem(title = labelType, content = record.operation.displayId.string()))
+                    add(RDItem(title = labelPath, content = record.path))
                     record.partData?.let {
-                        add(RDItem(title = "操作内容", content = it))
+                        add(RDItem(title = labelOperationContent, content = it))
                     }
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordHmac -> {
-                    add(RDItem(title = "类型", content = record.algorithm))
+                    add(RDItem(title = labelType, content = record.algorithm))
                     record.key?.forEach {
                         val title = R.string.record_key_format.string(it.key.displayName, "")
                         add(RDItem(title = title, content = it.value))
@@ -362,23 +391,21 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordIntent -> {
-                    add(RDItem(title = "类型", content = "Intent"))
-                    add(RDItem(title = "Package name", content = record.packageName))
-                    add(RDItem(title = "Class name", content = record.className))
-                    add(RDItem(title = "Action", content = record.action))
-                    add(RDItem(title = "Data", content = record.data))
-                    // TODO
+                    add(RDItem(title = labelType, content = "Intent"))
+                    add(RDItem(title = labelPackageName, content = record.packageName))
+                    add(RDItem(title = labelClassName, content = record.className))
+                    add(RDItem(title = labelAction, content = record.action))
+                    add(RDItem(title = labelData, content = record.data))
                     record.extras.forEachIndexed { index, extra ->
+                        val extraValues = extra.value.entries.joinToString("\n") {
+                            R.string.record_label_extra_value_format.string(it.key.displayName, it.value)
+                        }
                         add(
                             RDItem(
-                                "Extra${index + 1}", content = """
-                            Type: ${extra.intentType}
-                            Key: ${extra.key}
-                            ${
-                                    extra.value.forEach {
-                                        "Value(${it.key.displayName}): ${it.value}"
-                                    }
-                                }
+                                R.string.record_label_extra_format.string(index + 1), content = """
+                            ${R.string.record_label_extra_type_format.string(extra.intentType)}
+                            ${R.string.record_label_extra_key_format.string(extra.key)}
+                            $extraValues
                         """.trimIndent()
                             )
                         )
@@ -386,7 +413,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordJson -> {
-                    add(RDItem(title = "类型", content = record.jsonType.displayId.string()))
+                    add(RDItem(title = labelType, content = record.jsonType.displayId.string()))
                     addAll(record.values.map {
                         RDItem(title = it.key, content = it.value)
                     })
@@ -394,7 +421,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordMac -> {
-                    add(RDItem(title = "类型", content = record.algorithm))
+                    add(RDItem(title = labelType, content = record.algorithm))
                     record.rawData.forEach {
                         val title = R.string.record_raw_data_format_type.string(it.key.displayName)
                         add(RDItem(title = title, content = it.value))
@@ -410,15 +437,18 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordParam -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
-                    add(RDItem(title = "类名", content = record.className))
+                    add(RDItem(title = labelType, content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = labelClassName, content = record.className))
                     val methodSign =
                         "${record.methodName}(${record.params.joinToString(",")})"
-                    add(RDItem(title = "方法名(参数)", methodSign))
+                    add(RDItem(title = labelMethodWithParams, methodSign))
                     record.paramValues.forEachIndexed { index, map ->
                         addAll(map.map {
                             RDItem(
-                                title = "参数值${index + 1}(${it.key.displayName})",
+                                title = R.string.record_label_param_value_format.string(
+                                    index + 1,
+                                    it.key.displayName
+                                ),
                                 content = it.value
                             )
                         })
@@ -432,21 +462,27 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordParamReturn -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
-                    add(RDItem(title = "类名", content = record.className))
+                    add(RDItem(title = labelType, content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = labelClassName, content = record.className))
                     val methodSign =
                         "${record.methodName}(${record.params.joinToString(",")})"
-                    add(RDItem(title = "方法名(参数)", methodSign))
+                    add(RDItem(title = labelMethodWithParams, methodSign))
                     record.paramValues.forEachIndexed { index, map ->
                         addAll(map.map {
                             RDItem(
-                                title = "参数值${index + 1}(${it.key.displayName})",
+                                title = R.string.record_label_param_value_format.string(
+                                    index + 1,
+                                    it.key.displayName
+                                ),
                                 content = it.value
                             )
                         })
                     }
                     addAll(record.returnValue.map {
-                        RDItem(title = "返回值(${it.key.displayName})", content = it.value)
+                        RDItem(
+                            title = R.string.record_label_return_value_format.string(it.key.displayName),
+                            content = it.value
+                        )
                     })
                     add(
                         RDItem(
@@ -457,19 +493,22 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordPopupWindow -> {
-                    add(RDItem(title = "类型", content = record.popupType.displayId.string()))
-                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = labelType, content = record.popupType.displayId.string()))
+                    add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordReturn -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_param_value.string()))
-                    add(RDItem(title = "类名", content = record.className))
+                    add(RDItem(title = labelType, content = R.string.record_type_param_value.string()))
+                    add(RDItem(title = labelClassName, content = record.className))
                     val methodSign =
                         "${record.methodName}(${record.params.joinToString(",")})"
-                    add(RDItem(title = "方法名(参数)", methodSign))
+                    add(RDItem(title = labelMethodWithParams, methodSign))
                     addAll(record.returnValue.map {
-                        RDItem(title = "返回值(${it.key.displayName})", content = it.value)
+                        RDItem(
+                            title = R.string.record_label_return_value_format.string(it.key.displayName),
+                            content = it.value
+                        )
                     })
                     add(
                         RDItem(
@@ -480,24 +519,24 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 is RecordSignature -> {
-                    add(RDItem(title = "类型", content = R.string.record_type_signature.string()))
-                    add(RDItem(title = "MD5", content = record.md5))
-                    add(RDItem(title = "SHA-1", content = record.sha1))
-                    add(RDItem(title = "SHA-256", content = record.sha256))
-                    add(RDItem(title = "CharString", content = record.charStr))
+                    add(RDItem(title = labelType, content = R.string.record_type_signature.string()))
+                    add(RDItem(title = R.string.record_label_md5.string(), content = record.md5))
+                    add(RDItem(title = R.string.record_label_sha1.string(), content = record.sha1))
+                    add(RDItem(title = R.string.record_label_sha256.string(), content = record.sha256))
+                    add(RDItem(title = R.string.record_label_char_string.string(), content = record.charStr))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
                 }
 
                 is RecordToast -> {
-                    add(RDItem(title = "类名", content = R.string.record_type_toast.string()))
-                    add(RDItem(title = "文本内容", content = record.textList.joinToString("\n")))
+                    add(RDItem(title = labelClassName, content = R.string.record_type_toast.string()))
+                    add(RDItem(title = labelTextContent, content = record.textList.joinToString("\n")))
                     add(RDItem(title = R.string.record_call_stack.string(), record.stackDetail))
 
                 }
 
                 is RecordWebLoadUrl -> {
-                    add(RDItem(title = "类名", content = R.string.record_type_web_url.string()))
-                    add(RDItem(title = "链接Url", content = record.url))
+                    add(RDItem(title = labelClassName, content = R.string.record_type_web_url.string()))
+                    add(RDItem(title = labelUrl, content = record.url))
                     addAll(record.headers.map {
                         RDItem(title = it.key, content = it.value)
                     })
@@ -551,7 +590,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_type_format.string(R.string.record_type_click_event.string()))
                     add(R.string.record_view_type_format.string(record.viewType))
                     add(R.string.record_callback_class_format.string(record.callbackType))
-                    add(R.string.record_id_format.string(record.viewId ?: "NO_ID"))
+                    add(R.string.record_id_format.string(record.viewId ?: R.string.record_no_id.string()))
                     addAll(record.textList.map { R.string.record_text_format.string(it) })
                     add(R.string.record_call_stack.string())
                     addAll(record.stackDetail.split("\n"))
@@ -587,7 +626,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                         add(Json.encodeToString(it))
                     }
                     record.supplement?.let {
-                        add(R.string.record_error_config_info.string())
+                        add(R.string.record_error_supplement_info.string())
                         add(it)
                     }
                     add(R.string.record_call_stack.string())
@@ -642,7 +681,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
                 is RecordJson -> {
                     add(R.string.record_type_format.string(record.jsonType.displayId.string()))
-                    addAll(record.values.map { "name: ${it.key}, value: ${it.value}" })
+                    addAll(
+                        record.values.map {
+                            R.string.record_label_name_value_format.string(it.key, it.value)
+                        }
+                    )
                     add(R.string.record_call_stack.string())
                     addAll(record.stackDetail.split("\n"))
                 }
@@ -740,23 +783,27 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 is RecordWebLoadUrl -> {
                     add(R.string.record_type_format.string(R.string.record_type_web_url.string()))
                     add(R.string.record_url_format.string(record.url))
-                    add("Headers: ")
-                    addAll(record.headers.map { "name: ${it.key}, value: ${it.value}" })
+                    add(R.string.record_label_headers.string())
+                    addAll(
+                        record.headers.map {
+                            R.string.record_label_name_value_format.string(it.key, it.value)
+                        }
+                    )
                 }
 
                 is RecordIntent -> {
                     add(R.string.record_type_format.string("Intent"))
-                    add("Package name: ${record.packageName}")
-                    add("Class name: ${record.className}")
-                    add("Action: ${record.action}")
-                    add("Data: ${record.data}")
+                    add(R.string.record_intent_package_name_format.string(record.packageName))
+                    add(R.string.record_intent_class_name_format.string(record.className))
+                    add(R.string.record_intent_action_format.string(record.action))
+                    add(R.string.record_intent_data_format.string(record.data))
                     record.extras.forEach {
-                        add("Type: ${it.intentType}")
-                        add("Key: ${it.key}")
+                        add(R.string.record_intent_type_format.string(it.intentType))
+                        add(R.string.record_intent_key_format.string(it.key))
                         it.value.forEach { mapEntry ->
-                            add("Value(toString): ${mapEntry.value}")
+                            add(R.string.record_intent_value_to_string_format.string(mapEntry.value))
                         }
-                        add("=============================")
+                        add(R.string.record_intent_separator.string())
                     }
                 }
             }

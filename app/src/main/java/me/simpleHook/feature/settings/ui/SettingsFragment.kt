@@ -76,9 +76,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (!(newValue as Boolean)) {
                     customDialog(
                         requireContext(),
-                        title = "Tip",
+                        title = getString(R.string.common_tip),
                         message = getString(R.string.main_settings_tip_close_check_permission),
-                        okText = "ok"
+                        okText = getString(R.string.dialog_confirm)
                     ).show()
                 }
                 true
@@ -320,12 +320,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun showUseTerms() {
         val message = AssetsUtil.getText(requireContext(), "agreement")
-        warningDialog(requireContext(), title = "用户协议【已同意】", message = message!!)
+        warningDialog(
+            requireContext(),
+            title = getString(R.string.main_settings_title_terms_of_use_agreed),
+            message = message!!
+        )
     }
 
     private fun showUpdateRecord() {
         val message = AssetsUtil.getText(requireContext(), "update")
-        warningDialog(requireContext(), title = "更新记录", message = message!!)
+        warningDialog(
+            requireContext(),
+            title = getString(R.string.main_settings_title_update_record),
+            message = message!!
+        )
     }
 
     private fun showHelp() {

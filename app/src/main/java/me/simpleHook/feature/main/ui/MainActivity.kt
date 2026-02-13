@@ -139,7 +139,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
             if (sp.showA13Tip) {
                 customDialog(
                     this,
-                    title = "Tip",
+                    title = getString(R.string.common_tip),
                     message = getString(R.string.main_android_13_tip),
                     okText = getString(R.string.dialog_cancel),
                     cancelText = getString(R.string.read_introduction_not_remind),
@@ -171,7 +171,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
             val versionName = result.optString("name")
             if (versionName.isNotEmpty() && BuildConfig.VERSION_NAME != versionName) {
                 val body = result.optString("body").substringAfterLast("更新记录").trim()
-                val message = body.ifEmpty { "有新版本，修复若干bug，请更新" }
+                val message = body.ifEmpty { getString(R.string.main_update_default_message) }
                 customDialog(
                     this@MainActivity,
                     title = getString(R.string.main_version_update) + versionName,

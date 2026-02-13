@@ -109,10 +109,10 @@ class RecordActivity : BaseActivity() {
     private fun updateTitle() {
         if (isType) {
             supportActionBar?.title =
-                if (typeOrPackageName.startsWith("Error")) "Hook Error" else typeOrPackageName
+                if (typeOrPackageName.startsWith("Error")) getString(R.string.record_type_error) else typeOrPackageName
         } else {
             supportActionBar?.title =
-                if (typeOrPackageName.startsWith("error")) "Hook Error" else AppUtil.getAppName(
+                if (typeOrPackageName.startsWith("error")) getString(R.string.record_type_error) else AppUtil.getAppName(
                     typeOrPackageName
                 )
             supportActionBar?.subtitle = typeOrPackageName

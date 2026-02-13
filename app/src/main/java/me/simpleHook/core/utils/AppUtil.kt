@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.core.net.toUri
+import me.simpleHook.R
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.extension.showToast
 
@@ -128,7 +129,7 @@ object AppUtil {
                 context.apply { startActivity(pm.getLaunchIntentForPackage(packageName)) }
             }
         } catch (_: java.lang.Exception) {
-            context.showToast("可能应用被停用了,或者其他错误")
+            context.showToast(context.getString(R.string.app_launch_failed_tip))
         }
 
     }

@@ -485,7 +485,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         getString(R.string.extension_item_desc_contact)
                     )
                 )
-                add(Title("JSON"))
+                add(Title(getString(R.string.extension_item_title_json)))
                 add(
                     ExtensionItem(
                         getString(R.string.extension_item_title_json_object),
@@ -545,7 +545,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 )
                 add(
                     ExtensionItem(
-                        title = "Application",
+                        title = getString(R.string.extension_item_title_application),
                         application,
                         "application",
                         getString(R.string.extension_item_desc_application_name)
@@ -553,7 +553,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 )
                 add(
                     ExtensionItem(
-                        title = "ADB",
+                        title = getString(R.string.extension_item_title_adb),
                         adb,
                         "adb",
                         getString(R.string.extension_item_desc_adb)
@@ -576,10 +576,10 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                         getString(R.string.extension_item_desc_vpn)
                     )
                 )
-                add(Title("WebView"))
+                add(Title(getString(R.string.extension_item_title_webview)))
                 add(
                     ExtensionItem(
-                        title = "loadUrl",
+                        title = getString(R.string.extension_item_title_load_url),
                         webConfig.recordUrl,
                         ExConfigTag.RECORD_WEB_URL,
                         getString(R.string.extension_item_desc_web_load_url)
@@ -587,7 +587,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                 )
                 add(
                     ExtensionItem(
-                        title = "Debug",
+                        title = getString(R.string.extension_item_title_debug),
                         webConfig.enableDebug,
                         ExConfigTag.ENABLE_WEB_DEBUG,
                         getString(R.string.extension_item_desc_web_debug)

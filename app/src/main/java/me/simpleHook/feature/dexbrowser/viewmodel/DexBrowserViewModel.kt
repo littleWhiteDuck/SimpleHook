@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.simpleHook.R
 import me.simpleHook.data.ClassInfo
 import me.simpleHook.data.ClassNode
 import me.simpleHook.data.DexUiState
@@ -70,7 +71,10 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiState.value =
-                    _uiState.value.copy(isLoading = false, error = e.message ?: "未知错误")
+                    _uiState.value.copy(
+                        isLoading = false,
+                        error = e.message ?: application.getString(R.string.common_unknown_error)
+                    )
             }
         }
     }

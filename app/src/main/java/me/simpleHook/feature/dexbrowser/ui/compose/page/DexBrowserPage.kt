@@ -155,7 +155,10 @@ fun DexBrowser(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "错误: ${uiState.error}",
+                            text = stringResource(
+                                R.string.dex_browser_error_format,
+                                uiState.error.orEmpty()
+                            ),
                             color = MaterialTheme.colorScheme.error
                         )
                     }

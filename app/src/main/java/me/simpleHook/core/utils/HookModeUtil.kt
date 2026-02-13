@@ -18,7 +18,7 @@ object HookModeUtil {
             Constant.HOOK_RECORD_STATIC_FIELD -> context.getString(R.string.config_mode_tip_record_static_field_value)
             Constant.HOOK_RECORD_INSTANCE_FIELD -> context.getString(R.string.config_mode_tip_record_instance_field_value)
             Constant.HOOK_RETURN2 -> context.getString(R.string.config_mode_tip_return2_value)
-            else -> "未知"
+            else -> context.getString(R.string.common_unknown)
         }
     }
 }

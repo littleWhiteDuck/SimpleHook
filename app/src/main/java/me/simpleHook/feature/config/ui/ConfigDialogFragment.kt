@@ -89,9 +89,9 @@ class ConfigDialogFragment(
                     tempList.reverse()
                     viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
-                        requireActivity().showPopup("涓虹┖")
+                        requireActivity().showPopup(getString(R.string.config_dialog_selection_empty))
                     } else {
-                        requireActivity().showPopup("瀵煎叆鎴愬姛")
+                        requireActivity().showPopup(getString(R.string.config_dialog_import_success))
                         this@ConfigDialogFragment.dismiss()
                     }
                     if (tag == "from text import") {
@@ -106,7 +106,7 @@ class ConfigDialogFragment(
                         }
                     }
                     if (checkIsZero) {
-                        requireActivity().showPopup("涓虹┖")
+                        requireActivity().showPopup(getString(R.string.config_dialog_selection_empty))
                     } else {
                         val strConfig =
                             if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else JsHook.getStringJSConfig(

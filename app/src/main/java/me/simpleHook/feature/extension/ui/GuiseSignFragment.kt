@@ -202,7 +202,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
             }
 
         }.onFailure {
-            requireActivity().showPopup("失败")
+            requireActivity().showPopup(getString(R.string.common_failed))
         }.recoverCatching {
             FileUtil.deleteDir(cacheFile)
         }

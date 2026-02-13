@@ -3,6 +3,7 @@ package me.simpleHook.feature.record.ui.delegate
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.drakeet.multitype.ViewDelegate
+import me.simpleHook.R
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.feature.record.ui.view.RecordPackItemView
 import me.simpleHook.core.utils.AppUtil
@@ -14,8 +15,10 @@ class RecordPackDelegate(
     override fun onBindView(view: RecordPackItemView, item: RecordShowPack) {
         view.container.apply {
             if (item.packageName.startsWith("error.")) {
-                title.text = "Hook Error"
-                icon.setImageDrawable(IconHelper.getTextIcon(text = "Error"))
+                title.text = context.getString(R.string.record_type_error)
+                icon.setImageDrawable(
+                    IconHelper.getTextIcon(text = context.getString(R.string.common_error_short))
+                )
             } else {
                 Glide.with(icon).load(item.packageName).into(icon)
                 title.text = AppUtil.getAppName(item.packageName)

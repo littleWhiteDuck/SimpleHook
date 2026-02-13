@@ -93,7 +93,7 @@ class CollectionViewFragment(private val addConfig: (CollectionEntity) -> Unit) 
             val config = runCatching {
                 json.decodeFromString<HookConfig>(collectionEntity.config)
             }.getOrNull()
-            config ?: requireActivity().showPopup(message = "error")
+            config ?: requireActivity().showPopup(message = getString(R.string.common_error))
             configEditText.setText(json.encodeToString(config))
             nameEditText.setText(collectionEntity.name)
             configEditText.setOnFocusChangeListener { _, hasFocus ->
