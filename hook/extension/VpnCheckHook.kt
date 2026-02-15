@@ -1,14 +1,14 @@
-package me.simpleHook.hook.extension
+package me.simpleHook.platform.hook.extension
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.hook.util.HookHelper
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedHelpers
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.platform.hook.utils.HookHelper
 
 object VpnCheckHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.vpn) return
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.vpn) return
         XposedHelpers.findAndHookMethod("java.net.NetworkInterface",
             HookHelper.appClassLoader,
             "getName",

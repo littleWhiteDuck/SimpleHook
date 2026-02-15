@@ -1,19 +1,21 @@
-package me.simpleHook.hook.util
+package me.simpleHook.platform.hook.utils
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 object HookHelper {
 
-    fun initFields(context: Context, lpparam: XC_LoadPackage.LoadPackageParam) {
+    fun initFields(context: Context, packageName: String, applicationName: String) {
         appContext = context
         appClassLoader = context.classLoader
         EzXHelperInit.setEzClassLoader(appClassLoader)
-        hostPackageName = lpparam.packageName
-        appInfo = lpparam.appInfo
+        hostPackageName = packageName
+        this.applicationName = applicationName
+        RecordOutHelper.ensureRecordStorageReady()
     }
+
+    lateinit var applicationName: String
+        private set
 
     lateinit var appContext: Context
         private set
@@ -28,7 +30,6 @@ object HookHelper {
     lateinit var hostPackageName: String
         private set
 
-    lateinit var appInfo: ApplicationInfo
 
     var enableRecord: Boolean = true
 
