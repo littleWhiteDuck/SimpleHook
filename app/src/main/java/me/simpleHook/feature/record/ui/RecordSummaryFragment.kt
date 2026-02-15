@@ -1,22 +1,23 @@
 package me.simpleHook.feature.record.ui
 
 import android.annotation.SuppressLint
-import android.os.Handler
-import android.os.Looper
+import android.content.Context
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drakeet.multitype.MultiTypeAdapter
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.base.BaseViewFragment
@@ -41,6 +42,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
     private var recordSummaryOfItemMenu: Any? = null
+    private var refreshJob: Job? = null
 
     private val multiTypeAdapter = MultiTypeAdapter()
 
@@ -59,12 +61,14 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                 okClick = { GlobalValue.sp.showMoreDataTip = true })
         }*/
 
-        recordViewModel.recordShowItems.observe(requireActivity()) { showItems ->
+        recordViewModel.recordShowItems.observe(viewLifecycleOwner) { showItems ->
 
             root.emptyTip.isVisible = showItems.isEmpty()
 
-            multiTypeAdapter.items = showItems
-            multiTypeAdapter.notifyDataSetChanged()
+            if (multiTypeAdapter.items != showItems) {
+                multiTypeAdapter.items = showItems
+                multiTypeAdapter.notifyDataSetChanged()
+            }
 
             root.progressBar.hide()
             root.swipeRefreshLayout.isRefreshing = false
@@ -97,7 +101,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         }
 
         root.swipeRefreshLayout.setOnRefreshListener {
-            refreshData(0)
+            refreshData()
         }
     }
 
@@ -115,12 +119,13 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
 
     private fun deleteRecord(recordSummary: Any) {
-        if (recordSummary is RecordShowType) {
-            recordViewModel.deleteRecordByType(recordSummary.type.name)
-        } else if (recordSummary is RecordShowPack) {
-            recordViewModel.deleteRecordByPack(recordSummary.packageName)
-        }
-        refreshData(200, true)
+        refreshData(preAction = {
+            if (recordSummary is RecordShowType) {
+                recordViewModel.deleteRecordByTypeNow(recordSummary.type.name)
+            } else if (recordSummary is RecordShowPack) {
+                recordViewModel.deleteRecordByPackNow(recordSummary.packageName)
+            }
+        })
     }
 
     override fun initRootView(): RecordSummaryFragmentView {
@@ -148,8 +153,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_delete_all),
                     okClick = {
-                        recordViewModel.deleteAllRecords()
-                        refreshData()
+                        refreshData(preAction = { recordViewModel.deleteAllRecordsNow() })
                     })
             }
 
@@ -159,23 +163,22 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                     title = getString(R.string.record_warn_dialog_title),
                     message = getString(R.string.record_warn_dialog_message_delete_read),
                     okClick = {
-                        recordViewModel.deleteRecordByRead(read = true)
-                        refreshData()
+                        refreshData(preAction = { recordViewModel.deleteRecordByReadNow(read = true) })
                     })
             }
 
             R.id.toAppShow -> {
                 if (GlobalValue.sp.showByType) {
-                    refreshData(0)
                     GlobalValue.sp.showByType = false
+                    refreshData()
                 }
                 menuItem.isChecked = !menuItem.isChecked
             }
 
             R.id.toTypeShow -> {
                 if (!GlobalValue.sp.showByType) {
-                    refreshData(0)
                     GlobalValue.sp.showByType = true
+                    refreshData()
                 }
                 menuItem.isChecked = !menuItem.isChecked
             }
@@ -195,37 +198,54 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
         return super.onContextItemSelected(item)
     }
 
-    private fun refreshData(time: Long = 500, showRefresh: Boolean = true) {
+    private fun refreshData(showRefresh: Boolean = true, preAction: (suspend () -> Unit)? = null) {
         if (!root.swipeRefreshLayout.isRefreshing && showRefresh) root.swipeRefreshLayout.isRefreshing =
             true
-        Handler(Looper.getMainLooper()).postDelayed({
-            recordViewModel.fetchRecordShowItems()
-        }, time)
-        readFileLogInsert()
-    }
-
-    private fun readFileLogInsert() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        val appContext = requireContext().applicationContext
+        refreshJob?.cancel()
+        refreshJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val recordEntities = RecordIngestor.readFromPackages(
-                    requireContext(),
-                    appConfigViewModel.getEnabledPackageNames()
-                )
-                if (recordEntities.isNotEmpty()) {
-                    recordViewModel.insertRecords(*recordEntities.toTypedArray())
+                withContext(Dispatchers.IO) {
+                    preAction?.invoke()
+                    ingestRecords(appContext)
+                    recordViewModel.refreshRecordShowItemsNow()
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 LogUtil.outLog(e.stackTraceToString())
+                root.swipeRefreshLayout.isRefreshing = false
             }
         }
     }
 
+    private suspend fun ingestRecords(context: Context) {
+        RecordIngestor.ingestFromPackages(
+            context = context,
+            packageNames = appConfigViewModel.getEnabledPackageNames()
+        ) { recordEntities ->
+            recordViewModel.insertRecordsNow(recordEntities)
+        }
+    }
+
+    override fun onDestroyView() {
+        refreshJob?.cancel()
+        refreshJob = null
+        super.onDestroyView()
+    }
+
     override fun onResume() {
         super.onResume()
-        refreshData(0, false)
-        refreshData(100, false)
-        val layoutParams = bottomNavigationView.layoutParams as CoordinatorLayout.LayoutParams
-        val bottomViewNavigationBehavior = layoutParams.behavior as HideBottomViewOnScrollBehavior
-        bottomViewNavigationBehavior.slideUp(bottomNavigationView, true)
+        if (!root.swipeRefreshLayout.isRefreshing) {
+            refreshData(showRefresh = false)
+        }
+        showBottomNavigation()
+    }
+
+    private fun showBottomNavigation() {
+        HideViewOnScrollBehavior.from(bottomNavigationView).apply {
+            setViewEdge(HideViewOnScrollBehavior.EDGE_BOTTOM)
+            slideIn(bottomNavigationView, true)
+        }
     }
 }

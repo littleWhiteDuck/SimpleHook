@@ -110,6 +110,10 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun getRecordByID(id: Int) = recordDao.getRecordById(id)
 
     fun fetchRecordShowItems() = viewModelScope.launch(Dispatchers.IO) {
+        refreshRecordShowItemsNow()
+    }
+
+    suspend fun refreshRecordShowItemsNow() {
         val showByType = GlobalValue.sp.showByType
 
         val showItems = if (showByType) {
@@ -144,8 +148,17 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         recordDao.insertRecords(*recordEntity)
     }
 
+    suspend fun insertRecordsNow(recordEntities: List<RecordEntity>) {
+        if (recordEntities.isEmpty()) return
+        recordDao.insertRecords(*recordEntities.toTypedArray())
+    }
+
 
     fun deleteAllRecords() = viewModelScope.launch {
+        recordDao.deleteAllRecords()
+    }
+
+    suspend fun deleteAllRecordsNow() {
         recordDao.deleteAllRecords()
     }
 
@@ -163,11 +176,23 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         recordDao.deleteRecordByType(type)
     }
 
+    suspend fun deleteRecordByTypeNow(type: String) {
+        recordDao.deleteRecordByType(type)
+    }
+
     fun deleteRecordByPack(packageName: String) = viewModelScope.launch(Dispatchers.IO) {
         recordDao.deleteRecordByPack(packageName)
     }
 
+    suspend fun deleteRecordByPackNow(packageName: String) {
+        recordDao.deleteRecordByPack(packageName)
+    }
+
     fun deleteRecordByRead(read: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        recordDao.deleteReadRecord(isRead = read)
+    }
+
+    suspend fun deleteRecordByReadNow(read: Boolean) {
         recordDao.deleteReadRecord(isRead = read)
     }
 

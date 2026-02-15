@@ -15,4 +15,17 @@ object RecordIngestor {
         }
         return records
     }
+
+    suspend fun ingestFromPackages(
+        context: Context,
+        packageNames: Iterable<String>,
+        onBatch: suspend (List<RecordEntity>) -> Unit
+    ) {
+        packageNames.forEach { packageName ->
+            val batch = RecordsHelper.insertRecordsFromFile(context, packageName)
+            if (batch.isNotEmpty()) {
+                onBatch(batch)
+            }
+        }
+    }
 }

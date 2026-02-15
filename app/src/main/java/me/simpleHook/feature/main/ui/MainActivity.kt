@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.viewModels
 import androidx.annotation.Keep
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.MenuProvider
@@ -13,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
 import kotlinx.coroutines.Dispatchers
@@ -248,8 +251,17 @@ class MainActivity : BaseActivity(), IMenuProvider {
                     true
                 }
             }
+            configureBottomNavHideDirection()
 
         }
+    }
+
+    private fun configureBottomNavHideDirection() {
+        val layoutParams = binding.bottomNavigationView.layoutParams as? CoordinatorLayout.LayoutParams
+            ?: return
+        val behavior = layoutParams.behavior as? HideViewOnScrollBehavior<BottomNavigationView>
+            ?: return
+        behavior.setViewEdge(HideViewOnScrollBehavior.EDGE_BOTTOM)
     }
 
     /**
