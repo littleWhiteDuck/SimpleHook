@@ -1,150 +1,162 @@
-package me.simpleHook.hook
+package me.simpleHook.platform.hook
 
 import android.app.AndroidAppHelper
 import android.content.Context
-import com.github.kyuubiran.ezxhelper.utils.*
+import androidx.core.content.edit
+import com.github.kyuubiran.ezxhelper.utils.Hooker
+import com.github.kyuubiran.ezxhelper.utils.findAllMethods
+import com.github.kyuubiran.ezxhelper.utils.findConstructor
+import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.hookAllConstructorBefore
+import com.github.kyuubiran.ezxhelper.utils.hookBefore
+import com.github.kyuubiran.ezxhelper.utils.showToast
 import com.google.gson.Gson
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import kotlinx.serialization.decodeFromString
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ConfigBean
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
-import me.simpleHook.constant.Constant
-import me.simpleHook.database.entity.AppConfig
-import me.simpleHook.extension.log
-import me.simpleHook.extension.random
-import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.extension.*
-import me.simpleHook.hook.util.*
-import me.simpleHook.hook.util.HookHelper.appContext
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.HookUtils.getObjectString
-import me.simpleHook.hook.util.LogUtil.getStackTrace
-import me.simpleHook.hook.util.LogUtil.outHookError
-import me.simpleHook.hook.util.LogUtil.outLogMsg
-import me.simpleHook.hook.util.Type.getDataTypeValue
-import me.simpleHook.util.JsonUtil
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.core.constant.Constant
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.HookConfig
+import me.simpleHook.data.local.db.entity.AppConfig
+import me.simpleHook.core.extension.random
+import me.simpleHook.platform.hook.extension.ADBHook
+import me.simpleHook.platform.hook.extension.ApplicationHook
+import me.simpleHook.platform.hook.extension.Base64Hook
+import me.simpleHook.platform.hook.extension.BaseHook
+import me.simpleHook.platform.hook.extension.CipherHook
+import me.simpleHook.platform.hook.extension.ClickEventHook
+import me.simpleHook.platform.hook.extension.ClipboardHook
+import me.simpleHook.platform.hook.extension.ContactHook
+import me.simpleHook.platform.hook.extension.DialogHook
+import me.simpleHook.platform.hook.extension.ExitHook
+import me.simpleHook.platform.hook.extension.FileHook
+import me.simpleHook.platform.hook.extension.HmacHook
+import me.simpleHook.platform.hook.extension.HotFixHook
+import me.simpleHook.platform.hook.extension.IntentHook
+import me.simpleHook.platform.hook.extension.JSONHook
+import me.simpleHook.platform.hook.extension.MessageDigestHook
+import me.simpleHook.platform.hook.extension.PopupWindowHook
+import me.simpleHook.platform.hook.extension.SensorManagerHook
+import me.simpleHook.platform.hook.extension.SignatureHook
+import me.simpleHook.platform.hook.extension.ToastHook
+import me.simpleHook.platform.hook.extension.VpnCheckHook
+import me.simpleHook.platform.hook.extension.WebHook
+import me.simpleHook.platform.hook.utils.HookHelper
+import me.simpleHook.platform.hook.utils.HookHelper.appContext
+import me.simpleHook.platform.hook.utils.RecordOutHelper
+import me.simpleHook.platform.hook.utils.HookTypeParser.getDataTypeValue
+import me.simpleHook.platform.hook.utils.hook
+import me.simpleHook.platform.hook.utils.isSearchConstructor
+import me.simpleHook.platform.hook.utils.isSearchMethod
+import me.simpleHook.platform.hook.utils.xLog
 import org.json.JSONObject
 
 
 object MainHook {
+    private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
 
-    fun readyHook(strConfig: String) {
+    fun startCustomHooks(strConfig: String) {
         if (strConfig.isBlank()) return
         try {
             val appConfig = Json.decodeFromString<AppConfig>(strConfig)
             if (!appConfig.enable) return
-            val configs = Json.decodeFromString<List<ConfigBean>>(appConfig.configs)
-            getTip("startCustomHook").log(hostPackageName)
-            configs.forEach { configBean ->
-                if (!configBean.enable) return@forEach
-                configBean.apply {
-                    when (configBean.mode) {
+            val configs = Json.decodeFromString<List<HookConfig>>(appConfig.configs)
+            "start custom hook".xLog()
+            configs.forEach { hookConfig ->
+                if (!hookConfig.enable) return@forEach
+                hookConfig.apply {
+                    when (hookConfig.mode) {
                         Constant.HOOK_STATIC_FIELD, Constant.HOOK_RECORD_STATIC_FIELD -> {
-                            FieldHook.hookStaticField(configBean)
+                            FieldHook.hookStaticField(hookConfig)
                         }
+
                         Constant.HOOK_FIELD, Constant.HOOK_RECORD_INSTANCE_FIELD -> {
-                            FieldHook.hookInstanceField(configBean)
+                            FieldHook.hookInstanceField(hookConfig)
                         }
-                        else -> specificHook(className = className,
-                            methodName = methodName,
-                            values = resultValues,
-                            params = params,
-                            mode = mode,
-                            returnClassName = returnClassName)
+
+                        else -> applyMethodHook(hookConfig)
                     }
                 }
             }
         } catch (e: Throwable) {
-            val configTemp = try {
-                val appConfig = Json.decodeFromString<AppConfig>(strConfig)
-                JsonUtil.formatJson(appConfig.configs)
-            } catch (e: Throwable) {
-                strConfig
-            }
-            LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
-                "config: $configTemp",
-                getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
-            "config error".log(hostPackageName)
+            RecordOutHelper.outputError(throwable = e, hookConfig = null, supplement = strConfig)
         }
     }
 
 
-    private fun specificHook(
-        className: String,
-        methodName: String,
-        values: String,
-        params: String,
-        mode: Int,
-        returnClassName: String
-    ) {
-        val hooker: Hooker = when (mode) {
-            Constant.HOOK_RETURN -> {
-                { hookReturnValue(values, it) }
+    private fun applyMethodHook(hookConfig: HookConfig) {
+        with(hookConfig) {
+            val hooker: Hooker = when (mode) {
+                Constant.HOOK_RETURN -> {
+                    { hookReturnValue(resultValues, it) }
+                }
+
+                Constant.HOOK_RETURN2 -> {
+                    { hookReturnObjectValue(resultValues, it, returnClassName) }
+                }
+
+                Constant.HOOK_BREAK -> {
+                    {}
+                }
+
+                Constant.HOOK_PARAM -> {
+                    { replaceParamValues(param = it, paramValues = resultValues) }
+                }
+
+                Constant.HOOK_RECORD_PARAMS -> {
+                    { recordParamValues(param = it, hookConfig = hookConfig) }
+                }
+
+                Constant.HOOK_RECORD_RETURN -> {
+                    { recordReturnValue(param = it, hookConfig = hookConfig) }
+                }
+
+                Constant.HOOK_RECORD_PARAMS_RETURN -> {
+                    { recordParamsAndResult(param = it, hookConfig = hookConfig) }
+                }
+
+                else -> {
+                    throw IllegalStateException("Unsupported hook mode: $mode")
+                }
             }
-            Constant.HOOK_RETURN2 -> {
-                { hookReturnValuePro(values, it, returnClassName) }
-            }
-            Constant.HOOK_BREAK -> {
-                {}
-            }
-            Constant.HOOK_PARAM -> {
-                { hookParamsValue(it, values, className, methodName, params) }
-            }
-            Constant.HOOK_RECORD_PARAMS -> {
-                { recordParamsValue(className, it) }
-            }
-            Constant.HOOK_RECORD_RETURN -> {
-                { recordReturnValue(className, it) }
-            }
-            Constant.HOOK_RECORD_PARAMS_RETURN -> {
-                { recordParamsAndReturn(className, it) }
-            }
-            else -> {
-                throw java.lang.IllegalStateException("读不懂配置")
-            }
-        }
-        try {
-            if (methodName == "*") {
-                findAllMethods(className) {
-                    true
-                }.hook(mode, hooker)
-            } else if (params == "*") {
-                if (methodName == "<init>") {
-                    hookAllConstructorBefore(className, hooker = hooker)
-                } else {
+            try {
+                if (methodName == "*") {
                     findAllMethods(className) {
-                        name == methodName
+                        true
                     }.hook(mode, hooker)
-                }
-            } else {
-                if (methodName == "<init>") {
-                    findConstructor(className) {
-                        isSearchConstructor(params)
-                    }.hookBefore(hooker)
+                } else if (params == "*") {
+                    if (methodName == "<init>") {
+                        hookAllConstructorBefore(className, hooker = hooker)
+                    } else {
+                        findAllMethods(className) {
+                            name == methodName
+                        }.hook(mode, hooker)
+                    }
                 } else {
-                    findMethod(className) {
-                        name == methodName && isSearchMethod(params)
-                    }.hook(mode, hooker)
+                    if (methodName == "<init>") {
+                        findConstructor(className) {
+                            isSearchConstructor(params)
+                        }.hookBefore(hooker)
+                    } else {
+                        findMethod(className) {
+                            name == methodName && isSearchMethod(params)
+                        }.hook(mode, hooker)
+                    }
                 }
+            } catch (e: Throwable) {
+                RecordOutHelper.outputError(throwable = e, hookConfig = hookConfig)
             }
-        } catch (e: Throwable) {
-            outHookError(className, "$methodName($params)", e)
         }
-
     }
 
-    private fun hookReturnValuePro(
+    private fun hookReturnObjectValue(
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
-        val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
         try {
-            val hookObject = Gson().fromJson(values, hookClass)
+            val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
+            val hookObject = gson.fromJson(values, hookClass)
             param.result = hookObject
-        } catch (e: Exception) {
+        } catch (_: Throwable) {
             hookReturnValue(values, param)
         }
     }
@@ -155,33 +167,8 @@ object MainHook {
         val targetValue = getDataTypeValue(values)
         if (targetValue is String) {
             try {
-                val jsonObject = JSONObject(targetValue)
-                if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has("key")) {
-                    val randomSeed = jsonObject.optString("random", "a1b2c3d4e5f6g7h8i9k0l")
-                    val len = jsonObject.optInt("length", 10)
-                    val updateTime = jsonObject.optLong("updateTime", -1L)
-                    val key = jsonObject.getString("key")
-                    val defaultValue = jsonObject.optString("defaultValue")
-                    if (updateTime == -1L) {
-                        val result = randomSeed.random(len)
-                        param.result = result
-                    } else {
-                        val sp = AndroidAppHelper.currentApplication()
-                            .getSharedPreferences("me.simpleHook", Context.MODE_PRIVATE)
-                        val oldTime = sp.getLong("time_$key", 0L)
-                        val oldRandom = sp.getString("random_$key", defaultValue)
-                        val currentTime = System.currentTimeMillis() / 1000
-                        if (currentTime - updateTime >= oldTime) {
-                            val result = randomSeed.random(len)
-                            sp.edit().putString("random_$key", result).apply()
-                            sp.edit().putLong("time_$key", currentTime).apply()
-                            param.result = result
-                        } else {
-                            param.result = oldRandom
-                        }
-                    }
-                }
-            } catch (e: Exception) {
+                applyRandomReturnRule(targetValue, param)
+            } catch (_: Exception) {
                 param.result = targetValue
             }
         } else {
@@ -189,96 +176,55 @@ object MainHook {
         }
     }
 
-    private fun hookParamsValue(
+
+
+    private fun replaceParamValues(
         param: XC_MethodHook.MethodHookParam,
-        values: String,
-        className: String,
-        methodName: String,
-        params: String
+        paramValues: String
     ) {
-        try {
-            for (i in param.args.indices) {
-                if (values.split(",")[i] == "") continue
-                val targetValue = getDataTypeValue(values.split(",")[i])
-                param.args[i] = targetValue
-            }
-        } catch (e: java.lang.Exception) {
-            val list = listOf(getTip("errorType") + "HookParamsError",
-                getTip("solution") + getTip("paramsNotEqualValues"),
-                getTip("filledClassName") + className,
-                getTip("filledMethodParams") + "$methodName($params)",
-                getTip("detailReason") + e.stackTraceToString())
-            LogUtil.outLog(list, "Error HookParamsError")
+        val configuredValues = paramValues.split(",")
+        for (i in param.args.indices) {
+            val configuredValue = configuredValues.getOrNull(i) ?: continue
+            if (configuredValue.isEmpty()) continue
+            val targetValue = getDataTypeValue(configuredValue)
+            param.args[i] = targetValue
         }
     }
 
-    private fun recordParamsValue(
-        className: String, param: XC_MethodHook.MethodHookParam
+    private fun recordParamValues(
+        param: XC_MethodHook.MethodHookParam,
+        hookConfig: HookConfig
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Param value" else "参数值"
-        val list = mutableListOf<String>()
-        list.add(getTip("className") + className)
-        list.add(getTip("methodName") + param.method.name)
-        val paramLen = param.args.size
-        if (paramLen == 0) {
-            list.add(getTip("notHaveParams"))
-        } else {
-            for (i in 0 until paramLen) {
-                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
-            }
-        }
-        val items = getStackTrace()
-        val logBean = LogBean(type, list + items, hostPackageName)
-        outLogMsg(logBean)
+        RecordOutHelper.outputParamRecord(paramValues = param.args, hookConfig = hookConfig)
     }
 
-    private fun recordReturnValue(
-        className: String, param: XC_MethodHook.MethodHookParam
-    ) {
-        val list = mutableListOf<String>()
-        val type = if (LanguageUtils.isNotChinese()) "Return value" else "返回值"
-        list.add(getTip("className") + className)
-        list.add(getTip("methodName") + param.method.name)
-        val result = getObjectString(param.result ?: "null")
-        list.add(getTip("returnValue") + result)
-        val items = getStackTrace()
-        val logBean = LogBean(type, list + items, hostPackageName)
-        outLogMsg(logBean)
+    private fun recordReturnValue(param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig) {
+        RecordOutHelper.outputReturnRecord(returnValue = param.result, hookConfig = hookConfig)
     }
 
-    private fun recordParamsAndReturn(
-        className: String, param: XC_MethodHook.MethodHookParam
+    private fun recordParamsAndResult(
+        param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig
     ) {
-        val type = if (LanguageUtils.isNotChinese()) "Param&Return Value" else "参返"
-        val list = mutableListOf<String>()
-        list.add(getTip("className") + className)
-        list.add(getTip("methodName") + param.method.name)
-        val paramLen = param.args.size
-        if (paramLen == 0) {
-            list.add(getTip("notHaveParams"))
-        } else {
-            for (i in 0 until paramLen) {
-                list.add("${getTip("param")}${i + 1}: ${getObjectString(param.args[i] ?: "null")}")
-            }
-        }
-        val result = getObjectString(param.result ?: "null")
-        list.add(getTip("returnValue") + result)
-        val items = getStackTrace()
-        val logBean = LogBean(type, list + items, hostPackageName)
-        outLogMsg(logBean)
+        RecordOutHelper.outputParamReturnRecord(
+            returnValue = param.result,
+            paramValues = param.args,
+            hookConfig = hookConfig
+        )
     }
 
 
-    fun readyExtensionHook(
+    fun startExtensionHooks(
         strConfig: String
     ) {
         try {
             if (strConfig.trim().isEmpty()) return
-            getTip("startExtensionHook").log(hostPackageName)
-            val configBean = Json.decodeFromString<ExtensionConfig>(strConfig)
-            if (!configBean.all) return
-            if (configBean.tip) appContext.showToast(msg = "SimpleHook: StartHook")
-            initExtensionHook(configBean,
+            "start extension hook".xLog()
+            val extensionConfig = Json.decodeFromString<ExtensionConfig>(strConfig)
+            RecordOutHelper.applyRecordSettings(extensionConfig.recordSettings)
+            if (!extensionConfig.all) return
+            if (extensionConfig.hookTip) appContext.showToast(msg = "SimpleHook: StartHook")
+            initializeExtensionHooks(
+                extensionConfig = extensionConfig,
                 DialogHook,
                 PopupWindowHook,
                 ToastHook,
@@ -287,35 +233,76 @@ object MainHook {
                 ClickEventHook,
                 VpnCheckHook,
                 Base64Hook,
-                SHAHook,
-                HMACHook,
-                AESHook,
+                MessageDigestHook,
+                HmacHook,
+                CipherHook,
                 JSONHook,
                 WebHook,
                 ClipboardHook,
                 ApplicationHook,
                 SignatureHook,
                 ContactHook,
-                SensorMangerHook,
+                SensorManagerHook,
                 ADBHook,
                 FileHook,
-                ExitHook)
+                ExitHook
+            )
         } catch (e: Throwable) {
-            LogUtil.outLog(arrayListOf(getTip("errorType") + getTip("unknownError"),
-                "config: ${JsonUtil.formatJson(strConfig)}",
-                getTip("detailReason") + e.stackTraceToString()), "Error Unknown Error")
+            RecordOutHelper.outputError(throwable = e, supplement = strConfig, hookConfig = null)
         }
     }
 
-    private fun initExtensionHook(
-        configBean: ExtensionConfig, vararg hooks: BaseHook
+    private fun initializeExtensionHooks(
+        extensionConfig: ExtensionConfig, vararg hooks: BaseHook
     ) {
         hooks.forEach {
             if (it.isInit) return@forEach
-            it.isInit
-            it.startHook(configBean)
+            it.isInit = true
+            it.startHook(extensionConfig)
+        }
+    }
+
+
+    private fun applyRandomReturnRule(
+        targetValue: String,
+        param: XC_MethodHook.MethodHookParam
+    ) {
+        val jsonObject = JSONObject(targetValue)
+        if (!jsonObject.has("random") || !jsonObject.has("length") || !jsonObject.has("key")) return
+
+        val randomSeed = jsonObject.optString("random", "a1b2c3d4e5f6g7h8i9k0l")
+        val len = jsonObject.optInt("length", 10)
+        val updateTime = jsonObject.optLong("updateTime", -1L)
+        val key = jsonObject.getString("key")
+        val defaultValue = jsonObject.optString("defaultValue")
+
+        fun generateRandomValue(): String = randomSeed.random(len)
+
+        if (updateTime == -1L) {
+            param.result = generateRandomValue()
+            return
+        }
+
+        val randomKey = "random_$key"
+        val timeKey = "time_$key"
+        val sharedPreferences = AndroidAppHelper.currentApplication()
+            .getSharedPreferences("me.simpleHook", Context.MODE_PRIVATE)
+        val lastUpdateTime = sharedPreferences.getLong(timeKey, 0L)
+        val lastRandomValue = sharedPreferences.getString(randomKey, defaultValue)
+        val currentTime = System.currentTimeMillis() / 1000
+        val shouldRefresh = (currentTime - lastUpdateTime) >= updateTime
+        if (shouldRefresh) {
+            val newRandomValue = generateRandomValue()
+            sharedPreferences.edit {
+                putString(randomKey, newRandomValue)
+                putLong(timeKey, currentTime)
+            }
+            param.result = newRandomValue
+        } else {
+            param.result = lastRandomValue
         }
     }
 
 }
+
 

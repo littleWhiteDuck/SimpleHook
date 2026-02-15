@@ -1,12 +1,10 @@
-package me.simpleHook.hook.extension
+package me.simpleHook.platform.hook.extension
 
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.util.LanguageUtils
+import me.simpleHook.data.ExtensionConfig
 
 
 abstract class BaseHook {
 
-    protected val isShowEnglish = LanguageUtils.isNotChinese()
     var isInit = false
-    abstract fun startHook(configBean: ExtensionConfig)
+    abstract fun startHook(extensionConfig: ExtensionConfig)
 }

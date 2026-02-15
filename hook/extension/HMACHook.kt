@@ -1,88 +1,116 @@
-package me.simpleHook.hook.extension
+package me.simpleHook.platform.hook.extension
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+
+import io.github.qauxv.util.xpcompat.XC_MethodHook
+import io.github.qauxv.util.xpcompat.XposedBridge
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.record.RecordValueType
+import me.simpleHook.platform.hook.utils.RecordOutHelper
+import me.simpleHook.platform.hook.utils.RecordOutHelper.recordValue
+import me.simpleHook.platform.hook.utils.RecordOutHelper.writeWithCap
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.security.Key
+import java.util.concurrent.ConcurrentHashMap
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-object HMACHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.hmac) return
-        val hasMap = HashMap<String, String>()
+object HmacHook : BaseHook() {
+    private data class MacContext(
+        var keyBase: Map<RecordValueType, String>? = null,
+        var keyAlgorithm: String? = null,
+        var algorithmType: String? = null,
+        val dataStream: ByteArrayOutputStream = ByteArrayOutputStream(256)
+    )
+
+    private val macContexts = ConcurrentHashMap<Mac, MacContext>()
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.algorithmConfig.hmac) return
         XposedBridge.hookAllMethods(Mac::class.java, "init", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                val secretKeySpec = param.args[0] as SecretKeySpec
-                val key = String(secretKeySpec.encoded)
-                val keyAlgorithm = secretKeySpec.algorithm
-                hasMap["key"] = key
-                hasMap["keyAlgorithm"] = keyAlgorithm
+                val mac = param.thisObject as? Mac ?: return
+                val ctx = macContexts.computeIfAbsent(mac) { MacContext() }
+
+                val keyArg = param.args.getOrNull(0)
+                if (keyArg is SecretKeySpec) {
+                    try {
+                        ctx.keyBase = keyArg.encoded?.recordValue
+                    } catch (_: Throwable) {
+                    }
+                    ctx.keyAlgorithm = keyArg.algorithm
+                } else if (keyArg is Key) {
+                    try {
+                        ctx.keyBase = keyArg.encoded?.recordValue
+                    } catch (_: Throwable) {
+                    }
+                    ctx.keyAlgorithm = keyArg.algorithm
+                }
+                ctx.algorithmType = mac.algorithm
             }
         })
-        XposedBridge.hookAllMethods(Mac::class.java, "update", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                /*
-                void update(byte input)
-                void update(byte[] input)
-                void update(byte[] input, int offset, int len)
-                 */
-                val paramLen = param.args.size
-                if (paramLen == 1) {
-                    when (val param0 = param.args[0]) {
-                        is Byte -> {
-                            val rawData = param0.toString()
-                            hasMap["rawData"] = rawData
+
+        XposedBridge.hookAllMethods(
+            Mac::class.java,
+            "update",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val mac = param.thisObject as? Mac ?: return
+                    val ctx = macContexts.computeIfAbsent(mac) { MacContext() }
+                    when (param.args.size) {
+                        1 -> {
+                            val p0 = param.args[0]
+                            when (p0) {
+                                is Byte -> writeWithCap(ctx.dataStream, byteArrayOf(p0))
+                                is ByteArray -> writeWithCap(ctx.dataStream, p0, 0, p0.size)
+                                is ByteBuffer -> {
+                                    val dup = p0.duplicate()
+                                    val tmp = ByteArray(dup.remaining())
+                                    dup.get(tmp)
+                                    writeWithCap(ctx.dataStream, tmp, 0, tmp.size)
+                                }
+                            }
                         }
-                        is ByteArray -> {
-                            val rawData = String(param0)
-                            hasMap["rawData"] = rawData
+
+                        3 -> {
+                            val input = param.args[0] as? ByteArray ?: return
+                            val off = (param.args[1] as? Int) ?: return
+                            val len = (param.args[2] as? Int) ?: return
+                            if (off >= 0 && len >= 0 && off + len <= input.size) {
+                                writeWithCap(ctx.dataStream, input, off, len)
+                            }
                         }
                     }
-                } else if (paramLen == 3) {
-                    val input = param.args[0] as ByteArray
-                    val offset = param.args[1] as Int
-                    val len = param.args[2] as Int
-                    val rawData = ByteArray(len)
-                    System.arraycopy(input, offset, rawData, 0, len)
-                    hasMap["rawData"] = String(rawData)
                 }
-            }
-        })
-        XposedBridge.hookAllMethods(Mac::class.java, "doFinal", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                /*
-                byte[] doFinal()
-                byte[] doFinal(byte[] input)
-                 */
-                val paramLen = param.args.size
-                if (paramLen == 2) return
-                if (paramLen == 1) {
-                    val rawData = param.args[0] as ByteArray
-                    hasMap["rawData"] = String(rawData)
-                }
-                val mac = param.thisObject as Mac
-                val algorithmType = mac.algorithm
-                hasMap["algorithmType"] = algorithmType
-                val result = param.result as ByteArray
-                hasMap["result"] = String(result)
+            })
 
-                val list = listOf(
-                    Tip.getTip("key") + hasMap["key"],
-                    Tip.getTip("keyAlgorithm") + hasMap["keyAlgorithm"],
-                    Tip.getTip("rawData") + hasMap["rawData"],
-                    Tip.getTip("encryptResult") + hasMap["result"]
-                )
-                val items = LogUtil.getStackTrace().toList()
-                val logBean = LogBean(
-                    hasMap["algorithmType"] ?: "null", list + items, HookHelper.hostPackageName
-                )
-                LogUtil.outLogMsg(logBean)
-                hasMap.clear()
-            }
-        })
+        XposedBridge.hookAllMethods(
+            Mac::class.java,
+            "doFinal",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val mac = param.thisObject as? Mac ?: return
+                    val ctx = macContexts.remove(mac) ?: MacContext()
+                    ctx.algorithmType = ctx.algorithmType ?: mac.algorithm
+
+                    // doFinal can have 0 or 1 args (sometimes doFinal(byte[]))
+                    if (param.args.size == 1 && param.args[0] is ByteArray) {
+                        val arr = param.args[0] as ByteArray
+                        writeWithCap(ctx.dataStream, arr, 0, arr.size)
+                    }
+
+                    val result = param.result as? ByteArray
+
+                    RecordOutHelper.outputHmac(
+                        algorithm = ctx.algorithmType ?: "unknown",
+                        key = ctx.keyBase,
+                        rawData = ctx.dataStream.toByteArray(),
+                        resultData = result ?: byteArrayOf()
+                    )
+                    try {
+                        ctx.dataStream.reset()
+                    } catch (_: Throwable) {
+                    }
+                }
+            })
     }
 }

@@ -1,31 +1,22 @@
-package me.simpleHook.hook.extension
+package me.simpleHook.platform.hook.extension
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.hookBefore
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import me.simpleHook.bean.ClipboardConfig
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip
-import me.simpleHook.hook.util.HookHelper
-import me.simpleHook.hook.util.LogUtil
+import me.simpleHook.data.ExClipboardConfig
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.platform.hook.utils.RecordOutHelper
 
 object ClipboardHook : BaseHook() {
-    override fun startHook(configBean: ExtensionConfig) {
-        if (!configBean.filterClipboard.enable) return
-        val configInfo = configBean.filterClipboard.info
-        // old config
-        if (!configInfo.startsWith("{") || !configInfo.endsWith("}")) return
-        val clipboardConfig = Json.decodeFromString<ClipboardConfig>(configInfo)
-        hookSetClipboard(clipboardConfig)
-        hookGetClipboard(clipboardConfig)
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (!extensionConfig.filterClipboard.enable) return
+        hookSetClipboard(extensionConfig.filterClipboard)
+        hookGetClipboard(extensionConfig.filterClipboard)
     }
 
-    private fun hookGetClipboard(clipboardConfig: ClipboardConfig) {
+    private fun hookGetClipboard(clipboardConfig: ExClipboardConfig) {
         if (clipboardConfig.read || clipboardConfig.record) {
             // hook @getItemAt maybe get better effect
             findMethod(ClipboardManager::class.java) {
@@ -33,11 +24,7 @@ object ClipboardHook : BaseHook() {
             }.hookAfter {
                 if (clipboardConfig.record) {
                     val clipData = it.result as ClipData?
-                    val info = getClipInfo(clipData)
-                    val type = Tip.getTip("getClipboard")
-                    val items = listOf(Tip.getTip("clipboardInfo") + info) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputClipboard(isRead = true, info = getClipInfo(clipData))
                 }
                 if (clipboardConfig.read) {
                     it.result = null
@@ -47,7 +34,7 @@ object ClipboardHook : BaseHook() {
     }
 
 
-    private fun hookSetClipboard(clipboardConfig: ClipboardConfig) {
+    private fun hookSetClipboard(clipboardConfig: ExClipboardConfig) {
         if (clipboardConfig.write || clipboardConfig.record) {
             findMethod(ClipboardManager::class.java) {
                 name == "setPrimaryClip"
@@ -55,14 +42,10 @@ object ClipboardHook : BaseHook() {
                 val clipData = it.args[0] as ClipData
                 val info = getClipInfo(clipData)
                 if (clipboardConfig.record) {
-                    val type = Tip.getTip("setClipboard")
-                    val items = listOf(Tip.getTip("clipboardInfo") + info) + LogUtil.getStackTrace()
-                    val logBean = LogBean(type, items, HookHelper.hostPackageName)
-                    LogUtil.outLogMsg(logBean)
+                    RecordOutHelper.outputClipboard(isRead = false, info = info)
                 }
                 if (clipboardConfig.write) {
-                    val keywords = Json.decodeFromString<List<String>>(clipboardConfig.filter)
-                    keywords.forEach { keyword ->
+                    clipboardConfig.filterKeywords.forEach { keyword ->
                         if (keyword == "" || info == "") {
                             it.result = null
                             return@forEach
@@ -91,7 +74,7 @@ object ClipboardHook : BaseHook() {
         if (clipData != null) {
             for (i in 0 until clipData.itemCount) {
                 // exclude spaces between items
-                val clipDataItem = clipData.getItemAt(i);
+                val clipDataItem = clipData.getItemAt(i)
                 if (clipDataItem.text == null) {
                     clipDataItem.intent?.let { intent ->
                         stringBuilder.append(intent.toString())

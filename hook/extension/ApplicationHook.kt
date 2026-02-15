@@ -1,49 +1,40 @@
-package me.simpleHook.hook.extension
+package me.simpleHook.platform.hook.extension
 
-import android.app.Application
-import com.github.kyuubiran.ezxhelper.utils.findMethod
-import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import me.simpleHook.bean.Exit
-import me.simpleHook.bean.ExtensionConfig
-import me.simpleHook.bean.LogBean
-import me.simpleHook.hook.Tip.getTip
-import me.simpleHook.hook.util.HookHelper.hostPackageName
-import me.simpleHook.hook.util.LogUtil.outLogMsg
+import me.simpleHook.data.ExtensionConfig
+import me.simpleHook.data.record.RecordApplication
+import me.simpleHook.data.record.RecordCrash
+import me.simpleHook.data.record.RecordType
+import me.simpleHook.platform.hook.utils.HookHelper
+import me.simpleHook.platform.hook.utils.RecordOutHelper
 
 object ApplicationHook : BaseHook() {
 
-    override fun startHook(configBean: ExtensionConfig) {
-        if (configBean.application || configBean.exit.enable) {
-            findMethod(Application::class.java) {
-                name == "onCreate"
-            }.hookAfter {
-                if (configBean.application) {
-                    val className = it.thisObject.javaClass.name
-                    val type = "Application"
-                    outLogMsg(LogBean(type,
-                        listOf(getTip("applicationName") + className),
-                        hostPackageName))
-                }
-                if (configBean.exit.enable) {
-                    val exit = Json.decodeFromString<Exit>(configBean.exit.info)
-                    if (exit.recordCrash) recordCrash()
-                }
+    override fun startHook(extensionConfig: ExtensionConfig) {
+        if (extensionConfig.application || extensionConfig.exitConfig.enable) {
+            if (extensionConfig.application) {
+                RecordOutHelper.outputRecord(
+                    type = RecordType.Application,
+                    RecordApplication(name = HookHelper.applicationName)
+                )
+            }
+            if (extensionConfig.exitConfig.enable && extensionConfig.exitConfig.recordCrash) {
+                recordCrash()
             }
         }
 
     }
 
     private fun recordCrash() {
+        val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            t ?: return@setDefaultUncaughtExceptionHandler
-            val type = if (isShowEnglish) "CrashCaught" else "错误捕获"
-            val isMainThread = t.name == "main"
-            val list = listOf("Thread name(线程名)：${t.name}",
-                "Main thread(主线程): $isMainThread",
-                e.stackTraceToString())
-            outLogMsg(LogBean(type, list, hostPackageName))
+            runCatching {
+                val threadName = t?.name ?: "unknown"
+                RecordOutHelper.outputRecord(
+                    type = RecordType.CrashCaught,
+                    record = RecordCrash(threadName = threadName, stackDetail = e.stackTraceToString())
+                )
+            }
+            previousHandler?.uncaughtException(t, e)
         }
     }
 }
