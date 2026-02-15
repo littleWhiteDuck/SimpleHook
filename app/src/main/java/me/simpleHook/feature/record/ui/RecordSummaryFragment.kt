@@ -3,6 +3,7 @@ package me.simpleHook.feature.record.ui
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -16,21 +17,20 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.data.config.RecordIngestor
+import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.base.BaseViewFragment
-import me.simpleHook.data.RecordShowPack
-import me.simpleHook.data.RecordShowType
-import me.simpleHook.feature.record.ui.delegate.RecordPackDelegate
-import me.simpleHook.feature.record.ui.delegate.RecordTypeDelegate
-import me.simpleHook.feature.main.ui.MainActivity
-import me.simpleHook.feature.record.ui.RecordActivity
 import me.simpleHook.core.ui.custom.warningDialog
-import me.simpleHook.feature.record.ui.view.RecordSummaryFragmentView
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.LogUtil
+import me.simpleHook.data.RecordShowPack
+import me.simpleHook.data.RecordShowType
+import me.simpleHook.data.config.RecordIngestor
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
+import me.simpleHook.feature.main.ui.MainActivity
+import me.simpleHook.feature.record.ui.delegate.RecordPackDelegate
+import me.simpleHook.feature.record.ui.delegate.RecordTypeDelegate
+import me.simpleHook.feature.record.ui.view.RecordSummaryFragmentView
 import me.simpleHook.feature.record.viewmodel.RecordViewModel
 
 
@@ -40,6 +40,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     private val bottomNavigationView by lazy {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
     }
+    private var recordSummaryOfItemMenu: Any? = null
 
     private val multiTypeAdapter = MultiTypeAdapter()
 
@@ -77,12 +78,16 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             RecordActivity.startActivity(requireContext(), null, it.type.name)
         }, onDeleteClick = {
             deleteRecord(it)
+        }, onCreateContextMenu = { item, menu ->
+            onItemCreateContextMenu(item, menu)
         }))
 
         multiTypeAdapter.register(RecordShowPack::class.java, RecordPackDelegate(onClick = {
             RecordActivity.startActivity(requireContext(), it.packageName, null)
         }, onDeleteClick = {
             deleteRecord(it)
+        }, onCreateContextMenu = { item, menu ->
+            onItemCreateContextMenu(item, menu)
         }))
 
         with(root.recyclerView) {
@@ -93,6 +98,19 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
 
         root.swipeRefreshLayout.setOnRefreshListener {
             refreshData(0)
+        }
+    }
+
+    private fun onItemCreateContextMenu(recordSummary: Any, menu: ContextMenu) {
+        recordSummaryOfItemMenu = recordSummary
+        requireActivity().menuInflater.inflate(R.menu.menu_record_summary_item, menu)
+        val title = when (recordSummary) {
+            is RecordShowType -> getString(recordSummary.type.displayId)
+            is RecordShowPack -> recordSummary.packageName
+            else -> ""
+        }
+        if (title.isNotEmpty()) {
+            menu.setHeaderTitle(title)
         }
     }
 
@@ -167,6 +185,14 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             }
         }
         return true
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_record_summary_delete) {
+            recordSummaryOfItemMenu?.let { deleteRecord(it) }
+            return true
+        }
+        return super.onContextItemSelected(item)
     }
 
     private fun refreshData(time: Long = 500, showRefresh: Boolean = true) {

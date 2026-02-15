@@ -1,6 +1,7 @@
 package me.simpleHook.feature.record.ui.delegate
 
 import android.content.Context
+import android.view.ContextMenu
 import com.bumptech.glide.Glide
 import com.drakeet.multitype.ViewDelegate
 import me.simpleHook.R
@@ -10,7 +11,9 @@ import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.IconHelper
 
 class RecordPackDelegate(
-    val onClick: (RecordShowPack) -> Unit, val onDeleteClick: (RecordShowPack) -> Unit
+    private val onClick: (RecordShowPack) -> Unit,
+    private val onDeleteClick: (RecordShowPack) -> Unit,
+    private val onCreateContextMenu: (RecordShowPack, ContextMenu) -> Unit
 ) : ViewDelegate<RecordShowPack, RecordPackItemView>() {
     override fun onBindView(view: RecordPackItemView, item: RecordShowPack) {
         view.container.apply {
@@ -27,6 +30,9 @@ class RecordPackDelegate(
             desc.text = item.packageName
             tip.text = item.count.toString()
             setOnClickListener { onClick(item) }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                onCreateContextMenu(item, menu)
+            }
         }
         view.delete.setOnClickListener { onDeleteClick(item) }
     }
