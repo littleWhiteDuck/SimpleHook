@@ -37,6 +37,7 @@ import me.simpleHook.data.record.RecordField
 import me.simpleHook.data.record.RecordFileOperation
 import me.simpleHook.data.record.RecordHmac
 import me.simpleHook.data.record.RecordIntent
+import me.simpleHook.data.record.RecordIntentExtra
 import me.simpleHook.data.record.RecordJson
 import me.simpleHook.data.record.RecordMac
 import me.simpleHook.data.record.RecordParam
@@ -397,16 +398,10 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(RDItem(title = labelAction, content = record.action))
                     add(RDItem(title = labelData, content = record.data))
                     record.extras.forEachIndexed { index, extra ->
-                        val extraValues = extra.value.displayEntries().joinToString("\n") {
-                            R.string.record_label_extra_value_format.string(it.key.displayName, it.value)
-                        }
                         add(
                             RDItem(
-                                R.string.record_label_extra_format.string(index + 1), content = """
-                            ${R.string.record_label_extra_type_format.string(extra.intentType)}
-                            ${R.string.record_label_extra_key_format.string(extra.key)}
-                            $extraValues
-                        """.trimIndent()
+                                R.string.record_label_extra_format.string(index + 1),
+                                content = extra.toCardStyleContent()
                             )
                         )
                     }
@@ -798,13 +793,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     add(R.string.record_intent_class_name_format.string(record.className))
                     add(R.string.record_intent_action_format.string(record.action))
                     add(R.string.record_intent_data_format.string(record.data))
-                    record.extras.forEach {
-                        add(R.string.record_intent_type_format.string(it.intentType))
-                        add(R.string.record_intent_key_format.string(it.key))
-                        it.value.displayEntries().forEach { mapEntry ->
-                            add(R.string.record_intent_value_to_string_format.string(mapEntry.value))
+                    record.extras.forEachIndexed { index, extra ->
+                        addAll(extra.toCodeStyleLines())
+                        if (index != record.extras.lastIndex) {
+                            add(R.string.record_intent_separator.string())
                         }
-                        add(R.string.record_intent_separator.string())
                     }
                 }
             }
@@ -846,6 +839,30 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
         addAll(stackLines)
+    }
+
+    private fun RecordIntentExtra.toCardStyleContent(): String {
+        return buildList {
+            add(R.string.record_label_extra_type_format.string(intentType))
+            add(R.string.record_label_extra_key_format.string(key))
+            addAll(
+                value.displayEntries().map {
+                    R.string.record_label_extra_value_format.string(it.key.displayName, it.value)
+                }
+            )
+        }.joinToString("\n")
+    }
+
+    private fun RecordIntentExtra.toCodeStyleLines(): List<String> {
+        return buildList {
+            add(R.string.record_intent_type_format.string(intentType))
+            add(R.string.record_intent_key_format.string(key))
+            addAll(
+                value.displayEntries().map {
+                    R.string.record_intent_value_to_string_format.string(it.value)
+                }
+            )
+        }
     }
 
     private fun Map<RecordValueType, String>.toRawList(): List<String> {
