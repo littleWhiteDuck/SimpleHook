@@ -5,7 +5,7 @@ import me.simpleHook.platform.hook.utils.HookHelper.hostPackageName
 import me.simpleHook.core.utils.FlavorUtil
 import java.io.File
 
-object ConfigUtil {
+object HookConfigFileUtil {
     fun getCustomConfigFromFile(): String? {
         val configPath = if (FlavorUtil.rootVersion) {
             String.format(format = ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, hostPackageName)
@@ -15,7 +15,7 @@ object ConfigUtil {
         return getConfigFromFile(configPath)
     }
 
-    fun getExtConfigFromFile(): String? {
+    fun getExtensionConfigFromFile(): String? {
         val configPath = if (FlavorUtil.rootVersion) {
             String.format(format = ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, hostPackageName)
         } else {

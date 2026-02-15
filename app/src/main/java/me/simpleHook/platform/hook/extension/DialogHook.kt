@@ -30,7 +30,7 @@ object DialogHook : BaseHook() {
                 val textList = mutableListOf<String>()
                 val dialogView: View? = dialog.window?.decorView
                 dialogView?.also {
-                    textList.addAll(HookUtils.getViewAllText(it))
+                    textList.addAll(HookUtils.collectViewTexts(it))
                 }
                 if (dialogConfig.cancelDialog) {
                     dialog.setCancelable(true)
@@ -53,7 +53,7 @@ object DialogHook : BaseHook() {
                     }
                     if (blockDialog.idEnable) {
                         dialogView ?: return@hookAfter
-                        val currentIds = HookUtils.getViewIds(dialogView)
+                        val currentIds = HookUtils.collectViewIds(dialogView)
                         currentIds.forEach {
                             if (it in blockDialog.ids) {
                                 dialog.dismiss()

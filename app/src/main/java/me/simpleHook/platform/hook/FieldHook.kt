@@ -11,7 +11,7 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.HookConfig
 import me.simpleHook.platform.hook.utils.HookHelper.appClassLoader
 import me.simpleHook.platform.hook.utils.RecordOutHelper
-import me.simpleHook.platform.hook.utils.Type
+import me.simpleHook.platform.hook.utils.HookTypeParser
 import me.simpleHook.platform.hook.utils.hook
 import me.simpleHook.platform.hook.utils.isSearchConstructor
 import me.simpleHook.platform.hook.utils.isSearchMethod
@@ -21,24 +21,23 @@ object FieldHook {
     fun hookStaticField(hookConfig: HookConfig) {
         with(hookConfig) {
             if (className.isEmpty() || methodName.isEmpty()) {
-                // 直接hook
                 if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
                     recordStaticField(hookConfig = hookConfig)
                 } else {
-                    hookStaticField(fieldClassName, resultValues, fieldName)
+                    setStaticFieldValue(fieldClassName, resultValues, fieldName)
                 }
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
                 { recordStaticField(hookConfig = hookConfig) }
             } else {
-                { hookStaticField(fieldClassName, resultValues, fieldName) }
+                { setStaticFieldValue(fieldClassName, resultValues, fieldName) }
             }
-            hookField(hooker)
+            attachFieldHook(hooker)
         }
     }
 
-    private fun HookConfig.hookField(
+    private fun HookConfig.attachFieldHook(
         hooker: Hooker
     ) {
         val isBeforeHook = hookPoint == "before"
@@ -76,14 +75,14 @@ object FieldHook {
     private fun recordStaticField(hookConfig: HookConfig) {
         val hookClass = XposedHelpers.findClass(hookConfig.fieldClassName, appClassLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, hookConfig.fieldName)
-        RecordOutHelper.outputFieldRecord(filedValue = result, hookConfig = hookConfig)
+        RecordOutHelper.outputFieldRecord(fieldValue = result, hookConfig = hookConfig)
     }
 
-    private fun hookStaticField(
+    private fun setStaticFieldValue(
         fieldClassName: String, values: String, fieldName: String
     ) {
         val clazz: Class<*> = XposedHelpers.findClass(fieldClassName, appClassLoader)
-        XposedHelpers.setStaticObjectField(clazz, fieldName, Type.getDataTypeValue(values))
+        XposedHelpers.setStaticObjectField(clazz, fieldName, HookTypeParser.getDataTypeValue(values))
     }
 
     fun hookInstanceField(
@@ -93,22 +92,22 @@ object FieldHook {
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_INSTANCE_FIELD) {
                 { recordInstanceField(param = it, hookConfig = hookConfig) }
             } else {
-                { hookInstanceField(param = it, resultValues, fieldName) }
+                { setInstanceFieldValue(param = it, resultValues, fieldName) }
             }
-            hookField(hooker)
+            attachFieldHook(hooker)
         }
     }
 
     private fun recordInstanceField(param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig) {
         val thisObj = param.thisObject
         val result = XposedHelpers.getObjectField(thisObj, hookConfig.fieldName)
-        RecordOutHelper.outputFieldRecord(filedValue = result, hookConfig = hookConfig)
+        RecordOutHelper.outputFieldRecord(fieldValue = result, hookConfig = hookConfig)
     }
 
-    private fun hookInstanceField(
+    private fun setInstanceFieldValue(
         param: XC_MethodHook.MethodHookParam, values: String, fieldName: String
     ) {
         val thisObj = param.thisObject
-        XposedHelpers.setObjectField(thisObj, fieldName, Type.getDataTypeValue(values))
+        XposedHelpers.setObjectField(thisObj, fieldName, HookTypeParser.getDataTypeValue(values))
     }
 }

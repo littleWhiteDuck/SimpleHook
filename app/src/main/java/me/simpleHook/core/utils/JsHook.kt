@@ -15,7 +15,7 @@ import me.simpleHook.core.constant.Constant.HOOK_RECORD_STATIC_FIELD
 import me.simpleHook.core.constant.Constant.HOOK_RETURN
 import me.simpleHook.core.constant.Constant.HOOK_RETURN2
 import me.simpleHook.core.constant.Constant.HOOK_STATIC_FIELD
-import me.simpleHook.platform.hook.utils.Type
+import me.simpleHook.platform.hook.utils.HookTypeParser
 
 
 private const val findAndHookMethod = """
@@ -103,7 +103,7 @@ object JsHook {
                     HOOK_STATIC_FIELD -> {
                         val staticFieldStr = hookStaticField.replace("变量类名", fieldClassName)
                             .replace("变量名", fieldName).replace(
-                                "变量值", getValue(Type.getDataTypeValue(resultValues)).toString()
+                                "变量值", getValue(HookTypeParser.getDataTypeValue(resultValues)).toString()
                             )
                         if (className.isEmpty() && methodName.isEmpty() && params.isEmpty()) {
                             "\n${staticFieldStr}\n"
@@ -127,7 +127,7 @@ object JsHook {
                         val instanceFieldStr =
                             hookInstanceField.replace("变量名", fieldName).replace(
                                 "变量值",
-                                getValue(Type.getDataTypeValue(resultValues)).toString()
+                                getValue(HookTypeParser.getDataTypeValue(resultValues)).toString()
                             )
                         val thisResult = if (hookPoint == "before") {
                             hookMode.replace("after_hook", "")
@@ -145,7 +145,7 @@ object JsHook {
 
                     HOOK_RETURN -> {
                         val resultValue =
-                            " param.setResult(${getValue(Type.getDataTypeValue(resultValues))});"
+                            " param.setResult(${getValue(HookTypeParser.getDataTypeValue(resultValues))});"
                         hookMode.replace("类名", className).replace("方法名", methodName)
                             .replace("before_hook", resultValue).replace("after_hook", "")
                             .replace("参数类型", transParams(params))
@@ -274,7 +274,7 @@ object JsHook {
         var result = ""
         for (i in methodParams.indices) {
             if (resultValues.split(",")[i] == "") continue
-            val targetValue = getValue(Type.getDataTypeValue(resultValues.split(",")[i]))
+            val targetValue = getValue(HookTypeParser.getDataTypeValue(resultValues.split(",")[i]))
             result += "param.args[$i] = $targetValue;"
             if (i != methodParams.size - 1) result += "\n\t"
         }
@@ -286,7 +286,7 @@ object JsHook {
         if (params == "") return ""
         val methodParams = params.split(",")
         methodParams.forEach { param ->
-            val classType = Type.getClassType(param)
+            val classType = HookTypeParser.getClassType(param)
             value += if (classType == null) {
                 "'${param}'"
             } else {

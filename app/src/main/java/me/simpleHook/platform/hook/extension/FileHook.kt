@@ -12,6 +12,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.charset.Charset
+import kotlin.math.min
 
 object FileHook : BaseHook() {
     override fun startHook(extensionConfig: ExtensionConfig) {
@@ -49,10 +50,11 @@ object FileHook : BaseHook() {
                 val path = inputStream.getObjectOrNullAs<String>("path", String::class.java)
                     ?: "FileDescriptor"
                 if (path.contains("simpleHook")) return@hookAfter
-                val length = it.args[2] as Int
+                val readLength = (it.result as? Int) ?: return@hookAfter
+                if (readLength <= 0) return@hookAfter
                 val offset = it.args[1] as Int
                 val data = it.args[0] as ByteArray
-                val info = copyPartData(fileMonitor.cacheSize, length, offset, data)
+                val info = copyPartData(fileMonitor.cacheSize, readLength, offset, data)
                 RecordOutHelper.outputFileOperation(
                     fileOpType = RecordFileOpType.Read,
                     path = path,
@@ -95,12 +97,13 @@ object FileHook : BaseHook() {
     private fun copyPartData(
         cacheSize: Int, length: Int, offset: Int, data: ByteArray
     ): String? {
-        return if (cacheSize == 0) {
-            null
-        } else if (length - offset <= cacheSize) {
-            data.copyOfRange(offset, length).toString(Charset.defaultCharset())
-        } else {
-            data.copyOfRange(offset, cacheSize).toString(Charset.defaultCharset())
-        }
+        if (cacheSize == 0) return null
+        if (offset < 0 || offset >= data.size || length <= 0) return ""
+        val availableLength = data.size - offset
+        val effectiveLength = min(length, availableLength)
+        if (effectiveLength <= 0) return ""
+        val cappedLength = min(cacheSize, effectiveLength)
+        val endIndex = offset + cappedLength
+        return data.copyOfRange(offset, endIndex).toString(Charset.defaultCharset())
     }
 }

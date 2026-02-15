@@ -3,33 +3,49 @@ package me.simpleHook.platform.hook.utils
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.view.children
 import com.google.gson.Gson
 
 
 object HookUtils {
+    private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
 
-    fun getViewAllText(view: View): List<String> {
-        val list = mutableListOf<String>()
-        if (view is TextView) {
-            list.add(view.text.toString())
-        } else if (view is ViewGroup) {
-            list.addAll(view.children.map { getViewAllText(it) }.flatten())
+    fun collectViewTexts(view: View): List<String> {
+        val result = ArrayList<String>()
+        val stack = ArrayDeque<View>()
+        stack.addLast(view)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            if (current is TextView) {
+                result.add(current.text.toString())
+            }
+            if (current is ViewGroup) {
+                for (i in current.childCount - 1 downTo 0) {
+                    stack.addLast(current.getChildAt(i))
+                }
+            }
         }
-        return list
+        return result
     }
 
-    fun getViewIds(view: View): List<String> {
-        val list = mutableListOf<String>()
-        if (view is ViewGroup) {
-            list.addAll(view.children.map { getViewIds(it) }.flatten())
-        } else {
-            if (view.id != View.NO_ID) list.add(view.id.toString())
+    fun collectViewIds(view: View): List<String> {
+        val result = ArrayList<String>()
+        val stack = ArrayDeque<View>()
+        stack.addLast(view)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            if (current.id != View.NO_ID) {
+                result.add(current.id.toString())
+            }
+            if (current is ViewGroup) {
+                for (i in current.childCount - 1 downTo 0) {
+                    stack.addLast(current.getChildAt(i))
+                }
+            }
         }
-        return list
+        return result
     }
 
-    fun byte2Sting(bytes: ByteArray): String {
+    fun byteToHexString(bytes: ByteArray): String {
         val sb = StringBuilder()
         for (b in bytes) {
             if (Integer.toHexString(0xFF and b.toInt()).length == 1) {
@@ -40,11 +56,11 @@ object HookUtils {
         return sb.toString()
     }
 
-    fun getObjectString(value: Any?): String {
+    fun toDisplayString(value: Any?): String {
         if (value == null) return "NULL"
         return value as? String
             ?: try {
-                Gson().toJson(value)
+                gson.toJson(value)
             } catch (_: Throwable) {
                 value.javaClass.name
             }

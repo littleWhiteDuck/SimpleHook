@@ -35,7 +35,7 @@ import me.simpleHook.data.EXtGuiseSignItem
 import me.simpleHook.databinding.FragmentGuiseSignBinding
 import me.simpleHook.core.extension.dp
 import me.simpleHook.core.extension.showPopup
-import me.simpleHook.platform.hook.utils.HookUtils.byte2Sting
+import me.simpleHook.platform.hook.utils.HookUtils.byteToHexString
 import me.simpleHook.feature.applist.ui.AppListActivity
 import me.simpleHook.core.ui.custom.LoadingDialog
 import me.simpleHook.core.ui.custom.customDialog
@@ -189,7 +189,7 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
                             val `is`: InputStream = zipFile.getInputStream(entry)
                             val certFactory = CertificateFactory.getInstance("X509")
                             val x509Cert = certFactory.generateCertificate(`is`) as X509Certificate
-                            result = byte2Sting(x509Cert.encoded)
+                            result = byteToHexString(x509Cert.encoded)
                             break
                         }
                     }

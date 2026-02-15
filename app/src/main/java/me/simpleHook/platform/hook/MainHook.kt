@@ -36,7 +36,7 @@ import me.simpleHook.platform.hook.extension.IntentHook
 import me.simpleHook.platform.hook.extension.JSONHook
 import me.simpleHook.platform.hook.extension.MessageDigestHook
 import me.simpleHook.platform.hook.extension.PopupWindowHook
-import me.simpleHook.platform.hook.extension.SensorMangerHook
+import me.simpleHook.platform.hook.extension.SensorManagerHook
 import me.simpleHook.platform.hook.extension.SignatureHook
 import me.simpleHook.platform.hook.extension.ToastHook
 import me.simpleHook.platform.hook.extension.VpnCheckHook
@@ -44,7 +44,7 @@ import me.simpleHook.platform.hook.extension.WebHook
 import me.simpleHook.platform.hook.utils.HookHelper
 import me.simpleHook.platform.hook.utils.HookHelper.appContext
 import me.simpleHook.platform.hook.utils.RecordOutHelper
-import me.simpleHook.platform.hook.utils.Type.getDataTypeValue
+import me.simpleHook.platform.hook.utils.HookTypeParser.getDataTypeValue
 import me.simpleHook.platform.hook.utils.hook
 import me.simpleHook.platform.hook.utils.isSearchConstructor
 import me.simpleHook.platform.hook.utils.isSearchMethod
@@ -53,8 +53,9 @@ import org.json.JSONObject
 
 
 object MainHook {
+    private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
 
-    fun readyHook(strConfig: String) {
+    fun startCustomHooks(strConfig: String) {
         if (strConfig.isBlank()) return
         try {
             val appConfig = Json.decodeFromString<AppConfig>(strConfig)
@@ -73,7 +74,7 @@ object MainHook {
                             FieldHook.hookInstanceField(hookConfig)
                         }
 
-                        else -> methodHook(hookConfig)
+                        else -> applyMethodHook(hookConfig)
                     }
                 }
             }
@@ -83,7 +84,7 @@ object MainHook {
     }
 
 
-    private fun methodHook(hookConfig: HookConfig) {
+    private fun applyMethodHook(hookConfig: HookConfig) {
         with(hookConfig) {
             val hooker: Hooker = when (mode) {
                 Constant.HOOK_RETURN -> {
@@ -91,7 +92,7 @@ object MainHook {
                 }
 
                 Constant.HOOK_RETURN2 -> {
-                    { hookReturnValuePro(resultValues, it, returnClassName) }
+                    { hookReturnObjectValue(resultValues, it, returnClassName) }
                 }
 
                 Constant.HOOK_BREAK -> {
@@ -99,11 +100,11 @@ object MainHook {
                 }
 
                 Constant.HOOK_PARAM -> {
-                    { hookParamsValue(param = it, paramValues = resultValues) }
+                    { replaceParamValues(param = it, paramValues = resultValues) }
                 }
 
                 Constant.HOOK_RECORD_PARAMS -> {
-                    { recordParamsValue(param = it, hookConfig = hookConfig) }
+                    { recordParamValues(param = it, hookConfig = hookConfig) }
                 }
 
                 Constant.HOOK_RECORD_RETURN -> {
@@ -111,11 +112,11 @@ object MainHook {
                 }
 
                 Constant.HOOK_RECORD_PARAMS_RETURN -> {
-                    { recordParamsAndReturn(param = it, hookConfig = hookConfig) }
+                    { recordParamsAndResult(param = it, hookConfig = hookConfig) }
                 }
 
                 else -> {
-                    throw java.lang.IllegalStateException("读不懂配置")
+                    throw IllegalStateException("Unsupported hook mode: $mode")
                 }
             }
             try {
@@ -148,14 +149,14 @@ object MainHook {
         }
     }
 
-    private fun hookReturnValuePro(
+    private fun hookReturnObjectValue(
         values: String, param: XC_MethodHook.MethodHookParam, returnClassName: String
     ) {
-        val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
         try {
-            val hookObject = Gson().fromJson(values, hookClass)
+            val hookClass = XposedHelpers.findClass(returnClassName, HookHelper.appClassLoader)
+            val hookObject = gson.fromJson(values, hookClass)
             param.result = hookObject
-        } catch (_: Exception) {
+        } catch (_: Throwable) {
             hookReturnValue(values, param)
         }
     }
@@ -166,7 +167,7 @@ object MainHook {
         val targetValue = getDataTypeValue(values)
         if (targetValue is String) {
             try {
-                randomReturn(targetValue, param)
+                applyRandomReturnRule(targetValue, param)
             } catch (_: Exception) {
                 param.result = targetValue
             }
@@ -177,18 +178,20 @@ object MainHook {
 
 
 
-    private fun hookParamsValue(
+    private fun replaceParamValues(
         param: XC_MethodHook.MethodHookParam,
         paramValues: String
     ) {
+        val configuredValues = paramValues.split(",")
         for (i in param.args.indices) {
-            if (paramValues.split(",")[i] == "") continue
-            val targetValue = getDataTypeValue(paramValues.split(",")[i])
+            val configuredValue = configuredValues.getOrNull(i) ?: continue
+            if (configuredValue.isEmpty()) continue
+            val targetValue = getDataTypeValue(configuredValue)
             param.args[i] = targetValue
         }
     }
 
-    private fun recordParamsValue(
+    private fun recordParamValues(
         param: XC_MethodHook.MethodHookParam,
         hookConfig: HookConfig
     ) {
@@ -199,7 +202,7 @@ object MainHook {
         RecordOutHelper.outputReturnRecord(returnValue = param.result, hookConfig = hookConfig)
     }
 
-    private fun recordParamsAndReturn(
+    private fun recordParamsAndResult(
         param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig
     ) {
         RecordOutHelper.outputParamReturnRecord(
@@ -210,7 +213,7 @@ object MainHook {
     }
 
 
-    fun readyExtensionHook(
+    fun startExtensionHooks(
         strConfig: String
     ) {
         try {
@@ -220,7 +223,7 @@ object MainHook {
             RecordOutHelper.applyRecordSettings(extensionConfig.recordSettings)
             if (!extensionConfig.all) return
             if (extensionConfig.hookTip) appContext.showToast(msg = "SimpleHook: StartHook")
-            initExtensionHook(
+            initializeExtensionHooks(
                 extensionConfig = extensionConfig,
                 DialogHook,
                 PopupWindowHook,
@@ -239,7 +242,7 @@ object MainHook {
                 ApplicationHook,
                 SignatureHook,
                 ContactHook,
-                SensorMangerHook,
+                SensorManagerHook,
                 ADBHook,
                 FileHook,
                 ExitHook
@@ -249,7 +252,7 @@ object MainHook {
         }
     }
 
-    private fun initExtensionHook(
+    private fun initializeExtensionHooks(
         extensionConfig: ExtensionConfig, vararg hooks: BaseHook
     ) {
         hooks.forEach {
@@ -260,35 +263,43 @@ object MainHook {
     }
 
 
-    private fun randomReturn(
+    private fun applyRandomReturnRule(
         targetValue: String,
         param: XC_MethodHook.MethodHookParam
     ) {
         val jsonObject = JSONObject(targetValue)
-        if (jsonObject.has("random") && jsonObject.has("length") && jsonObject.has("key")) {
-            val randomSeed = jsonObject.optString("random", "a1b2c3d4e5f6g7h8i9k0l")
-            val len = jsonObject.optInt("length", 10)
-            val updateTime = jsonObject.optLong("updateTime", -1L)
-            val key = jsonObject.getString("key")
-            val defaultValue = jsonObject.optString("defaultValue")
-            if (updateTime == -1L) {
-                val result = randomSeed.random(len)
-                param.result = result
-            } else {
-                val sp = AndroidAppHelper.currentApplication()
-                    .getSharedPreferences("me.simpleHook", Context.MODE_PRIVATE)
-                val oldTime = sp.getLong("time_$key", 0L)
-                val oldRandom = sp.getString("random_$key", defaultValue)
-                val currentTime = System.currentTimeMillis() / 1000
-                if (currentTime - updateTime >= oldTime) {
-                    val result = randomSeed.random(len)
-                    sp.edit { putString("random_$key", result) }
-                    sp.edit { putLong("time_$key", currentTime) }
-                    param.result = result
-                } else {
-                    param.result = oldRandom
-                }
+        if (!jsonObject.has("random") || !jsonObject.has("length") || !jsonObject.has("key")) return
+
+        val randomSeed = jsonObject.optString("random", "a1b2c3d4e5f6g7h8i9k0l")
+        val len = jsonObject.optInt("length", 10)
+        val updateTime = jsonObject.optLong("updateTime", -1L)
+        val key = jsonObject.getString("key")
+        val defaultValue = jsonObject.optString("defaultValue")
+
+        fun generateRandomValue(): String = randomSeed.random(len)
+
+        if (updateTime == -1L) {
+            param.result = generateRandomValue()
+            return
+        }
+
+        val randomKey = "random_$key"
+        val timeKey = "time_$key"
+        val sharedPreferences = AndroidAppHelper.currentApplication()
+            .getSharedPreferences("me.simpleHook", Context.MODE_PRIVATE)
+        val lastUpdateTime = sharedPreferences.getLong(timeKey, 0L)
+        val lastRandomValue = sharedPreferences.getString(randomKey, defaultValue)
+        val currentTime = System.currentTimeMillis() / 1000
+        val shouldRefresh = (currentTime - lastUpdateTime) >= updateTime
+        if (shouldRefresh) {
+            val newRandomValue = generateRandomValue()
+            sharedPreferences.edit {
+                putString(randomKey, newRandomValue)
+                putLong(timeKey, currentTime)
             }
+            param.result = newRandomValue
+        } else {
+            param.result = lastRandomValue
         }
     }
 

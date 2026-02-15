@@ -5,7 +5,8 @@ import io.github.qauxv.util.xpcompat.XposedBridge
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.record.RecordJsonType
-import me.simpleHook.platform.hook.utils.HookUtils.getObjectString
+
+import me.simpleHook.platform.hook.utils.HookUtils.toDisplayString
 import me.simpleHook.platform.hook.utils.RecordOutHelper
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,7 +26,7 @@ object JSONHook : BaseHook() {
         XposedBridge.hookAllMethods(JSONObject::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val name = param.args[0] as String
-                val value = getObjectString(param.args[1])
+                val value = toDisplayString(param.args[1])
                 RecordOutHelper.outputJson(
                     type = RecordJsonType.JsonObjectPut,
                     values = mapOf(name to value)
@@ -44,7 +45,7 @@ object JSONHook : BaseHook() {
                 if (map.isEmpty()) return
                 RecordOutHelper.outputJson(
                     type = RecordJsonType.JsonObjectCreate,
-                    values = map.mapValues { getObjectString(it.value) }
+                    values = map.mapValues { toDisplayString(it.value) }
                 )
             }
         })
@@ -54,8 +55,21 @@ object JSONHook : BaseHook() {
 
         XposedBridge.hookAllMethods(JSONArray::class.java, "put", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val name = param.args[0] as String
-                val value = getObjectString(param.args[1] ?: "null")
+                val (name, value) = when (param.args.size) {
+                    1 -> {
+                        // put(value): append style
+                        "append" to toDisplayString(param.args[0])
+                    }
+
+                    2 -> {
+                        // put(index, value)
+                        param.args[0].toString() to toDisplayString(param.args[1])
+                    }
+
+                    else -> {
+                        return
+                    }
+                }
                 RecordOutHelper.outputJson(
                     type = RecordJsonType.JsonArrayPut,
                     values = mapOf(name to value)
@@ -71,7 +85,7 @@ object JSONHook : BaseHook() {
                 val value = XposedHelpers.getObjectField(jsonObject, "values") as List<Any>
                 RecordOutHelper.outputJson(
                     type = RecordJsonType.JsonArrayCreate,
-                    values = mapOf("JSON_ARRAY" to getObjectString(value))
+                    values = mapOf("JSON_ARRAY" to toDisplayString(value))
                 )
             }
         })

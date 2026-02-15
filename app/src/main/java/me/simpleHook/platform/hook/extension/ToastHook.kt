@@ -26,7 +26,7 @@ object ToastHook : BaseHook() {
                 runCatching {
                     XposedHelpers.getObjectField(toast, "mNextView")?.also {
                         val toastView = it as View
-                        textList.addAll(HookUtils.getViewAllText(toastView))
+                        textList.addAll(HookUtils.collectViewTexts(toastView))
                     }
                 }
 

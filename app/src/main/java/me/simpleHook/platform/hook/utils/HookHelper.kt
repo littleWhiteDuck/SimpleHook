@@ -11,6 +11,7 @@ object HookHelper {
         EzXHelperInit.setEzClassLoader(appClassLoader)
         hostPackageName = packageName
         this.applicationName = applicationName
+        RecordOutHelper.ensureRecordStorageReady()
     }
 
     lateinit var applicationName: String

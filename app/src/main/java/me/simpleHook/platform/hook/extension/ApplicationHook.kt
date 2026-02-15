@@ -25,12 +25,16 @@ object ApplicationHook : BaseHook() {
     }
 
     private fun recordCrash() {
+        val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            t ?: return@setDefaultUncaughtExceptionHandler
-            RecordOutHelper.outputRecord(
-                type = RecordType.CrashCaught,
-                record = RecordCrash(threadName = t.name, stackDetail = e.stackTraceToString())
-            )
+            runCatching {
+                val threadName = t?.name ?: "unknown"
+                RecordOutHelper.outputRecord(
+                    type = RecordType.CrashCaught,
+                    record = RecordCrash(threadName = threadName, stackDetail = e.stackTraceToString())
+                )
+            }
+            previousHandler?.uncaughtException(t, e)
         }
     }
 }

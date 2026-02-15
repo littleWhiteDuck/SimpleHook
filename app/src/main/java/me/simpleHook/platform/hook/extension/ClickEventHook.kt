@@ -30,7 +30,7 @@ object ClickEventHook : BaseHook() {
                         viewType = view.javaClass.name ?: "NULL",
                         callbackType = callbackType,
                         viewId = viewId,
-                        textList = HookUtils.getViewAllText(view),
+                        textList = HookUtils.collectViewTexts(view),
                         stackDetail = RecordOutHelper.getStackTraceStr()
                     )
                 )

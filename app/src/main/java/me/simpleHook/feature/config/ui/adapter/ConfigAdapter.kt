@@ -16,7 +16,7 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.HookConfig
 import me.simpleHook.core.extension.dp
 import me.simpleHook.core.extension.random
-import me.simpleHook.platform.hook.utils.Type
+import me.simpleHook.platform.hook.utils.HookTypeParser
 import me.simpleHook.feature.config.ui.view.ConfigItemView
 import me.simpleHook.feature.config.ui.view.RoundBackgroundColorSpan
 import me.simpleHook.core.utils.HookModeUtil
@@ -112,7 +112,7 @@ class ConfigAdapter(
 
                 Constant.HOOK_FIELD, Constant.HOOK_STATIC_FIELD -> {
                     val showText = "${methodConfig.fieldName} -> ${
-                        transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                        transformValue(HookTypeParser.getDataTypeValue(methodConfig.resultValues))
                     }"
                     tvOtherName.text = showText
                 }
@@ -147,7 +147,7 @@ class ConfigAdapter(
                             temp += if (value == "") {
                                 params[i]
                             } else {
-                                params[i] + "->" + transformValue(Type.getDataTypeValue(value))
+                                params[i] + "->" + transformValue(HookTypeParser.getDataTypeValue(value))
                             }
                             if (i != params.size - 1) temp += ","
                         }
@@ -158,7 +158,7 @@ class ConfigAdapter(
                 }
 
                 Constant.HOOK_RETURN -> {
-                    val returnValue = Type.getDataTypeValue(methodConfig.resultValues)
+                    val returnValue = HookTypeParser.getDataTypeValue(methodConfig.resultValues)
                     val resultValue = if (returnValue is String) {
                         runCatching {
                             val jsonObject = JSONObject(returnValue)
@@ -170,11 +170,11 @@ class ConfigAdapter(
                                 val len = jsonObject.optInt("length", 10)
                                 "\"${randomSeed.random(len)}\""
                             } else {
-                                transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                                transformValue(HookTypeParser.getDataTypeValue(methodConfig.resultValues))
                             }
-                        }.getOrDefault(transformValue(Type.getDataTypeValue(methodConfig.resultValues)))
+                        }.getOrDefault(transformValue(HookTypeParser.getDataTypeValue(methodConfig.resultValues)))
                     } else {
-                        transformValue(Type.getDataTypeValue(methodConfig.resultValues))
+                        transformValue(HookTypeParser.getDataTypeValue(methodConfig.resultValues))
                     }
                     val showText =
                         "${methodConfig.methodName}(${methodConfig.params}) -> $resultValue"

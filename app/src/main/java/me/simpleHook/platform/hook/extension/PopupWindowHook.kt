@@ -39,7 +39,7 @@ object PopupWindowHook : BaseHook() {
         }
         val textList = mutableListOf<String>()
         val contentView = popupWindow.contentView
-        textList.addAll(HookUtils.getViewAllText(contentView))
+        textList.addAll(HookUtils.collectViewTexts(contentView))
 
         val blockDialog = dialogConfig.blockDialog
         if (blockDialog.enable) {
@@ -57,7 +57,7 @@ object PopupWindowHook : BaseHook() {
                 }
             }
             if (blockDialog.idEnable) {
-                val currentIds = HookUtils.getViewIds(contentView)
+                val currentIds = HookUtils.collectViewIds(contentView)
                 currentIds.forEach {
                     if (it in blockDialog.ids) {
                         param.result = null

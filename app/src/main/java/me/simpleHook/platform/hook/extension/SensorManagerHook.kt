@@ -6,7 +6,7 @@ import com.github.kyuubiran.ezxhelper.utils.findAllMethods
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import me.simpleHook.data.ExtensionConfig
 
-object SensorMangerHook : BaseHook() {
+object SensorManagerHook : BaseHook() {
     private val sensorTypes =
         arrayOf(Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_GYROSCOPE, Sensor.TYPE_LINEAR_ACCELERATION)
     private val sportSensorTypes = arrayOf(
@@ -28,11 +28,10 @@ object SensorMangerHook : BaseHook() {
                 val disableSensorTypes =
                     if (extensionConfig.sensorConfig.disableSport) sportSensorTypes else sensorTypes
                 if (type in disableSensorTypes) {
-                    it.result = null
+                    it.result = emptyList<Sensor>()
                 } else if (type == Sensor.TYPE_ALL) {
-                    @Suppress("UNCHECKED_CAST")
-                    val unmodifiableList = it.result as List<Sensor>
-                    it.result = unmodifiableList.filter { sensor ->
+                    val sensors = (it.result as? List<*>)?.filterIsInstance<Sensor>().orEmpty()
+                    it.result = sensors.filter { sensor ->
                         sensor.type !in disableSensorTypes
                     }
                 }

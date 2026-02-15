@@ -51,23 +51,29 @@ fun List<Method>.hook(hookBefore: Boolean, hooker: Hooker) {
 }
 
 fun Method.isSearchMethod(params: String): Boolean {
-    val methodParams = params.split(",")
-    val realSize = if (params == "") 0 else methodParams.size
+    val methodParams = parseMethodParams(params)
+    val realSize = methodParams.size
     if (realSize != paramCount) return false
     for (index in 0 until realSize) {
-        if (parameterTypes[index].name != Type.getClassTypeName(methodParams[index])) return false
+        if (parameterTypes[index].name != HookTypeParser.getClassTypeName(methodParams[index])) return false
     }
     return true
 }
 
 fun Constructor<*>.isSearchConstructor(params: String): Boolean {
-    val methodParams = params.split(",")
-    val realSize = if (params == "") 0 else methodParams.size
+    val methodParams = parseMethodParams(params)
+    val realSize = methodParams.size
     if (realSize != paramCount) return false
     for (index in 0 until realSize) {
-        if (parameterTypes[index].name != Type.getClassTypeName(methodParams[index])) return false
+        if (parameterTypes[index].name != HookTypeParser.getClassTypeName(methodParams[index])) return false
     }
     return true
+}
+
+private fun parseMethodParams(params: String): List<String> {
+    val normalized = params.trim()
+    if (normalized.isEmpty()) return emptyList()
+    return normalized.split(",").map { it.trim() }
 }
 
 //xposed log

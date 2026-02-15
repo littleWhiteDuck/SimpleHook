@@ -4,8 +4,13 @@ import android.content.Intent
 import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
+import me.simpleHook.core.utils.GuiseBase64
+import me.simpleHook.core.utils.RecordLogger
+import me.simpleHook.core.utils.TimeUtil
+import me.simpleHook.core.utils.ToolUtil
 import me.simpleHook.data.ExtRecordSettings
 import me.simpleHook.data.HookConfig
+import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.data.record.Base64Operation
 import me.simpleHook.data.record.Record
 import me.simpleHook.data.record.RecordBase64
@@ -33,18 +38,15 @@ import me.simpleHook.data.record.RecordSignature
 import me.simpleHook.data.record.RecordToast
 import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.RecordValueType
-import me.simpleHook.data.local.db.entity.RecordEntity
-import me.simpleHook.core.utils.GuiseBase64
-import me.simpleHook.core.utils.RecordLogger
-import me.simpleHook.core.utils.TimeUtil
-import me.simpleHook.core.utils.ToolUtil
 import java.io.ByteArrayOutputStream
-import java.nio.charset.Charset
 import java.util.zip.GZIPOutputStream
 
 
 object RecordOutHelper {
+    private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
     private val defaultRecordSettings = ExtRecordSettings()
+    @Volatile
+    private var recordStorageReady: Boolean = false
     @Volatile
     private var enableStack: Boolean = defaultRecordSettings.enableStack
     @Volatile
@@ -57,6 +59,15 @@ object RecordOutHelper {
         enableStack = safeSettings.enableStack
         enableBase64 = safeSettings.enableBase64
         enableHex = safeSettings.enableHex
+    }
+
+    fun ensureRecordStorageReady() {
+        if (recordStorageReady || !HookHelper.isAppContextInitialized) return
+        runCatching {
+            HookHelper.appContext.getExternalFilesDirs("")
+        }.onSuccess {
+            recordStorageReady = true
+        }
     }
 
 
@@ -76,7 +87,7 @@ object RecordOutHelper {
         outputRecord(type = RecordType.Error, record = errorRecord)
     }
 
-    fun outputFieldRecord(filedValue: Any?, hookConfig: HookConfig) {
+    fun outputFieldRecord(fieldValue: Any?, hookConfig: HookConfig) {
         val pureStatic = hookConfig.className.isEmpty() || hookConfig.methodName.isEmpty()
         val instanceHook = hookConfig.mode == 9 || hookConfig.mode == 4
 
@@ -86,7 +97,7 @@ object RecordOutHelper {
             fieldClassName = hookConfig.fieldClassName.takeIf { !instanceHook },
             params = emptyList<String>().takeIf { pureStatic } ?: hookConfig.params.split(","),
             fieldName = hookConfig.fieldName,
-            filedValue = filedValue.recordValue
+            filedValue = fieldValue.recordValue
         )
 
         outputRecord(type = RecordType.RecordField, record = fieldRecord)
@@ -133,7 +144,6 @@ object RecordOutHelper {
 
 
     fun outputRecord(type: RecordType, record: Record, subType: String? = null) {
-        HookHelper.appContext.getExternalFilesDirs("")
         val recordContent = Json.encodeToString(
             RecordEntity(
                 type = type,
@@ -295,6 +305,7 @@ object RecordOutHelper {
         )
     }
 
+    @Suppress("DEPRECATION")
     fun outputIntent(intent: Intent) {
         val extras = intent.extras?.keySet()?.map {
             RecordIntentExtra(
@@ -333,7 +344,7 @@ object RecordOutHelper {
             if (this@recordValue is ByteArray) return this@recordValue.recordValue
             return buildMap {
                 put(RecordValueType.ToString, this@recordValue.toString())
-                put(RecordValueType.GsonToString, Gson().toJson(this@recordValue))
+                put(RecordValueType.GsonToString, gson.toJson(this@recordValue))
             }
         }
 
@@ -373,10 +384,6 @@ object RecordOutHelper {
         return hexBuilder.toString()
     }
 
-
-    fun String.toHex(charset: Charset = Charsets.UTF_8, lowercase: Boolean = false): String {
-        return this.toByteArray(charset).toHex(lowercase)
-    }
 
     fun writeWithCap(
         stream: ByteArrayOutputStream,
