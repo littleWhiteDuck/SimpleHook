@@ -20,7 +20,7 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
     var appListReverse by SharedPreferenceDelegates.boolean(false)
     var readIntroduction by SharedPreferenceDelegates.boolean(true)
     var startFloat by SharedPreferenceDelegates.boolean(false)
-    var bottomConfigDialog by SharedPreferenceDelegates.boolean(false)
+    var bottomConfigDialog by SharedPreferenceDelegates.boolean(true)
     var themeMode by SharedPreferenceDelegates.string("system")
     var permissionSortMode by SharedPreferenceDelegates.int(0)
     var permissionAppShowMode by SharedPreferenceDelegates.int(0)
