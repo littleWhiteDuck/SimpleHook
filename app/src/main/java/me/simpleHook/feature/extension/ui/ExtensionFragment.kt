@@ -29,28 +29,26 @@ import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.base.BaseViewFragment
-import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.constant.Constant.MODEL_EXTENSION_CONFIG
 import me.simpleHook.core.contract.OpenDocumentTreeContract
-import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.core.extension.dp
 import me.simpleHook.core.extension.showPopup
-import me.simpleHook.platform.lsposed.LSPosedHelper
-import me.simpleHook.feature.extension.ui.adapter.ExtensionAdapter
-import me.simpleHook.feature.applist.ui.AppListActivity
-import me.simpleHook.feature.extension.ui.ExtensionActivity
-import me.simpleHook.feature.main.ui.MainActivity
 import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.ui.custom.requestPermissionDialog
 import me.simpleHook.core.ui.custom.warningDialog
 import me.simpleHook.core.ui.view.edit.InputView
-import me.simpleHook.feature.extension.ui.view.ExtensionFragmentView
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
+import me.simpleHook.data.config.ConfigSystemUtil
+import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
+import me.simpleHook.feature.applist.ui.AppListActivity
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
+import me.simpleHook.feature.extension.ui.adapter.ExtensionAdapter
+import me.simpleHook.feature.extension.ui.view.ExtensionFragmentView
+import me.simpleHook.feature.main.ui.MainActivity
 import kotlin.math.min
 
 class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
@@ -214,7 +212,6 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private fun itemOnLongClick(extConfigEntity: ExtensionConfigEntity) {
         if (configSystem.isEnableDelete(extConfigEntity.packageName)) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                LSPosedHelper.changeScope(extConfigEntity.packageName, false)
                 appConfigViewModel.deleteExtConfigs(extConfigEntity)
                 configSystem.deleteExConfig(extConfigEntity.packageName)
             }
@@ -361,10 +358,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
             requireActivity().showPopup(getString(R.string.no_shizuku_tip))
         } else {
             if (OSUtil.atLeastT()) {
-                requestPermissionDialog(
-                    requireContext(),
-                    message = getString(R.string.android_13_no_permission)
-                ) {
+                requestPermissionDialog(requireContext()) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }
             } else if (OSUtil.atLeastR()) {

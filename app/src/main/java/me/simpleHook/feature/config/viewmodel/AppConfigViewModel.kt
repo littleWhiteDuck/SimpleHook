@@ -36,6 +36,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
         appRepository.insertConfigs(*appConfig)
 
         appConfig.forEach(::writeToExternal)
+        syncScopeForPackages(appConfig.map { it.packageName })
 
         notifyBackupConfig()
     }
@@ -43,10 +44,6 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun writeToExternal(appConfig: AppConfig) {
         val configStr = Json.encodeToString(appConfig)
-        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
-            // TODO, importing config may result in repeated requests
-            LSPosedHelper.changeScope(appConfig.packageName, appConfig.enable)
-        }
         configSystem.saveCustomConfig(appConfig.packageName, configStr)
     }
 
@@ -68,7 +65,10 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
             appRepository.updateConfigs(*appConfig)
 
-            if (needWriteToFile) appConfig.forEach(::writeToExternal)
+            if (needWriteToFile) {
+                appConfig.forEach(::writeToExternal)
+                syncScopeForPackages(appConfig.map { it.packageName })
+            }
 
             notifyBackupConfig()
         }
@@ -80,19 +80,11 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
             configSystem.deleteCustomConfig(config.packageName)
         }
 
-        if (FlavorUtil.rootVersion) {
-            val pkgNames = appConfig.filter { getExCountByPackageName(it.packageName) < 1 }
-                .mapTo(HashSet()) { it.packageName }
-            LSPosedHelper.removeScope(pkgNames.toTypedArray())
-        }
+        syncScopeForPackages(appConfig.map { it.packageName })
 
 
         notifyBackupConfig()
     }
-
-
-    private suspend fun getCustomCountByPackageName(packageName: String) =
-        appRepository.getCustomCountByPackageName(packageName)
 
     fun getAllConfigs() = appRepository.getAllConfigs()
     fun getConfigs() = appRepository.getConfigs()
@@ -102,13 +94,6 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun writeToExternal(extConfigEntity: ExtensionConfigEntity) {
         if (extConfigEntity.packageName == Constant.MODEL_EXTENSION_CONFIG) return
-        if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
-            // TODO, importing config may result in repeated requests
-            LSPosedHelper.changeScope(
-                extConfigEntity.packageName,
-                extConfigEntity.enable
-            )
-        }
         configSystem.saveExConfig(extConfigEntity.packageName, extConfigEntity.config)
     }
 
@@ -118,6 +103,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
         ) {
             extensionConfigDao.insertExtConfigs(*extConfigEntity)
             extConfigEntity.forEach(::writeToExternal)
+            syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
 
@@ -125,22 +111,14 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             extensionConfigDao.updateExtConfigs(*extConfigEntity)
             extConfigEntity.forEach(::writeToExternal)
+            syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
 
     fun deleteExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
         viewModelScope.launch {
             extensionConfigDao.deleteExtConfigs(*extConfigEntity)
-            if (FlavorUtil.rootVersion || FlavorUtil.liteVersion) {
-                val pkgNames = HashSet<String>()
-                extConfigEntity.forEach {
-                    val count = getCustomCountByPackageName(it.packageName)
-                    if (count < 1) {
-                        pkgNames.add(it.packageName)
-                    }
-                }
-                LSPosedHelper.removeScope(pkgNames.toTypedArray())
-            }
+            syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
 
@@ -159,6 +137,28 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
      */
     suspend fun getEnabledPackageNames() =appRepository.getEnabledPackageNames()
 
-    private suspend fun getExCountByPackageName(packageName: String) = extensionConfigDao.getExtCountByPackageName(packageName)
+    private suspend fun getEnabledCustomCountByPackageName(packageName: String) =
+        appRepository.getEnabledCustomCountByPackageName(packageName)
+
+    private suspend fun getEnabledExCountByPackageName(packageName: String) =
+        extensionConfigDao.getEnabledExtCountByPackageName(packageName)
+
+    private suspend fun syncScopeForPackages(packageNames: Collection<String>) {
+        if (!FlavorUtil.rootVersion && !FlavorUtil.liteVersion) return
+        packageNames.toSet().forEach { packageName ->
+            syncScopeForPackage(packageName)
+        }
+    }
+
+    private suspend fun syncScopeForPackage(packageName: String) {
+        if (packageName == Constant.MODEL_EXTENSION_CONFIG) return
+        val customEnabled = getEnabledCustomCountByPackageName(packageName) > 0
+        val extensionEnabled = getEnabledExCountByPackageName(packageName) > 0
+        if (customEnabled || extensionEnabled) {
+            LSPosedHelper.requestScopeIfNeeded(packageName)
+        } else {
+            LSPosedHelper.removeScopeIfNeeded(packageName)
+        }
+    }
 
 }

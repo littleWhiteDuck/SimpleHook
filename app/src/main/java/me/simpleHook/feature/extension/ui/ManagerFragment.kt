@@ -251,10 +251,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun checkPermission(): Boolean {
         if (GlobalValue.isNormalWork && OSUtil.atLeastT() && !PermissionUtil.isGrantData()) {
-            requestPermissionDialog(
-                requireContext(),
-                message = getString(R.string.android_13_no_permission)
-            ) {
+            requestPermissionDialog(requireContext()) {
                 startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
             }
             return false
@@ -601,13 +598,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun getDexDesc(): String {
         val dexPath = ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
-        val dexPathDesc = getString(R.string.extension_dex_desc_format, dexPath)
-        val dexDesc = if (OSUtil.atLeastU()) {
-            dexPathDesc + "\n" + getString(R.string.extension_dex_extra_desc)
-        } else {
-            dexPathDesc
-        }
-        return dexDesc
+        return getString(R.string.extension_dex_desc_format, dexPath)
     }
 
     override fun canBack(): Boolean {

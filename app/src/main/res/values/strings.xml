@@ -28,7 +28,7 @@
     <string name="config_save_empty_config_tip">配置为空</string>
 
     <!--main-->
-    <string name="app_name">SimpleHook</string>
+    <string name="app_name">SimpleHookR</string>
     <string name="main_home_name">首页</string>
     <string name="main_home_undo_delete_config">撤销</string>
     <string name="main_home_export_configs_tip">已复制到剪切板</string>

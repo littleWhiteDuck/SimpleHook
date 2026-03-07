@@ -17,6 +17,22 @@ object LSPosedHelper {
         service!!.scope.toSet().isNotEmpty()
     } else false
 
+    fun isInScope(packageName: String): Boolean {
+        return service?.scope?.contains(packageName) == true
+    }
+
+    fun requestScopeIfNeeded(packageName: String) {
+        if (!isInScope(packageName)) {
+            service?.requestScope(packageName, object : XposedService.OnScopeEventListener {})
+        }
+    }
+
+    fun removeScopeIfNeeded(packageName: String) {
+        if (isInScope(packageName)) {
+            service?.removeScope(packageName)
+        }
+    }
+
     fun changeScope(packageName: String, isAdd: Boolean) {
         if (isAdd) addScope(arrayOf(packageName))
         else removeScope(arrayOf(packageName))
@@ -34,14 +50,18 @@ object LSPosedHelper {
     private fun changeScope(
         packageNames: Array<String>, isAdd: Boolean
     ) {
+        val scopeSet = service?.scope?.toSet().orEmpty()
         if (isAdd) {
-            packageNames.forEach {
-                service?.requestScope(it, object : XposedService.OnScopeEventListener {
-                })
+            packageNames.distinct().forEach {
+                if (!scopeSet.contains(it)) {
+                    service?.requestScope(it, object : XposedService.OnScopeEventListener {})
+                }
             }
         } else {
-            packageNames.forEach {
-                service?.removeScope(it)
+            packageNames.distinct().forEach {
+                if (scopeSet.contains(it)) {
+                    service?.removeScope(it)
+                }
             }
         }
     }

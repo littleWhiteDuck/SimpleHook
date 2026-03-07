@@ -66,8 +66,7 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
             requireActivity().showPopup(getString(R.string.no_shizuku_tip))
         } else {
             if (OSUtil.atLeastT()) {
-                requestPermissionDialog(requireContext(),
-                    message = getString(R.string.android_13_no_permission)) {
+                requestPermissionDialog(requireContext()) {
                     startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }
             } else if (OSUtil.atLeastR()) {

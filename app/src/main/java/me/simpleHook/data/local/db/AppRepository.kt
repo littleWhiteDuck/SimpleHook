@@ -25,8 +25,8 @@ class AppRepository(context: Context) {
 
     }
 
-    suspend fun getCustomCountByPackageName(packageName: String): Int {
-        return appConfigDao.getCountByPackageName(packageName)
+    suspend fun getEnabledCustomCountByPackageName(packageName: String): Int {
+        return appConfigDao.getEnabledCountByPackageName(packageName)
     }
 
     suspend fun getEnabledPackageNames(): Set<String> {
