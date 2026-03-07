@@ -38,7 +38,7 @@
     <string name="main_home_toolbar_search_hint">Search…</string>
     <string name="main_home_empty_tip">Click the plus button to add the config</string>
     <string name="main_request_storage_permission_title">Get permission</string>
-    <string name="main_request_storage_permission_message">Since some applications cannot read the configuration, you need to obtain the data folder permission and write the configuration in the target application directory. After opening, please manually refresh the configuration, otherwise the configuration will not be written to the storage file.</string>
+    <string name="main_request_storage_permission_message">Some apps cannot read config directly. Grant storage access so SimpleHook can write config and logs under Android/media/&lt;target_package&gt;/SimpleHook. After granting permission, refresh config manually; otherwise nothing will be written.</string>
     <string name="main_request_storage_permission_okText">To apply</string>
     <string name="main_settings_name">Settings</string>
     <string name="main_settings_title_other">Other</string>
@@ -331,29 +331,13 @@
     <string name="extension_item_title_disable_sensor">Disable sensor</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">Disable acceleration sensor, gyroscope sensor</string>
     <string name="extension_item_title_disable_sport_sensor">Disable motion sensors, including: acceleration sensor, gyro sensor, etc.</string>
-    <string name="main_settings_summary_batch_grant">Authorize /Android/data/* directory</string>
-    <string name="main_settings_title_batch_grant">Batch grant</string>
-    <string name="label_batch_grant">Batch grant</string>
     <string name="sort">sort</string>
     <string name="select_all">Select all</string>
     <string name="invert_selection">Invert selection</string>
-    <string name="android_13_no_permission">The change has not taken effect: there is no permission for this app directory, you need to apply for granting this APP directory permission (you can batch authorize it on the settings page). Some applications have no directory under Android/data and need to be created manually, or after SimpleHook increases the scope of the target application, restarting the application will automatically create it. Then re-apply for permission</string>
+    <string name="android_13_no_permission">Changes did not take effect: this app directory is not authorized. Please grant permission for this app directory first. Some apps may not have a directory under Android/media; create it manually, or add the target app to SimpleHook scope and restart the app to create it automatically, then grant permission again.</string>
     <string name="lite_version_not_active">Changes not active: module not active or other error</string>
     <string name="root_version_no_permission">The change does not take effect: please manually grant ROOT permission and restart the APP</string>
-    <string name="permission_tip">Due to the limitation of Android 13, only one application can be authorized for one application\nSome applications have no directory files under Android/data/, and you need to manually create them to apply for authorization\nDisplayed here Both are unauthorized applications</string>
-    <string name="permission_search_hint_app_name">Enter the application name to search</string>
-    <string name="permission_sort_rule"> According to what rules to sort</string>
-    <string name="permission_sort_app_name">App name</string>
-    <string name="permission_sort__package_name">App package name</string>
-    <string name="permission_sort_install_time">Installation time</string>
-    <string name="permission_sort_forward">Forward sort</string>
-    <string name="permission_sort_backward">Reverse sort</string>
-    <string name="permission_show_what_app">Which apps to show</string>
-    <string name="permission_display_user_app">User app</string>
-    <string name="permission_display_system_app">System app</string>
-    <string name="permission_display_all_app">All app</string>
     <string name="extension_tip_dex_path_to_clip">The directory where DEX is stored has been copied to the clipboard.</string>
-    <string name="main_android_13_tip"><![CDATA[Because of your system version>=13, you need to authorize the directory of the target application before saving/deleting/importing the configuration (only need to authorize once). Configuration cannot be written without authorization, please do not treat such problems as BUG feedback, you can perform batch authorization on the settings page]]></string>
     <string name="main_not_activated">-not activated</string>
     <string name="extension_save_success">Saved successfully</string>
     <string name="config_tip_error_config_format">Recognized as json format, but does not conform to the format of the copied configuration</string>
@@ -523,6 +507,11 @@
     <string name="record_card_style">Card style</string>
     <string name="no_shizuku_tip">Unavailable, please check if Shizuku is installed</string>
     <string name="main_settings_work_mode_title">Working mode</string>
+    <string-array name="main_settings_work_mode_item_entries">
+        <item>Shizuku</item>
+        <item>Root</item>
+        <item>Normal</item>
+    </string-array>
     <string name="dex_browser_title">DexBrowser</string>
     <string name="dex_browser_select_file">Select File</string>
     <string name="dex_browser_select_file_tip">Please select a DEX file to start browsing</string>

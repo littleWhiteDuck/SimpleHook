@@ -38,7 +38,7 @@
     <string name="main_home_empty_tip">这里是空的，点击加号按钮添加配置</string>
 
     <string name="main_request_storage_permission_title">获取权限</string>
-    <string name="main_request_storage_permission_message">由于部分应用无法读取到配置，所以需要获取data文件夹权限，在目标应用目录下写入配置。开启后请手动刷新配置，否则不会向储存文件写入配置。</string>
+    <string name="main_request_storage_permission_message">由于部分应用无法直接读取配置，需要授予存储访问权限，才能在 Android/media/目标应用包名/SimpleHook 目录写入配置与日志。授权后请手动刷新配置，否则不会写入到存储文件。</string>
     <string name="main_request_storage_permission_okText">去申请</string>
 
     <string name="main_settings_name">设置</string>
@@ -94,6 +94,7 @@
     <string-array name="main_settings_work_mode_item_entries">
         <item>Shizuku</item>
         <item>Root</item>
+        <item>Normal</item>
     </string-array>
 
     <string-array name="main_settings_theme_mode_item_entries">
@@ -487,27 +488,12 @@
     <string name="data_loading">正在加载中</string>
     <string name="please_input_url">请输入网址</string>
 
-    <string name="main_settings_summary_batch_grant">授权/Android/data/* 目录</string>
-    <string name="main_settings_title_batch_grant">批量授权</string>
-    <string name="label_batch_grant">批量授权</string>
     <string name="sort">排序</string>
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
-    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)，部分应用在Android/data下无目录，需要你手动创建，或者SimpleHook增加目标应用作用域后，重启应用会自动创建。然后再重新申请授予权限</string>
+    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限。部分应用在Android/media下无目录，需要你手动创建，或者SimpleHook增加目标应用作用域后，重启应用会自动创建。然后再重新申请授予权限</string>
     <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
-    <string name="permission_tip">由于安卓13的限制，所以只能一个应用一个应用的授权\n部分应用在Android/data/下无目录文件，需要你手动创建才能申请授权\n在此显示的均是未授权的应用</string>
-    <string name="permission_search_hint_app_name">输入应用名搜索</string>
-    <string name="permission_sort_rule">按照什么规则来排序</string>
-    <string name="permission_sort_app_name">应用名称</string>
-    <string name="permission_sort__package_name">应用包名</string>
-    <string name="permission_sort_install_time">安装时间</string>
-    <string name="permission_sort_forward">正向排序</string>
-    <string name="permission_sort_backward">逆向排序</string>
-    <string name="permission_show_what_app">显示哪些应用</string>
-    <string name="permission_display_user_app">用户应用</string>
-    <string name="permission_display_system_app">系统应用</string>
-    <string name="permission_display_all_app">所有应用</string>
 
 
     <!--others-->
@@ -559,7 +545,6 @@
     <string name="settings_clear_warning_dialog_title">警告</string>
     <string name="settings_clear_warning_dialog_message">是否确定要删除？</string>
     <string name="settings_clear_warning_dialog_confirm">确认</string>
-    <string name="main_android_13_tip"><![CDATA[由于你的系统版本>=13，在配置的保存/删除/导入前均需要对目标应用的目录进行授权（仅需授权一次），没有授权将无法写入配置，请不要将此类问题当作BUG反馈，你可以在设置页面进行批量授权]]></string>
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
     <string name="config_tip_error_config_format">识别到为json格式，但不符合复制出配置的格式</string>

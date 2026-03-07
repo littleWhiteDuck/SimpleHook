@@ -67,7 +67,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             PermissionUtil.takePersistableUriPermission(requireContext(), uri)
         }
-    private val configSystem by lazy { ConfigSystemUtil.getConfigSystem() }
+    private val configSystem get() = ConfigSystemUtil.getConfigSystem()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
@@ -81,14 +81,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         okText = getString(R.string.dialog_confirm)
                     ).show()
                 }
-                true
-            }
-        }
-        findPreference<Preference>("batch_grant")?.apply {
-            isVisible = OSUtil.atLeastT() && FlavorUtil.normalVersion
-            setOnPreferenceClickListener {
-                val intent = Intent(requireContext(), A33PermissionActivity::class.java)
-                startActivity(intent)
                 true
             }
         }
@@ -182,6 +174,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
         findPreference<SimpleMenuPreference>("workMode")?.apply {
+            isVisible = FlavorUtil.rootVersion
             summary = GlobalValue.sp.workMode
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
@@ -204,25 +197,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             return
         }
-        if (FlavorUtil.rootVersion) {
-            settingsViewModel.permStatus.value = if (GlobalValue.isRootWork) {
-                if (SuUtil.isGrantedRoot()) {
-                    PermissionState.GRANT
-                } else {
-                    PermissionState.NO_ROOT
-                }
+        if (GlobalValue.isRootWork) {
+            settingsViewModel.permStatus.value = if (SuUtil.isGrantedRoot()) {
+                PermissionState.GRANT
             } else {
-                if (ShizukuFileManager.isPermissionGranted) {
-                    PermissionState.GRANT
-                } else {
-                    PermissionState.NO_SHIZUKU
-                }
+                PermissionState.NO_ROOT
             }
             return
         }
-        if (OSUtil.atLeastT()) {
-            settingsViewModel.permStatus.value = PermissionState.GRANT
-        } else if (OSUtil.atLeastR()) {
+        if (GlobalValue.isShizukuWork) {
+            settingsViewModel.permStatus.value = if (ShizukuFileManager.isPermissionGranted) {
+                PermissionState.GRANT
+            } else {
+                PermissionState.NO_SHIZUKU
+            }
+            return
+        }
+        if (OSUtil.atLeastR()) {
             settingsViewModel.permStatus.value = if (PermissionUtil.isGrantData()) {
                 PermissionState.GRANT
             } else {
@@ -407,42 +398,48 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
             setOnPreferenceClickListener {
-                when (settingsViewModel.permStatus.value) {
-                    PermissionState.NO_ROOT -> {
-                        requireActivity().showPopup(getString(R.string.not_root_tip))
-                    }
-
-                    PermissionState.NO_SHIZUKU -> {
-                        if (ShizukuFileManager.binderAvailable) {
-                            Shizuku.requestPermission(1314)
-                        } else {
-                            requireActivity().showPopup(message = getString(R.string.no_shizuku_tip))
-                        }
-                    }
-
-                    PermissionState.NO_STORAGE -> {
-                        if (OSUtil.atR2T()) {
-                            if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
-                                requestPermissionDialog(requireContext()) {
-                                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
-                                }
-                            }
-                        } else if (OSUtil.atMostQ()) {
-                            if (!PermissionUtil.isGrantWritePermission(requireContext())) {
-                                requestPermissionDialog(requireContext()) {
-                                    PermissionUtil.verifyStoragePermissions(requireActivity())
-                                }
-                            }
-                        }
-                    }
-
-                    else -> {}
+                when {
+                    FlavorUtil.liteVersion -> Unit
+                    GlobalValue.isRootWork -> requestRootPermission()
+                    GlobalValue.isShizukuWork -> requestShizukuPermission()
+                    else -> requestNormalPermission()
                 }
                 checkPermission()
                 true
             }
         }
         checkPermission()
+    }
+
+    private fun requestRootPermission() {
+        if (!SuUtil.isGrantedRoot()) {
+            requireActivity().showPopup(getString(R.string.not_root_tip))
+        }
+    }
+
+    private fun requestShizukuPermission() {
+        if (ShizukuFileManager.isPermissionGranted) return
+        if (ShizukuFileManager.binderAvailable) {
+            Shizuku.requestPermission(1314)
+        } else {
+            requireActivity().showPopup(message = getString(R.string.no_shizuku_tip))
+        }
+    }
+
+    private fun requestNormalPermission() {
+        if (OSUtil.atLeastR()) {
+            if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
+                requestPermissionDialog(requireContext()) {
+                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
+                }
+            }
+            return
+        }
+        if (OSUtil.atMostQ() && !PermissionUtil.isGrantWritePermission(requireContext())) {
+            requestPermissionDialog(requireContext()) {
+                PermissionUtil.verifyStoragePermissions(requireActivity())
+            }
+        }
     }
 
     override fun onResume() {
@@ -456,4 +453,3 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 }
-

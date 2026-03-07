@@ -34,10 +34,6 @@
             android:label="@string/dex_browser_title"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".feature.settings.ui.A33PermissionActivity"
-            android:exported="false"
-            android:label="@string/label_batch_grant" />
-        <activity
             android:name=".feature.record.ui.RecordDetailActivity"
             android:exported="false"
             android:label="@string/app_record" />

@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
+import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.base.BaseActivity
 import me.simpleHook.core.base.IMenuProvider
 import me.simpleHook.core.constant.Constant
@@ -29,6 +30,7 @@ import me.simpleHook.databinding.ActivityMainBinding
 import me.simpleHook.core.extension.fetchJson
 import me.simpleHook.core.extension.setCurrentItem
 import me.simpleHook.core.extension.showPopup
+import me.simpleHook.data.config.ConfigPathMigration
 import me.simpleHook.feature.home.ui.HomeFragment
 import me.simpleHook.feature.record.ui.RecordSummaryFragment
 import me.simpleHook.platform.lsposed.LSPosedHelper
@@ -39,14 +41,12 @@ import me.simpleHook.feature.extension.ui.ExtensionFragment
 import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
-import me.simpleHook.core.utils.SPUtil
 import me.simpleHook.core.utils.SuUtil
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 
 class MainActivity : BaseActivity(), IMenuProvider {
 
     private lateinit var binding: ActivityMainBinding
-    private val sp by lazy { SPUtil(this) }
     private val isActive by lazy { isModuleLive() }
     private val viewModel by viewModels<AppConfigViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +60,13 @@ class MainActivity : BaseActivity(), IMenuProvider {
         checkUpdate()
         initBackup()
         initPermission()
+        ConfigPathMigration.migrateIfNeeded(this)
         initLSPosedService()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ConfigPathMigration.migrateIfNeeded(this)
     }
 
     private fun initLSPosedService() {
@@ -136,19 +142,15 @@ class MainActivity : BaseActivity(), IMenuProvider {
                     cancelText = getString(R.string.dialog_cancel),
                     cancelClick = { it.dismiss() }).show()
             }
-        } else if (FlavorUtil.rootVersion) {
+        } else if (GlobalValue.isRootWork) {
             SuUtil.init()
+        } else if (GlobalValue.isShizukuWork) {
+            Unit
         } else if (OSUtil.atLeastT()) {
-            if (sp.showA13Tip) {
-                customDialog(
-                    this,
-                    title = getString(R.string.common_tip),
-                    message = getString(R.string.main_android_13_tip),
-                    okText = getString(R.string.dialog_cancel),
-                    cancelText = getString(R.string.read_introduction_not_remind),
-                    cancelClick = {
-                        sp.showA13Tip = false
-                    }).show()
+            if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {
+                requestPermissionDialog(this) {
+                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
+                }
             }
         } else if (OSUtil.atR2T()) {
             if (!PermissionUtil.isGrantData(Constant.ANDROID_DATA_URI)) {

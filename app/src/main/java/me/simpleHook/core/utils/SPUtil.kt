@@ -22,10 +22,6 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
     var startFloat by SharedPreferenceDelegates.boolean(false)
     var bottomConfigDialog by SharedPreferenceDelegates.boolean(true)
     var themeMode by SharedPreferenceDelegates.string("system")
-    var permissionSortMode by SharedPreferenceDelegates.int(0)
-    var permissionAppShowMode by SharedPreferenceDelegates.int(0)
-    var permissionReverseSort by SharedPreferenceDelegates.boolean(false)
-    var showA13Tip by SharedPreferenceDelegates.boolean(true)
     var checkPermission by SharedPreferenceDelegates.boolean(true)
     var wordWrap by SharedPreferenceDelegates.boolean(true)
     var record_line_number by SharedPreferenceDelegates.boolean(true)
@@ -41,6 +37,7 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
     var auto_x_param by SharedPreferenceDelegates.boolean(true)
     var config_item_show_desc by SharedPreferenceDelegates.boolean(false)
     var enableSystemAccent by SharedPreferenceDelegates.boolean(true)
+    var mediaPathConfigMigrated by SharedPreferenceDelegates.boolean(false)
 
     var workMode by SharedPreferenceDelegates.string("Root")
 

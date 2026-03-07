@@ -10,8 +10,6 @@ import androidx.documentfile.provider.DocumentFile
 import me.simpleHook.core.App
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.utils.DocumentRUtil
-import me.simpleHook.core.utils.DocumentTUtil
-import me.simpleHook.core.utils.OSUtil
 import java.io.FileOutputStream
 
 object DocumentCompat {
@@ -21,17 +19,13 @@ object DocumentCompat {
     }
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
-        return if (OSUtil.atLeastT()) {
-            DocumentTUtil.generateFileUri(packageName, filePath)
-        } else {
-            DocumentRUtil.generateFileUri(packageName, filePath)
-        }
+        return DocumentRUtil.generateFileUri(packageName, filePath)
     }
 
 
     fun changeToUri(path: String): String {
-        val paths: Array<String> =
-            path.replace("/storage/emulated/0/Android/data".toRegex(), "").split("/").toTypedArray()
+        val paths: Array<String> = path.removePrefix(Constant.ANDROID_DATA_PATH).split("/")
+            .toTypedArray()
         val stringBuilder = StringBuilder(Constant.ANDROID_DATA_URI)
         for (p in paths) {
             if (p.isEmpty()) continue
@@ -72,11 +66,7 @@ object DocumentCompat {
     }
 
     fun makeDirs(context: Context, path: String, packageName: String): Boolean {
-        return if (OSUtil.atLeastT()) {
-            DocumentTUtil.makeDirs(context, path, packageName)
-        } else {
-            DocumentRUtil.makeDirs(context, path)
-        }
+        return DocumentRUtil.makeDirs(context, path)
     }
 
     fun outTextToFile(
@@ -86,11 +76,7 @@ object DocumentCompat {
         content: String,
         mimiType: String = "application/json"
     ): Boolean {
-        return if (OSUtil.atLeastT()) {
-            DocumentTUtil.outTextToFile(context, packageName, fileName, content, mimiType)
-        } else {
-            DocumentRUtil.outTextToFile(context, packageName, fileName, content, mimiType)
-        }
+        return DocumentRUtil.outTextToFile(context, packageName, fileName, content, mimiType)
     }
 
 
@@ -121,11 +107,7 @@ object DocumentCompat {
     }
 
     fun getFileUri(context: Context, packageName: String, path: String): Uri? {
-        return if (OSUtil.atLeastT()) {
-            DocumentTUtil.getFileUri(context, packageName, path)
-        } else {
-            DocumentRUtil.getFileUri(context, packageName, path)
-        }
+        return DocumentRUtil.getFileUri(context, packageName, path)
     }
 
     fun getFileUriOrCreate(

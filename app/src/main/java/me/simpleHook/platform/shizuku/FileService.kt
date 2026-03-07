@@ -7,7 +7,7 @@ import me.simpleHook.core.utils.SuUtil
 class FileService : IFileService.Stub() {
 
     override fun copyFile(scrPath: String, desPath: String): Boolean {
-        // android/data directory can use the file api , there is no need to use `shell`
+        // Android/media directory can use file API directly, no shell command required.
         return FileUtil.copyFile(scrPath, desPath)
     }
 

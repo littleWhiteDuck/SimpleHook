@@ -46,8 +46,6 @@ object RecordOutHelper {
     private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
     private val defaultRecordSettings = ExtRecordSettings()
     @Volatile
-    private var recordStorageReady: Boolean = false
-    @Volatile
     private var enableStack: Boolean = defaultRecordSettings.enableStack
     @Volatile
     private var enableBase64: Boolean = defaultRecordSettings.enableBase64
@@ -60,16 +58,6 @@ object RecordOutHelper {
         enableBase64 = safeSettings.enableBase64
         enableHex = safeSettings.enableHex
     }
-
-    fun ensureRecordStorageReady() {
-        if (recordStorageReady || !HookHelper.isAppContextInitialized) return
-        runCatching {
-            HookHelper.appContext.getExternalFilesDirs("")
-        }.onSuccess {
-            recordStorageReady = true
-        }
-    }
-
 
     fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {
         val type = when (throwable) {

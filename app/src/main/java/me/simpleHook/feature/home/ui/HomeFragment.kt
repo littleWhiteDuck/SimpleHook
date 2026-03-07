@@ -47,7 +47,6 @@ import me.simpleHook.feature.config.ui.ConfigDialogFragment
 import me.simpleHook.core.ui.view.edit.InputView
 import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FastScrollerUtil
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.SuUtil
 import me.simpleHook.core.utils.ToolUtil
@@ -206,7 +205,7 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 menu.removeItem(R.id.menu_launch)
                 menu.removeItem(R.id.menu_relaunch)
             }
-            if (FlavorUtil.normalVersion || FlavorUtil.liteVersion) {
+            if (GlobalValue.isNormalWork) {
                 menu.removeItem(R.id.menu_relaunch)
             }
         } else {
@@ -380,25 +379,23 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
         when (item.itemId) {
             R.id.menu_launch -> AppUtil.startApp(configOfItemMenu.packageName, requireContext())
             R.id.menu_force_stop -> {
-                if (FlavorUtil.rootVersion) {
-                    if (GlobalValue.isRootWork) {
-                        SuUtil.forceStopApp(configOfItemMenu.packageName)
-                    } else {
-                        ShizukuFileManager.service?.forceStopPackage(configOfItemMenu.packageName)
-                    }
+                if (GlobalValue.isRootWork) {
+                    SuUtil.forceStopApp(configOfItemMenu.packageName)
+                } else if (GlobalValue.isShizukuWork) {
+                    ShizukuFileManager.service?.forceStopPackage(configOfItemMenu.packageName)
                 } else {
                     AppUtil.jumpAppInfoPage(requireContext(), configOfItemMenu.packageName)
                 }
             }
 
             R.id.menu_relaunch -> {
-                if (FlavorUtil.rootVersion) {
+                if (!GlobalValue.isNormalWork) {
                     val intent =
                         requireActivity().packageManager.getLaunchIntentForPackage(configOfItemMenu.packageName)
                     intent?.component?.className?.let { className ->
                         if (GlobalValue.isRootWork) {
                             SuUtil.reLaunchApp(configOfItemMenu.packageName, className)
-                        } else {
+                        } else if (GlobalValue.isShizukuWork) {
                             ShizukuFileManager.service?.reLaunchApp(
                                 configOfItemMenu.packageName,
                                 className
@@ -546,4 +543,3 @@ interface HideScrollListener {
     fun onShow()
     fun onHide()
 }
-

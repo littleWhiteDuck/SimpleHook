@@ -12,7 +12,6 @@ import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.platform.shizuku.ShizukuFileManager
 import me.simpleHook.core.utils.FileUtil
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.GuiseBase64
 import me.simpleHook.core.utils.LogUtil
 import me.simpleHook.core.utils.OSUtil
@@ -36,12 +35,10 @@ object RecordsHelper {
         lock.lock()
         val list = mutableListOf<RecordEntity>()
         return try {
-            if (FlavorUtil.rootVersion) {
-                if (GlobalValue.isRootWork) {
-                    if (rootReadRecords(recordPath, list)) return emptyList()
-                } else {
-                    if (shizukuReadRecords(recordPath, list)) return emptyList()
-                }
+            if (GlobalValue.isRootWork) {
+                if (rootReadRecords(recordPath, list)) return emptyList()
+            } else if (GlobalValue.isShizukuWork) {
+                if (shizukuReadRecords(recordPath, list)) return emptyList()
             } else {
                 if (fileReadRecords(packageName, recordPath, context, list)) return emptyList()
             }
@@ -50,7 +47,7 @@ object RecordsHelper {
             LogUtil.outLog(e.stackTraceToString())
             emptyList()
         } finally {
-           lock.unlock()
+            lock.unlock()
         }
     }
 

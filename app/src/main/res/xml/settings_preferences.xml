@@ -6,15 +6,11 @@
             app:key="necessary_permission"
             app:summary="@string/main_settings_summary_storage_permission"
             app:title="@string/main_settings_title_storage_permission" />
-        <Preference
-            app:isPreferenceVisible="false"
-            app:key="batch_grant"
-            app:summary="@string/main_settings_summary_batch_grant"
-            app:title="@string/main_settings_title_batch_grant" />
         <rikka.preference.SimpleMenuPreference
             android:entries="@array/main_settings_work_mode_item_entries"
             android:entryValues="@array/main_settings_work_mode_item_entries"
             app:defaultValue="Root"
+            app:isPreferenceVisible="false"
             app:key="workMode"
             app:summary="Root"
             app:title="@string/main_settings_work_mode_title" />

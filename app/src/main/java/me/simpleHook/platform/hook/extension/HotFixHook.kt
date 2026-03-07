@@ -7,7 +7,6 @@ import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.platform.hook.utils.HookHelper
 import me.simpleHook.platform.hook.utils.xLog
-import me.simpleHook.core.utils.FlavorUtil
 import java.io.File
 
 object HotFixHook : BaseHook() {
@@ -15,11 +14,7 @@ object HotFixHook : BaseHook() {
     override fun startHook(extensionConfig: ExtensionConfig) {
         if (!extensionConfig.hotFix) return
 
-        val pathName = if (FlavorUtil.normalVersion) {
-            ConfigConstant.NORMAL_DEX_PATH.format(HookHelper.hostPackageName)
-        } else {
-            ConfigConstant.ROOT_DEX_PATH.format(HookHelper.hostPackageName)
-        }
+        val pathName = ConfigConstant.ROOT_DEX_PATH.format(HookHelper.hostPackageName)
 
         val dexFilePaths = File(pathName)
             .walk()

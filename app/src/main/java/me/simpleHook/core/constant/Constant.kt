@@ -15,15 +15,15 @@ object Constant {
     const val HOOK_RETURN2 = 10
 
     //目录
-    const val ROOT_CONFIG_MAIN_DIRECTORY = "/data/local/tmp/simpleHook/"
+    const val ROOT_CONFIG_MAIN_DIRECTORY = "/storage/self/primary/Android/media/"
     const val RECORD_TEMP_DIRECTORY = "logTemp/log.txt"
-    const val CONFIG_DIRECTORY = "/simpleHook/config/"
+    const val CONFIG_DIRECTORY = "/SimpleHook/config/"
 
 
-    // Android/data
+    // Android/media
     const val ANDROID_DATA_URI =
-        "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
-    const val ANDROID_DATA_PATH = "/storage/emulated/0/Android/data/"
+        "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia"
+    const val ANDROID_DATA_PATH = "/storage/self/primary/Android/media/"
 
 
     //应用列表排序

@@ -37,7 +37,7 @@
     <string name="main_home_empty_tip">這裏是空的，點擊加號按鈕添加配置</string>
 
     <string name="main_request_storage_permission_title">獲取權限</string>
-    <string name="main_request_storage_permission_message">由於部分應用無法讀取到配置，所以需要獲取data文件夾權限，在目標應用目錄下寫入配置。開啟後請手動刷新配置，否則不會向儲存文件寫入配置。</string>
+    <string name="main_request_storage_permission_message">由於部分應用無法直接讀取配置，需要授予儲存存取權限，才能在 Android/media/目標應用包名/SimpleHook 目錄寫入配置與日誌。授權後請手動刷新配置，否則不會寫入到儲存檔案。</string>
     <string name="main_request_storage_permission_okText">去申請</string>
 
     <string name="main_settings_name">設置</string>
@@ -339,29 +339,13 @@
     <string name="extension_item_title_disable_sensor">禁用傳感器</string>
     <string name="extension_item_title_disable_acceleration_gyroscope">禁用加速度傳感器、陀螺儀傳感器</string>
     <string name="extension_item_title_disable_sport_sensor">禁用運動傳感器，包括：加速度傳感器、陀螺儀傳感器等</string>
-    <string name="main_settings_summary_batch_grant">請配合Auto-auth(GitHub)使用</string>
-    <string name="main_settings_title_batch_grant">批量授權</string>
-    <string name="label_batch_grant">批量授权</string>
     <string name="sort">排序</string>
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
-    <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限(可以在设置页面批量授权)，部分應用在Android/data下無目錄，需要你手動創建，或者SimpleHook增加目標應用作用域後，重啟應用會自動創建。然後再重新申請授予權限</string>
+    <string name="android_13_no_permission">更改未生效：無此應用目錄權限，需要先申請授予此 APP 目錄權限。部分應用在 Android/media 下無目錄，需要你手動建立，或者 SimpleHook 增加目標應用作用域後重啟應用會自動建立，然後再重新申請授予權限。</string>
     <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
-    <string name="permission_tip">qqq</string>
-    <string name="permission_search_hint_app_name">输入应用名搜索</string>
-    <string name="permission_sort_rule">按照什么规则来排序</string>
-    <string name="permission_sort_app_name">应用名称</string>
-    <string name="permission_sort__package_name">应用包名</string>
-    <string name="permission_sort_install_time">安装时间</string>
-    <string name="permission_sort_backward">逆向排序</string>
-    <string name="permission_show_what_app">显示哪些应用</string>
-    <string name="permission_display_user_app">用户应用</string>
-    <string name="permission_display_system_app">系统应用</string>
-    <string name="permission_display_all_app">所有应用</string>
     <string name="extension_tip_dex_path_to_clip">dex存放目录已复制到剪切板中</string>
-    <string name="permission_sort_forward">正向排序</string>
-    <string name="main_android_13_tip"><![CDATA[由於你的系統版本>=13，在配置的保存/刪除/導入前均需要對目標應用的目錄進行授權（僅需授權一次）沒有授權將無法寫入配置，請不要將此類問題當作BUG反饋，你可以在設置頁面進行批量授權]]></string>
     <string name="main_not_activated">-未激活</string>
     <string name="extension_save_success">保存成功</string>
     <string name="config_tip_error_config_format">識別到為json格式，但不符合複製出配置的格式</string>
@@ -531,6 +515,11 @@
     <string name="record_card_style">卡片樣式</string>
     <string name="no_shizuku_tip">暫時不可用，請檢查是否安裝了Shizuku或重啟APP</string>
     <string name="main_settings_work_mode_title">工作模式</string>
+    <string-array name="main_settings_work_mode_item_entries">
+        <item>Shizuku</item>
+        <item>Root</item>
+        <item>Normal</item>
+    </string-array>
     <string name="dex_browser_title">Dex瀏覽器</string>
     <string name="dex_browser_select_file">選擇文件</string>
     <string name="dex_browser_select_file_tip">請選擇一個 DEX 檔案開始瀏覽</string>

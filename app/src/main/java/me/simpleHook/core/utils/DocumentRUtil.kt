@@ -14,7 +14,7 @@ object DocumentRUtil {
 
     fun generateFileUri(packageName: String, filePath: String): Uri {
         val baseString =
-            "${Constant.ANDROID_DATA_URI}/document/primary%3AAndroid%2Fdata%2F$packageName"
+            "${Constant.ANDROID_DATA_URI}/document/primary%3AAndroid%2Fmedia%2F$packageName"
         val path = filePath.replace(Constant.ANDROID_DATA_PATH + packageName, "")
         return (baseString + path.replace("/", "%2F")).toUri()
     }
@@ -43,7 +43,7 @@ object DocumentRUtil {
         mimiType: String = "application/json"
     ): Boolean {
         return runCatching {
-            val paths = "$packageName/simpleHook/config".split("/")
+            val paths = "$packageName/SimpleHook/config".split("/")
             val rootUri = Constant.ANDROID_DATA_URI.toUri()
             var documentFile = DocumentFile.fromTreeUri(context, rootUri)
             for (i in paths.indices) {

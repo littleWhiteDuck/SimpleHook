@@ -27,8 +27,8 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.simpleHook.R
+import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.base.BaseViewFragment
-import me.simpleHook.core.compat.DocumentCompat
 import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.constant.Constant.MODEL_EXTENSION_CONFIG
@@ -355,16 +355,17 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     private fun requirePermission(packageName: String) {
         if (FlavorUtil.liteVersion) {
             requireActivity().showPopup(getString(R.string.lite_version_not_active))
-        } else if (FlavorUtil.rootVersion) {
+        } else if (GlobalValue.isRootWork) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
+        } else if (GlobalValue.isShizukuWork) {
+            requireActivity().showPopup(getString(R.string.no_shizuku_tip))
         } else {
             if (OSUtil.atLeastT()) {
                 requestPermissionDialog(
                     requireContext(),
                     message = getString(R.string.android_13_no_permission)
                 ) {
-                    val uri = DocumentCompat.generateAppUri(packageName)
-                    startActivityForData.launch(uri)
+                    startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
                 }
             } else if (OSUtil.atLeastR()) {
                 requestPermissionDialog(requireContext()) {
@@ -379,4 +380,3 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
 }
-

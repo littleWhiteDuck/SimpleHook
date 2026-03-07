@@ -95,13 +95,6 @@ extensions.configure<ApplicationExtension>("android") {
             versionName = verName + if (beta) "_beta" else ""
             buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHookR\"")
         }
-        create("normal") {
-            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.normal"
-            manifestPlaceholders["FLAVOR"] = "SimpleHook"
-            applicationId = "me.simplehook.normal"
-            versionName = verName + if (beta) "_beta" else ""
-            buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHook\"")
-        }
         create("lite") {
             minSdk = 27
             versionName = verName + if (beta) "_beta" else ""

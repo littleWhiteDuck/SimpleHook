@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.core.net.toUri
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -35,7 +36,6 @@ import me.simpleHook.core.ui.custom.requestPermissionDialog
 import me.simpleHook.core.ui.recyclerview.adapter.DividerItemDecoration
 import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FileUtil
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
 import me.simpleHook.core.utils.SuUtil
@@ -98,7 +98,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     GlobalValue.sp.startFloat = it.isChecked
                     true
                 }
-                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfigEntity.packageName) == null || !FlavorUtil.rootVersion) {
+                if (GlobalValue.packageManager.getLaunchIntentForPackage(extensionConfigEntity.packageName) == null || GlobalValue.isNormalWork) {
                     menu.removeItem(R.id.menu_relaunch)
                 }
                 if (!isInstalled) {
@@ -119,12 +119,10 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     R.id.menu_save_config -> saveConfig()
                     R.id.menu_force_stop -> {
                         showFloatWindow()
-                        if (FlavorUtil.rootVersion) {
-                            if (GlobalValue.isRootWork) {
-                                SuUtil.forceStopApp(extensionConfigEntity.packageName)
-                            } else {
-                                ShizukuFileManager.service?.forceStopPackage(extensionConfigEntity.packageName)
-                            }
+                        if (GlobalValue.isRootWork) {
+                            SuUtil.forceStopApp(extensionConfigEntity.packageName)
+                        } else if (GlobalValue.isShizukuWork) {
+                            ShizukuFileManager.service?.forceStopPackage(extensionConfigEntity.packageName)
                         } else {
                             AppUtil.jumpAppInfoPage(
                                 requireContext(),
@@ -135,7 +133,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
                     R.id.menu_relaunch -> {
                         showFloatWindow()
-                        if (FlavorUtil.rootVersion) {
+                        if (!GlobalValue.isNormalWork) {
                             val intent =
                                 GlobalValue.packageManager.getLaunchIntentForPackage(
                                     extensionConfigEntity.packageName
@@ -143,7 +141,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                             intent?.component?.className?.let { className ->
                                 if (GlobalValue.isRootWork) {
                                     SuUtil.reLaunchApp(extensionConfigEntity.packageName, className)
-                                } else {
+                                } else if (GlobalValue.isShizukuWork) {
                                     ShizukuFileManager.service?.reLaunchApp(
                                         extensionConfigEntity.packageName,
                                         className
@@ -218,12 +216,18 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
 
     private fun createDexDirectory() {
-        val filePath = if (FlavorUtil.rootVersion) {
+        val filePath = if (!GlobalValue.isNormalWork) {
             val path = ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
-            SuUtil.makeDirs(path)
+            if (GlobalValue.isRootWork) {
+                SuUtil.makeDirs(path)
+            } else {
+                val marker = "$path/.keep"
+                ShizukuFileManager.service?.writeFile(marker, "")
+                ShizukuFileManager.service?.deleteFile(marker)
+            }
             path
         } else {
-            val path = ConfigConstant.NORMAL_DEX_PATH.format(extensionConfigEntity.packageName)
+            val path = ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
             if (OSUtil.atLeastR()) {
                 DocumentCompat.makeDirs(requireContext(), path, extensionConfigEntity.packageName)
             } else {
@@ -246,16 +250,12 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
 
     private fun checkPermission(): Boolean {
-        if (FlavorUtil.normalVersion && OSUtil.atLeastT() && extensionConfigEntity.packageName != Constant.MODEL_EXTENSION_CONFIG && !PermissionUtil.isGrantPackage(
-                extensionConfigEntity.packageName
-            )
-        ) {
+        if (GlobalValue.isNormalWork && OSUtil.atLeastT() && !PermissionUtil.isGrantData()) {
             requestPermissionDialog(
                 requireContext(),
                 message = getString(R.string.android_13_no_permission)
             ) {
-                val uri = DocumentCompat.generateAppUri(extensionConfigEntity.packageName)
-                startActivityForData.launch(uri)
+                startActivityForData.launch(Constant.ANDROID_DATA_URI.toUri())
             }
             return false
         }
@@ -600,11 +600,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
     }
 
     private fun getDexDesc(): String {
-        val dexPath = if (FlavorUtil.normalVersion) {
-            ConfigConstant.NORMAL_DEX_PATH.format(extensionConfigEntity.packageName)
-        } else {
-            ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
-        }
+        val dexPath = ConfigConstant.ROOT_DEX_PATH.format(extensionConfigEntity.packageName)
         val dexPathDesc = getString(R.string.extension_dex_desc_format, dexPath)
         val dexDesc = if (OSUtil.atLeastU()) {
             dexPathDesc + "\n" + getString(R.string.extension_dex_extra_desc)
@@ -746,4 +742,3 @@ class ManagerSubNextItemViewDelegate(
         return SubNextItemView(context)
     }
 }
-

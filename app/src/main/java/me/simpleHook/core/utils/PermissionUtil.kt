@@ -8,11 +8,11 @@ import android.net.Uri
 import androidx.core.app.ActivityCompat
 import me.simpleHook.core.App
 import me.simpleHook.core.compat.DocumentCompat
+import me.simpleHook.core.constant.Constant
 
 object PermissionUtil {
 
-    private const val DATA_URI =
-        "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata"
+    private const val DATA_URI = Constant.ANDROID_DATA_URI
 
     fun isGrantWritePermission(context: Context): Boolean {
         val permission = ActivityCompat.checkSelfPermission(
@@ -32,8 +32,12 @@ object PermissionUtil {
 
     fun isGrantData(uri: String = DATA_URI): Boolean {
         return runCatching {
+            val expected = uri.substringBefore("/document")
             for (persistedUriPermission in App.contentResolver.persistedUriPermissions) {
-                if (persistedUriPermission.isReadPermission && persistedUriPermission.uri.toString() == uri) {
+                val grantedUri = persistedUriPermission.uri.toString()
+                if (persistedUriPermission.isReadPermission &&
+                    (grantedUri == uri || grantedUri.startsWith(expected))
+                ) {
                     return true
                 }
             }
