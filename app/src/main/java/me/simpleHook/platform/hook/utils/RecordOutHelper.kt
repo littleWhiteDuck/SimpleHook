@@ -4,6 +4,7 @@ import android.content.Intent
 import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
+import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.utils.GuiseBase64
 import me.simpleHook.core.utils.RecordLogger
 import me.simpleHook.core.utils.TimeUtil
@@ -39,6 +40,9 @@ import me.simpleHook.data.record.RecordToast
 import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.RecordValueType
 import java.io.ByteArrayOutputStream
+import java.lang.reflect.Constructor
+import java.lang.reflect.Member
+import java.lang.reflect.Method
 import java.util.zip.GZIPOutputStream
 
 
@@ -75,15 +79,38 @@ object RecordOutHelper {
         outputRecord(type = RecordType.Error, record = errorRecord)
     }
 
-    fun outputFieldRecord(fieldValue: Any?, hookConfig: HookConfig) {
+    data class MethodSignature(
+        val className: String,
+        val methodName: String,
+        val params: List<String>
+    )
+
+    fun buildMethodSignature(member: Member): MethodSignature {
+        val className = member.declaringClass.name.orEmpty()
+        val methodName = if (member is Constructor<*>) "<init>" else member.name
+        return MethodSignature(
+            className = className,
+            methodName = methodName,
+            params = member.toMethodParams()
+        )
+    }
+
+    fun outputFieldRecord(
+        fieldValue: Any?,
+        hookConfig: HookConfig,
+        signature: MethodSignature? = null
+    ) {
         val pureStatic = hookConfig.className.isEmpty() || hookConfig.methodName.isEmpty()
-        val instanceHook = hookConfig.mode == 9 || hookConfig.mode == 4
+        val instanceHook = hookConfig.mode == Constant.HOOK_RECORD_INSTANCE_FIELD || hookConfig.mode == Constant.HOOK_FIELD
+        val className = signature?.className ?: hookConfig.className
+        val methodName = signature?.methodName ?: hookConfig.methodName
+        val params = signature?.params ?: emptyList()
 
         val fieldRecord = RecordField(
-            className = hookConfig.className.takeIf { !pureStatic },
-            methodName = hookConfig.methodName.takeIf { !pureStatic },
+            className = className.takeIf { !pureStatic },
+            methodName = methodName.takeIf { !pureStatic },
             fieldClassName = hookConfig.fieldClassName.takeIf { !instanceHook },
-            params = emptyList<String>().takeIf { pureStatic } ?: hookConfig.params.split(","),
+            params = emptyList<String>().takeIf { pureStatic } ?: params,
             fieldName = hookConfig.fieldName,
             filedValue = fieldValue.recordValue
         )
@@ -91,11 +118,11 @@ object RecordOutHelper {
         outputRecord(type = RecordType.RecordField, record = fieldRecord)
     }
 
-    fun outputParamRecord(paramValues: Array<out Any?>, hookConfig: HookConfig) {
+    fun outputParamRecord(paramValues: Array<out Any?>, signature: MethodSignature) {
         val paramRecord = RecordParam(
-            className = hookConfig.className,
-            methodName = hookConfig.methodName,
-            params = hookConfig.params.split(","),
+            className = signature.className,
+            methodName = signature.methodName,
+            params = signature.params,
             paramValues = paramValues.map { it.recordValue },
             callStack = getStackTrace(ignoreSwitch = true)
         )
@@ -105,12 +132,12 @@ object RecordOutHelper {
     fun outputParamReturnRecord(
         paramValues: Array<out Any?>,
         returnValue: Any?,
-        hookConfig: HookConfig
+        signature: MethodSignature
     ) {
         val paramReturnRecord = RecordParamReturn(
-            className = hookConfig.className,
-            methodName = hookConfig.methodName,
-            params = hookConfig.params.split(","),
+            className = signature.className,
+            methodName = signature.methodName,
+            params = signature.params,
             paramValues = paramValues.map { it.recordValue },
             returnValue = returnValue.recordValue,
             callStack = getStackTrace(ignoreSwitch = true)
@@ -119,15 +146,30 @@ object RecordOutHelper {
     }
 
 
-    fun outputReturnRecord(returnValue: Any?, hookConfig: HookConfig) {
+    fun outputReturnRecord(
+        returnValue: Any?,
+        signature: MethodSignature
+    ) {
         val returnRecord = RecordReturn(
-            className = hookConfig.className,
-            methodName = hookConfig.methodName,
-            params = hookConfig.params.split(","),
+            className = signature.className,
+            methodName = signature.methodName,
+            params = signature.params,
             returnValue = returnValue.recordValue,
             callStack = getStackTrace(ignoreSwitch = true)
         )
         outputRecord(type = RecordType.RecordReturn, record = returnRecord)
+    }
+
+    private fun Member.toMethodParams(): List<String> {
+        return when (this) {
+            is Method -> parameterTypes.map { it.displayName() }
+            is Constructor<*> -> parameterTypes.map { it.displayName() }
+            else -> emptyList()
+        }
+    }
+
+    private fun Class<*>.displayName(): String {
+        return canonicalName ?: name
     }
 
 

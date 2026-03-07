@@ -29,7 +29,7 @@ object FieldHook {
                 return
             }
             val hooker: Hooker = if (mode == Constant.HOOK_RECORD_STATIC_FIELD) {
-                { recordStaticField(hookConfig = hookConfig) }
+                { recordStaticField(hookConfig = hookConfig, param = it) }
             } else {
                 { setStaticFieldValue(fieldClassName, resultValues, fieldName) }
             }
@@ -72,10 +72,13 @@ object FieldHook {
         }
     }
 
-    private fun recordStaticField(hookConfig: HookConfig) {
+    private fun recordStaticField(
+        hookConfig: HookConfig,
+        param: XC_MethodHook.MethodHookParam? = null
+    ) {
         val hookClass = XposedHelpers.findClass(hookConfig.fieldClassName, appClassLoader)
         val result = XposedHelpers.getStaticObjectField(hookClass, hookConfig.fieldName)
-        RecordOutHelper.outputFieldRecord(fieldValue = result, hookConfig = hookConfig)
+        writeFieldRecord(fieldValue = result, hookConfig = hookConfig, param = param)
     }
 
     private fun setStaticFieldValue(
@@ -101,7 +104,20 @@ object FieldHook {
     private fun recordInstanceField(param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig) {
         val thisObj = param.thisObject
         val result = XposedHelpers.getObjectField(thisObj, hookConfig.fieldName)
-        RecordOutHelper.outputFieldRecord(fieldValue = result, hookConfig = hookConfig)
+        writeFieldRecord(fieldValue = result, hookConfig = hookConfig, param = param)
+    }
+
+    private fun writeFieldRecord(
+        fieldValue: Any?,
+        hookConfig: HookConfig,
+        param: XC_MethodHook.MethodHookParam?
+    ) {
+        val signature = param?.let { RecordOutHelper.buildMethodSignature(it.method) }
+        RecordOutHelper.outputFieldRecord(
+            fieldValue = fieldValue,
+            hookConfig = hookConfig,
+            signature = signature
+        )
     }
 
     private fun setInstanceFieldValue(

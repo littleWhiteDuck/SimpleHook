@@ -104,15 +104,15 @@ object MainHook {
                 }
 
                 Constant.HOOK_RECORD_PARAMS -> {
-                    { recordParamValues(param = it, hookConfig = hookConfig) }
+                    { recordParamValues(param = it) }
                 }
 
                 Constant.HOOK_RECORD_RETURN -> {
-                    { recordReturnValue(param = it, hookConfig = hookConfig) }
+                    { recordReturnValue(param = it) }
                 }
 
                 Constant.HOOK_RECORD_PARAMS_RETURN -> {
-                    { recordParamsAndResult(param = it, hookConfig = hookConfig) }
+                    { recordParamsAndResult(param = it) }
                 }
 
                 else -> {
@@ -192,24 +192,33 @@ object MainHook {
     }
 
     private fun recordParamValues(
-        param: XC_MethodHook.MethodHookParam,
-        hookConfig: HookConfig
+        param: XC_MethodHook.MethodHookParam
     ) {
-        RecordOutHelper.outputParamRecord(paramValues = param.args, hookConfig = hookConfig)
+        RecordOutHelper.outputParamRecord(
+            paramValues = param.args,
+            signature = param.recordSignature()
+        )
     }
 
-    private fun recordReturnValue(param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig) {
-        RecordOutHelper.outputReturnRecord(returnValue = param.result, hookConfig = hookConfig)
+    private fun recordReturnValue(param: XC_MethodHook.MethodHookParam) {
+        RecordOutHelper.outputReturnRecord(
+            returnValue = param.result,
+            signature = param.recordSignature()
+        )
     }
 
     private fun recordParamsAndResult(
-        param: XC_MethodHook.MethodHookParam, hookConfig: HookConfig
+        param: XC_MethodHook.MethodHookParam
     ) {
         RecordOutHelper.outputParamReturnRecord(
             returnValue = param.result,
             paramValues = param.args,
-            hookConfig = hookConfig
+            signature = param.recordSignature()
         )
+    }
+
+    private fun XC_MethodHook.MethodHookParam.recordSignature(): RecordOutHelper.MethodSignature {
+        return RecordOutHelper.buildMethodSignature(method)
     }
 
 
@@ -304,5 +313,3 @@ object MainHook {
     }
 
 }
-
-
