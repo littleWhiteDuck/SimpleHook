@@ -87,7 +87,7 @@ class RecordDetailActivity : BaseActivity() {
         }
 
         recordAdapter.register(RecordDetailAdapter { recordDetailItem ->
-            tempText = recordDetailItem.content
+            tempText = recordDetailItem.fullContent
             tempCodeStyle = true
             switchDetailStyle()
         })
@@ -265,4 +265,3 @@ class RecordDetailActivity : BaseActivity() {
     }
 
 }
-

@@ -1,7 +1,6 @@
 ﻿package me.simpleHook.feature.record.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,17 +10,19 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.sqlite.db.SimpleSQLiteQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import androidx.sqlite.db.SimpleSQLiteQuery
-import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
+import me.simpleHook.core.GlobalValue
 import me.simpleHook.data.RecordShowItem
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
+import me.simpleHook.data.local.db.RecordDatabase
+import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.data.record.Base64Operation
 import me.simpleHook.data.record.Record
 import me.simpleHook.data.record.RecordApplication
@@ -50,11 +51,13 @@ import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.RecordValueType
 import me.simpleHook.data.record.RecordWebLoadUrl
 import me.simpleHook.data.record.SmallRecordEntity
-import me.simpleHook.data.local.db.RecordDatabase
-import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.data.record.RecordDetailItem as RDItem
 
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
+    private companion object {
+        const val CARD_CONTENT_PREVIEW_LIMIT = 600
+    }
+
 
     private val recordDao = RecordDatabase.getDatabase(application).recordDao()
 
@@ -108,10 +111,6 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun getMarkedRecordByPack(packageName: String) = recordDao.getMarkedRecordByPack(packageName)
 
     fun getRecordByID(id: Int) = recordDao.getRecordById(id)
-
-    fun fetchRecordShowItems() = viewModelScope.launch(Dispatchers.IO) {
-        refreshRecordShowItemsNow()
-    }
 
     suspend fun refreshRecordShowItemsNow() {
         val showByType = GlobalValue.sp.showByType
@@ -557,7 +556,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
-        _recordDetailItems.postValue(list)
+        _recordDetailItems.postValue(
+            list.map { it.toCardPreview(maxLength = CARD_CONTENT_PREVIEW_LIMIT) }
+        )
     }
 
     private fun fetchCodeStyleDetail(record: Record) {
@@ -930,6 +931,18 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         return !this.isNullOrBlank() && !this.equals("null", ignoreCase = true)
     }
 
+    private fun RDItem.toCardPreview(maxLength: Int): RDItem {
+        val source = fullContent
+        if (source.length <= maxLength) {
+            return copy(content = source, fullContent = source, isTruncated = false)
+        }
+        return copy(
+            content = source.take(maxLength) + "...",
+            fullContent = source,
+            isTruncated = true
+        )
+    }
+
     private fun String.toFtsQueryOrNull(): String? {
         if (!ftsEligibleRegex.matches(this)) return null
         val tokens = ftsTokenRegex.findAll(this).map { it.value }.toList()
@@ -968,5 +981,4 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         return Json.encodeToString(this).removePrefix("\"").removeSuffix("\"")
     }
 }
-
 

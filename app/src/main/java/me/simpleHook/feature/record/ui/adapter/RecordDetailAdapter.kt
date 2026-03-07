@@ -31,7 +31,7 @@ class RecordDetailAdapter(val onExpandClick: (RecordDetailItem) -> Unit) :
                 onExpandClick(item)
             }
             btCopy.setOnClickListener {
-                ToolUtil.toClip(holder.itemView.context, item.content)
+                ToolUtil.toClip(holder.itemView.context, item.fullContent)
             }
         }
     }
