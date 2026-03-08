@@ -38,7 +38,6 @@ import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.ui.custom.requestPermissionDialog
 import me.simpleHook.feature.settings.ui.SettingsFragment
 import me.simpleHook.feature.extension.ui.ExtensionFragment
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
 import me.simpleHook.core.utils.SuUtil
@@ -128,21 +127,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun initPermission() {
-        if (FlavorUtil.liteVersion) {
-            if (!isActive) {
-                customDialog(
-                    this,
-                    title = getString(R.string.module_not_activated),
-                    message = getString(R.string.module_not_activated_message),
-                    okText = getString(R.string.module_not_activated_ok),
-                    okClick = {
-                        android.os.Process.killProcess(android.os.Process.myPid())
-                    },
-                    cancelAble = false,
-                    cancelText = getString(R.string.dialog_cancel),
-                    cancelClick = { it.dismiss() }).show()
-            }
-        } else if (GlobalValue.isRootWork) {
+        if (GlobalValue.isRootWork) {
             SuUtil.init()
         } else if (GlobalValue.isShizukuWork) {
             Unit
@@ -202,25 +187,14 @@ class MainActivity : BaseActivity(), IMenuProvider {
     private fun initView() {
         binding.apply {
             viewPager.apply {
-                adapter = if (FlavorUtil.liteVersion) {
-                    object : FragmentStateAdapter(this@MainActivity) {
-                        override fun getItemCount() = 2
+                adapter = object : FragmentStateAdapter(this@MainActivity) {
+                    override fun getItemCount() = 4
 
-                        override fun createFragment(position: Int) = when (position) {
-                            0 -> HomeFragment()
-                            else -> SettingsFragment()
-                        }
-                    }
-                } else {
-                    object : FragmentStateAdapter(this@MainActivity) {
-                        override fun getItemCount() = 4
-
-                        override fun createFragment(position: Int) = when (position) {
-                            0 -> HomeFragment()
-                            1 -> ExtensionFragment()
-                            2 -> RecordSummaryFragment()
-                            else -> SettingsFragment()
-                        }
+                    override fun createFragment(position: Int) = when (position) {
+                        0 -> HomeFragment()
+                        1 -> ExtensionFragment()
+                        2 -> RecordSummaryFragment()
+                        else -> SettingsFragment()
                     }
                 }
                 isUserInputEnabled = false
@@ -232,26 +206,14 @@ class MainActivity : BaseActivity(), IMenuProvider {
                 }
 
             }
-            if (FlavorUtil.liteVersion) {
-                binding.bottomNavigationView.menu.removeItem(R.id.assistFragment)
-                binding.bottomNavigationView.menu.removeItem(R.id.recordFragment)
-                binding.bottomNavigationView.setOnItemSelectedListener {
-                    when (it.itemId) {
-                        R.id.homeFragment -> setCurrentItem(0)
-                        R.id.settingsFragment -> setCurrentItem(1)
-                    }
-                    true
+            binding.bottomNavigationView.setOnItemSelectedListener {
+                when (it.itemId) {
+                    R.id.homeFragment -> setCurrentItem(0)
+                    R.id.assistFragment -> setCurrentItem(1)
+                    R.id.recordFragment -> setCurrentItem(2)
+                    R.id.settingsFragment -> setCurrentItem(3)
                 }
-            } else {
-                binding.bottomNavigationView.setOnItemSelectedListener {
-                    when (it.itemId) {
-                        R.id.homeFragment -> setCurrentItem(0)
-                        R.id.assistFragment -> setCurrentItem(1)
-                        R.id.recordFragment -> setCurrentItem(2)
-                        R.id.settingsFragment -> setCurrentItem(3)
-                    }
-                    true
-                }
+                true
             }
             configureBottomNavHideDirection()
 

@@ -95,14 +95,6 @@ extensions.configure<ApplicationExtension>("android") {
             versionName = verName + if (beta) "_beta" else ""
             buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHookR\"")
         }
-        create("lite") {
-            minSdk = 27
-            versionName = verName + if (beta) "_beta" else ""
-            applicationId = "me.simplehook.lite"
-            manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.lite"
-            manifestPlaceholders["FLAVOR"] = "xposedsharedprefs"
-            buildConfigField(String::class.java.name, "APP_NAME", "\"SimpleHookL\"")
-        }
         this.forEach {
             it.buildConfigField(Boolean::class.java.name, "IS_BETA", beta.toString())
         }
@@ -132,7 +124,6 @@ extensions.configure<ApplicationExtension>("android") {
         val variant = v as com.android.build.api.variant.impl.ApplicationVariantImpl
         variant.outputs.forEach {
             val name = when (variant.flavorName) {
-                "lite" -> "SimpleHookL"
                 "root" -> "SimpleHookR"
                 else -> "SimpleHook"
             }

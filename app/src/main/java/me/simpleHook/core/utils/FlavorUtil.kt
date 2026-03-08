@@ -4,7 +4,6 @@ import me.simpleHook.BuildConfig
 
 object FlavorUtil {
 
-    const val liteVersion = BuildConfig.FLAVOR == "lite"
     const val rootVersion = BuildConfig.FLAVOR == "root"
     const val AUTHORITIES = "me.simplehook.provider." + BuildConfig.FLAVOR
     const val PROVIDER_RECORD_URI =

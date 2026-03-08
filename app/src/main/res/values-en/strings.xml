@@ -296,9 +296,6 @@
     <string name="extension_item_desc_application_name">Record Application name</string>
     <string name="main_version_update">New Version</string>
     <string name="main_go_upgrade">Go update</string>
-    <string name="module_not_activated">Module not activated</string>
-    <string name="module_not_activated_message">Due to write and delete configuration depends on the New XSharedPreferences, must under the modules are activated operating configuration. If the module is not activated, it cannot be used!!</string>
-    <string name="module_not_activated_ok">To activated</string>
     <string name="not_root_tip">Please manually grant ROOT permission and restart APP</string>
     <string name="launch_app">Launch it</string>
     <string name="force_stop">Force stop</string>
@@ -335,7 +332,6 @@
     <string name="select_all">Select all</string>
     <string name="invert_selection">Invert selection</string>
     <string name="android_13_no_permission">Changes did not take effect: this app directory is not authorized. Please grant permission for this app directory first. Some apps may not have a directory under Android/media; create it manually, or add the target app to SimpleHook scope and restart the app to create it automatically, then grant permission again.</string>
-    <string name="lite_version_not_active">Changes not active: module not active or other error</string>
     <string name="root_version_no_permission">The change does not take effect: please manually grant ROOT permission and restart the APP</string>
     <string name="extension_tip_dex_path_to_clip">The directory where DEX is stored has been copied to the clipboard.</string>
     <string name="main_not_activated">-not activated</string>
@@ -345,7 +341,7 @@
     <string name="main_sort_tip_exit_search">Please exit the search first</string>
     <string name="main_settings_title_bottom_check_permission">Check permission</string>
     <string name="main_settings_summary_check_permission">The config can\'t be changed without the necessary permissions</string>
-    <string name="main_settings_tip_close_check_permission">After closing, it will not check whether it has ROOT (root)/storage permission (normal)/activated (lite) when changing the configuration. \nIf there is no permission, the configuration changes will only be applied to SimpleHook, but not to the target app</string>
+    <string name="main_settings_tip_close_check_permission">After closing, it will not check whether it has ROOT (root)/storage permission (normal) when changing the configuration. \nIf there is no permission, the configuration changes will only be applied to SimpleHook, but not to the target app</string>
     <string name="extension_item_desc_adb">Disable ADB (USB debugging) detection</string>
     <string name="extension_guise_delete">Delete</string>
     <string name="extension_guise_update">Change</string>

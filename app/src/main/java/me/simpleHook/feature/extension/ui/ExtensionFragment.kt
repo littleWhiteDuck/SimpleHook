@@ -39,7 +39,6 @@ import me.simpleHook.core.ui.custom.requestPermissionDialog
 import me.simpleHook.core.ui.custom.warningDialog
 import me.simpleHook.core.ui.view.edit.InputView
 import me.simpleHook.core.utils.FastScrollerUtil
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
 import me.simpleHook.data.config.ConfigSystemUtil
@@ -350,9 +349,7 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
     }
 
     private fun requirePermission(packageName: String) {
-        if (FlavorUtil.liteVersion) {
-            requireActivity().showPopup(getString(R.string.lite_version_not_active))
-        } else if (GlobalValue.isRootWork) {
+        if (GlobalValue.isRootWork) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else if (GlobalValue.isShizukuWork) {
             requireActivity().showPopup(getString(R.string.no_shizuku_tip))

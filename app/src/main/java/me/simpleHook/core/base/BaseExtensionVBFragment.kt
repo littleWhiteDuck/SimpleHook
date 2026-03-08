@@ -11,7 +11,6 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.contract.OpenDocumentTreeContract
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.core.ui.custom.requestPermissionDialog
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.core.utils.PermissionUtil
 import me.simpleHook.core.utils.SPUtil
@@ -58,9 +57,7 @@ abstract class BaseExtensionVBFragment<VB : ViewBinding> : BaseVBFragment<VB>() 
 
 
     protected fun requirePermission(packageName: String) {
-        if (FlavorUtil.liteVersion) {
-            requireActivity().showPopup(getString(R.string.lite_version_not_active))
-        } else if (GlobalValue.isRootWork) {
+        if (GlobalValue.isRootWork) {
             requireActivity().showPopup(getString(R.string.root_version_no_permission))
         } else if (GlobalValue.isShizukuWork) {
             requireActivity().showPopup(getString(R.string.no_shizuku_tip))

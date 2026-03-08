@@ -2,9 +2,11 @@ v2.0.1
     - 修复：若干已知问题，提升稳定性
     - 变更：配置、扩展、日志、Dex 路径统一迁移至 /storage/self/primary/Android/media/<pkg>/SimpleHook
     - 变更：Normal 版本已合并至 Root 版本，可在 Root 版本设置页的「工作模式」中切换为 Normal
+    - 变更：停止维护 Lite 版本（请考虑使用Root版本的Normal工作模式(只需要授权/Android/media/文件夹即可)）
     - Fix: Fixed several known issues and improved stability
     - Change: Unified config/extension/log/DEX paths to /storage/self/primary/Android/media/<pkg>/SimpleHook
     - Change: The Normal version is merged into the Root version. You can switch to Normal in Settings -> Work Mode
+    - Change: Removed lite version support
 
 
 v2.0.0 新年快乐

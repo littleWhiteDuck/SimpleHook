@@ -144,7 +144,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
         extensionConfigDao.getEnabledExtCountByPackageName(packageName)
 
     private suspend fun syncScopeForPackages(packageNames: Collection<String>) {
-        if (!FlavorUtil.rootVersion && !FlavorUtil.liteVersion) return
+        if (!FlavorUtil.rootVersion) return
         packageNames.toSet().forEach { packageName ->
             syncScopeForPackage(packageName)
         }

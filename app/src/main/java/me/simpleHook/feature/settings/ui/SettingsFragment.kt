@@ -42,7 +42,6 @@ import me.simpleHook.core.utils.ThemeModeUtil
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.data.PermissionState
 import me.simpleHook.data.config.ConfigSystemUtil
-import me.simpleHook.data.local.configstore.PrefConfigHelper
 import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.feature.about.ui.AboutActivity
 import me.simpleHook.feature.backup.ui.BackupActivity
@@ -188,15 +187,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermission() {
-        if (FlavorUtil.liteVersion) {
-            settingsViewModel.permStatus.value =
-                if ((configSystem as PrefConfigHelper).customPref == null) {
-                    PermissionState.NO_ALIVE
-                } else {
-                    PermissionState.GRANT
-                }
-            return
-        }
         if (GlobalValue.isRootWork) {
             settingsViewModel.permStatus.value = if (SuUtil.isGrantedRoot()) {
                 PermissionState.GRANT
@@ -399,7 +389,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             setOnPreferenceClickListener {
                 when {
-                    FlavorUtil.liteVersion -> Unit
                     GlobalValue.isRootWork -> requestRootPermission()
                     GlobalValue.isShizukuWork -> requestShizukuPermission()
                     else -> requestNormalPermission()

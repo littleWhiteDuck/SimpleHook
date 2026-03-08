@@ -304,9 +304,6 @@
     <string name="extension_item_desc_application_name">記錄Application(入口)名</string>
     <string name="main_version_update">新版本</string>
     <string name="main_go_upgrade">更新</string>
-    <string name="module_not_activated">模塊未激活</string>
-    <string name="module_not_activated_message">由於配置寫入和刪除依賴於New XSharedPreferences, 必須在模塊被激活下操作配置。如果不激活模塊，將無法使用！！！</string>
-    <string name="module_not_activated_ok">去激活</string>
     <string name="not_root_tip">請手動授予ROOT權限, 並重啟APP</string>
     <string name="launch_app">啟動</string>
     <string name="force_stop">強行停止</string>
@@ -343,7 +340,6 @@
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
     <string name="android_13_no_permission">更改未生效：無此應用目錄權限，需要先申請授予此 APP 目錄權限。部分應用在 Android/media 下無目錄，需要你手動建立，或者 SimpleHook 增加目標應用作用域後重啟應用會自動建立，然後再重新申請授予權限。</string>
-    <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
     <string name="extension_tip_dex_path_to_clip">dex存放目录已复制到剪切板中</string>
     <string name="main_not_activated">-未激活</string>
@@ -353,7 +349,7 @@
     <string name="main_sort_tip_exit_search">請先退出搜索</string>
     <string name="main_settings_title_bottom_check_permission">檢查權限</string>
     <string name="main_settings_summary_check_permission">無必要權限時，無法更改配置</string>
-    <string name="main_settings_tip_close_check_permission">關閉後，在更改配置時將不會校驗是否具有ROOT(root)/存儲權限(normal)/被激活(lite)。 \n若無權限，配置更改僅作用於SimpleHook內，而無法作用於目標app</string>
+    <string name="main_settings_tip_close_check_permission">關閉後，在更改配置時將不會校驗是否具有ROOT(root)/存儲權限(normal)。 \n若無權限，配置更改僅作用於SimpleHook內，而無法作用於目標app</string>
     <string name="extension_item_desc_adb">禁用ADB(USB 調試)檢測</string>
     <string name="extension_guise_delete">刪除</string>
     <string name="extension_guise_update">更新</string>

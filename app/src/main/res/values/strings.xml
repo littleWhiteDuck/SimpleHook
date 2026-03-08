@@ -462,9 +462,6 @@
     <string name="extension_item_desc_application_name">记录Application(入口)名</string>
     <string name="main_version_update">新版本</string>
     <string name="main_go_upgrade">更新</string>
-    <string name="module_not_activated">模块未激活</string>
-    <string name="module_not_activated_message">由于配置写入和删除依赖于New XSharedPreferences, 必须在模块被激活下操作配置。如果不激活模块，将无法使用！！！</string>
-    <string name="module_not_activated_ok">去激活</string>
     <string name="not_root_tip">请手动授予ROOT权限, 并重启APP</string>
     <string name="launch_app">启动</string>
     <string name="force_stop">强行停止</string>
@@ -492,7 +489,6 @@
     <string name="select_all">全选</string>
     <string name="invert_selection">反选</string>
     <string name="android_13_no_permission">更改未生效：无此应用目录权限，需要申请授予此APP目录权限。部分应用在Android/media下无目录，需要你手动创建，或者SimpleHook增加目标应用作用域后，重启应用会自动创建。然后再重新申请授予权限</string>
-    <string name="lite_version_not_active">更改未生效：未激活模块或其他错误</string>
     <string name="root_version_no_permission">更改未生效：请手动授予ROOT权限，重启APP</string>
 
 
@@ -552,7 +548,7 @@
     <string name="main_sort_tip_exit_search">请先退出搜索</string>
     <string name="main_settings_title_bottom_check_permission">检查权限</string>
     <string name="main_settings_summary_check_permission">无必要权限时，无法更改配置</string>
-    <string name="main_settings_tip_close_check_permission">关闭后，在更改配置时将不会校验是否具有ROOT(root)/存储权限(normal)/被激活(lite)。\n若无权限，配置更改仅作用于SimpleHook内，而无法作用于目标app</string>
+    <string name="main_settings_tip_close_check_permission">关闭后，在更改配置时将不会校验是否具有ROOT(root)/存储权限(normal)。\n若无权限，配置更改仅作用于SimpleHook内，而无法作用于目标app</string>
     <string name="extension_item_desc_adb">禁用ADB(USB 调试)检测</string>
     <string name="extension_guise_delete">删除</string>
     <string name="extension_guise_update">更新</string>
