@@ -49,10 +49,13 @@ import java.util.zip.GZIPOutputStream
 object RecordOutHelper {
     private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
     private val defaultRecordSettings = ExtRecordSettings()
+
     @Volatile
     private var enableStack: Boolean = defaultRecordSettings.enableStack
+
     @Volatile
     private var enableBase64: Boolean = defaultRecordSettings.enableBase64
+
     @Volatile
     private var enableHex: Boolean = defaultRecordSettings.enableHex
 
@@ -101,7 +104,8 @@ object RecordOutHelper {
         signature: MethodSignature? = null
     ) {
         val pureStatic = hookConfig.className.isEmpty() || hookConfig.methodName.isEmpty()
-        val instanceHook = hookConfig.mode == Constant.HOOK_RECORD_INSTANCE_FIELD || hookConfig.mode == Constant.HOOK_FIELD
+        val instanceHook =
+            hookConfig.mode == Constant.HOOK_RECORD_INSTANCE_FIELD || hookConfig.mode == Constant.HOOK_FIELD
         val className = signature?.className ?: hookConfig.className
         val methodName = signature?.methodName ?: hookConfig.methodName
         val params = signature?.params ?: emptyList()
@@ -187,7 +191,10 @@ object RecordOutHelper {
 
 
         val compressedRecordContent = compressToBase64(recordContent) ?: return
-        RecordLogger.write(packageName = HookHelper.hostPackageName, content = compressedRecordContent)
+        RecordLogger.write(
+            packageName = HookHelper.hostPackageName,
+            content = compressedRecordContent
+        )
     }
 
     fun compress(text: String): ByteArray? {
@@ -369,12 +376,21 @@ object RecordOutHelper {
         return stackList.subList(index.takeIf { it != -1 } ?: 0, stackList.size)
     }
 
+    private fun Any?.toGsonStringSafe(): String {
+        return try {
+            gson.toJson(this)
+        } catch (t: Throwable) {
+            val className = this?.javaClass?.name ?: "null"
+            "$className (Gson error: ${t.javaClass.simpleName})"
+        }
+    }
+
     private val Any?.recordValue: Map<RecordValueType, String>
         get() {
             if (this@recordValue is ByteArray) return this@recordValue.recordValue
             return buildMap {
                 put(RecordValueType.ToString, this@recordValue.toString())
-                put(RecordValueType.GsonToString, gson.toJson(this@recordValue))
+                put(RecordValueType.GsonToString, this@recordValue.toGsonStringSafe())
             }
         }
 
