@@ -35,7 +35,7 @@ public class Xp51HookWrapper {
 
     private static final AtomicLong sNextHookId = new AtomicLong(1);
     private static final Set<Member> sHookedMethods = ConcurrentHashMap.newKeySet();
-    private static final String TAG_PREFIX = "qauxv_hcb_";
+    private static final String TAG_PREFIX = "simpleHook_hcb_";
 
     public static class Xp51HookParam implements IHookBridge.IMemberHookParam {
 
