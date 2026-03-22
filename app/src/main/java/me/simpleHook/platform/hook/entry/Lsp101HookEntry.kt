@@ -8,10 +8,10 @@ import io.github.qauxv.loader.sbl.lsp101.Lsp101HookImpl
 import io.github.qauxv.poststartup.StartupInfo
 
 /**
- * Entry point for libxpsoed API 101 (typically LSPosed).
+ * Entry point for libxposed API 101 (typically LSPosed).
  * 
  * 
- * The libxpsoed API is used as ART hook implementation.
+ * The libxposed API is used as ART hook implementation.
  */
 @RequiresApi(26)
 class Lsp101HookEntry : XposedModule() {
