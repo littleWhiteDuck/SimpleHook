@@ -6,7 +6,6 @@ import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
 import io.github.qauxv.loader.sbl.lsp101.Lsp101HookImpl
 import io.github.qauxv.poststartup.StartupInfo
-import io.github.qauxv.util.xpcompat.XposedBridge
 
 /**
  * Entry point for libxpsoed API 101 (typically LSPosed).
