@@ -1,6 +1,5 @@
 package me.simpleHook.platform.lsposed
 
-import android.util.Log
 import io.github.libxposed.service.XposedService
 
 object LSPosedHelper {
