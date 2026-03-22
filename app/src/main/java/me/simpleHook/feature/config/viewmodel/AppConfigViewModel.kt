@@ -135,7 +135,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * @return packageName set of custom config + extension config
      */
-    suspend fun getEnabledPackageNames() =appRepository.getEnabledPackageNames()
+    suspend fun getEnabledPackageNames() = appRepository.getEnabledPackageNames()
 
     private suspend fun getEnabledCustomCountByPackageName(packageName: String) =
         appRepository.getEnabledCustomCountByPackageName(packageName)
@@ -145,20 +145,13 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     private suspend fun syncScopeForPackages(packageNames: Collection<String>) {
         if (!FlavorUtil.rootVersion) return
-        packageNames.toSet().forEach { packageName ->
-            syncScopeForPackage(packageName)
+        val packages = packageNames.toSet().filter { it != Constant.MODEL_EXTENSION_CONFIG }
+        val enabled = packages.filter {
+            getEnabledCustomCountByPackageName(it) > 0 || getEnabledExCountByPackageName(it) > 0
         }
-    }
-
-    private suspend fun syncScopeForPackage(packageName: String) {
-        if (packageName == Constant.MODEL_EXTENSION_CONFIG) return
-        val customEnabled = getEnabledCustomCountByPackageName(packageName) > 0
-        val extensionEnabled = getEnabledExCountByPackageName(packageName) > 0
-        if (customEnabled || extensionEnabled) {
-            LSPosedHelper.requestScopeIfNeeded(packageName)
-        } else {
-            LSPosedHelper.removeScopeIfNeeded(packageName)
-        }
+        val disabled = packages - enabled.toSet()
+        LSPosedHelper.requestScopes(enabled)
+        LSPosedHelper.removeScopes(disabled)
     }
 
 }
