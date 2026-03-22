@@ -9,7 +9,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import me.simpleHook.data.local.db.dao.RecordDao
 import me.simpleHook.data.local.db.entity.RecordEntity
 
-@Database(entities = [RecordEntity::class], version = 3)
+@Database(
+    entities = [RecordEntity::class],
+    version = 3,
+    exportSchema = false
+)
 abstract class RecordDatabase: RoomDatabase() {
     abstract fun recordDao(): RecordDao
 

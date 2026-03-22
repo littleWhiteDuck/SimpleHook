@@ -34,10 +34,7 @@ class ShareItemView(context: Context) : CustomViewGroup(context) {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         checkBox.autoMeasure()
-        information.measure(
-            measuredWidth - paddingStart - paddingEnd - checkBox.measuredWidth,
-            information.defaultHeightMeasureSpec(this)
-        )
+        information.exactWidth(measuredWidth - paddingStart - paddingEnd - checkBox.measuredWidth)
         val height =
             max(checkBox.measuredHeight, information.measuredHeight) + paddingTop + paddingBottom
         setMeasuredDimension(measuredWidth, height)
