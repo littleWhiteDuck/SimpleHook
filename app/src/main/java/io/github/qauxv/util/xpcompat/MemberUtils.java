@@ -96,7 +96,7 @@ class MemberUtils {
         }
         /*
          * If the destination class is null, we've travelled all the way up to
-         * an Object match. We'll penalize this by adding 1.5 to the cost.
+         * an Object match. We'll penalize this by adding Lsp100HookEntry.java.5 to the cost.
          */
         if (srcClass == null) {
             cost += 1.5f;

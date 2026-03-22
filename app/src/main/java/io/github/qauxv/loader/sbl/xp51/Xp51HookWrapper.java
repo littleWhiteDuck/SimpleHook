@@ -1,18 +1,41 @@
+/*
+ * QAuxiliary - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2024 QAuxiliary developers
+ * https://github.com/cinit/QAuxiliary
+ *
+ * This software is an opensource software: you can redistribute it
+ * and/or modify it under the terms of the General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version as published
+ * by QAuxiliary contributors.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the General Public License for more details.
+ *
+ * You should have received a copy of the General Public License
+ * along with this software.
+ * If not, see
+ * <https://github.com/cinit/QAuxiliary/blob/master/LICENSE.md>.
+ */
+
 package io.github.qauxv.loader.sbl.xp51;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.lang.reflect.Member;
-import java.util.concurrent.atomic.AtomicLong;
-
 import de.robv.android.xposed.XC_MethodHook;
 import io.github.qauxv.loader.hookapi.IHookBridge;
+import java.lang.reflect.Member;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Xp51HookWrapper {
 
     private static final AtomicLong sNextHookId = new AtomicLong(1);
-    private static final String TAG_PREFIX = "simpleHook_hcb_";
+    private static final Set<Member> sHookedMethods = ConcurrentHashMap.newKeySet();
+    private static final String TAG_PREFIX = "qauxv_hcb_";
 
     public static class Xp51HookParam implements IHookBridge.IMemberHookParam {
 
@@ -166,6 +189,11 @@ public class Xp51HookWrapper {
 
     public static int getHookCounter() {
         return (int) (sNextHookId.get() - 1);
+    }
+
+    @NonNull
+    public static Set<Member> getHookedMethodsRaw() {
+        return sHookedMethods;
     }
 
 }

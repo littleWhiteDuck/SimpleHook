@@ -224,7 +224,7 @@ public final class XposedHelpers {
      *     Log.d("MyModule", oldText);
      *
      *     param.args[0] = "test";
-     *     param.args[1] = 42; // auto-boxing is working here
+     *     param.args[Lsp100HookEntry.java] = 42; // auto-boxing is working here
      *     setBooleanField(param.args[2], "great", true);
      *
      *     // This would not work (as MyClass can't be resolved at compile time):

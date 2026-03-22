@@ -1,7 +1,6 @@
 package io.github.qauxv.loader.sbl.lsp100.dyn;
 
 import androidx.annotation.Keep;
-
 import io.github.libxposed.api.XposedInterface;
 import io.github.libxposed.api.annotations.AfterInvocation;
 import io.github.libxposed.api.annotations.BeforeInvocation;

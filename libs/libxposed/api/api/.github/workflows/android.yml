@@ -1,0 +1,57 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        fetch-depth: 0
+    - name: set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Build with Gradle
+      run: |
+        echo 'org.gradle.caching=true' >> gradle.properties
+        echo 'org.gradle.parallel=true' >> gradle.properties
+        echo 'org.gradle.vfs.watch=true' >> gradle.properties
+        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+        ./gradlew publishToMavenLocal
+        ./gradlew --stop
+      env:
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.maven_pgp_signingKey }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.maven_pgp_signingPassword }}
+    - name: Upload library
+      uses: actions/upload-artifact@v4
+      with:
+        name: library
+        path: ~/.m2
+    - name: Upload pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        # Upload entire repository
+        path: 'api/build/intermediates/java_doc_dir/release/javaDocReleaseGeneration'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+

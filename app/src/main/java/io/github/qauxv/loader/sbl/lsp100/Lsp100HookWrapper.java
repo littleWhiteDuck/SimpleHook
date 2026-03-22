@@ -1,22 +1,45 @@
+/*
+ * QAuxiliary - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2024 QAuxiliary developers
+ * https://github.com/cinit/QAuxiliary
+ *
+ * This software is an opensource software: you can redistribute it
+ * and/or modify it under the terms of the General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version as published
+ * by QAuxiliary contributors.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the General Public License for more details.
+ *
+ * You should have received a copy of the General Public License
+ * along with this software.
+ * If not, see
+ * <https://github.com/cinit/QAuxiliary/blob/master/LICENSE.md>.
+ */
+
 package io.github.qauxv.loader.sbl.lsp100;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import io.github.libxposed.api.XposedInterface;
 import io.github.libxposed.api.XposedModule;
+import io.github.libxposed.api.annotations.XposedApiExact;
 import io.github.qauxv.loader.hookapi.IHookBridge;
 import io.github.qauxv.loader.sbl.common.CheckUtils;
 import io.github.qauxv.loader.sbl.lsp100.codegen.Lsp100ProxyClassMaker;
 import io.github.qauxv.loader.sbl.lsp100.dyn.Lsp100CallbackProxy;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
+@XposedApiExact(100)
 public class Lsp100HookWrapper {
 
     private Lsp100HookWrapper() {
@@ -27,6 +50,7 @@ public class Lsp100HookWrapper {
     private static final CallbackWrapper[] EMPTY_CALLBACKS = new CallbackWrapper[0];
 
     private static final AtomicLong sNextHookId = new AtomicLong(1);
+    private static final Set<Member> sHookedMethods = ConcurrentHashMap.newKeySet();
 
     private static final Object sRegistryWriteLock = new Object();
 
@@ -72,7 +96,7 @@ public class Lsp100HookWrapper {
                 c = generateProxyClassForCallback(priority);
                 t = priority;
             } catch (RuntimeException e) {
-                android.util.Log.w("SimpleHook", "failed to generate proxy class, fallback to default", e);
+                android.util.Log.w("QAuxv", "failed to generate proxy class, fallback to default", e);
                 c = DEFAULT_PROXY;
                 t = DEFAULT_PRIORITY;
             }
@@ -110,6 +134,8 @@ public class Lsp100HookWrapper {
                 CallbackListHolder newHolder = new CallbackListHolder();
                 callbackList.put(method, newHolder);
                 holder = newHolder;
+                // add to hooked methods set
+                sHookedMethods.add(method);
             }
         }
         // 4. add the callback to the holder
@@ -376,7 +402,8 @@ public class Lsp100HookWrapper {
                 final int tag
         ) {
             if (param == null) {
-                throw new AssertionError("param is null");
+                // null param, possibly due to all callbacks being removed
+                return;
             }
             param.isAfter = true;
             param.after = callback;
@@ -439,6 +466,10 @@ public class Lsp100HookWrapper {
 
     public static int getHookCounter() {
         return (int) (sNextHookId.get() - 1);
+    }
+
+    public static Set<Member> getHookedMethodsRaw() {
+        return sHookedMethods;
     }
 
 }

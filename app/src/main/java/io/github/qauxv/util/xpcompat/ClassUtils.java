@@ -92,11 +92,11 @@ class ClassUtils {
      * specified {@code Class} parameter can be converted to the type represented by this {@code Class} object via an identity conversion widening primitive or
      * widening reference conversion. See
      * <em><a href="http://java.sun.com/docs/books/jls/">The Java Language Specification</a></em>,
-     * sections 5.1.1, 5.1.2 and 5.1.4 for details.</p>
+     * sections 5.Lsp100HookEntry.java.Lsp100HookEntry.java, 5.Lsp100HookEntry.java.2 and 5.Lsp100HookEntry.java.4 for details.</p>
      *
      * <p><strong>Since Lang 3.0,</strong> this method will default behavior for
      * calculating assignability between primitive and wrapper types <em>corresponding to the running Java version</em>; i.e. autoboxing will be the default
-     * behavior in VMs running Java versions >= 1.5.</p>
+     * behavior in VMs running Java versions >= Lsp100HookEntry.java.5.</p>
      *
      * @param classArray   the array of Classes to check, may be {@code null}
      * @param toClassArray the array of Classes to try to assign into, may be {@code null}
@@ -126,7 +126,7 @@ class ClassUtils {
      * specified {@code Class} parameter can be converted to the type represented by this {@code Class} object via an identity conversion widening primitive or
      * widening reference conversion. See
      * <em><a href="http://java.sun.com/docs/books/jls/">The Java Language Specification</a></em>,
-     * sections 5.1.1, 5.1.2 and 5.1.4 for details.</p>
+     * sections 5.Lsp100HookEntry.java.Lsp100HookEntry.java, 5.Lsp100HookEntry.java.2 and 5.Lsp100HookEntry.java.4 for details.</p>
      *
      * @param classArray   the array of Classes to check, may be {@code null}
      * @param toClassArray the array of Classes to try to assign into, may be {@code null}
@@ -169,11 +169,11 @@ class ClassUtils {
      * specified {@code Class} parameter can be converted to the type represented by this {@code Class} object via an identity conversion widening primitive or
      * widening reference conversion. See
      * <em><a href="http://java.sun.com/docs/books/jls/">The Java Language Specification</a></em>,
-     * sections 5.1.1, 5.1.2 and 5.1.4 for details.</p>
+     * sections 5.Lsp100HookEntry.java.Lsp100HookEntry.java, 5.Lsp100HookEntry.java.2 and 5.Lsp100HookEntry.java.4 for details.</p>
      *
      * <p><strong>Since Lang 3.0,</strong> this method will default behavior for
      * calculating assignability between primitive and wrapper types <em>corresponding to the running Java version</em>; i.e. autoboxing will be the default
-     * behavior in VMs running Java versions >= 1.5.</p>
+     * behavior in VMs running Java versions >= Lsp100HookEntry.java.5.</p>
      *
      * @param cls     the Class to check, may be null
      * @param toClass the Class to try to assign into, returns false if null
@@ -200,7 +200,7 @@ class ClassUtils {
      * specified {@code Class} parameter can be converted to the type represented by this {@code Class} object via an identity conversion widening primitive or
      * widening reference conversion. See
      * <em><a href="http://java.sun.com/docs/books/jls/">The Java Language Specification</a></em>,
-     * sections 5.1.1, 5.1.2 and 5.1.4 for details.</p>
+     * sections 5.Lsp100HookEntry.java.Lsp100HookEntry.java, 5.Lsp100HookEntry.java.2 and 5.Lsp100HookEntry.java.4 for details.</p>
      *
      * @param cls        the Class to check, may be null
      * @param toClass    the Class to try to assign into, returns false if null
@@ -289,7 +289,7 @@ class ClassUtils {
      *
      * @param cls the class to convert, may be null
      * @return the wrapper class for {@code cls} or {@code cls} if {@code cls} is not a primitive. {@code null} if null input.
-     * @since 2.1
+     * @since 2.Lsp100HookEntry.java
      */
     public static Class<?> primitiveToWrapper(Class<?> cls) {
         Class<?> convertedClass = cls;
@@ -306,7 +306,7 @@ class ClassUtils {
      * @param classes the class array to convert, may be null or empty
      * @return an array which contains for each given class, the wrapper class or the original class if class is not a primitive. {@code null} if null input.
      * Empty array if an empty array passed in.
-     * @since 2.1
+     * @since 2.Lsp100HookEntry.java
      */
     public static Class<?>[] primitivesToWrappers(Class<?>... classes) {
         if (classes == null) {

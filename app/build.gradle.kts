@@ -228,6 +228,12 @@ extensions.configure<ApplicationExtension>("android") {
         }
     }
 
+    sourceSets {
+        named("main") {
+            kotlin.directories += "$rootDir/libs/ezxhelper/src/main/java"
+        }
+    }
+
 }
 
 
@@ -254,9 +260,12 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    compileOnly(projects.loader.hookapi)
+    compileOnly(projects.libs.libxposed.api)
+    implementation(projects.libs.libxposed.service)
     compileOnly(libs.xposed.api)
-    compileOnly(libs.libxposed.api)
-    implementation(libs.libxposed.service)
+//    compileOnly(libs.libxposed.api)
+//    implementation(libs.libxposed.service)
 
     implementation(libs.kotlinx.coroutines.android)
 

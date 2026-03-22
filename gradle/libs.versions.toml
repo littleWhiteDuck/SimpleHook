@@ -4,6 +4,7 @@ kotlin = "2.2.20"
 ksp = "2.3.2"
 
 androidx-core-ktx = "1.17.0"
+androidx-annotation = "1.9.1"
 androidx-appcompat = "1.7.1"
 material = "1.13.0"
 androidx-preference = "1.2.1"
@@ -41,6 +42,7 @@ compose-bom = "2026.02.00"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidx-annotation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidx-preference" }

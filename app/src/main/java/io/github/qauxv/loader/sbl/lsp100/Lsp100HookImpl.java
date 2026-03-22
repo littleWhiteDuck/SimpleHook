@@ -1,21 +1,44 @@
+/*
+ * QAuxiliary - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2024 QAuxiliary developers
+ * https://github.com/cinit/QAuxiliary
+ *
+ * This software is an opensource software: you can redistribute it
+ * and/or modify it under the terms of the General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version as published
+ * by QAuxiliary contributors.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the General Public License for more details.
+ *
+ * You should have received a copy of the General Public License
+ * along with this software.
+ * If not, see
+ * <https://github.com/cinit/QAuxiliary/blob/master/LICENSE.md>.
+ */
+
 package io.github.qauxv.loader.sbl.lsp100;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-
 import io.github.libxposed.api.XposedInterface;
 import io.github.libxposed.api.XposedModule;
+import io.github.libxposed.api.annotations.XposedApiExact;
 import io.github.qauxv.loader.hookapi.IClassLoaderHelper;
 import io.github.qauxv.loader.hookapi.IHookBridge;
 import io.github.qauxv.loader.hookapi.ILoaderService;
 import io.github.qauxv.loader.sbl.common.CheckUtils;
-import me.simpleHook.BuildConfig;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Set;
 
+@XposedApiExact(100)
 public class Lsp100HookImpl implements IHookBridge, ILoaderService {
 
     public static final Lsp100HookImpl INSTANCE = new Lsp100HookImpl();
@@ -81,7 +104,15 @@ public class Lsp100HookImpl implements IHookBridge, ILoaderService {
             throws NullPointerException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         CheckUtils.checkNonNull(method, "method");
         CheckUtils.checkNonNull(args, "args");
-        return self.invokeOrigin(method, thisObject, args);
+        boolean isAccessible = method.isAccessible();
+        // XposedBridge says invokeOriginalMethod will not check accessibility.
+        // While LSPosed implementation 1.9.2-it-7465 (other versions may differ) does check accessibility for method which are NOT HOOKED.
+        try {
+            method.setAccessible(true);
+            return self.invokeOrigin(method, thisObject, args);
+        } finally {
+            method.setAccessible(isAccessible);
+        }
     }
 
     @NonNull
@@ -90,7 +121,14 @@ public class Lsp100HookImpl implements IHookBridge, ILoaderService {
             throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {
         CheckUtils.checkNonNull(constructor, "constructor");
         CheckUtils.checkNonNull(args, "args");
-        return self.newInstanceOrigin(constructor, args);
+        // same reason as invokeOriginalMethod, not tested yet
+        boolean isAccessible = constructor.isAccessible();
+        try {
+            constructor.setAccessible(true);
+            return self.newInstanceOrigin(constructor, args);
+        } finally {
+            constructor.setAccessible(isAccessible);
+        }
     }
 
     @Override
@@ -99,7 +137,20 @@ public class Lsp100HookImpl implements IHookBridge, ILoaderService {
         CheckUtils.checkNonNull(ctor, "ctor");
         CheckUtils.checkNonNull(thisObject, "thisObject");
         CheckUtils.checkNonNull(args, "args");
-        self.invokeOrigin(ctor, thisObject, args);
+        // same reason as invokeOriginalMethod, not tested yet
+        boolean isAccessible = ctor.isAccessible();
+        try {
+            ctor.setAccessible(true);
+            self.invokeOrigin(ctor, thisObject, args);
+        } finally {
+            ctor.setAccessible(isAccessible);
+        }
+    }
+
+    @Nullable
+    @Override
+    public Object queryExtension(@NonNull String key, @Nullable Object... args) {
+        return Lsp100ExtCmd.handleQueryExtension(key, args);
     }
 
     @NonNull
@@ -108,15 +159,21 @@ public class Lsp100HookImpl implements IHookBridge, ILoaderService {
         return this.getClass().getName();
     }
 
+//    @NonNull
+//    @Override
+//    public String getLoaderVersionName() {
+//        return BuildConfig.VERSION_NAME;
+//    }
+//
+//    @Override
+//    public int getLoaderVersionCode() {
+//        return BuildConfig.VERSION_CODE;
+//    }
+
     @NonNull
     @Override
-    public String getLoaderVersionName() {
-        return BuildConfig.VERSION_NAME;
-    }
-
-    @Override
-    public int getLoaderVersionCode() {
-        return BuildConfig.VERSION_CODE;
+    public String getMainModulePath() {
+        return self.getApplicationInfo().sourceDir;
     }
 
     @Override
@@ -143,6 +200,12 @@ public class Lsp100HookImpl implements IHookBridge, ILoaderService {
     @Override
     public long getHookCounter() {
         return Lsp100HookWrapper.getHookCounter();
+    }
+
+    @Override
+    public Set<Member> getHookedMethods() {
+        // return a read-only set
+        return Collections.unmodifiableSet(Lsp100HookWrapper.getHookedMethodsRaw());
     }
 
 }
