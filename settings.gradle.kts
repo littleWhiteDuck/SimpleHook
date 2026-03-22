@@ -1,5 +1,7 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         google()
@@ -33,4 +35,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SimpleHook"
-include(":app")
+include(
+    ":app",
+    ":loader:hookapi",
+    ":libs:ezxhelper"
+)

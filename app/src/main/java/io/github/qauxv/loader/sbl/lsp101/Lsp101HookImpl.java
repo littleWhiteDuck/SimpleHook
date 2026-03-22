@@ -1,6 +1,6 @@
 /*
  * QAuxiliary - An Xposed module for QQ/TIM
- * Copyright (C) 2019-2024 QAuxiliary developers
+ * Copyright (C) 2019-2026 QAuxiliary developers
  * https://github.com/cinit/QAuxiliary
  *
  * This software is an opensource software: you can redistribute it
@@ -20,106 +20,114 @@
  * <https://github.com/cinit/QAuxiliary/blob/master/LICENSE.md>.
  */
 
-package io.github.qauxv.loader.sbl.xp51;
+package io.github.qauxv.loader.sbl.lsp101;
 
-import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
+import androidx.annotation.RequiresApi;
+import io.github.libxposed.api.XposedInterface;
+import io.github.libxposed.api.XposedModule;
 import io.github.qauxv.loader.hookapi.IClassLoaderHelper;
 import io.github.qauxv.loader.hookapi.IHookBridge;
 import io.github.qauxv.loader.hookapi.ILoaderService;
-import io.github.qauxv.loader.sbl.common.CheckUtils;
-import me.simpleHook.platform.hook.entry.Xp51HookEntry;
-
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
-public class Xp51HookImpl implements IHookBridge, ILoaderService {
+@RequiresApi(26)
+public class Lsp101HookImpl implements IHookBridge, ILoaderService {
 
-    public static final Xp51HookImpl INSTANCE = new Xp51HookImpl();
-
+    public static final Lsp101HookImpl INSTANCE = new Lsp101HookImpl();
+    public static XposedModule self = null;
+    private static final String DEFAULT_LOG_TAG = "SimpleHook";
+    // leave it there, although we don't need it
     private IClassLoaderHelper mClassLoaderHelper;
+
+    private Lsp101HookImpl() {
+    }
+
+    public static void init(@NonNull XposedModule base) {
+        self = base;
+        Lsp101HookWrapper.self = base;
+    }
 
     @Override
     public int getApiLevel() {
-        return XposedBridge.getXposedVersion();
+        return self.getApiVersion();
     }
 
     @NonNull
     @Override
     public String getFrameworkName() {
-        return "Xposed";
+        return self.getFrameworkName();
     }
 
     @NonNull
     @Override
     public String getFrameworkVersion() {
-        return String.valueOf(XposedBridge.getXposedVersion());
+        return self.getFrameworkVersion();
     }
 
     @Override
     public long getFrameworkVersionCode() {
-        return XposedBridge.getXposedVersion();
+        return self.getFrameworkVersionCode();
     }
 
     @NonNull
     @Override
     public MemberUnhookHandle hookMethod(@NonNull Member member, @NonNull IMemberHookCallback callback, int priority) {
-        CheckUtils.checkNonNull(member, "member");
-        CheckUtils.checkNonNull(callback, "callback");
-        // check member is method or constructor
-        if (!(member instanceof java.lang.reflect.Method) && !(member instanceof java.lang.reflect.Constructor)) {
-            throw new IllegalArgumentException("member must be method or constructor");
-        }
-        Xp51HookWrapper.Xp51HookCallback cb = new Xp51HookWrapper.Xp51HookCallback(callback, priority);
-        XC_MethodHook.Unhook unhook = XposedBridge.hookMethod(member, cb);
-        if (unhook == null) {
-            throw new UnsupportedOperationException("XposedBridge.hookMethod return null for member: " + member);
-        }
-        // add to hooked methods set
-        Xp51HookWrapper.getHookedMethodsRaw().add(member);
-        return new Xp51HookWrapper.Xp51UnhookHandle(unhook, member, cb);
+        return Lsp101HookWrapper.hookAndRegisterMethodCallback(member, callback, priority);
+    }
+
+    @Override
+    public boolean isDeoptimizationSupported() {
+        return true;
+    }
+
+    @Override
+    public boolean deoptimize(@NonNull Member member) {
+        return self.deoptimize((Executable) member);
     }
 
     @Nullable
+    @Override
     public Object invokeOriginalMethod(@NonNull Method method, @Nullable Object thisObject, @NonNull Object[] args)
             throws NullPointerException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        CheckUtils.checkNonNull(method, "method");
-        CheckUtils.checkNonNull(args, "args");
-        return XposedBridge.invokeOriginalMethod(method, thisObject, args);
+        XposedInterface.Invoker<?, Method> invoker = self.getInvoker(method);
+        invoker.setType(XposedInterface.Invoker.Type.ORIGIN);
+        return invoker.invoke(thisObject, args);
     }
 
     @Override
     public <T> void invokeOriginalConstructor(@NonNull Constructor<T> ctor, @NonNull T thisObject, @NonNull Object[] args)
             throws NullPointerException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        CheckUtils.checkNonNull(ctor, "ctor");
-        CheckUtils.checkNonNull(thisObject, "thisObject");
-        CheckUtils.checkNonNull(args, "args");
-        XposedBridge.invokeOriginalMethod(ctor, thisObject, args);
+        XposedInterface.CtorInvoker<T> invoker = self.getInvoker(ctor);
+        invoker.setType(XposedInterface.Invoker.Type.ORIGIN);
+        // invoke constructor as method, s.t. <init>(args...)V
+        invoker.invoke(thisObject, args);
     }
 
     @NonNull
     @Override
     public <T> T newInstanceOrigin(@NonNull Constructor<T> constructor, @NonNull Object... args)
             throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-        // TODO: 2024-07-22 allocate instance
-        throw new UnsupportedOperationException("allocate instance is not supported");
+        XposedInterface.CtorInvoker<T> invoker = self.getInvoker(constructor);
+        invoker.setType(XposedInterface.Invoker.Type.ORIGIN);
+        return invoker.newInstance(args);
     }
 
     @Override
-    public boolean isDeoptimizationSupported() {
-        return false;
+    public long getHookCounter() {
+        return Lsp101HookWrapper.getHookCounter();
     }
 
     @Override
-    public boolean deoptimize(@NonNull Member member) {
-        return false;
+    public Set<Member> getHookedMethods() {
+        return Collections.unmodifiableSet(Lsp101HookWrapper.getHookedMethodsRaw());
     }
 
     @NonNull
@@ -130,21 +138,20 @@ public class Xp51HookImpl implements IHookBridge, ILoaderService {
 
     @Override
     public void log(@NonNull String msg) {
-        if (TextUtils.isEmpty(msg)) {
-            return;
-        }
-        XposedBridge.log(msg);
+        int level = android.util.Log.INFO;
+        self.log(level, DEFAULT_LOG_TAG, msg, null);
     }
 
     @Override
     public void log(@NonNull Throwable tr) {
-        XposedBridge.log(tr);
+        int level = android.util.Log.ERROR;
+        String msg = tr.getMessage();
+        if (msg == null) {
+            msg = tr.getClass().getSimpleName();
+        }
+        self.log(level, DEFAULT_LOG_TAG, msg, tr);
     }
 
-    @Override
-    public void setClassLoaderHelper(@Nullable IClassLoaderHelper helper) {
-        mClassLoaderHelper = helper;
-    }
 
     @Nullable
     @Override
@@ -153,13 +160,8 @@ public class Xp51HookImpl implements IHookBridge, ILoaderService {
     }
 
     @Override
-    public long getHookCounter() {
-        return Xp51HookWrapper.getHookCounter();
+    public void setClassLoaderHelper(@Nullable IClassLoaderHelper helper) {
+        mClassLoaderHelper = helper;
     }
 
-    @Override
-    public Set<Member> getHookedMethods() {
-        // return a read-only set
-        return Collections.unmodifiableSet(Xp51HookWrapper.getHookedMethodsRaw());
-    }
 }

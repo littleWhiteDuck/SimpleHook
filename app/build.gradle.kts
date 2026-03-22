@@ -49,7 +49,6 @@ extensions.configure<ApplicationExtension>("android") {
         androidResources.localeFilters += setOf("en", "zh-rCN", "zh-rTW")
         applicationId = "me.simpleHook"
         minSdk = 24
-        //noinspection EditedTargetSdkVersion
         targetSdk = 36
         versionCode = verCode
         versionName = verName
@@ -228,6 +227,12 @@ extensions.configure<ApplicationExtension>("android") {
         }
     }
 
+    sourceSets {
+        named("main") {
+            kotlin.directories += "$rootDir/libs/ezxhelper/src/main/java"
+        }
+    }
+
 }
 
 
@@ -254,6 +259,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation(projects.loader.hookapi)
     compileOnly(libs.xposed.api)
     compileOnly(libs.libxposed.api)
     implementation(libs.libxposed.service)

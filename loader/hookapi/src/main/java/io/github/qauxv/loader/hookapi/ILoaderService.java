@@ -10,11 +10,6 @@ public interface ILoaderService {
     @NonNull
     String getEntryPointName();
 
-    @NonNull
-    String getLoaderVersionName();
-
-    int getLoaderVersionCode();
-
     void log(@NonNull String msg);
 
     void log(@NonNull Throwable tr);

@@ -6,6 +6,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
@@ -14,6 +15,12 @@
     <uses-permission
         android:name="android.permission.RECEIVE_BOOT_COMPLETED"
         tools:node="remove" />
+
+    <!--
+      Manifest merger failed : uses-sdk:minSdkVersion 24 cannot be smaller than version 26 declared in library [io.github.libxposed:service:101.0.0]
+      API 101 要求 minSdk >= 26，为了保持 legacy API 在旧版本系统的运行，作覆盖处理
+      -->
+    <uses-sdk tools:overrideLibrary="io.github.libxposed.service, io.github.libxposed.service.interfaces" />
 
     <application
         android:name=".core.SimpleHookApp"
@@ -117,9 +124,9 @@
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
-            android:multiprocess="false"
             android:enabled="true"
             android:exported="true"
+            android:multiprocess="false"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>

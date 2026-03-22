@@ -29,7 +29,7 @@
 #-packageobfuscationdictionary ./proguard-keys.txt
 
 -keep class me.simpleHook.platform.hook.entry.Xp51HookEntry { *; }
--keep class me.simpleHook.platform.hook.entry.Lsp100HookEntry { *; }
+-keep class me.simpleHook.platform.hook.entry.Lsp101HookEntry { *; }
 
 -keepattributes Signature
 

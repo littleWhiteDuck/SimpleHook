@@ -29,7 +29,7 @@ object EzXHelperInit {
         setHostPackageName(lpparam.packageName)
     }
 
-    fun initHandleLoadPackageLsp100(param: XposedModuleInterface.PackageLoadedParam) {
+    fun initHandleLoadPackageLsp101(param: XposedModuleInterface.PackageReadyParam) {
         setEzClassLoader(param.classLoader)
         setHostPackageName(param.packageName)
     }
@@ -115,7 +115,7 @@ object EzXHelperInit {
      *
      * 要求:
      *
-     * 1.在项目的build.gradle中修改资源id(不与宿主冲突即可) 如下:
+     * Lsp100HookEntry.java.在项目的build.gradle中修改资源id(不与宿主冲突即可) 如下:
      *
      * Kotlin Gradle DSL:
      * androidResources.additionalParameters("--allow-reserved-package-id", "--package-id", "0x64")

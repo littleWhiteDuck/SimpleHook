@@ -79,7 +79,7 @@ class ClassUtils {
      * Class pair in the input arrays. It can be used to check if a set of arguments (the first parameter) are suitably compatible with a set of method
      * parameter types (the second parameter).</p>
      *
-     * <p>Unlike the {@link Class#isAssignableFrom(Class)} method, this
+     * <p>Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method, this
      * method takes into account widenings of primitive classes and {@code null}s.</p>
      *
      * <p>Primitive widenings allow an int to be assigned to a {@code long},
@@ -113,7 +113,7 @@ class ClassUtils {
      * Class pair in the input arrays. It can be used to check if a set of arguments (the first parameter) are suitably compatible with a set of method
      * parameter types (the second parameter).</p>
      *
-     * <p>Unlike the {@link Class#isAssignableFrom(Class)} method, this
+     * <p>Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method, this
      * method takes into account widenings of primitive classes and {@code null}s.</p>
      *
      * <p>Primitive widenings allow an int to be assigned to a {@code long},
@@ -156,7 +156,7 @@ class ClassUtils {
      * <p>Checks if one {@code Class} can be assigned to a variable of
      * another {@code Class}.</p>
      *
-     * <p>Unlike the {@link Class#isAssignableFrom(Class)} method,
+     * <p>Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method,
      * this method takes into account widenings of primitive classes and {@code null}s.</p>
      *
      * <p>Primitive widenings allow an int to be assigned to a long, float or
@@ -187,7 +187,7 @@ class ClassUtils {
      * <p>Checks if one {@code Class} can be assigned to a variable of
      * another {@code Class}.</p>
      *
-     * <p>Unlike the {@link Class#isAssignableFrom(Class)} method,
+     * <p>Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method,
      * this method takes into account widenings of primitive classes and {@code null}s.</p>
      *
      * <p>Primitive widenings allow an int to be assigned to a long, float or

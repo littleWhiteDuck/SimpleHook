@@ -1,12 +1,15 @@
 package me.simpleHook.feature.main.ui
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.MenuProvider
@@ -127,6 +130,27 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun initPermission() {
+        try {
+            // 国产手机应用列表权限
+            val permissionInfo = applicationContext.packageManager
+                .getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0)
+            if (permissionInfo != null) {
+                if (ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        "com.android.permission.GET_INSTALLED_APPS"
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this@MainActivity,
+                        arrayOf("com.android.permission.GET_INSTALLED_APPS"),
+                        999
+                    )
+                }
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        
         if (GlobalValue.isRootWork) {
             SuUtil.init()
         } else if (GlobalValue.isShizukuWork) {
@@ -221,8 +245,9 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun configureBottomNavHideDirection() {
-        val layoutParams = binding.bottomNavigationView.layoutParams as? CoordinatorLayout.LayoutParams
-            ?: return
+        val layoutParams =
+            binding.bottomNavigationView.layoutParams as? CoordinatorLayout.LayoutParams
+                ?: return
         val behavior = layoutParams.behavior as? HideViewOnScrollBehavior<BottomNavigationView>
             ?: return
         behavior.setViewEdge(HideViewOnScrollBehavior.EDGE_BOTTOM)

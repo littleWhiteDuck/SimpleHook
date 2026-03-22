@@ -20,12 +20,13 @@ import me.simpleHook.core.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.core.constant.Constant.CLICK_TIME
-import me.simpleHook.data.AppListItem
-import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.SPUtil
+import me.simpleHook.data.AppListItem
+import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.feature.applist.viewmodel.AppListViewModel
+
 
 class AppListActivity : BaseActivity() {
     private lateinit var binding: ActivityAppListBinding
