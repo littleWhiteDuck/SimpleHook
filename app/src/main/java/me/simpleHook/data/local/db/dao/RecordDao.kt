@@ -5,14 +5,12 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.RawQuery
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
-import androidx.sqlite.db.SupportSQLiteQuery
 import me.simpleHook.data.RecordPackageCount
 import me.simpleHook.data.RecordTypeCount
-import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.data.local.db.entity.RecordEntity
+import me.simpleHook.data.record.SmallRecordEntity
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -69,9 +67,6 @@ interface RecordDao {
         fallbackText: String
     ): PagingSource<Int, SmallRecordEntity>
 
-    @RawQuery(observedEntities = [RecordEntity::class])
-    fun getRecordByPackFts(query: SupportSQLiteQuery): PagingSource<Int, SmallRecordEntity>
-
     @Query("SELECT id,type,subType,packageName,isRead,isMark,time FROM RecordEntity WHERE packageName = :packageName ORDER BY time DESC")
     fun getRecordByPackNoPattern(packageName: String): PagingSource<Int, SmallRecordEntity>
 
@@ -92,9 +87,6 @@ interface RecordDao {
         queryText: String,
         fallbackText: String
     ): PagingSource<Int, SmallRecordEntity>
-
-    @RawQuery(observedEntities = [RecordEntity::class])
-    fun getRecordByTypeFts(query: SupportSQLiteQuery): PagingSource<Int, SmallRecordEntity>
 
     @Query("SELECT id,type,subType,packageName,isRead,isMark,time FROM RecordEntity WHERE type = :type ORDER BY time DESC")
     fun getRecordByTypeNoPattern(type: String): PagingSource<Int, SmallRecordEntity>

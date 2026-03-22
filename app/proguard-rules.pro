@@ -127,6 +127,9 @@
 -keep class me.simpleHook.platform.shizuku.IFileService { *; }
 -keep class me.simpleHook.platform.shizuku.FileService { *; }
 
+# Plugin export
+-keep class com.android.apksig.** { *; }
+
 # log
 -assumenosideeffects class android.util.Log {
     public static int d(...);

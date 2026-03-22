@@ -18,7 +18,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
 import kotlinx.coroutines.Dispatchers
@@ -150,7 +149,7 @@ class MainActivity : BaseActivity(), IMenuProvider {
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-        
+
         if (GlobalValue.isRootWork) {
             SuUtil.init()
         } else if (GlobalValue.isShizukuWork) {
@@ -245,10 +244,9 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun configureBottomNavHideDirection() {
-        val layoutParams =
-            binding.bottomNavigationView.layoutParams as? CoordinatorLayout.LayoutParams
-                ?: return
-        val behavior = layoutParams.behavior as? HideViewOnScrollBehavior<BottomNavigationView>
+        val layoutParams = binding.bottomNavigationView.layoutParams as? CoordinatorLayout.LayoutParams
+            ?: return
+        val behavior = layoutParams.behavior as? HideViewOnScrollBehavior<*>
             ?: return
         behavior.setViewEdge(HideViewOnScrollBehavior.EDGE_BOTTOM)
     }

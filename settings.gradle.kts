@@ -12,6 +12,9 @@ pluginManagement {
         maven("https://jitpack.io")
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -38,5 +41,7 @@ rootProject.name = "SimpleHook"
 include(
     ":app",
     ":loader:hookapi",
-    ":libs:ezxhelper"
+    ":libs:ezxhelper",
+    ":manifest-editor-lib"
 )
+project(":manifest-editor-lib").projectDir = file("manifest-editor-lib")

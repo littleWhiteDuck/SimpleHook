@@ -36,6 +36,35 @@
     <string name="main_home_delete_config_tip">已删除此配置</string>
     <string name="main_home_toolbar_search_hint">搜索…</string>
     <string name="main_home_empty_tip">这里是空的，点击加号按钮添加配置</string>
+    <string name="plugin_export_type_dialog_title">选择导出方式</string>
+    <string name="plugin_export_type_dialog_message">可以直接导出配置文本，也可以打包为插件 APK。</string>
+    <string name="plugin_export_type_plain_config">复制配置</string>
+    <string name="plugin_export_type_plugin_apk">导出插件 APK</string>
+    <string name="plugin_export_loading">正在导出插件 APK</string>
+    <string name="plugin_export_input_dialog_title">插件信息</string>
+    <string name="plugin_export_app_name_hint">插件应用名</string>
+    <string name="plugin_export_package_name_hint">插件包名</string>
+    <string name="plugin_export_package_name_helper">包名必须至少包含一个点，例如 me.simplehook.plugin.generated</string>
+    <string name="plugin_export_app_name_empty">插件应用名不能为空</string>
+    <string name="plugin_export_package_name_invalid">请输入合法的插件包名</string>
+    <string name="plugin_export_success_title">导出成功</string>
+    <string name="plugin_export_success_message">插件 APK 已生成：%s</string>
+    <string name="plugin_export_failed">导出失败：%s</string>
+    <string name="plugin_export_install">安装</string>
+    <string name="plugin_export_share">分享</string>
+    <string name="plugin_export_share_chooser_title">分享插件 APK</string>
+    <string name="plugin_export_open_failed">无法打开导出的插件 APK</string>
+    <string name="plugin_export_install_permission_tip">请先允许当前应用安装未知来源应用</string>
+    <string name="plugin_export_sheet_title">导出插件 APK</string>
+    <string name="plugin_export_step_select">步骤 1/2</string>
+    <string name="plugin_export_step_select_tip">选择要打包进插件的配置</string>
+    <string name="plugin_export_step_info">步骤 2/2</string>
+    <string name="plugin_export_step_info_tip">填写插件信息并确认导出</string>
+    <string name="plugin_export_selected_count">%1$d 项配置已选</string>
+    <string name="plugin_export_selected_count_zero">还没有选择任何配置</string>
+    <string name="plugin_export_info_selected_count">已选择 %1$d 项配置</string>
+    <string name="plugin_export_next">下一步</string>
+    <string name="plugin_export_back">上一步</string>
 
     <string name="main_request_storage_permission_title">获取权限</string>
     <string name="main_request_storage_permission_message">由于部分应用无法直接读取配置，需要授予存储访问权限，才能在 Android/media/目标应用包名/SimpleHook 目录写入配置与日志。授权后请手动刷新配置，否则不会写入到存储文件。</string>
@@ -138,6 +167,7 @@
     <string name="main_share_config_cancel">取消</string>
     <string name="main_share_config_select_all">全选</string>
     <string name="main_share_config_confirm">确认</string>
+    <string name="config_dialog_title_export_plugin_apk">选择要打包的配置</string>
 
     <string name="main_extension_delete_config_tip">已删除此配置</string>
     <string name="main_extension_undo_delete_config">撤销</string>
@@ -160,8 +190,6 @@
     <string name="record_menu_save_marked_record">导出标记记录</string>
     <string name="record_loading_tip_searching">正在搜索中</string>
     <string name="record_search_dialog_title">搜索</string>
-    <string name="record_search_fast_switch">快速搜索</string>
-    <string name="record_search_fast_tip">启用后搜索更快；复杂符号场景建议关闭快速搜索后再试</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
     <string name="record_warning_dialog_title">警告</string>
     <string name="record_waring_dialog_message_delete_all">你是否确定删除所有记录？</string>

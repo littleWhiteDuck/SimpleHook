@@ -238,6 +238,7 @@ extensions.configure<ApplicationExtension>("android") {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    implementation(project(":manifest-editor-lib"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -299,6 +300,7 @@ dependencies {
 
     implementation(libs.dexlib2)
     implementation(libs.sora.editor)
+    implementation(libs.apksig)
 
     debugImplementation(libs.glance)
 

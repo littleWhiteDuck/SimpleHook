@@ -1,0 +1,3 @@
+[submodule "manifest-editor-lib/libs/manifest-editor"]
+	path = manifest-editor-lib/libs/manifest-editor
+	url = https://github.com/WindySha/ManifestEditor.git
