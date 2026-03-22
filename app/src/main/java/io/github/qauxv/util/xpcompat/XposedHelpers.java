@@ -51,7 +51,7 @@ public final class XposedHelpers {
      * @param className   The class name in one of the formats mentioned above.
      * @param classLoader The class loader, or {@code null} for the boot class loader.
      * @return A reference to the class.
-     * @throws ClassNotFoundError In case the class was not found.
+     * @throws XposedHelpers.ClassNotFoundError In case the class was not found.
      */
     public static Class<?> findClass(String className, ClassLoader classLoader) {
         if (classLoader == null) {
@@ -60,7 +60,7 @@ public final class XposedHelpers {
         try {
             return Class.forName(className, false, classLoader);
         } catch (ClassNotFoundException e) {
-            throw new ClassNotFoundError(e);
+            throw new XposedHelpers.ClassNotFoundError(e);
         }
     }
 
@@ -74,7 +74,7 @@ public final class XposedHelpers {
     public static Class<?> findClassIfExists(String className, ClassLoader classLoader) {
         try {
             return findClass(className, classLoader);
-        } catch (ClassNotFoundError e) {
+        } catch (XposedHelpers.ClassNotFoundError e) {
             return null;
         }
     }
@@ -224,7 +224,7 @@ public final class XposedHelpers {
      *     Log.d("MyModule", oldText);
      *
      *     param.args[0] = "test";
-     *     param.args[Lsp100HookEntry.java] = 42; // auto-boxing is working here
+     *     param.args[1] = 42; // auto-boxing is working here
      *     setBooleanField(param.args[2], "great", true);
      *
      *     // This would not work (as MyClass can't be resolved at compile time):
@@ -240,7 +240,7 @@ public final class XposedHelpers {
      * @param parameterTypesAndCallback The parameter types of the target method, plus the callback.
      * @return An object which can be used to remove the callback again.
      * @throws NoSuchMethodError                In case the method was not found.
-     * @throws ClassNotFoundError In case the target class or one of the parameter types couldn't be resolved.
+     * @throws XposedHelpers.ClassNotFoundError In case the target class or one of the parameter types couldn't be resolved.
      */
     public static XC_MethodHook.Unhook findAndHookMethod(String className, ClassLoader classLoader, String methodName, Object... parameterTypesAndCallback) {
         return findAndHookMethod(findClass(className, classLoader), methodName, parameterTypesAndCallback);
@@ -261,7 +261,7 @@ public final class XposedHelpers {
             return findMethodExact(clazz, methodName, parameterTypes);
         } catch (NoSuchMethodError e) {
             return null;
-        } catch (ClassNotFoundError e) {
+        } catch (XposedHelpers.ClassNotFoundError e) {
             return null;
         }
     }
@@ -278,7 +278,7 @@ public final class XposedHelpers {
      * @param parameterTypes The parameter types of the target method.
      * @return A reference to the method.
      * @throws NoSuchMethodError                In case the method was not found.
-     * @throws ClassNotFoundError In case the target class or one of the parameter types couldn't be resolved.
+     * @throws XposedHelpers.ClassNotFoundError In case the target class or one of the parameter types couldn't be resolved.
      */
     public static Method findMethodExact(String className, ClassLoader classLoader, String methodName, Object... parameterTypes) {
         return findMethodExact(findClass(className, classLoader), methodName, getParameterClasses(classLoader, parameterTypes));
@@ -299,7 +299,7 @@ public final class XposedHelpers {
             return findMethodExact(className, classLoader, methodName, parameterTypes);
         } catch (NoSuchMethodError e) {
             return null;
-        } catch (ClassNotFoundError e) {
+        } catch (XposedHelpers.ClassNotFoundError e) {
             return null;
         }
     }
@@ -488,7 +488,7 @@ public final class XposedHelpers {
         for (int i = parameterTypesAndCallback.length - 1; i >= 0; i--) {
             Object type = parameterTypesAndCallback[i];
             if (type == null) {
-                throw new ClassNotFoundError("parameter type must not be null", null);
+                throw new XposedHelpers.ClassNotFoundError("parameter type must not be null", null);
             }
 
             // ignore trailing callback
@@ -505,7 +505,7 @@ public final class XposedHelpers {
             } else if (type instanceof String) {
                 parameterClasses[i] = findClass((String) type, classLoader);
             } else {
-                throw new ClassNotFoundError("parameter type must either be specified as Class or String", null);
+                throw new XposedHelpers.ClassNotFoundError("parameter type must either be specified as Class or String", null);
             }
         }
 
@@ -559,7 +559,7 @@ public final class XposedHelpers {
             return findConstructorExact(clazz, parameterTypes);
         } catch (NoSuchMethodError e) {
             return null;
-        } catch (ClassNotFoundError e) {
+        } catch (XposedHelpers.ClassNotFoundError e) {
             return null;
         }
     }
@@ -579,7 +579,7 @@ public final class XposedHelpers {
             return findConstructorExact(className, classLoader, parameterTypes);
         } catch (NoSuchMethodError e) {
             return null;
-        } catch (ClassNotFoundError e) {
+        } catch (XposedHelpers.ClassNotFoundError e) {
             return null;
         }
     }
@@ -1298,7 +1298,7 @@ public final class XposedHelpers {
      * @param methodName The method name.
      * @param args       The arguments for the method call.
      * @throws NoSuchMethodError                   In case no suitable method was found.
-     * @throws InvocationTargetError In case an exception was thrown by the invoked method.
+     * @throws XposedHelpers.InvocationTargetError In case an exception was thrown by the invoked method.
      */
     public static Object callMethod(Object obj, String methodName, Object... args) {
         try {
@@ -1310,7 +1310,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         }
     }
 
@@ -1330,7 +1330,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         }
     }
 
@@ -1341,7 +1341,7 @@ public final class XposedHelpers {
      * @param methodName The method name.
      * @param args       The arguments for the method call.
      * @throws NoSuchMethodError                   In case no suitable method was found.
-     * @throws InvocationTargetError In case an exception was thrown by the invoked method.
+     * @throws XposedHelpers.InvocationTargetError In case an exception was thrown by the invoked method.
      */
     public static Object callStaticMethod(Class<?> clazz, String methodName, Object... args) {
         try {
@@ -1353,7 +1353,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         }
     }
 
@@ -1373,7 +1373,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         }
     }
 
@@ -1404,7 +1404,7 @@ public final class XposedHelpers {
      * @param clazz The class reference.
      * @param args  The arguments for the constructor call.
      * @throws NoSuchMethodError                   In case no suitable constructor was found.
-     * @throws InvocationTargetError In case an exception was thrown by the invoked method.
+     * @throws XposedHelpers.InvocationTargetError In case an exception was thrown by the invoked method.
      * @throws InstantiationError                  In case the class cannot be instantiated.
      */
     public static Object newInstance(Class<?> clazz, Object... args) {
@@ -1417,7 +1417,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         } catch (InstantiationException e) {
             throw new InstantiationError(e.getMessage());
         }
@@ -1439,7 +1439,7 @@ public final class XposedHelpers {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (InvocationTargetException e) {
-            throw new InvocationTargetError(e.getCause());
+            throw new XposedHelpers.InvocationTargetError(e.getCause());
         } catch (InstantiationException e) {
             throw new InstantiationError(e.getMessage());
         }

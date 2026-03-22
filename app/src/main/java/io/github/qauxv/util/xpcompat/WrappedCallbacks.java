@@ -1,7 +1,6 @@
 package io.github.qauxv.util.xpcompat;
 
 import androidx.annotation.NonNull;
-
 import io.github.qauxv.loader.hookapi.IHookBridge;
 
 /*package*/ class WrappedCallbacks {

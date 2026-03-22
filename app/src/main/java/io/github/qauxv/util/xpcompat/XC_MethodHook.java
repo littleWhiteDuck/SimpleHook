@@ -1,8 +1,7 @@
 package io.github.qauxv.util.xpcompat;
 
-import java.lang.reflect.Member;
-
 import io.github.qauxv.loader.hookapi.IHookBridge;
+import java.lang.reflect.Member;
 
 /**
  * Callback class for method hooks.
@@ -41,29 +40,29 @@ public abstract class XC_MethodHook {
     /**
      * Called before the invocation of the method.
      *
-     * <p>You can use {@link MethodHookParam#setResult} and
-     * {@link MethodHookParam#setThrowable} to prevent the original method from being called.
+     * <p>You can use {@link XC_MethodHook.MethodHookParam#setResult} and
+     * {@link XC_MethodHook.MethodHookParam#setThrowable} to prevent the original method from being called.
      *
      * <p>Note that implementations shouldn't call {@code super(param)}, it's not necessary.
      *
      * @param param Information about the method call.
      * @throws Throwable Everything the callback throws is caught and logged.
      */
-    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+    protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
     }
 
     /**
      * Called after the invocation of the method.
      *
-     * <p>You can use {@link MethodHookParam#setResult} and
-     * {@link MethodHookParam#setThrowable} to modify the return value of the original method.
+     * <p>You can use {@link XC_MethodHook.MethodHookParam#setResult} and
+     * {@link XC_MethodHook.MethodHookParam#setThrowable} to modify the return value of the original method.
      *
      * <p>Note that implementations shouldn't call {@code super(param)}, it's not necessary.
      *
      * @param param Information about the method call.
      * @throws Throwable Everything the callback throws is caught and logged.
      */
-    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+    protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
     }
 
     /**

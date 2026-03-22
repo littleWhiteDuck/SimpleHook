@@ -1,7 +1,8 @@
 package io.github.qauxv.util.xpcompat;
 
 import androidx.annotation.NonNull;
-
+import io.github.qauxv.loader.hookapi.IHookBridge;
+import io.github.qauxv.poststartup.StartupInfo;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -10,9 +11,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
-
-import io.github.qauxv.loader.hookapi.IHookBridge;
-import io.github.qauxv.poststartup.StartupInfo;
 
 /**
  * The XposedBridge compatibility layer.
