@@ -17,18 +17,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
-import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.core.constant.Constant
+import me.simpleHook.core.extension.showPopup
 import me.simpleHook.data.AppConfigItem2
+import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
-import me.simpleHook.core.extension.showPopup
 import me.simpleHook.feature.config.ui.adapter.ImExportAdapter
 import me.simpleHook.feature.main.ui.MainActivity
+import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 import me.simpleHook.core.utils.JsHook
 import me.simpleHook.core.utils.ToolUtil
 import me.simpleHook.core.utils.WindowUtil
-import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 
 class ConfigDialogFragment(
     private val configsList: List<AppConfigItem2>, private val mode: Int
@@ -180,7 +180,6 @@ class ConfigDialogFragment(
         }
         Json.encodeToString(appConfigs)
     } ?: ""
-
 
     override fun onDestroyView() {
         _binding = null

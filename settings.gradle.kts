@@ -34,3 +34,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "SimpleHook"
 include(":app")
+include(":manifest-editor-lib")
+project(":manifest-editor-lib").projectDir = file("manifest-editor-lib")

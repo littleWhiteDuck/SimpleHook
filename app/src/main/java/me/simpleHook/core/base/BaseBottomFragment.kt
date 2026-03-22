@@ -78,6 +78,7 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
         if (enableUpdateHeight) {
             ViewCompat.setOnApplyWindowInsetsListener(requireView()) { _, insets: WindowInsetsCompat ->
                 updateBottomSheetHeights()
+                onApplyWindowInsets(insets)
                 insets
             }
         }
@@ -92,6 +93,8 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
     }
 
     abstract fun init()
+
+    open fun onApplyWindowInsets(insets: WindowInsetsCompat) = Unit
 
 
     private fun createMaterialShapeDrawable(bottomSheet: View): MaterialShapeDrawable {
@@ -115,7 +118,6 @@ abstract class BaseBottomFragment<VB : ViewBinding> : BottomSheetDialogFragment(
     }
 
 }
-
 
 
 

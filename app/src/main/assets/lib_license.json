@@ -111,5 +111,15 @@
     "author": "libxposed",
     "type": "Apache Software License 2.0",
     "url": "https://github.com/libxposed"
+  },  {
+    "name": "apksig",
+    "author": "The Android Open Source Project",
+    "type": "Apache Software License 2.0",
+    "url": "http://tools.android.com/"
+  },  {
+    "name": "ManifestEditor",
+    "author": "WindySha",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/WindySha/ManifestEditor"
   }
 ]

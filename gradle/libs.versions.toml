@@ -38,6 +38,7 @@ dexlib2 = "2.5.2"
 sora-editor = "0.23.6"
 glance = "1.1.0"
 compose-bom = "2026.02.00"
+apksig = "8.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
@@ -92,6 +93,7 @@ shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref
 dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
 sora-editor = { group = "io.github.Rosemoe.sora-editor", name = "editor", version.ref = "sora-editor" }
 glance = { group = "com.guolindev.glance", name = "glance", version.ref = "glance" }
+apksig = { group = "com.android.tools.build", name = "apksig", version.ref = "apksig" }
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
