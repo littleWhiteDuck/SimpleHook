@@ -43,7 +43,7 @@ public class Lsp101HookImpl implements IHookBridge, ILoaderService {
 
     public static final Lsp101HookImpl INSTANCE = new Lsp101HookImpl();
     public static XposedModule self = null;
-    private static final String DEFAULT_LOG_TAG = "QAuxv";
+    private static final String DEFAULT_LOG_TAG = "SimpleHook";
     // leave it there, although we don't need it
     private IClassLoaderHelper mClassLoaderHelper;
 
@@ -136,23 +136,6 @@ public class Lsp101HookImpl implements IHookBridge, ILoaderService {
         return this.getClass().getName();
     }
 
-//    @NonNull
-//    @Override
-//    public String getLoaderVersionName() {
-//        return BuildConfig.VERSION_NAME;
-//    }
-//
-//    @Override
-//    public int getLoaderVersionCode() {
-//        return BuildConfig.VERSION_CODE;
-//    }
-
-    @NonNull
-    @Override
-    public String getMainModulePath() {
-        return self.getModuleApplicationInfo().sourceDir;
-    }
-
     @Override
     public void log(@NonNull String msg) {
         int level = android.util.Log.INFO;
@@ -169,11 +152,6 @@ public class Lsp101HookImpl implements IHookBridge, ILoaderService {
         self.log(level, DEFAULT_LOG_TAG, msg, tr);
     }
 
-    @Nullable
-    @Override
-    public Object queryExtension(@NonNull String key, @Nullable Object... args) {
-        return Lsp101ExtCmd.handleQueryExtension(key, args);
-    }
 
     @Nullable
     @Override

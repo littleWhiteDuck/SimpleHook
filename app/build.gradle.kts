@@ -49,7 +49,6 @@ extensions.configure<ApplicationExtension>("android") {
         androidResources.localeFilters += setOf("en", "zh-rCN", "zh-rTW")
         applicationId = "me.simpleHook"
         minSdk = 24
-        //noinspection EditedTargetSdkVersion
         targetSdk = 36
         versionCode = verCode
         versionName = verName
@@ -260,12 +259,10 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    compileOnly(projects.loader.hookapi)
-    compileOnly(projects.libs.libxposed.api)
-    implementation(projects.libs.libxposed.service)
+    implementation(projects.loader.hookapi)
     compileOnly(libs.xposed.api)
-//    compileOnly(libs.libxposed.api)
-//    implementation(libs.libxposed.service)
+    compileOnly(libs.libxposed.api)
+    implementation(libs.libxposed.service)
 
     implementation(libs.kotlinx.coroutines.android)
 

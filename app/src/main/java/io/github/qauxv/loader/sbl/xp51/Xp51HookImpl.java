@@ -122,33 +122,10 @@ public class Xp51HookImpl implements IHookBridge, ILoaderService {
         return false;
     }
 
-    @Nullable
-    @Override
-    public Object queryExtension(@NonNull String key, @Nullable Object... args) {
-        return Xp51ExtCmd.handleQueryExtension(key, args);
-    }
-
     @NonNull
     @Override
     public String getEntryPointName() {
         return this.getClass().getName();
-    }
-
-//    @NonNull
-//    @Override
-//    public String getLoaderVersionName() {
-//        return io.github.qauxv.loader.sbl.BuildConfig.VERSION_NAME;
-//    }
-//
-//    @Override
-//    public int getLoaderVersionCode() {
-//        return io.github.qauxv.loader.sbl.BuildConfig.VERSION_CODE;
-//    }
-
-    @NonNull
-    @Override
-    public String getMainModulePath() {
-        return Xp51HookEntry.getModulePath();
     }
 
     @Override

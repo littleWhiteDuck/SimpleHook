@@ -25,11 +25,7 @@ package io.github.qauxv.loader.sbl.lsp101;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import io.github.libxposed.api.XposedInterface;
-import io.github.libxposed.api.XposedModule;
-import io.github.libxposed.api.annotations.XposedApiMin;
-import io.github.qauxv.loader.hookapi.IHookBridge;
-import io.github.qauxv.loader.sbl.common.CheckUtils;
+
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
@@ -37,8 +33,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.github.libxposed.api.XposedInterface;
+import io.github.libxposed.api.XposedModule;
+import io.github.qauxv.loader.hookapi.IHookBridge;
+import io.github.qauxv.loader.sbl.common.CheckUtils;
+
 @RequiresApi(26)
-@XposedApiMin(101)
 public class Lsp101HookWrapper {
 
     private Lsp101HookWrapper() {

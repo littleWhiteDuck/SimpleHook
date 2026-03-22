@@ -29,7 +29,7 @@ object EzXHelperInit {
         setHostPackageName(lpparam.packageName)
     }
 
-    fun initHandleLoadPackageLsp10x(param: XposedModuleInterface.PackageLoadedParam) {
+    fun initHandleLoadPackageLsp101(param: XposedModuleInterface.PackageReadyParam) {
         setEzClassLoader(param.classLoader)
         setHostPackageName(param.packageName)
     }
