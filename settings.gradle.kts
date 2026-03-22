@@ -38,7 +38,5 @@ rootProject.name = "SimpleHook"
 include(
     ":app",
     ":loader:hookapi",
-    ":libs:ezxhelper",
-    ":libs:libxposed:api",
-    ":libs:libxposed:service",
+    ":libs:ezxhelper"
 )
