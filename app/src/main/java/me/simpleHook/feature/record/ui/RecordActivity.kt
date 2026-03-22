@@ -14,9 +14,7 @@ import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -29,7 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.Job
@@ -40,6 +38,7 @@ import me.simpleHook.core.base.BaseActivity
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.core.extension.dp
+import me.simpleHook.core.extension.getColorByAttr
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.feature.record.ui.adapter.RecordAdapter
 import me.simpleHook.core.ui.custom.LoadingDialog
@@ -409,44 +408,28 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
-        val inputView = InputView(this)
+        val inputView = InputView(this).apply {
+            textInputLayout.apply {
+                placeholderText = getString(R.string.main_home_toolbar_search_hint)
+                boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_FILLED
+                setBoxCornerRadii(18f.dp, 18f.dp, 18f.dp, 18f.dp)
+                setBoxBackgroundColor(
+                    getColorByAttr(com.google.android.material.R.attr.colorSurfaceContainerHigh)
+                )
+            }
+        }
         inputView.editText.apply {
             isSingleLine = false
             minLines = 3
             maxLines = 10
             setHorizontallyScrolling(false)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            hint = getString(R.string.main_home_toolbar_search_hint)
-        }
-        val fastSearchSwitch = MaterialSwitch(this).apply {
-            text = getString(R.string.record_search_fast_switch)
-            isChecked = recordViewModel.fastSearchEnabled.value
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(16.dp, 8.dp, 16.dp, 0)
-        }
-        val fastSearchTip = TextView(this).apply {
-            text = getString(R.string.record_search_fast_tip)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(16.dp, 0, 16.dp, 0)
-            alpha = 0.8f
-        }
-        val contentView = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(0, 8.dp, 0, 8.dp)
-            addView(inputView)
-            addView(fastSearchSwitch)
-            addView(fastSearchTip)
         }
         val scrollContainer = ScrollView(this).apply {
             isFillViewport = true
+            setPadding(0, 8.dp, 0, 8.dp)
             addView(
-                contentView,
+                inputView,
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -459,7 +442,6 @@ class RecordActivity : BaseActivity() {
             okText = getString(R.string.dialog_confirm),
             okClick = { dialogInterface ->
                 recordViewModel.queryPattern.value = inputView.editText.text.toString().trim()
-                recordViewModel.fastSearchEnabled.value = fastSearchSwitch.isChecked
                 if (recordViewModel.queryPattern.value.isNotEmpty()) {
                     supportActionBar?.title = recordViewModel.queryPattern.value
                     supportActionBar?.subtitle = ""

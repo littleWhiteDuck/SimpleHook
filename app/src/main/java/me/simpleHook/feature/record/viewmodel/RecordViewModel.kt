@@ -10,7 +10,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.sqlite.db.SimpleSQLiteQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,7 +63,6 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
     val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
     val queryPattern = MutableStateFlow("")
-    val fastSearchEnabled = MutableStateFlow(true)
 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
     val recordDetail = _recordDetail
@@ -74,8 +72,6 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val pagingConfig =
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
-    private val ftsTokenRegex = Regex("""[\p{L}\p{N}_]+""")
-    private val ftsEligibleRegex = Regex("""^[\p{L}\p{N}_\s]+$""")
 
 
     fun getRecordEntity(
@@ -83,21 +79,16 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     ): Flow<PagingData<SmallRecordEntity>> {
         val pattern = queryPattern.value.trim()
         val jsonPattern = pattern.toJsonStringContent()
-        val ftsQuery = jsonPattern.toFtsQueryOrNull().takeIf { fastSearchEnabled.value }
         return Pager(config = pagingConfig) {
             if (isType) {
                 if (pattern.isEmpty()) {
                     recordDao.getRecordByTypeNoPattern(typeOrPack)
-                } else if (ftsQuery != null) {
-                    recordDao.getRecordByTypeFts(buildTypeFtsQuery(typeOrPack, ftsQuery))
                 } else {
                     recordDao.getRecordByType(typeOrPack, jsonPattern, pattern)
                 }
             } else {
                 if (pattern.isEmpty()) {
                     recordDao.getRecordByPackNoPattern(typeOrPack)
-                } else if (ftsQuery != null) {
-                    recordDao.getRecordByPackFts(buildPackFtsQuery(typeOrPack, ftsQuery))
                 } else {
                     recordDao.getRecordByPack(typeOrPack, jsonPattern, pattern)
                 }
@@ -943,42 +934,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    private fun String.toFtsQueryOrNull(): String? {
-        if (!ftsEligibleRegex.matches(this)) return null
-        val tokens = ftsTokenRegex.findAll(this).map { it.value }.toList()
-        if (tokens.isEmpty()) return null
-        return tokens.joinToString(" AND ") { "\"$it\"*" }
-    }
-
-    private fun buildPackFtsQuery(
-        packageName: String,
-        ftsQuery: String
-    ): SimpleSQLiteQuery {
-        val sql = """
-            SELECT r.id,r.type,r.subType,r.packageName,r.isRead,r.isMark,r.time
-            FROM RecordEntity r
-            JOIN RecordEntityFts ON RecordEntityFts.rowid = r.id
-            WHERE r.packageName = ?
-              AND RecordEntityFts MATCH ?
-            ORDER BY r.time DESC
-        """.trimIndent()
-        return SimpleSQLiteQuery(sql, arrayOf(packageName, ftsQuery))
-    }
-
-    private fun buildTypeFtsQuery(type: String, ftsQuery: String): SimpleSQLiteQuery {
-        val sql = """
-            SELECT r.id,r.type,r.subType,r.packageName,r.isRead,r.isMark,r.time
-            FROM RecordEntity r
-            JOIN RecordEntityFts ON RecordEntityFts.rowid = r.id
-            WHERE r.type = ?
-              AND RecordEntityFts MATCH ?
-            ORDER BY r.time DESC
-        """.trimIndent()
-        return SimpleSQLiteQuery(sql, arrayOf(type, ftsQuery))
-    }
-
     private fun String.toJsonStringContent(): String {
         return Json.encodeToString(this).removePrefix("\"").removeSuffix("\"")
     }
 }
-

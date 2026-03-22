@@ -269,8 +269,6 @@
     <string name="record_menu_save_marked_record">匯出已標記記錄</string>
     <string name="record_loading_tip_searching">正在搜尋中</string>
     <string name="record_search_dialog_title">搜尋</string>
-    <string name="record_search_fast_switch">快速搜尋</string>
-    <string name="record_search_fast_tip">啟用後搜尋更快；複雜符號場景建議關閉快速搜尋後再試</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
     <string name="record_warning_dialog_title">警告</string>
     <string name="record_waring_dialog_message_delete_all">你是否確定刪除所有記錄？</string>
