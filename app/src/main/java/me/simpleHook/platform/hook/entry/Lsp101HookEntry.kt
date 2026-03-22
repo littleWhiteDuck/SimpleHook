@@ -24,7 +24,7 @@ class Lsp101HookEntry : XposedModule() {
         EzXHelperInit.initHandleLoadPackageLsp101(param)
         StartupInfo.setHookBridge(Lsp101HookImpl.INSTANCE)
         StartupInfo.setLoaderService(Lsp101HookImpl.INSTANCE)
-        XposedBridge.log("onPackageReady@@@@@@@@@@")
+
         HookEntry.handleLoadPackage(param.packageName)
     }
 }
