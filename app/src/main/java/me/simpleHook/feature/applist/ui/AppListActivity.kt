@@ -2,6 +2,7 @@ package me.simpleHook.feature.applist.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +11,8 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -20,12 +23,13 @@ import me.simpleHook.core.constant.Constant.APP_LIST_BY_NAME
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.core.constant.Constant.CLICK_TIME
-import me.simpleHook.data.AppListItem
-import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.SPUtil
+import me.simpleHook.data.AppListItem
+import me.simpleHook.databinding.ActivityAppListBinding
 import me.simpleHook.feature.applist.viewmodel.AppListViewModel
+
 
 class AppListActivity : BaseActivity() {
     private lateinit var binding: ActivityAppListBinding
@@ -44,7 +48,41 @@ class AppListActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isFromAssist = intent.getBooleanExtra("isFromAssist", false)
         initView()
-        initData()
+
+        try {
+            // 国产手机应用列表权限
+            val permissionInfo = applicationContext.packageManager
+                .getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0)
+            if (permissionInfo != null) {
+                if (ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        "com.android.permission.GET_INSTALLED_APPS"
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this@AppListActivity,
+                        arrayOf("com.android.permission.GET_INSTALLED_APPS"),
+                        999
+                    )
+                }
+            } else {
+                initData()
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            initData()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 999) {
+            initData()
+        }
     }
 
     private fun initData() {
