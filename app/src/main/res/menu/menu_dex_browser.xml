@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_select_file"
+        android:actionLayout="@layout/layout_dex_browser_action_select"
+        android:title="@string/dex_browser_select_file"
+        app:showAsAction="always" />
+
+
+</menu>

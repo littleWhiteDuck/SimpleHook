@@ -536,8 +536,28 @@
         <item>Normal</item>
     </string-array>
     <string name="dex_browser_title">DexBrowser</string>
+    <string name="dex_browser_select_source">Select Source</string>
     <string name="dex_browser_select_file">Select File</string>
+    <string name="dex_browser_pick_from_file">Pick File</string>
+    <string name="dex_browser_pick_from_app_list">Pick App</string>
+    <string name="dex_browser_select_source_tip">Please pick a file or installed app to start browsing DEX</string>
     <string name="dex_browser_select_file_tip">Please select a DEX file to start browsing</string>
+    <string name="dex_browser_empty">No classes found in this DEX</string>
+    <string name="dex_browser_loading_processing">Processing selected source...</string>
+    <string name="dex_browser_loading_extracting">Extracting and scanning DEX...</string>
+    <string name="dex_browser_loading_parsing">Parsing selected DEX files...</string>
+    <string name="dex_browser_picker_unsupported_type">Unsupported file type. Please choose .dex, .apk or .apks</string>
+    <string name="dex_browser_picker_missing_name">Unable to identify the selected file name</string>
+    <string name="dex_browser_picker_no_dex_in_apk">No top-level DEX files were found in the package</string>
+    <string name="dex_browser_picker_no_apk_in_apks">No APK files were found inside the APKS package</string>
+    <string name="dex_browser_picker_extract_app_failed">Failed to extract the installed app package</string>
+    <string name="dex_browser_picker_no_dex_selected">Please select at least one DEX file</string>
+    <string name="dex_browser_select_dialog_title">Load DEX</string>
+    <string name="dex_browser_select_dialog_selected_count">%1$d selected</string>
+    <string name="dex_browser_select_all">Select all</string>
+    <string name="dex_browser_unselect_all">Clear all</string>
+    <string name="dex_browser_select_dialog_source">Source: %1$s</string>
+    <string name="dex_browser_select_dialog_load">Load</string>
     <string name="dex_browser_method_detail">Method Details</string>
     <string name="dex_browser_class_name">Class Name</string>
     <string name="dex_browser_method_name">Method Name</string>

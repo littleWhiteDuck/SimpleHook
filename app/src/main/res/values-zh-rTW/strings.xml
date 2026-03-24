@@ -544,8 +544,28 @@
         <item>Normal</item>
     </string-array>
     <string name="dex_browser_title">Dex瀏覽器</string>
+    <string name="dex_browser_select_source">選擇來源</string>
     <string name="dex_browser_select_file">選擇文件</string>
+    <string name="dex_browser_pick_from_file">文件選取</string>
+    <string name="dex_browser_pick_from_app_list">應用列表選取</string>
+    <string name="dex_browser_select_source_tip">請選擇文件或應用開始瀏覽 DEX</string>
     <string name="dex_browser_select_file_tip">請選擇一個 DEX 檔案開始瀏覽</string>
+    <string name="dex_browser_empty">此 DEX 中沒有可瀏覽的類別</string>
+    <string name="dex_browser_loading_processing">處理中，請稍候...</string>
+    <string name="dex_browser_loading_extracting">正在解壓並掃描 DEX...</string>
+    <string name="dex_browser_loading_parsing">正在解析所選 DEX...</string>
+    <string name="dex_browser_picker_unsupported_type">不支援的文件類型，請選擇 .dex、.apk 或 .apks</string>
+    <string name="dex_browser_picker_missing_name">無法識別文件名</string>
+    <string name="dex_browser_picker_no_dex_in_apk">包內未找到一級目錄 DEX 文件</string>
+    <string name="dex_browser_picker_no_apk_in_apks">APKS 內未找到 APK 文件</string>
+    <string name="dex_browser_picker_extract_app_failed">提取已安裝應用安裝包失敗</string>
+    <string name="dex_browser_picker_no_dex_selected">請至少選擇一個 DEX</string>
+    <string name="dex_browser_select_dialog_title">載入 DEX</string>
+    <string name="dex_browser_select_dialog_selected_count">已選擇 %1$d 個</string>
+    <string name="dex_browser_select_all">全選</string>
+    <string name="dex_browser_unselect_all">清空</string>
+    <string name="dex_browser_select_dialog_source">來源：%1$s</string>
+    <string name="dex_browser_select_dialog_load">載入</string>
     <string name="dex_browser_method_detail">方法詳情</string>
     <string name="dex_browser_class_name">類別名稱</string>
     <string name="dex_browser_method_name">方法名稱</string>
