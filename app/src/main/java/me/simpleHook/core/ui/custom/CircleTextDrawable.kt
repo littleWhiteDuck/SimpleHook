@@ -9,7 +9,9 @@ class CircleTextDrawable(
     private val size: Float,
     private val text: String,
     private val textColor: Int = "#FF80AB".toColorInt(),
-    private val background: Int = "#FCE4EC".toColorInt()
+    private val background: Int = "#FCE4EC".toColorInt(),
+    private val borderColor: Int? = null,
+    private val borderWidth: Float = 1f.dp
 ) : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2f.dp
@@ -20,8 +22,16 @@ class CircleTextDrawable(
     private val fontMetrics = Paint.FontMetrics()
     private val textBounds = Rect(0, 0, size.toInt(), size.toInt())
     override fun draw(canvas: Canvas) {
+        val radius = size / 2
         paint.color = background
-        canvas.drawCircle(size / 2, size / 2, size / 2, paint)
+        paint.style = Paint.Style.FILL
+        canvas.drawCircle(radius, radius, radius, paint)
+        borderColor?.let { strokeColor ->
+            paint.color = strokeColor
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = borderWidth
+            canvas.drawCircle(radius, radius, radius - borderWidth / 2, paint)
+        }
         paint.getFontMetrics(fontMetrics)
         paint.color = textColor
         paint.style = Paint.Style.FILL

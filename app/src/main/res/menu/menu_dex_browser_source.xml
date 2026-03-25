@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_pick_file"
+        android:title="@string/dex_browser_pick_from_file" />
+
+    <item
+        android:id="@+id/action_pick_app"
+        android:title="@string/dex_browser_pick_from_app_list" />
+
+</menu>
