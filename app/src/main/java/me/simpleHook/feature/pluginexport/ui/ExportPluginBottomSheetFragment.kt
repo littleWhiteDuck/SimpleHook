@@ -23,7 +23,8 @@ import me.simpleHook.feature.pluginexport.domain.PluginExportRequest
 import kotlin.math.max
 
 class ExportPluginBottomSheetFragment(
-    private val configsList: List<AppConfigItem2>
+    private val configsList: List<AppConfigItem2>,
+    private val startFromInfoStep: Boolean = false
 ) : BaseBottomFragment<FragmentExportPluginSheetBinding>() {
 
     private val adapter by lazy {
@@ -36,8 +37,21 @@ class ExportPluginBottomSheetFragment(
     private var currentStep = STEP_SELECT
     private var isExporting = false
     private var actionBarBasePaddingBottom = 0
+    private val defaultPluginAppName by lazy {
+        PluginApkExporter.generateDefaultAppName()
+    }
+    private val defaultPluginPackageName by lazy {
+        PluginApkExporter.generateDefaultPackageName()
+    }
+    private val defaultPluginVersionName = PluginApkExporter.DEFAULT_PLUGIN_VERSION_NAME
+    private val defaultPluginVersionCode = PluginApkExporter.DEFAULT_PLUGIN_VERSION_CODE.toString()
+    private val isSingleConfigDirectFlow: Boolean
+        get() = startFromInfoStep && configsList.size == 1 && selectedConfigs().size == 1
 
     override fun init() {
+        if (startFromInfoStep && selectedConfigs().isNotEmpty()) {
+            currentStep = STEP_INFO
+        }
         actionBarBasePaddingBottom = binding.actionBar.paddingBottom
         initRecyclerView()
         initForm()
@@ -80,14 +94,24 @@ class ExportPluginBottomSheetFragment(
 
     private fun initForm() {
         with(binding) {
-            pluginAppNameEdit.setText(PluginApkExporter.DEFAULT_PLUGIN_APP_NAME)
-            pluginPackageNameEdit.setText(PluginApkExporter.DEFAULT_PLUGIN_PACKAGE_NAME)
+            pluginAppNameEdit.setText(defaultPluginAppName)
+            pluginPackageNameEdit.setText(defaultPluginPackageName)
+            pluginVersionNameEdit.setText(defaultPluginVersionName)
+            pluginVersionCodeEdit.setText(defaultPluginVersionCode)
             pluginAppNameEdit.doAfterTextChanged {
                 pluginAppNameInput.isErrorEnabled = false
                 updatePrimaryButtonState()
             }
             pluginPackageNameEdit.doAfterTextChanged {
                 pluginPackageNameInput.isErrorEnabled = false
+                updatePrimaryButtonState()
+            }
+            pluginVersionNameEdit.doAfterTextChanged {
+                pluginVersionNameInput.isErrorEnabled = false
+                updatePrimaryButtonState()
+            }
+            pluginVersionCodeEdit.doAfterTextChanged {
+                pluginVersionCodeInput.isErrorEnabled = false
                 updatePrimaryButtonState()
             }
         }
@@ -106,8 +130,12 @@ class ExportPluginBottomSheetFragment(
                     }
 
                     STEP_INFO -> {
-                        currentStep = STEP_SELECT
-                        renderStep()
+                        if (isSingleConfigDirectFlow) {
+                            dismissAllowingStateLoss()
+                        } else {
+                            currentStep = STEP_SELECT
+                            renderStep()
+                        }
                     }
                 }
             }
@@ -158,6 +186,9 @@ class ExportPluginBottomSheetFragment(
     private fun buildExportRequest(): PluginExportRequest? {
         val pluginAppName = binding.pluginAppNameEdit.text?.toString()?.trim().orEmpty()
         val pluginPackageName = binding.pluginPackageNameEdit.text?.toString()?.trim().orEmpty()
+        val pluginVersionName = binding.pluginVersionNameEdit.text?.toString()?.trim().orEmpty()
+        val pluginVersionCodeText = binding.pluginVersionCodeEdit.text?.toString().orEmpty()
+        val pluginVersionCode = PluginApkExporter.parseVersionCode(pluginVersionCodeText)
         var valid = true
         with(binding) {
             if (pluginAppName.isEmpty()) {
@@ -173,6 +204,19 @@ class ExportPluginBottomSheetFragment(
             } else {
                 pluginPackageNameInput.isErrorEnabled = false
             }
+            if (pluginVersionName.isEmpty()) {
+                pluginVersionNameInput.error = getString(R.string.plugin_export_version_name_empty)
+                valid = false
+            } else {
+                pluginVersionNameInput.isErrorEnabled = false
+            }
+            if (pluginVersionCode == null) {
+                pluginVersionCodeInput.error =
+                    getString(R.string.plugin_export_version_code_invalid)
+                valid = false
+            } else {
+                pluginVersionCodeInput.isErrorEnabled = false
+            }
         }
         val selectedConfigs = selectedConfigs()
         if (selectedConfigs.isEmpty()) {
@@ -180,9 +224,12 @@ class ExportPluginBottomSheetFragment(
             valid = false
         }
         if (!valid) return null
+        val resolvedPluginVersionCode = pluginVersionCode ?: return null
         return PluginExportRequest(
             pluginPackageName = pluginPackageName,
             pluginAppName = pluginAppName,
+            pluginVersionName = pluginVersionName,
+            pluginVersionCode = resolvedPluginVersionCode,
             configs = selectedConfigs
         )
     }
@@ -204,12 +251,18 @@ class ExportPluginBottomSheetFragment(
                 else R.string.plugin_export_step_info
             )
             subtitle.text = getString(
-                if (isSelectStep) R.string.plugin_export_step_select_tip
-                else R.string.plugin_export_step_info_tip
+                when {
+                    isSelectStep -> R.string.plugin_export_step_select_tip
+                    isSingleConfigDirectFlow -> R.string.plugin_export_step_info_tip_single
+                    else -> R.string.plugin_export_step_info_tip
+                }
             )
             secondaryButton.text = getString(
-                if (isSelectStep) R.string.config_dialog_button_invert_selection
-                else R.string.plugin_export_back
+                when {
+                    isSelectStep -> R.string.config_dialog_button_invert_selection
+                    isSingleConfigDirectFlow -> R.string.dialog_cancel
+                    else -> R.string.plugin_export_back
+                }
             )
             primaryButton.text = getString(
                 if (isSelectStep) R.string.plugin_export_next
@@ -225,9 +278,13 @@ class ExportPluginBottomSheetFragment(
                 isExporting -> false
                 currentStep == STEP_SELECT -> selectedConfigs().isNotEmpty()
                 else -> pluginAppNameEdit.text?.toString()?.trim()?.isNotEmpty() == true &&
-                        PluginApkExporter.isValidPackageName(
-                            pluginPackageNameEdit.text?.toString()?.trim().orEmpty()
-                        )
+                    PluginApkExporter.isValidPackageName(
+                        pluginPackageNameEdit.text?.toString()?.trim().orEmpty()
+                    ) &&
+                    pluginVersionNameEdit.text?.toString()?.trim()?.isNotEmpty() == true &&
+                    PluginApkExporter.parseVersionCode(
+                        pluginVersionCodeEdit.text?.toString().orEmpty()
+                    ) != null
             }
         }
     }
@@ -241,8 +298,12 @@ class ExportPluginBottomSheetFragment(
             recyclerView.isEnabled = !exporting
             pluginAppNameInput.isEnabled = !exporting
             pluginPackageNameInput.isEnabled = !exporting
+            pluginVersionNameInput.isEnabled = !exporting
+            pluginVersionCodeInput.isEnabled = !exporting
             pluginAppNameEdit.isEnabled = !exporting
             pluginPackageNameEdit.isEnabled = !exporting
+            pluginVersionNameEdit.isEnabled = !exporting
+            pluginVersionCodeEdit.isEnabled = !exporting
             contentContainer.alpha = if (exporting) 0.6f else 1f
         }
         updatePrimaryButtonState()

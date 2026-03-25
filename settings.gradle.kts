@@ -42,6 +42,5 @@ include(
     ":app",
     ":loader:hookapi",
     ":libs:ezxhelper",
-    ":manifest-editor-lib"
+    ":libs:arsclib-wrapper"
 )
-project(":manifest-editor-lib").projectDir = file("manifest-editor-lib")

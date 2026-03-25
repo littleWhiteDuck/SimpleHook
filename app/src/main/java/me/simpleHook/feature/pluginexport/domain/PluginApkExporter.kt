@@ -2,10 +2,12 @@ package me.simpleHook.feature.pluginexport.domain
 
 import android.content.Context
 import com.android.apksig.ApkSigner
-import com.wind.meditor.core.ManifestEditor
-import com.wind.meditor.property.AttributeItem
-import com.wind.meditor.property.ModificationProperty
-import com.wind.meditor.utils.NodeValue
+import com.reandroid.apk.ApkModule
+import com.reandroid.archive.ByteInputSource
+import com.reandroid.arsc.chunk.TableBlock
+import com.reandroid.arsc.value.Entry
+import com.reandroid.arsc.value.array.ArrayBag
+import com.reandroid.arsc.value.array.ArrayBagItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -15,13 +17,13 @@ import java.io.FileOutputStream
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
+import kotlin.random.Random
 
 data class PluginExportRequest(
     val pluginPackageName: String,
     val pluginAppName: String,
+    val pluginVersionName: String,
+    val pluginVersionCode: Int,
     val configs: List<AppConfig>
 )
 
@@ -30,6 +32,8 @@ class PluginApkExporter(private val context: Context) {
     suspend fun export(request: PluginExportRequest): File = withContext(Dispatchers.IO) {
         require(request.pluginAppName.isNotBlank()) { "plugin app name is empty" }
         require(isValidPackageName(request.pluginPackageName)) { "plugin package name is invalid" }
+        require(request.pluginVersionName.isNotBlank()) { "plugin version name is empty" }
+        require(isValidVersionCode(request.pluginVersionCode)) { "plugin version code is invalid" }
         require(request.configs.isNotEmpty()) { "configs is empty" }
 
         val exportDir = File(context.cacheDir, EXPORT_DIRECTORY_NAME).apply {
@@ -42,7 +46,7 @@ class PluginApkExporter(private val context: Context) {
         }
         val templateApk = File(exportDir, TEMPLATE_COPY_FILE_NAME)
         val unsignedApk = File(exportDir, UNSIGNED_FILE_NAME)
-        val signedApk = File(exportDir, buildSignedFileName(request.pluginPackageName))
+        val signedApk = File(exportDir, buildSignedFileName(request))
 
         copyAssetToFile(TEMPLATE_ASSET_NAME, templateApk)
         rebuildTemplateApk(templateApk, unsignedApk, request)
@@ -58,64 +62,135 @@ class PluginApkExporter(private val context: Context) {
         outputApk: File,
         request: PluginExportRequest
     ) {
-        val property = ModificationProperty()
-            .addManifestAttribute(
-                AttributeItem(NodeValue.Manifest.PACKAGE, request.pluginPackageName)
-                    .setNamespace(null)
-            )
-            .addApplicationAttribute(
-                AttributeItem(NodeValue.Application.LABEL, request.pluginAppName)
-            )
         val configAssetBytes = Json.encodeToString(normalizeConfigs(request.configs))
             .toByteArray(Charsets.UTF_8)
+        val scopePackageNames = collectScopePackageNames(request.configs)
 
-        ZipFile(templateApk).use { zipFile ->
-            ZipOutputStream(FileOutputStream(outputApk)).use { zipOutputStream ->
-                val entries = zipFile.entries()
-                var hasWrittenConfigs = false
-                while (entries.hasMoreElements()) {
-                    val entry = entries.nextElement()
-                    val entryName = entry.name
-                    if (isSignatureEntry(entryName)) {
-                        continue
-                    }
-                    when {
-                        entryName == ANDROID_MANIFEST_FILE_NAME -> {
-                            zipOutputStream.putNextEntry(ZipEntry(entryName))
-                            zipFile.getInputStream(entry).use { inputStream ->
-                                ManifestEditor(inputStream, zipOutputStream, property).processManifest()
-                            }
-                            zipOutputStream.closeEntry()
-                        }
+        ApkModule.loadApkFile(templateApk).use { apkModule ->
+            apkModule.setLoadDefaultFramework(false)
+            ensureTemplateStructure(apkModule)
+            updatePluginPackageName(apkModule, request.pluginPackageName)
+            updateAppName(apkModule, request.pluginAppName)
+            updatePluginVersion(apkModule, request.pluginVersionCode, request.pluginVersionName)
+            updateScopePackages(apkModule, scopePackageNames)
+            replaceConfigAsset(apkModule, configAssetBytes)
+            apkModule.refreshManifest()
+            apkModule.refreshTable()
+            apkModule.writeApk(outputApk)
+        }
+    }
 
-                        entryName == CONFIG_ASSET_FILE_NAME -> {
-                            zipOutputStream.putNextEntry(ZipEntry(entryName))
-                            zipOutputStream.write(configAssetBytes)
-                            zipOutputStream.closeEntry()
-                            hasWrittenConfigs = true
-                        }
+    private fun ensureTemplateStructure(apkModule: ApkModule) {
+        require(apkModule.containsFile(ANDROID_MANIFEST_FILE_NAME)) {
+            "plugin template missing AndroidManifest.xml"
+        }
+        require(apkModule.containsFile(RESOURCES_FILE_NAME)) {
+            "plugin template missing resources.arsc"
+        }
+        require(apkModule.containsFile(CONFIG_ASSET_FILE_NAME)) {
+            "plugin template missing assets/configs.xml"
+        }
+        require(findEntries(apkModule.tableBlock, APP_NAME_RESOURCE_TYPE, APP_NAME_RESOURCE_NAME).isNotEmpty()) {
+            "plugin template missing string/app_name"
+        }
+        val scopeEntries = findEntries(
+            apkModule.tableBlock,
+            XPOSED_SCOPE_RESOURCE_TYPE,
+            XPOSED_SCOPE_RESOURCE_NAME
+        )
+        require(scopeEntries.isNotEmpty()) {
+            "plugin template missing array/xposed_scope"
+        }
+        require(scopeEntries.all { ArrayBag.create(it) != null }) {
+            "plugin template xposed_scope is not a string-array resource"
+        }
+    }
 
-                        entry.isDirectory -> {
-                            zipOutputStream.putNextEntry(copyZipEntry(entry))
-                            zipOutputStream.closeEntry()
-                        }
+    private fun updatePluginPackageName(apkModule: ApkModule, packageName: String) {
+        apkModule.androidManifest.setPackageName(packageName)
+    }
 
-                        else -> {
-                            zipOutputStream.putNextEntry(copyZipEntry(entry))
-                            zipFile.getInputStream(entry).use { inputStream ->
-                                inputStream.copyTo(zipOutputStream)
-                            }
-                            zipOutputStream.closeEntry()
-                        }
-                    }
-                }
-                if (!hasWrittenConfigs) {
-                    zipOutputStream.putNextEntry(ZipEntry(CONFIG_ASSET_FILE_NAME))
-                    zipOutputStream.write(configAssetBytes)
-                    zipOutputStream.closeEntry()
+    private fun updateAppName(apkModule: ApkModule, appName: String) {
+        val appNameEntries = findEntries(
+            apkModule.tableBlock,
+            APP_NAME_RESOURCE_TYPE,
+            APP_NAME_RESOURCE_NAME
+        )
+        require(appNameEntries.isNotEmpty()) {
+            "plugin template missing string/app_name"
+        }
+        appNameEntries.forEach { entry ->
+            require(!entry.isComplex) {
+                "plugin template app_name is not a string resource"
+            }
+            entry.setValueAsString(appName)
+        }
+    }
+
+    private fun updatePluginVersion(
+        apkModule: ApkModule,
+        versionCode: Int,
+        versionName: String
+    ) {
+        apkModule.androidManifest.setVersionCode(versionCode)
+        apkModule.androidManifest.setVersionName(versionName)
+    }
+
+    private fun updateScopePackages(apkModule: ApkModule, packageNames: List<String>) {
+        val scopeEntries = findEntries(
+            apkModule.tableBlock,
+            XPOSED_SCOPE_RESOURCE_TYPE,
+            XPOSED_SCOPE_RESOURCE_NAME
+        )
+        require(scopeEntries.isNotEmpty()) {
+            "plugin template missing array/xposed_scope"
+        }
+        scopeEntries.forEach { entry ->
+            val arrayBag = ArrayBag.create(entry)
+                ?: error("plugin template xposed_scope is not a string-array resource")
+            val tableStringPool = entry.packageBlock.tableBlock.tableStringPool
+            arrayBag.clear()
+            packageNames.forEach { packageName ->
+                arrayBag.add(
+                    arrayBag.size,
+                    ArrayBagItem.string(tableStringPool.getOrCreate(packageName))
+                )
+            }
+        }
+    }
+
+    private fun replaceConfigAsset(apkModule: ApkModule, configAssetBytes: ByteArray) {
+        apkModule.removeInputSource(CONFIG_ASSET_FILE_NAME)
+        apkModule.add(ByteInputSource(configAssetBytes, CONFIG_ASSET_FILE_NAME))
+    }
+
+    private fun collectScopePackageNames(configs: List<AppConfig>): List<String> {
+        val packageNames = configs
+            .asSequence()
+            .map { it.packageName.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .toList()
+        require(packageNames.isNotEmpty()) { "plugin scope package list is empty" }
+        return packageNames
+    }
+
+    private fun findEntries(
+        tableBlock: TableBlock,
+        typeName: String,
+        entryName: String
+    ): List<Entry> {
+        val entries = mutableListOf<Entry>()
+        for (packageBlock in tableBlock.listPackages()) {
+            val iterator = packageBlock.getEntries(typeName, entryName)
+            while (iterator.hasNext()) {
+                val entry = iterator.next()
+                if (!entry.isNull) {
+                    entries += entry
                 }
             }
         }
+        return entries
     }
 
     private fun signApk(unsignedApk: File, signedApk: File) {
@@ -180,36 +255,16 @@ class PluginApkExporter(private val context: Context) {
         }
     }
 
-    private fun copyZipEntry(entry: ZipEntry): ZipEntry {
-        return ZipEntry(entry.name).also { newEntry ->
-            newEntry.comment = entry.comment
-            newEntry.setExtra(entry.extra)
-            newEntry.time = entry.time
-            newEntry.method = entry.method
-            if (entry.method == ZipEntry.STORED) {
-                newEntry.size = entry.size
-                newEntry.compressedSize = entry.compressedSize
-                newEntry.crc = entry.crc
-            }
-        }
-    }
-
-    private fun isSignatureEntry(entryName: String): Boolean {
-        return entryName.startsWith("META-INF/") && (
-            entryName.endsWith(".SF", ignoreCase = true) ||
-                entryName.endsWith(".RSA", ignoreCase = true) ||
-                entryName.endsWith(".DSA", ignoreCase = true) ||
-                entryName.endsWith(".EC", ignoreCase = true)
-            )
-    }
-
-    private fun buildSignedFileName(packageName: String): String {
-        return "plugin-${packageName}.apk"
+    private fun buildSignedFileName(request: PluginExportRequest): String {
+        val safeVersionName = sanitizeFileNamePart(request.pluginVersionName)
+        return "plugin-${request.pluginPackageName}-v${safeVersionName}-${request.pluginVersionCode}.apk"
     }
 
     companion object {
         const val DEFAULT_PLUGIN_APP_NAME = "SimpleHookPlugin"
-        const val DEFAULT_PLUGIN_PACKAGE_NAME = "me.simplehook.plugin.generated"
+        const val DEFAULT_PLUGIN_PACKAGE_NAME_PREFIX = "simplehook.plugin"
+        const val DEFAULT_PLUGIN_VERSION_NAME = "0.1"
+        const val DEFAULT_PLUGIN_VERSION_CODE = 1
 
         private const val EXPORT_DIRECTORY_NAME = "plugin-export"
         private const val TEMPLATE_ASSET_NAME = "plugin_template.apk"
@@ -218,14 +273,64 @@ class PluginApkExporter(private val context: Context) {
         private const val UNSIGNED_FILE_NAME = "plugin-unsigned.apk"
         private const val CONFIG_ASSET_FILE_NAME = "assets/configs.xml"
         private const val ANDROID_MANIFEST_FILE_NAME = "AndroidManifest.xml"
+        private const val RESOURCES_FILE_NAME = "resources.arsc"
         private const val KEYSTORE_PASSWORD = "SimpleHookPluginExport2026"
         private const val KEY_ALIAS = "simplehookplugin_export"
         private const val SIGNER_NAME = "SimpleHookPluginExport"
+        private const val APP_NAME_RESOURCE_TYPE = "string"
+        private const val APP_NAME_RESOURCE_NAME = "app_name"
+        private const val XPOSED_SCOPE_RESOURCE_TYPE = "array"
+        private const val XPOSED_SCOPE_RESOURCE_NAME = "xposed_scope"
+        private const val DEFAULT_APP_NAME_SUFFIX_LENGTH = 4
+        private const val DEFAULT_APP_NAME_SUFFIX_CHARS = "0123456789"
+        private const val DEFAULT_PACKAGE_SUFFIX_LENGTH = 6
+        private const val DEFAULT_PACKAGE_SUFFIX_CHARS = "abcdefghijklmnopqrstuvwxyz"
+        private const val SAFE_FILE_NAME_EXTRA_CHARS = "._-"
         private val KEYSTORE_TYPES = listOf("PKCS12")
+
+        fun generateDefaultAppName(random: Random = Random.Default): String {
+            val suffix = buildString(DEFAULT_APP_NAME_SUFFIX_LENGTH) {
+                repeat(DEFAULT_APP_NAME_SUFFIX_LENGTH) {
+                    append(DEFAULT_APP_NAME_SUFFIX_CHARS[random.nextInt(DEFAULT_APP_NAME_SUFFIX_CHARS.length)])
+                }
+            }
+            return DEFAULT_PLUGIN_APP_NAME + suffix
+        }
+
+        fun generateDefaultPackageName(random: Random = Random.Default): String {
+            val suffix = buildString(DEFAULT_PACKAGE_SUFFIX_LENGTH) {
+                repeat(DEFAULT_PACKAGE_SUFFIX_LENGTH) {
+                    append(DEFAULT_PACKAGE_SUFFIX_CHARS[random.nextInt(DEFAULT_PACKAGE_SUFFIX_CHARS.length)])
+                }
+            }
+            return "$DEFAULT_PLUGIN_PACKAGE_NAME_PREFIX.$suffix"
+        }
 
         fun isValidPackageName(packageName: String): Boolean {
             val trimmedPackageName = packageName.trim()
             return trimmedPackageName.matches(Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$"))
+        }
+
+        fun parseVersionCode(versionCodeText: String): Int? {
+            return versionCodeText.trim().toIntOrNull()?.takeIf(::isValidVersionCode)
+        }
+
+        fun isValidVersionCode(versionCode: Int): Boolean {
+            return versionCode > 0
+        }
+
+        private fun sanitizeFileNamePart(value: String): String {
+            return value.trim()
+                .map { char ->
+                    if (char.isLetterOrDigit() || SAFE_FILE_NAME_EXTRA_CHARS.contains(char)) {
+                        char
+                    } else {
+                        '_'
+                    }
+                }
+                .joinToString("")
+                .trim('.')
+                .ifEmpty { "unknown" }
         }
     }
 }

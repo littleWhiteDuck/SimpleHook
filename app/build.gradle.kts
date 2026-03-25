@@ -145,7 +145,8 @@ extensions.configure<ApplicationExtension>("android") {
                     doLast {
                         val androidComponentsExt = project.extensions.findByType(
                             ApplicationAndroidComponentsExtension::class.java
-                        ) ?: throw GradleException("ApplicationAndroidComponentsExtension not found")
+                        )
+                            ?: throw GradleException("ApplicationAndroidComponentsExtension not found")
 
                         val sdkDir = androidComponentsExt.sdkComponents.sdkDirectory.get().asFile
                         val buildToolsVersion = project.extensions.findByType(
@@ -162,7 +163,8 @@ extensions.configure<ApplicationExtension>("android") {
                             throw GradleException("aapt2 not found at: $aapt2File")
                         }
 
-                        val flavorPath = if (flavorName.isNotEmpty()) "${flavorName}Release/" else "release/"
+                        val flavorPath =
+                            if (flavorName.isNotEmpty()) "${flavorName}Release/" else "release/"
                         val optimizeDir = if (flavorName.isNotEmpty()) {
                             "optimize${flavorName.capitalizedCompat()}ReleaseResources"
                         } else {
@@ -238,7 +240,7 @@ extensions.configure<ApplicationExtension>("android") {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    implementation(project(":manifest-editor-lib"))
+    implementation(projects.libs.arsclibWrapper)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -292,7 +294,9 @@ dependencies {
 
 
     // webdav, 0.9版修改了exists函数实现，响应头判断会出问题
-    implementation(libs.sardine.android)
+    implementation(libs.sardine.android) {
+        exclude(group = "xpp3", module = "xpp3")
+    }
 
 
     implementation(libs.shizuku.api)

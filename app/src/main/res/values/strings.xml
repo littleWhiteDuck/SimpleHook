@@ -38,15 +38,21 @@
     <string name="main_home_empty_tip">这里是空的，点击加号按钮添加配置</string>
     <string name="plugin_export_type_dialog_title">选择导出方式</string>
     <string name="plugin_export_type_dialog_message">可以直接导出配置文本，也可以打包为插件 APK。</string>
+    <string name="plugin_export_type_single_dialog_title">分享“%1$s”</string>
+    <string name="plugin_export_type_single_dialog_message">可以复制当前配置，也可以直接将当前配置导出为插件 APK。</string>
     <string name="plugin_export_type_plain_config">复制配置</string>
     <string name="plugin_export_type_plugin_apk">导出插件 APK</string>
     <string name="plugin_export_loading">正在导出插件 APK</string>
     <string name="plugin_export_input_dialog_title">插件信息</string>
     <string name="plugin_export_app_name_hint">插件应用名</string>
     <string name="plugin_export_package_name_hint">插件包名</string>
+    <string name="plugin_export_version_name_hint">版本名</string>
+    <string name="plugin_export_version_code_hint">版本号</string>
     <string name="plugin_export_package_name_helper">包名必须至少包含一个点，例如 me.simplehook.plugin.generated</string>
     <string name="plugin_export_app_name_empty">插件应用名不能为空</string>
     <string name="plugin_export_package_name_invalid">请输入合法的插件包名</string>
+    <string name="plugin_export_version_name_empty">版本名不能为空</string>
+    <string name="plugin_export_version_code_invalid">请输入合法的版本号</string>
     <string name="plugin_export_success_title">导出成功</string>
     <string name="plugin_export_success_message">插件 APK 已生成：%s</string>
     <string name="plugin_export_failed">导出失败：%s</string>
@@ -60,6 +66,7 @@
     <string name="plugin_export_step_select_tip">选择要打包进插件的配置</string>
     <string name="plugin_export_step_info">步骤 2/2</string>
     <string name="plugin_export_step_info_tip">填写插件信息并确认导出</string>
+    <string name="plugin_export_step_info_tip_single">当前配置已选中，填写插件信息后即可直接导出</string>
     <string name="plugin_export_selected_count">%1$d 项配置已选</string>
     <string name="plugin_export_selected_count_zero">还没有选择任何配置</string>
     <string name="plugin_export_info_selected_count">已选择 %1$d 项配置</string>
@@ -238,16 +245,16 @@
     <string name="record_cipher_unwrap">密钥解包</string>
     <string name="record_cipher_unknown">未知</string>
 
-<!--    <string name="record_type_click_event">点击事件</string>-->
+    <!--    <string name="record_type_click_event">点击事件</string>-->
     <string name="record_view_type_format">控件类型：%s</string>
     <string name="record_callback_class_format">回调类名：%s</string>
     <string name="record_id_format">ID：%s</string>
     <string name="record_text_format">文本：%s</string>
 
-<!--    <string name="record_type_signature">签名</string>-->
+    <!--    <string name="record_type_signature">签名</string>-->
     <string name="record_signature_type_format">签名(%s)：%s</string>
 
-<!--    <string name="record_type_toast">Toast</string>-->
+    <!--    <string name="record_type_toast">Toast</string>-->
 
     <string name="record_type_web_url">Web加载链接</string>
     <string name="record_url_format">链接：%s</string>
@@ -279,7 +286,7 @@
     <string name="record_write_clipboard">写入剪贴板</string>
     <string name="record_clipboard_content_format">内容：%s</string>
 
-<!--    <string name="record_type_dialog">弹窗</string>-->
+    <!--    <string name="record_type_dialog">弹窗</string>-->
     <string name="record_dialog_listen">弹窗监听</string>
     <string name="record_dialog_block_keyword">弹窗拦截(关键词)</string>
     <string name="record_dialog_block_id">弹窗拦截(ID)</string>
@@ -289,7 +296,7 @@
     <string name="record_popup_block_keyword">PopupWindow拦截(关键词)</string>
     <string name="record_popup_block_id">PopupWindow拦截(ID)</string>
 
-<!--    <string name="record_type_json">Json</string>-->
+    <!--    <string name="record_type_json">Json</string>-->
     <string name="record_json_object_create">JsonObject创建</string>
     <string name="record_json_object_put">JsonObject添加</string>
     <string name="record_json_array_create">JsonArray创建</string>
@@ -321,13 +328,13 @@
     <string name="record_type_application">Application名</string>
     <string name="record_type_crash_caught">错误捕获</string>
     <string name="record_type_click_event">点击事件</string>
-<!--    <string name="record_type_clipboard">剪贴板</string>-->
-<!--    <string name="record_type_exit">应用退出</string>-->
+    <!--    <string name="record_type_clipboard">剪贴板</string>-->
+    <!--    <string name="record_type_exit">应用退出</string>-->
     <string name="record_type_file_operation">文件操作</string>
     <string name="record_type_signature">签名读取</string>
     <string name="record_type_dialog">弹窗(Dialog)</string>
     <string name="record_type_popup_window">弹窗(PopupWindow)</string>
-<!--    <string name="record_type_web_url">Webview加载链接</string>-->
+    <!--    <string name="record_type_web_url">Webview加载链接</string>-->
     <string name="record_type_json" translatable="false">JSON</string>
     <string name="record_type_toast" translatable="false">Toast</string>
     <string name="record_type_base64" translatable="false">Base64</string>

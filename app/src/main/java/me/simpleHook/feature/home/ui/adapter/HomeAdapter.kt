@@ -44,7 +44,7 @@ class HomeAdapter(
         }
         appConfigView.shareConfig.setOnClickListener {
             val appConfig = viewHolder.itemView.getTag(R.id.item_home_position) as AppConfig
-            onClick(appConfig, Constant.HOME_ITEM_CLICK_COPY)
+            onClick(appConfig, Constant.HOME_ITEM_CLICK_SHARE)
             appConfigView.smoothClose()
         }
         appConfigView.deleteConfig.setOnClickListener {

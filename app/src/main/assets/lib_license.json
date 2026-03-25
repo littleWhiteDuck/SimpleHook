@@ -117,9 +117,9 @@
     "type": "Apache Software License 2.0",
     "url": "http://tools.android.com/"
   },  {
-    "name": "ManifestEditor",
-    "author": "WindySha",
+    "name": "ARSCLib",
+    "author": "REAndroid",
     "type": "Apache Software License 2.0",
-    "url": "https://github.com/WindySha/ManifestEditor"
+    "url": "https://github.com/REAndroid/ARSCLib"
   }
 ]

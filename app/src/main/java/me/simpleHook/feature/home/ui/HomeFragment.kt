@@ -11,6 +11,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -84,6 +86,41 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     }
     private var isFabShow = true
     private var isDrag = false
+    private var pendingPluginExportApkPath: String? = null
+    private var shouldRestorePluginExportDialog = false
+    private var isHandlingPluginExportDialogAction = false
+    private var pluginExportSuccessDialog: AlertDialog? = null
+    private val installPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            handleInstallPermissionResult()
+        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pendingPluginExportApkPath = savedInstanceState?.getString(KEY_PENDING_PLUGIN_EXPORT_APK_PATH)
+        shouldRestorePluginExportDialog =
+            savedInstanceState?.getBoolean(KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG) == true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        restorePendingPluginExportDialogIfNeeded()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_PENDING_PLUGIN_EXPORT_APK_PATH, pendingPluginExportApkPath)
+        outState.putBoolean(
+            KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG,
+            shouldRestorePluginExportDialog
+        )
+    }
+
+    override fun onDestroyView() {
+        pluginExportSuccessDialog?.dismiss()
+        pluginExportSuccessDialog = null
+        super.onDestroyView()
+    }
 
     private fun initData() {
         registerPluginExportResultListener()
@@ -196,6 +233,7 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
             Constant.HOME_ITEM_CLICK_EDIT -> editConfig(appConfig)
             Constant.HOME_ITEM_CLICK_COPY -> copyConfigs(appConfig)
             Constant.HOME_ITEM_CLICK_DELETE -> deleteConfig(appConfig)
+            Constant.HOME_ITEM_CLICK_SHARE -> shareSingleConfig(appConfig)
         }
     }
 
@@ -315,12 +353,15 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 requireActivity().showPopup(getString(R.string.plugin_export_open_failed))
                 return@setFragmentResultListener
             }
+            pendingPluginExportApkPath = apkFile.absolutePath
+            shouldRestorePluginExportDialog = true
             showPluginExportSuccessDialog(apkFile)
         }
     }
 
     private fun showPluginExportSuccessDialog(apkFile: File) {
-        customDialog(
+        if (!isAdded || pluginExportSuccessDialog?.isShowing == true) return
+        pluginExportSuccessDialog = customDialog(
             requireActivity(),
             title = getString(R.string.plugin_export_success_title),
             message = getString(R.string.plugin_export_success_message, apkFile.absolutePath),
@@ -333,33 +374,95 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 sharePluginApk(apkFile)
             },
             cancelText = getString(R.string.dialog_cancel)
-        ).show()
+        ).also { dialog ->
+            dialog.setOnDismissListener {
+                pluginExportSuccessDialog = null
+                if (isHandlingPluginExportDialogAction) {
+                    isHandlingPluginExportDialogAction = false
+                } else {
+                    clearPendingPluginExportDialogState()
+                }
+            }
+        }
+        pluginExportSuccessDialog?.show()
     }
 
     private fun installPluginApk(apkFile: File) {
         runCatching {
             val intent = if (PluginApkShareHelper.canRequestPackageInstalls(requireActivity())) {
+                isHandlingPluginExportDialogAction = true
+                clearPendingPluginExportDialogState()
                 PluginApkShareHelper.createInstallIntent(requireActivity(), apkFile)
             } else {
+                isHandlingPluginExportDialogAction = true
+                pendingPluginExportApkPath = apkFile.absolutePath
+                shouldRestorePluginExportDialog = true
                 requireActivity().showPopup(getString(R.string.plugin_export_install_permission_tip))
-                PluginApkShareHelper.createInstallPermissionIntent(requireActivity())
+                installPermissionLauncher.launch(
+                    PluginApkShareHelper.createInstallPermissionIntent(requireActivity())
+                )
+                return@runCatching
             }
             requireActivity().startActivity(intent)
         }.onFailure {
+            pendingPluginExportApkPath = apkFile.absolutePath
+            shouldRestorePluginExportDialog = true
             requireActivity().showPopup(getString(R.string.plugin_export_open_failed))
         }
     }
 
     private fun sharePluginApk(apkFile: File) {
         runCatching {
+            isHandlingPluginExportDialogAction = true
+            clearPendingPluginExportDialogState()
             val intent = Intent.createChooser(
                 PluginApkShareHelper.createShareIntent(requireActivity(), apkFile),
                 getString(R.string.plugin_export_share_chooser_title)
             )
             requireActivity().startActivity(intent)
         }.onFailure {
+            pendingPluginExportApkPath = apkFile.absolutePath
+            shouldRestorePluginExportDialog = true
             requireActivity().showPopup(getString(R.string.plugin_export_open_failed))
         }
+    }
+
+    private fun handleInstallPermissionResult() {
+        val apkFile = pendingPluginExportApkPath
+            ?.takeIf { it.isNotBlank() }
+            ?.let(::File)
+            ?.takeIf { it.exists() }
+            ?: run {
+                clearPendingPluginExportDialogState()
+                return
+            }
+        if (PluginApkShareHelper.canRequestPackageInstalls(requireActivity())) {
+            if (pluginExportSuccessDialog?.isShowing == true) {
+                isHandlingPluginExportDialogAction = true
+                pluginExportSuccessDialog?.dismiss()
+            }
+            installPluginApk(apkFile)
+        } else {
+            showPluginExportSuccessDialog(apkFile)
+        }
+    }
+
+    private fun restorePendingPluginExportDialogIfNeeded() {
+        if (!shouldRestorePluginExportDialog || pluginExportSuccessDialog?.isShowing == true) return
+        val apkFile = pendingPluginExportApkPath
+            ?.takeIf { it.isNotBlank() }
+            ?.let(::File)
+            ?.takeIf { it.exists() }
+            ?: run {
+                clearPendingPluginExportDialogState()
+                return
+            }
+        showPluginExportSuccessDialog(apkFile)
+    }
+
+    private fun clearPendingPluginExportDialogState() {
+        pendingPluginExportApkPath = null
+        shouldRestorePluginExportDialog = false
     }
 
     private fun importConfigsFromInternet(urlString: String) {
@@ -375,38 +478,55 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
 
     private fun shareConfigs() {
         if (filterConfigs.isEmpty()) return
+        val exportItems = buildConfigSelectionItems(filterConfigs.map { it.appConfig })
         customDialog(
             requireContext(),
             title = getString(R.string.plugin_export_type_dialog_title),
             message = getString(R.string.plugin_export_type_dialog_message),
             okText = getString(R.string.plugin_export_type_plugin_apk),
             okClick = {
-                showPluginExportSheet()
+                showPluginExportSheet(exportItems)
             },
             neutralText = getString(R.string.plugin_export_type_plain_config),
             neutralClick = {
-                showConfigExportDialog(Constant.CONFIG_EXPORT_MODE)
+                showConfigExportDialog(exportItems, Constant.CONFIG_EXPORT_MODE)
             },
             cancelText = getString(R.string.dialog_cancel)
         ).show()
     }
 
-    private fun showPluginExportSheet() {
-        val dataList = ArrayList<AppConfigItem2>()
-        for (config in filterConfigs) {
-            dataList.add(AppConfigItem2(config.appConfig))
-        }
-        ExportPluginBottomSheetFragment(dataList).show(
+    private fun shareSingleConfig(appConfig: AppConfig) {
+        val exportItems = buildConfigSelectionItems(
+            configs = listOf(appConfig),
+            preselectedConfigs = setOf(appConfig.packageName)
+        )
+        customDialog(
+            requireContext(),
+            title = getString(R.string.plugin_export_type_single_dialog_title, appConfig.appName),
+            message = getString(R.string.plugin_export_type_single_dialog_message),
+            okText = getString(R.string.plugin_export_type_plugin_apk),
+            okClick = {
+                showPluginExportSheet(exportItems, startFromInfoStep = true)
+            },
+            neutralText = getString(R.string.plugin_export_type_plain_config),
+            neutralClick = {
+                copyConfigs(appConfig)
+            },
+            cancelText = getString(R.string.dialog_cancel)
+        ).show()
+    }
+
+    private fun showPluginExportSheet(
+        dataList: List<AppConfigItem2>,
+        startFromInfoStep: Boolean = false
+    ) {
+        ExportPluginBottomSheetFragment(dataList, startFromInfoStep).show(
             requireActivity().supportFragmentManager,
             "export_plugin_sheet"
         )
     }
 
-    private fun showConfigExportDialog(mode: Int) {
-        val dataList = ArrayList<AppConfigItem2>()
-        for (config in filterConfigs) {
-            dataList.add(AppConfigItem2(config.appConfig))
-        }
+    private fun showConfigExportDialog(dataList: List<AppConfigItem2>, mode: Int) {
         ConfigDialogFragment(
             dataList,
             mode
@@ -414,6 +534,18 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
             requireActivity().supportFragmentManager,
             "export"
         )
+    }
+
+    private fun buildConfigSelectionItems(
+        configs: List<AppConfig>,
+        preselectedConfigs: Set<String> = emptySet()
+    ): List<AppConfigItem2> {
+        return configs.map { appConfig ->
+            AppConfigItem2(
+                appConfig = appConfig,
+                isChecked = preselectedConfigs.contains(appConfig.packageName)
+            )
+        }
     }
 
     private fun importConfigs(configs: String) {
@@ -632,6 +764,10 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     }
 
 }
+
+private const val KEY_PENDING_PLUGIN_EXPORT_APK_PATH = "pending_plugin_export_apk_path"
+private const val KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG =
+    "should_restore_plugin_export_dialog"
 
 
 interface HideScrollListener {
