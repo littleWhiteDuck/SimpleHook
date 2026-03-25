@@ -42,7 +42,7 @@ class RecordDetailActivity : BaseActivity() {
     private val recordViewModel by viewModels<RecordViewModel>()
     private var currentText = ""
     private var currentPattern = ""
-    private lateinit var recordEntity: RecordEntity
+    private var recordEntity: RecordEntity? = null
     private val recordAdapter = MultiTypeAdapter()
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private var tempCodeStyle = false
@@ -59,8 +59,7 @@ class RecordDetailActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val recordPackageName = intent.getStringExtra(KEY_PACKAGE_NAME)!!
-        supportActionBar?.title = AppUtil.getAppName(recordPackageName)
-        supportActionBar?.subtitle = recordPackageName
+        updateToolbar(recordPackageName, recordPackageName)
         initView()
         initData()
         initBack()
@@ -99,6 +98,11 @@ class RecordDetailActivity : BaseActivity() {
         val id = intent.getIntExtra(KEY_RECORD_ID, -1)
         recordViewModel.fetchRecordDetail(id)
 
+        recordViewModel.recordEntity.observe(this) { entity ->
+            recordEntity = entity ?: return@observe
+            updateToolbar(entity.packageName, entity.processName)
+        }
+
         recordViewModel.recordDetailItems.observe(this) {
             if (it.isNotEmpty()) {
                 recordAdapter.items = it
@@ -119,6 +123,20 @@ class RecordDetailActivity : BaseActivity() {
             }
         }
 
+    }
+
+    private fun updateToolbar(packageName: String, processName: String?) {
+        supportActionBar?.title = AppUtil.getAppName(packageName)
+        supportActionBar?.subtitle = formatProcessName(packageName, processName)
+    }
+
+    private fun formatProcessName(packageName: String, processName: String?): String {
+        val safeProcessName = processName?.trim().orEmpty()
+        return when {
+            safeProcessName.isEmpty() -> packageName
+            safeProcessName == packageName -> packageName
+            else -> safeProcessName
+        }
     }
 
     private fun initBack() {
@@ -219,9 +237,10 @@ class RecordDetailActivity : BaseActivity() {
             }
 
             R.id.copy_json -> {
+                val entity = recordEntity ?: return true
                 ToolUtil.toClip(
                     this,
-                    JsonUtil.formatJson(recordEntity.record).replace("\\u003e", "-> ")
+                    JsonUtil.formatJson(entity.record).replace("\\u003e", "-> ")
                 )
                 showPopup(getString(R.string.main_home_export_configs_tip))
             }

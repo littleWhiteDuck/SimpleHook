@@ -12,7 +12,7 @@ import me.simpleHook.data.local.db.entity.RecordEntity
 
 @Database(
     entities = [RecordEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class RecordDatabase: RoomDatabase() {
@@ -29,6 +29,8 @@ abstract class RecordDatabase: RoomDatabase() {
             "isMark",
             "time"
         )
+
+        private val REQUIRED_RECORD_COLUMNS_V5 = REQUIRED_RECORD_COLUMNS + "processName"
 
         @Volatile
         private var INSTANCE: RecordDatabase? = null
@@ -47,7 +49,7 @@ abstract class RecordDatabase: RoomDatabase() {
                 appContext,
                 RecordDatabase::class.java,
                 RECORD_DB_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 .also {
                     INSTANCE = it
@@ -78,6 +80,17 @@ abstract class RecordDatabase: RoomDatabase() {
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 dropLegacySearchArtifacts(db::execSQL)
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE RecordEntity ADD COLUMN processName TEXT NOT NULL DEFAULT ''"
+                )
+                db.execSQL(
+                    "UPDATE RecordEntity SET processName = packageName WHERE processName = ''"
+                )
             }
         }
 
@@ -116,6 +129,11 @@ abstract class RecordDatabase: RoomDatabase() {
         }
 
         private fun hasValidRecordSchema(db: SQLiteDatabase): Boolean {
+            val requiredColumns = if (db.version >= 5) {
+                REQUIRED_RECORD_COLUMNS_V5
+            } else {
+                REQUIRED_RECORD_COLUMNS
+            }
             return db.rawQuery("PRAGMA table_info(`RecordEntity`)", null).use { cursor ->
                 if (cursor.count == 0) return false
 
@@ -126,7 +144,7 @@ abstract class RecordDatabase: RoomDatabase() {
                 while (cursor.moveToNext()) {
                     foundColumns += cursor.getString(nameColumn)
                 }
-                REQUIRED_RECORD_COLUMNS.all(foundColumns::contains)
+                requiredColumns.all(foundColumns::contains)
             }
         }
 

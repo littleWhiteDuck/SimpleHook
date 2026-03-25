@@ -184,6 +184,7 @@ object RecordOutHelper {
                 subType = subType ?: type.name,
                 record = Json.encodeToString(record),
                 packageName = HookHelper.hostPackageName,
+                processName = HookHelper.hostProcessName,
                 time = TimeUtil.getCurrentTime(pattern = "yy-MM-dd HH:mm:ss")
             )
         )

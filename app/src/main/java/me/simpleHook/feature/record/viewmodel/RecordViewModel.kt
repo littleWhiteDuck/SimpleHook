@@ -67,6 +67,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
     val recordDetail = _recordDetail
 
+    private val _recordEntity = MutableLiveData<RecordEntity?>()
+    val recordEntity: LiveData<RecordEntity?> = _recordEntity
+
     private val _recordDetailItems = MutableLiveData<List<RDItem>>(emptyList())
     val recordDetailItems: LiveData<List<RDItem>> = _recordDetailItems
 
@@ -215,6 +218,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun fetchRecordDetail(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         val recordEntity = getRecordByID(id)
+        _recordEntity.postValue(recordEntity)
         val record = Json.decodeFromString<Record>(recordEntity.record)
         fetchCodeStyleDetail(record)
         fetchCardStyleDetail(record)

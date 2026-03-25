@@ -23,6 +23,7 @@ data class RecordEntity(
     val subType: String,
     val record: String,
     val packageName: String,
+    val processName: String = packageName,
     val isRead: Boolean = false,
     val isMark: Boolean = false,
     val time: String,
