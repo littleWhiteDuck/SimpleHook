@@ -197,6 +197,7 @@
     <string name="record_menu_save_marked_record">导出标记记录</string>
     <string name="record_loading_tip_searching">正在搜索中</string>
     <string name="record_search_dialog_title">搜索</string>
+    <string name="record_search_case_sensitive">区分大小写</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
     <string name="record_warning_dialog_title">警告</string>
     <string name="record_waring_dialog_message_delete_all">你是否确定删除所有记录？</string>
@@ -211,8 +212,6 @@
     <string name="record_warn_dialog_ok_more_data">不再提示</string>
     <string name="record_item_status_read">已读</string>
     <string name="record_item_status_unread">未读</string>
-    <string name="record_menu_search_by_raw_data">从原始数据中搜索</string>
-    <string name="record_menu_search_by_result">从加密/解密结果中搜索</string>
     <string name="record_detail_menu_copy_raw_data">原始数据</string>
     <string name="record_detail_menu_copy_crypt_result">加密/解密结果</string>
     <string name="record_detail_menu_copy_return_value">复制返回值</string>

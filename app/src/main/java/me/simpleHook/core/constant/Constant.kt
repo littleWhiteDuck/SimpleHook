@@ -61,10 +61,4 @@ object Constant {
     const val HOME_ITEM_CLICK_DELETE = 4
     const val HOME_ITEM_CLICK_SHARE = 5
 
-    //RecordActivity Search Mode
-
-    const val RECORD_SEARCH_GLOBAL = 0
-    const val RECORD_SEARCH_RAW_DATA = 1
-    const val RECORD_SEARCH_RESULT = 2
-
 }

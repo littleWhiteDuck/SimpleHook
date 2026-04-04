@@ -267,6 +267,7 @@
     <string name="record_menu_save_marked_record">Export marked records</string>
     <string name="record_loading_tip_searching">searching,,,</string>
     <string name="record_search_dialog_title">Search</string>
+    <string name="record_search_case_sensitive">Case-sensitive</string>
     <string name="record_loading_saving_marked_record">Saving</string>
     <string name="record_warning_dialog_title">Warning</string>
     <string name="record_waring_dialog_message_delete_all">Are you sure to delete all records?</string>
@@ -302,8 +303,6 @@
     <string name="main_settings_title_start_float">Floating window</string>
     <string name="main_settings_title_bottom_config_dialog">Configure dialog</string>
     <string name="main_settings_summary_bottom_config_dialog">Show at bottom</string>
-    <string name="record_menu_search_by_raw_data">from raw data</string>
-    <string name="record_menu_search_by_result">from encryption/decryption results</string>
     <string name="record_detail_menu_copy_raw_data">Raw data</string>
     <string name="record_detail_menu_copy_crypt_result">Encrypt/Decrypt result</string>
     <string name="extension_item_title_filter_clipboard">Clipboard</string>

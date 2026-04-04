@@ -276,6 +276,7 @@
     <string name="record_menu_save_marked_record">匯出已標記記錄</string>
     <string name="record_loading_tip_searching">正在搜尋中</string>
     <string name="record_search_dialog_title">搜尋</string>
+    <string name="record_search_case_sensitive">區分大小寫</string>
     <string name="record_loading_saving_marked_record">正在保存中</string>
     <string name="record_warning_dialog_title">警告</string>
     <string name="record_waring_dialog_message_delete_all">你是否確定刪除所有記錄？</string>
@@ -310,8 +311,6 @@
     <string name="main_settings_title_start_float">懸浮窗</string>
     <string name="main_settings_title_bottom_config_dialog">配置彈窗</string>
     <string name="main_settings_summary_bottom_config_dialog">顯示在底部</string>
-    <string name="record_menu_search_by_result">從加密/解密結果中搜尋</string>
-    <string name="record_menu_search_by_raw_data">從原始資料中搜尋</string>
     <string name="record_detail_menu_copy_raw_data">原始資料</string>
     <string name="record_detail_menu_copy_crypt_result">加密/解密結果</string>
     <string name="extension_item_title_filter_clipboard">剪貼板</string>

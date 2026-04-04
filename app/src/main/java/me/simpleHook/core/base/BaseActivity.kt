@@ -123,9 +123,8 @@ open class BaseActivity : AppCompatActivity() {
         readFileJob = lifecycleScope.launch(Dispatchers.IO) {
             try {
                 ensureNeedCheckPackages()
-                val recordEntities = RecordIngestor.readFromPackages(this@BaseActivity, needCheckPacks)
-                if (recordEntities.isNotEmpty()) {
-                    recordViewModel.insertRecords(*recordEntities.toTypedArray())
+                RecordIngestor.ingestRecordsFromPackages(this@BaseActivity, needCheckPacks) { batch ->
+                    recordViewModel.insertRecordsNow(batch)
                 }
 
             } catch (e: Exception) {

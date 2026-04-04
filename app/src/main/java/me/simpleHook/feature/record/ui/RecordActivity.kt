@@ -10,11 +10,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
-import android.widget.ScrollView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -27,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.Job
@@ -35,21 +32,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.core.base.BaseActivity
-import me.simpleHook.core.constant.Constant
 import me.simpleHook.databinding.ActivityRecordBinding
 import me.simpleHook.core.extension.dp
 import me.simpleHook.core.extension.getColorByAttr
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.feature.record.ui.adapter.RecordAdapter
 import me.simpleHook.core.ui.custom.LoadingDialog
-import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.ui.custom.warningDialog
-import me.simpleHook.core.ui.view.edit.InputView
 import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.TimeUtil
 import me.simpleHook.data.record.SmallRecordEntity
+import me.simpleHook.feature.record.viewmodel.RecordSearchState
 import me.simpleHook.feature.record.viewmodel.RecordViewModel
 import java.io.FileOutputStream
 
@@ -121,12 +116,12 @@ class RecordActivity : BaseActivity() {
     private fun initBack() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (recordViewModel.queryPattern.value.isEmpty()) {
+                if (recordViewModel.searchState.value.query.isEmpty()) {
                     onBackPressedCallback.isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 } else {
                     binding.swipeRefreshLayout.isRefreshing = true
-                    recordViewModel.queryPattern.value = ""
+                    recordViewModel.searchState.value = RecordSearchState()
                     updateTitle()
                     collectRecordPaging()
                 }
@@ -367,12 +362,6 @@ class RecordActivity : BaseActivity() {
                 val time = TimeUtil.getTime(System.currentTimeMillis(), pattern = "ddHHmmss")
                 saveMarkedRecord.launch("simpleHook_record_$time.json")
             }
-            R.id.search_by_raw_data -> {
-                showSearchDialog(searchMode = Constant.RECORD_SEARCH_RAW_DATA)
-            }
-            R.id.search_by_result -> {
-                showSearchDialog(searchMode = Constant.RECORD_SEARCH_RESULT)
-            }
         }
         return true
     }
@@ -407,55 +396,28 @@ class RecordActivity : BaseActivity() {
 
     }
 
-    private fun showSearchDialog(searchMode: Int = Constant.RECORD_SEARCH_GLOBAL) {
-        val inputView = InputView(this).apply {
-            textInputLayout.apply {
-                placeholderText = getString(R.string.main_home_toolbar_search_hint)
-                boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_FILLED
-                setBoxCornerRadii(18f.dp, 18f.dp, 18f.dp, 18f.dp)
-                setBoxBackgroundColor(
-                    getColorByAttr(com.google.android.material.R.attr.colorSurfaceContainerHigh)
-                )
-            }
-        }
-        inputView.editText.apply {
-            isSingleLine = false
-            minLines = 3
-            maxLines = 10
-            setHorizontallyScrolling(false)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-        }
-        val scrollContainer = ScrollView(this).apply {
-            isFillViewport = true
-            setPadding(0, 8.dp, 0, 8.dp)
-            addView(
-                inputView,
-                ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
-        customDialog(this,
-            title = getString(R.string.record_search_dialog_title),
-            contentView = scrollContainer,
-            okText = getString(R.string.dialog_confirm),
-            okClick = { dialogInterface ->
-                recordViewModel.queryPattern.value = inputView.editText.text.toString().trim()
-                if (recordViewModel.queryPattern.value.isNotEmpty()) {
-                    supportActionBar?.title = recordViewModel.queryPattern.value
+    private fun showSearchDialog() {
+        val currentSearchState = recordViewModel.searchState.value
+        (supportFragmentManager.findFragmentByTag(RecordSearchBottomSheetFragment.TAG)
+                as? RecordSearchBottomSheetFragment)?.dismissAllowingStateLoss()
+        RecordSearchBottomSheetFragment().apply {
+            initialState = currentSearchState
+            onSearchConfirmed = { searchState ->
+                recordViewModel.searchState.value = searchState
+                if (searchState.query.isNotEmpty()) {
+                    supportActionBar?.title = searchState.query
                     supportActionBar?.subtitle = ""
                 } else {
                     updateTitle()
                 }
                 searchLoadingDialog?.dismiss()
                 searchLoadingDialog =
-                    LoadingDialog(this, getString(R.string.record_loading_tip_searching)).also {
+                    LoadingDialog(this@RecordActivity, getString(R.string.record_loading_tip_searching)).also {
                         it.show()
                     }
                 collectRecordPaging()
-                dialogInterface.dismiss()
-            }, cancelText = getString(R.string.dialog_cancel), cancelAble = false).show()
+            }
+        }.show(supportFragmentManager, RecordSearchBottomSheetFragment.TAG)
     }
 
     override fun onResume() {

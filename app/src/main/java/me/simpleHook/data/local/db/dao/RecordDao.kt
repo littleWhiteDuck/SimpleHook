@@ -61,7 +61,25 @@ interface RecordDao {
         ORDER BY time DESC
         """
     )
-    fun getRecordByPack(
+    fun getRecordByPackCaseSensitive(
+        packageName: String,
+        queryText: String,
+        fallbackText: String
+    ): PagingSource<Int, SmallRecordEntity>
+
+    @Query(
+        """
+        SELECT id,type,subType,packageName,isRead,isMark,time
+        FROM RecordEntity
+        WHERE packageName = :packageName
+          AND (
+            instr(lower(record), :queryText) > 0
+            OR instr(lower(record), :fallbackText) > 0
+          )
+        ORDER BY time DESC
+        """
+    )
+    fun getRecordByPackIgnoreCase(
         packageName: String,
         queryText: String,
         fallbackText: String
@@ -82,7 +100,25 @@ interface RecordDao {
         ORDER BY time DESC
         """
     )
-    fun getRecordByType(
+    fun getRecordByTypeCaseSensitive(
+        type: String,
+        queryText: String,
+        fallbackText: String
+    ): PagingSource<Int, SmallRecordEntity>
+
+    @Query(
+        """
+        SELECT id,type,subType,packageName,isRead,isMark,time
+        FROM RecordEntity
+        WHERE type = :type
+          AND (
+            instr(lower(record), :queryText) > 0
+            OR instr(lower(record), :fallbackText) > 0
+          )
+        ORDER BY time DESC
+        """
+    )
+    fun getRecordByTypeIgnoreCase(
         type: String,
         queryText: String,
         fallbackText: String

@@ -52,6 +52,11 @@ import me.simpleHook.data.record.RecordWebLoadUrl
 import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.data.record.RecordDetailItem as RDItem
 
+data class RecordSearchState(
+    val query: String = "",
+    val caseSensitive: Boolean = false
+)
+
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
     private companion object {
         const val CARD_CONTENT_PREVIEW_LIMIT = 600
@@ -62,7 +67,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
     val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
-    val queryPattern = MutableStateFlow("")
+    val searchState = MutableStateFlow(RecordSearchState())
 
     private val _recordDetail = MutableStateFlow(emptyList<String>())
     val recordDetail = _recordDetail
@@ -80,20 +85,35 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun getRecordEntity(
         typeOrPack: String, isType: Boolean
     ): Flow<PagingData<SmallRecordEntity>> {
-        val pattern = queryPattern.value.trim()
+        val search = searchState.value
+        val pattern = search.query.trim()
         val jsonPattern = pattern.toJsonStringContent()
+        val normalizedPattern = pattern.lowercase()
+        val normalizedJsonPattern = jsonPattern.lowercase()
         return Pager(config = pagingConfig) {
             if (isType) {
                 if (pattern.isEmpty()) {
                     recordDao.getRecordByTypeNoPattern(typeOrPack)
+                } else if (search.caseSensitive) {
+                    recordDao.getRecordByTypeCaseSensitive(typeOrPack, jsonPattern, pattern)
                 } else {
-                    recordDao.getRecordByType(typeOrPack, jsonPattern, pattern)
+                    recordDao.getRecordByTypeIgnoreCase(
+                        typeOrPack,
+                        normalizedJsonPattern,
+                        normalizedPattern
+                    )
                 }
             } else {
                 if (pattern.isEmpty()) {
                     recordDao.getRecordByPackNoPattern(typeOrPack)
+                } else if (search.caseSensitive) {
+                    recordDao.getRecordByPackCaseSensitive(typeOrPack, jsonPattern, pattern)
                 } else {
-                    recordDao.getRecordByPack(typeOrPack, jsonPattern, pattern)
+                    recordDao.getRecordByPackIgnoreCase(
+                        typeOrPack,
+                        normalizedJsonPattern,
+                        normalizedPattern
+                    )
                 }
             }
         }.flow.cachedIn(viewModelScope)
@@ -143,7 +163,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     suspend fun insertRecordsNow(recordEntities: List<RecordEntity>) {
         if (recordEntities.isEmpty()) return
-        recordDao.insertRecords(*recordEntities.toTypedArray())
+        recordEntities.chunked(200).forEach { batch ->
+            recordDao.insertRecords(*batch.toTypedArray())
+        }
     }
 
 
