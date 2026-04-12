@@ -22,6 +22,24 @@ object HookTypeParser {
     private val stringNullRegex = Regex("""^nulls$""", RegexOption.IGNORE_CASE)
     private val emptyStringRegex = Regex("""^empty$""", RegexOption.IGNORE_CASE)
     private const val STRING_EMPTY_LIST = "empty_list_string"
+    private val primitiveArrayDescriptorMap = mapOf(
+        "byte" to "B",
+        "b" to "B",
+        "int" to "I",
+        "i" to "I",
+        "short" to "S",
+        "s" to "S",
+        "long" to "J",
+        "j" to "J",
+        "float" to "F",
+        "f" to "F",
+        "double" to "D",
+        "d" to "D",
+        "boolean" to "Z",
+        "z" to "Z",
+        "char" to "C",
+        "c" to "C"
+    )
 
     fun getDataTypeValue(value: String): Any? {
         val normalized = value.trim()
@@ -62,12 +80,24 @@ object HookTypeParser {
 
     fun getClassTypeName(className: String): String {
         val normalized = className.trim()
-        return if (normalized.endsWith("[]") && normalized.contains(".")) {
-            "[L${normalized.removeSuffix("[]")};"
-        } else if (normalized.endsWith("[]")) {
-            "[${normalized.removeSuffix("[]")}"
+        if (normalized.isEmpty()) return normalized
+        if (!normalized.endsWith("[]")) {
+            return getClassType(normalized)?.name ?: normalized
+        }
+        var arrayDepth = 0
+        var elementType = normalized
+        while (elementType.endsWith("[]")) {
+            arrayDepth++
+            elementType = elementType.removeSuffix("[]").trimEnd()
+        }
+        val prefix = "[".repeat(arrayDepth)
+        val primitiveDescriptor = primitiveArrayDescriptorMap[elementType.lowercase()]
+        return if (primitiveDescriptor != null) {
+            prefix + primitiveDescriptor
         } else {
-            getClassType(normalized)?.name ?: normalized
+            val objectType = getClassType(elementType)?.name
+                ?: elementType.removePrefix("L").removeSuffix(";").replace('/', '.')
+            "$prefix" + "L$objectType;"
         }
     }
 }

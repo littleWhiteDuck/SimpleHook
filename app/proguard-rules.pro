@@ -32,6 +32,8 @@
 -keep class me.simpleHook.platform.hook.entry.Lsp101HookEntry { *; }
 -keepnames class me.simpleHook.platform.hook.*
 -keeppackagenames me.simpleHook.platform.hook,me.simpleHook.platform.hook.**
+-keeppackagenames com.github.kyuubiran.ezxhelper,com.github.kyuubiran.ezxhelper.**
+-keeppackagenames io.github.qauxv,io.github.qauxv.**
 
 -keepattributes Signature
 

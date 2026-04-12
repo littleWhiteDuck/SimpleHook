@@ -4,6 +4,7 @@ import android.content.Intent
 import com.google.gson.Gson
 import io.github.qauxv.util.xpcompat.XposedHelpers
 import kotlinx.serialization.json.Json
+import me.simpleHook.BuildConfig
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.utils.GuiseBase64
 import me.simpleHook.core.utils.RecordLogger
@@ -384,6 +385,7 @@ object RecordOutHelper {
     }
 
     private fun shouldFilterStackElement(element: StackTraceElement): Boolean {
+        if (BuildConfig.DEBUG) return false
         return stackTraceFilterPrefixes.any { prefix ->
             element.className == prefix || element.className.startsWith("$prefix.")
         }
