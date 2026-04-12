@@ -21,6 +21,7 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.data.config.ConfigSystemUtil
+import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.feature.config.ui.adapter.ImExportAdapter
@@ -78,7 +79,8 @@ class ConfigDialogFragment(
                         if (item.isChecked) {
                             checkIsZero = false
                             lifecycleScope.launch(Dispatchers.IO) {
-                                if (isEnableSave) configSystem.saveCustomConfig(
+                                if (isEnableSave) ConfigRemoteSyncHelper.saveCustomConfig(
+                                    configSystem,
                                     item.appConfig.packageName,
                                     Json.encodeToString(item.appConfig)
                                 )

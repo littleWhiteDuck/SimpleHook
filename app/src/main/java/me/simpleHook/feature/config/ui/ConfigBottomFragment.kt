@@ -34,6 +34,7 @@ class ConfigBottomFragment(
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
+        sp.ensureConfigItemDescVisibleByDefault()
         with(binding) {
             saveConfig.setOnClickListener { toCheck() }
             deleteConfig.setOnClickListener {

@@ -56,6 +56,10 @@
     <string name="plugin_export_version_code_invalid">Enter a valid positive version code</string>
     <string name="plugin_export_success_title">Export successful</string>
     <string name="plugin_export_success_message">Plugin APK generated: %s</string>
+    <string name="plugin_export_unsigned_title">Exported without signature</string>
+    <string name="plugin_export_unsigned_message">The plugin APK was generated, but automatic signing failed: %1$s
+File path: %2$s
+You can try signing it manually with MT Manager or a similar tool before installing.</string>
     <string name="plugin_export_failed">Export failed: %s</string>
     <string name="plugin_export_install">Install</string>
     <string name="plugin_export_share">Share</string>

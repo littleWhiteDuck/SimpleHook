@@ -34,8 +34,15 @@ interface RecordDao {
     suspend fun deleteRecords(vararg recordEntity: RecordEntity)
 
 
-    @Query("SELECT * FROM RecordEntity WHERE id = :id")
-    fun getRecordById(id: Int): RecordEntity
+    @Query(
+        """
+        SELECT id,type,subType,'' AS record,packageName,processName,isRead,isMark,time
+        FROM RecordEntity
+        WHERE id = :id
+        LIMIT 1
+        """
+    )
+    fun getRecordMetaById(id: Int): RecordEntity?
 
     @Query("SELECT packageName, COUNT(*) AS count FROM RecordEntity GROUP BY packageName ORDER BY COUNT(*) DESC")
     suspend fun getRecordCountByPack(): List<RecordPackageCount>

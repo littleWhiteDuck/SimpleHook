@@ -63,7 +63,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    private val recordDao = RecordDatabase.getDatabase(application).recordDao()
+    private val recordDatabase = RecordDatabase.getDatabase(application)
+    private val recordDao = recordDatabase.recordDao()
 
     private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
     val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
@@ -124,7 +125,16 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getMarkedRecordByPack(packageName: String) = recordDao.getMarkedRecordByPack(packageName)
 
-    fun getRecordByID(id: Int) = recordDao.getRecordById(id)
+    fun getRecordByID(id: Int): RecordEntity? {
+        val recordMeta = recordDao.getRecordMetaById(id) ?: return null
+        val recordContent = recordDatabase.openHelper.readableDatabase
+            .compileStatement("SELECT record FROM RecordEntity WHERE id = ? LIMIT 1")
+            .apply {
+                bindLong(1, id.toLong())
+            }
+            .simpleQueryForString() ?: return null
+        return recordMeta.copy(record = recordContent)
+    }
 
     suspend fun refreshRecordShowItemsNow() {
         val showByType = GlobalValue.sp.showByType
@@ -239,7 +249,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private fun Int.string(vararg formatArgs: Any) = application.getString(this, *formatArgs)
 
     fun fetchRecordDetail(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        val recordEntity = getRecordByID(id)
+        val recordEntity = getRecordByID(id) ?: return@launch
         _recordEntity.postValue(recordEntity)
         val record = Json.decodeFromString<Record>(recordEntity.record)
         fetchCodeStyleDetail(record)

@@ -193,6 +193,21 @@
                 android:hint="@string/config_dialog_return_value_input_tip"
                 android:imeOptions="actionDone" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_item_desc_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_config_item_desc_input"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/result_value_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_item_desc_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_config_item_desc_edit" />
+        </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>

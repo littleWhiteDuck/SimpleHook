@@ -212,7 +212,6 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
         if (configSystem.isEnableDelete(extConfigEntity.packageName)) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 appConfigViewModel.deleteExtConfigs(extConfigEntity)
-                configSystem.deleteExConfig(extConfigEntity.packageName)
             }
             Snackbar.make(
                 root.addConfig,

@@ -49,6 +49,11 @@ import java.util.zip.GZIPOutputStream
 object RecordOutHelper {
     private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
     private val defaultRecordSettings = ExtRecordSettings()
+    private val stackTraceFilterPrefixes = listOf(
+        "me.simpleHook.platform.hook",
+        "com.github.kyuubiran.ezxhelper",
+        "io.github.qauxv"
+    )
 
     @Volatile
     private var enableStack: Boolean = defaultRecordSettings.enableStack
@@ -77,7 +82,7 @@ object RecordOutHelper {
             errorType = type,
             hookConfig = hookConfig,
             supplement = supplement,
-            stackDetail = throwable.stackTraceToString()
+            stackDetail = formatThrowableStack(throwable)
         )
         outputRecord(type = RecordType.Error, record = errorRecord)
     }
@@ -370,11 +375,34 @@ object RecordOutHelper {
 
     private fun getStackTrace(ignoreSwitch: Boolean = false): List<String> {
         if (!ignoreSwitch && !enableStack) return emptyList()
-        val stackList = Throwable().stackTrace.map { element ->
-            "${element.className} --> ${element.methodName}(line:${element.lineNumber})"
+        val stackElements = Throwable().stackTrace.toList()
+        val startIndex = stackElements.indexOfLast { it.className == "LSPHooker_" }
+        return stackElements
+            .subList(startIndex.takeIf { it != -1 } ?: 0, stackElements.size)
+            .filterNot(::shouldFilterStackElement)
+            .map(::formatStackElement)
+    }
+
+    private fun shouldFilterStackElement(element: StackTraceElement): Boolean {
+        return stackTraceFilterPrefixes.any { prefix ->
+            element.className == prefix || element.className.startsWith("$prefix.")
         }
-        val index = stackList.indexOfLast { it.startsWith("LSPHooker_ --> ") }
-        return stackList.subList(index.takeIf { it != -1 } ?: 0, stackList.size)
+    }
+
+    private fun formatStackElement(element: StackTraceElement): String {
+        return "${element.className} --> ${element.methodName}(line:${element.lineNumber})"
+    }
+
+    private fun formatThrowableStack(throwable: Throwable): String {
+        val filteredLines = throwable.stackTrace
+            .filterNot(::shouldFilterStackElement)
+            .map(::formatStackElement)
+        return buildString {
+            appendLine(throwable.toString())
+            if (filteredLines.isNotEmpty()) {
+                append(filteredLines.joinToString("\n"))
+            }
+        }.trimEnd()
     }
 
     private fun Any?.toGsonStringSafe(): String {

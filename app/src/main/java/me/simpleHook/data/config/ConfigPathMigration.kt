@@ -25,7 +25,7 @@ object ConfigPathMigration {
         }
     }
 
-    private fun runMigration(context: Context) {
+    private suspend fun runMigration(context: Context) {
         val db = AppDatabase.getDatabase(context)
         val configSystem = ConfigSystemUtil.getConfigSystem()
         var allSuccess = true
@@ -35,7 +35,7 @@ object ConfigPathMigration {
             if (!appConfig.enable) return@forEach
             if (!migratedCustomPackages.add(appConfig.packageName)) return@forEach
             val content = Json.encodeToString(appConfig)
-            if (!configSystem.saveCustomConfig(appConfig.packageName, content)) {
+            if (!ConfigRemoteSyncHelper.saveCustomConfig(configSystem, appConfig.packageName, content)) {
                 allSuccess = false
             }
         }
@@ -45,7 +45,12 @@ object ConfigPathMigration {
             if (extConfig.packageName == Constant.MODEL_EXTENSION_CONFIG) return@forEach
             if (!extConfig.enable) return@forEach
             if (!migratedExtensionPackages.add(extConfig.packageName)) return@forEach
-            if (!configSystem.saveExConfig(extConfig.packageName, extConfig.config)) {
+            if (!ConfigRemoteSyncHelper.saveExtensionConfig(
+                    configSystem,
+                    extConfig.packageName,
+                    extConfig.config
+                )
+            ) {
                 allSuccess = false
             }
         }

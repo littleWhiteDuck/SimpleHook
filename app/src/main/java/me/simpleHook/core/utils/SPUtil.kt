@@ -35,7 +35,8 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
     var web_dav_account by SharedPreferenceDelegates.string("")
     var web_dav_pw by SharedPreferenceDelegates.string("")
     var auto_x_param by SharedPreferenceDelegates.boolean(true)
-    var config_item_show_desc by SharedPreferenceDelegates.boolean(false)
+    var config_item_show_desc by SharedPreferenceDelegates.boolean(true)
+    var configItemDescDefaultMigrated by SharedPreferenceDelegates.boolean(false)
     var enableSystemAccent by SharedPreferenceDelegates.boolean(true)
     var mediaPathConfigMigrated by SharedPreferenceDelegates.boolean(false)
 
@@ -46,6 +47,12 @@ open class SPUtil(context: Context, name: String = BuildConfig.APPLICATION_ID + 
 
     fun remove(key: String) {
         preferences.edit { remove(key) }
+    }
+
+    fun ensureConfigItemDescVisibleByDefault() {
+        if (configItemDescDefaultMigrated) return
+        config_item_show_desc = true
+        configItemDescDefaultMigrated = true
     }
 
     @Suppress("unused")

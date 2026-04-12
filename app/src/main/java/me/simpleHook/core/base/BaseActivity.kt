@@ -209,6 +209,7 @@ open class BaseActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val message = runCatching {
                 val recordEntity = recordViewModel.getRecordByID(recordId)
+                    ?: error("record not found")
                 JsonUtil.formatJson(recordEntity.record.replace("\\u003e", ">"))
             }.getOrDefault("failed to load record detail")
             launch(Dispatchers.Main) {

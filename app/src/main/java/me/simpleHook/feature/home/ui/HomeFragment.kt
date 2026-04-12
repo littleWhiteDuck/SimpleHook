@@ -34,6 +34,7 @@ import me.simpleHook.core.base.BaseExtensionVBFragment
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.AppConfigItem
 import me.simpleHook.data.AppConfigItem2
+import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.core.extension.dp
@@ -87,6 +88,8 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     private var isFabShow = true
     private var isDrag = false
     private var pendingPluginExportApkPath: String? = null
+    private var pendingPluginExportSigned = true
+    private var pendingPluginExportWarning: String? = null
     private var shouldRestorePluginExportDialog = false
     private var isHandlingPluginExportDialogAction = false
     private var pluginExportSuccessDialog: AlertDialog? = null
@@ -98,6 +101,9 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingPluginExportApkPath = savedInstanceState?.getString(KEY_PENDING_PLUGIN_EXPORT_APK_PATH)
+        pendingPluginExportSigned =
+            savedInstanceState?.getBoolean(KEY_PENDING_PLUGIN_EXPORT_SIGNED) ?: true
+        pendingPluginExportWarning = savedInstanceState?.getString(KEY_PENDING_PLUGIN_EXPORT_WARNING)
         shouldRestorePluginExportDialog =
             savedInstanceState?.getBoolean(KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG) == true
     }
@@ -110,6 +116,8 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(KEY_PENDING_PLUGIN_EXPORT_APK_PATH, pendingPluginExportApkPath)
+        outState.putBoolean(KEY_PENDING_PLUGIN_EXPORT_SIGNED, pendingPluginExportSigned)
+        outState.putString(KEY_PENDING_PLUGIN_EXPORT_WARNING, pendingPluginExportWarning)
         outState.putBoolean(
             KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG,
             shouldRestorePluginExportDialog
@@ -344,6 +352,12 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
             val apkPath =
                 bundle.getString(ExportPluginBottomSheetFragment.EXPORT_PLUGIN_APK_PATH_KEY)
                     .orEmpty()
+            val isSigned = bundle.getBoolean(
+                ExportPluginBottomSheetFragment.EXPORT_PLUGIN_APK_SIGNED_KEY,
+                true
+            )
+            val signingWarning =
+                bundle.getString(ExportPluginBottomSheetFragment.EXPORT_PLUGIN_APK_WARNING_KEY)
             if (apkPath.isBlank()) {
                 requireActivity().showPopup(getString(R.string.plugin_export_open_failed))
                 return@setFragmentResultListener
@@ -354,27 +368,51 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 return@setFragmentResultListener
             }
             pendingPluginExportApkPath = apkFile.absolutePath
+            pendingPluginExportSigned = isSigned
+            pendingPluginExportWarning = signingWarning
             shouldRestorePluginExportDialog = true
-            showPluginExportSuccessDialog(apkFile)
+            showPluginExportSuccessDialog(apkFile, isSigned, signingWarning)
         }
     }
 
-    private fun showPluginExportSuccessDialog(apkFile: File) {
+    private fun showPluginExportSuccessDialog(
+        apkFile: File,
+        isSigned: Boolean,
+        signingWarning: String?
+    ) {
         if (!isAdded || pluginExportSuccessDialog?.isShowing == true) return
-        pluginExportSuccessDialog = customDialog(
-            requireActivity(),
-            title = getString(R.string.plugin_export_success_title),
-            message = getString(R.string.plugin_export_success_message, apkFile.absolutePath),
-            okText = getString(R.string.plugin_export_install),
-            okClick = {
-                installPluginApk(apkFile)
-            },
-            neutralText = getString(R.string.plugin_export_share),
-            neutralClick = {
-                sharePluginApk(apkFile)
-            },
-            cancelText = getString(R.string.dialog_cancel)
-        ).also { dialog ->
+        pluginExportSuccessDialog = if (isSigned) {
+            customDialog(
+                requireActivity(),
+                title = getString(R.string.plugin_export_success_title),
+                message = getString(R.string.plugin_export_success_message, apkFile.absolutePath),
+                okText = getString(R.string.plugin_export_install),
+                okClick = {
+                    installPluginApk(apkFile)
+                },
+                neutralText = getString(R.string.plugin_export_share),
+                neutralClick = {
+                    sharePluginApk(apkFile)
+                },
+                cancelText = getString(R.string.dialog_cancel)
+            )
+        } else {
+            customDialog(
+                requireActivity(),
+                title = getString(R.string.plugin_export_unsigned_title),
+                message = getString(
+                    R.string.plugin_export_unsigned_message,
+                    signingWarning ?: getString(R.string.common_failed),
+                    apkFile.absolutePath
+                ),
+                okText = getString(R.string.dialog_confirm),
+                neutralText = getString(R.string.plugin_export_share),
+                neutralClick = {
+                    sharePluginApk(apkFile)
+                },
+                cancelText = getString(R.string.dialog_cancel)
+            )
+        }.also { dialog ->
             dialog.setOnDismissListener {
                 pluginExportSuccessDialog = null
                 if (isHandlingPluginExportDialogAction) {
@@ -428,6 +466,10 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     }
 
     private fun handleInstallPermissionResult() {
+        if (!pendingPluginExportSigned) {
+            clearPendingPluginExportDialogState()
+            return
+        }
         val apkFile = pendingPluginExportApkPath
             ?.takeIf { it.isNotBlank() }
             ?.let(::File)
@@ -443,7 +485,11 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
             }
             installPluginApk(apkFile)
         } else {
-            showPluginExportSuccessDialog(apkFile)
+            showPluginExportSuccessDialog(
+                apkFile,
+                pendingPluginExportSigned,
+                pendingPluginExportWarning
+            )
         }
     }
 
@@ -457,11 +503,17 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 clearPendingPluginExportDialogState()
                 return
             }
-        showPluginExportSuccessDialog(apkFile)
+        showPluginExportSuccessDialog(
+            apkFile,
+            pendingPluginExportSigned,
+            pendingPluginExportWarning
+        )
     }
 
     private fun clearPendingPluginExportDialogState() {
         pendingPluginExportApkPath = null
+        pendingPluginExportSigned = true
+        pendingPluginExportWarning = null
         shouldRestorePluginExportDialog = false
     }
 
@@ -572,7 +624,11 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                         val appConfig = Json.decodeFromString<AppConfig>(configs)
                         appConfig.id = 0
                         viewModel.insertConfigs(appConfig)
-                        configSystem.saveCustomConfig(appConfig.packageName, configs)
+                        ConfigRemoteSyncHelper.saveCustomConfig(
+                            configSystem,
+                            appConfig.packageName,
+                            configs
+                        )
                     }.onFailure {
                         Looper.prepare()
                         requireActivity().showPopup(getString(R.string.main_home_import_incorrect_format_tip))
@@ -672,7 +728,8 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
 
     private fun toFilterData(pattern: String) {
         val filter = filterConfigs.filter {
-            it.appConfig.appName.contains(pattern) || it.appConfig.packageName.contains(pattern)
+            it.appConfig.appName.contains(pattern, ignoreCase = true) ||
+                it.appConfig.packageName.contains(pattern, ignoreCase = true)
         }
         mAdapter.submitList(filter)
     }
@@ -766,6 +823,8 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
 }
 
 private const val KEY_PENDING_PLUGIN_EXPORT_APK_PATH = "pending_plugin_export_apk_path"
+private const val KEY_PENDING_PLUGIN_EXPORT_SIGNED = "pending_plugin_export_signed"
+private const val KEY_PENDING_PLUGIN_EXPORT_WARNING = "pending_plugin_export_warning"
 private const val KEY_SHOULD_RESTORE_PLUGIN_EXPORT_DIALOG =
     "should_restore_plugin_export_dialog"
 

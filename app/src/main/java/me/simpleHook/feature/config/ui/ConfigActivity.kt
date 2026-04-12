@@ -21,6 +21,7 @@ import androidx.activity.viewModels
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.simpleHook.BuildConfig
 import me.simpleHook.R
@@ -38,6 +40,7 @@ import me.simpleHook.core.base.BaseActivity
 import me.simpleHook.core.compat.BundleCompat
 import me.simpleHook.core.compat.getParcelableExtraCompat
 import me.simpleHook.data.config.ConfigSystemUtil
+import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.HookConfig
 import me.simpleHook.data.FieldInfo
@@ -216,7 +219,7 @@ class ConfigActivity : BaseActivity() {
             } else {
                 paddingBottom + navigationInsets.bottom
             }
-            binding.configRV.setPadding(0, 0, 0, paddingBottom)
+            binding.configRV.setPadding(0, 0, 0, paddingBottom + 64.dp)
             binding.addMethodConfig.layoutParams = layoutParams
             windowInsets
         }
@@ -375,6 +378,7 @@ class ConfigActivity : BaseActivity() {
     private fun showDialog(
         hookConfig: HookConfig = HookConfig(), isSmali2Config: Boolean = false
     ) {
+        sp.ensureConfigItemDescVisibleByDefault()
         val dialogBinding = ConfigDialogBinding.inflate(layoutInflater, null, false)
         with(dialogBinding) {
             with(hookConfig) {
@@ -386,6 +390,8 @@ class ConfigActivity : BaseActivity() {
                 resultValueEdit.setText(resultValues)
                 hookPointEdit.setText(hookPoint)
                 returnClassNameEdit.setText(returnClassName)
+                configItemDescEdit.setText(desc)
+                configItemDescInput.isVisible = sp.config_item_show_desc
                 hookMode = mode
                 onModeChange(dialogBinding)
             }
@@ -412,8 +418,8 @@ class ConfigActivity : BaseActivity() {
         val okText =
             if (modifyConfig) getString(R.string.config_dialog_alter_this) else getString(R.string.config_dialog_add_a_new)
         val neutralText = if (modifyConfig) getString(R.string.config_dialog_delete_this) else ""
-        customDialog(this, okText = okText, okClick = { dialog ->
-            dialogDismiss(dialog, toCheck(dialogBinding, hookMode, hookConfig.enable))
+        customDialog(this, okText = okText, okClick = { dialogInterface ->
+            dialogDismiss(dialogInterface, toCheck(dialogBinding, hookMode, hookConfig.enable))
         }, cancelText = getString(R.string.config_dialog_cancel), cancelClick = { dialogInterface ->
             dialogDismiss(dialogInterface, true)
         }, neutralText = neutralText, neutralClick = { dialogInterface ->
@@ -499,6 +505,7 @@ class ConfigActivity : BaseActivity() {
         }
         val returnClassName =
             SmaliSignatureParser.classDescriptorToJavaOrSelf(dialogBinding.returnClassNameEdit.text.toString().trim())
+        val configDesc = dialogBinding.configItemDescEdit.text.toString().trim()
         val stateCheck = ConfigModeState.unresolvedState(
             mode = this.hookMode,
             className = className,
@@ -525,6 +532,7 @@ class ConfigActivity : BaseActivity() {
                 results,
                 hookPoint = hookPoint,
                 returnClassName = returnClassName,
+                desc = configDesc,
                 enable = enable
             )
             addConfig(hookConfig)
@@ -609,15 +617,17 @@ class ConfigActivity : BaseActivity() {
         loadingDialog.show()
         lifecycleScope.launch(Dispatchers.Main) {
             val appConfig = getAppConfig()
+            val configStr = Json.encodeToString(appConfig)
             if (modify) {
                 appConfigViewModel.updateConfigs(appConfig)
             } else {
                 appConfigViewModel.insertConfigs(appConfig)
             }
-            val configStr = Json.encodeToString(appConfig)
-            saveConfig(appConfig.packageName, configStr)
-            if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
-                configSystem.deleteCustomConfig(tempPackageName)
+            withContext(Dispatchers.IO) {
+                saveConfig(appConfig.packageName, configStr)
+                if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
+                    ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, tempPackageName)
+                }
             }
         }
         Handler(Looper.getMainLooper()).postDelayed({
@@ -629,8 +639,8 @@ class ConfigActivity : BaseActivity() {
         }, 800)
     }
 
-    private fun saveConfig(packageName: String, configStr: String) {
-        configSystem.saveCustomConfig(packageName, configStr)
+    private suspend fun saveConfig(packageName: String, configStr: String) {
+        ConfigRemoteSyncHelper.saveCustomConfig(configSystem, packageName, configStr)
     }
 
     private fun initBack() {
@@ -826,4 +836,3 @@ class ConfigActivity : BaseActivity() {
 }
 
 data class AppInfo(val appName: String, val packageName: String, val versionName: String)
-

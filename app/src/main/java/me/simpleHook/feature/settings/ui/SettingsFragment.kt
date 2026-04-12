@@ -42,6 +42,7 @@ import me.simpleHook.core.utils.ThemeModeUtil
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.data.PermissionState
 import me.simpleHook.data.config.ConfigSystemUtil
+import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.feature.about.ui.AboutActivity
 import me.simpleHook.feature.backup.ui.BackupActivity
@@ -237,10 +238,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val extensionPackageNames = viewModel.getAllPackageNames()
                 for (i in apps.indices) {
                     if (apps[i] !in appPackageNames) {
-                        configSystem.deleteCustomConfig(apps[i])
+                        ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, apps[i])
                     }
                     if (apps[i] !in extensionPackageNames) {
-                        configSystem.deleteExConfig(apps[i])
+                        ConfigRemoteSyncHelper.deleteExtensionConfig(configSystem, apps[i])
                     }
                 }
             }
@@ -279,9 +280,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     val tempConfigs = ArrayList<ExtensionConfigEntity>()
                     configs.forEach {
                         if (configSystem.isEnableDelete(it.packageName)) {
-                            configSystem.deleteExConfig(it.packageName)
                             tempConfigs.add(it)
-                            viewModel.deleteExtConfigs(it)
                         }
                     }
                     viewModel.deleteExtConfigs(*tempConfigs.toTypedArray())

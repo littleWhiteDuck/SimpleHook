@@ -8,14 +8,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.simpleHook.core.GlobalValue
-import me.simpleHook.data.config.ConfigSystemUtil
 import me.simpleHook.core.constant.Constant
+import me.simpleHook.core.utils.FlavorUtil
+import me.simpleHook.data.config.ConfigSystemUtil
+import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.AppDatabase
 import me.simpleHook.data.local.db.AppRepository
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.platform.lsposed.LSPosedHelper
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.feature.backup.domain.BackupHelper
 import java.util.UUID
 
@@ -35,16 +36,18 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
         appRepository.insertConfigs(*appConfig)
 
-        appConfig.forEach(::writeToExternal)
+        for (config in appConfig) {
+            writeToExternal(config)
+        }
         syncScopeForPackages(appConfig.map { it.packageName })
 
         notifyBackupConfig()
     }
 
 
-    private fun writeToExternal(appConfig: AppConfig) {
+    private suspend fun writeToExternal(appConfig: AppConfig) {
         val configStr = Json.encodeToString(appConfig)
-        configSystem.saveCustomConfig(appConfig.packageName, configStr)
+        ConfigRemoteSyncHelper.saveCustomConfig(configSystem, appConfig.packageName, configStr)
     }
 
     private fun notifyBackupConfig() = viewModelScope.launch(Dispatchers.Main) {
@@ -61,23 +64,25 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun updateConfigs(vararg appConfig: AppConfig, needWriteToFile: Boolean = true) =
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
 
             appRepository.updateConfigs(*appConfig)
 
             if (needWriteToFile) {
-                appConfig.forEach(::writeToExternal)
+                for (config in appConfig) {
+                    writeToExternal(config)
+                }
                 syncScopeForPackages(appConfig.map { it.packageName })
             }
 
             notifyBackupConfig()
         }
 
-    fun deleteConfigs(vararg appConfig: AppConfig) = viewModelScope.launch {
+    fun deleteConfigs(vararg appConfig: AppConfig) = viewModelScope.launch(Dispatchers.IO) {
         appRepository.deleteConfigs(*appConfig)
 
         appConfig.forEach { config ->
-            configSystem.deleteCustomConfig(config.packageName)
+            ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, config.packageName)
         }
 
         syncScopeForPackages(appConfig.map { it.packageName })
@@ -92,9 +97,13 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     fun getAllPackageNames() = appRepository.getAllPackageNames()
 
 
-    private fun writeToExternal(extConfigEntity: ExtensionConfigEntity) {
+    private suspend fun writeToExternal(extConfigEntity: ExtensionConfigEntity) {
         if (extConfigEntity.packageName == Constant.MODEL_EXTENSION_CONFIG) return
-        configSystem.saveExConfig(extConfigEntity.packageName, extConfigEntity.config)
+        ConfigRemoteSyncHelper.saveExtensionConfig(
+            configSystem,
+            extConfigEntity.packageName,
+            extConfigEntity.config
+        )
     }
 
     fun insertExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
@@ -102,22 +111,30 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
             Dispatchers.IO
         ) {
             extensionConfigDao.insertExtConfigs(*extConfigEntity)
-            extConfigEntity.forEach(::writeToExternal)
+            for (config in extConfigEntity) {
+                writeToExternal(config)
+            }
             syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
 
     fun updateExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             extensionConfigDao.updateExtConfigs(*extConfigEntity)
-            extConfigEntity.forEach(::writeToExternal)
+            for (config in extConfigEntity) {
+                writeToExternal(config)
+            }
             syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
 
     fun deleteExtConfigs(vararg extConfigEntity: ExtensionConfigEntity) =
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             extensionConfigDao.deleteExtConfigs(*extConfigEntity)
+            extConfigEntity.forEach { config ->
+                if (config.packageName == Constant.MODEL_EXTENSION_CONFIG) return@forEach
+                ConfigRemoteSyncHelper.deleteExtensionConfig(configSystem, config.packageName)
+            }
             syncScopeForPackages(extConfigEntity.map { it.packageName })
             notifyBackupConfig()
         }
@@ -126,6 +143,9 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
     fun deleteExtConfigsByPackageName(packageName: String) =
         viewModelScope.launch(Dispatchers.IO) {
             extensionConfigDao.deleteExtConfigsByPackageName(packageName)
+            if (packageName != Constant.MODEL_EXTENSION_CONFIG) {
+                ConfigRemoteSyncHelper.deleteExtensionConfig(configSystem, packageName)
+            }
             notifyBackupConfig()
         }
 

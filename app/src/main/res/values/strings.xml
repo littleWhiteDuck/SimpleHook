@@ -55,6 +55,10 @@
     <string name="plugin_export_version_code_invalid">请输入合法的版本号</string>
     <string name="plugin_export_success_title">导出成功</string>
     <string name="plugin_export_success_message">插件 APK 已生成：%s</string>
+    <string name="plugin_export_unsigned_title">导出成功（未签名）</string>
+    <string name="plugin_export_unsigned_message">插件 APK 已生成，但自动签名失败：%1$s
+文件路径：%2$s
+可以考虑使用 MT 管理器等类似工具手动签名后再安装。</string>
     <string name="plugin_export_failed">导出失败：%s</string>
     <string name="plugin_export_install">安装</string>
     <string name="plugin_export_share">分享</string>

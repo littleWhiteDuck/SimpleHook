@@ -30,6 +30,8 @@
 
 -keep class me.simpleHook.platform.hook.entry.Xp51HookEntry { *; }
 -keep class me.simpleHook.platform.hook.entry.Lsp101HookEntry { *; }
+-keepnames class me.simpleHook.platform.hook.*
+-keeppackagenames me.simpleHook.platform.hook,me.simpleHook.platform.hook.**
 
 -keepattributes Signature
 

@@ -19,6 +19,7 @@ import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.databinding.FragmentExportPluginSheetBinding
 import me.simpleHook.feature.config.ui.adapter.ImExportAdapter
 import me.simpleHook.feature.pluginexport.domain.PluginApkExporter
+import me.simpleHook.feature.pluginexport.domain.PluginExportResult
 import me.simpleHook.feature.pluginexport.domain.PluginExportRequest
 import kotlin.math.max
 
@@ -165,10 +166,14 @@ class ExportPluginBottomSheetFragment(
         lifecycleScope.launch {
             runCatching {
                 PluginApkExporter(appContext).export(request)
-            }.onSuccess { apkFile ->
+            }.onSuccess { exportResult: PluginExportResult ->
                 parentFragmentManager.setFragmentResult(
                     EXPORT_PLUGIN_RESULT_KEY,
-                    bundleOf(EXPORT_PLUGIN_APK_PATH_KEY to apkFile.absolutePath)
+                    bundleOf(
+                        EXPORT_PLUGIN_APK_PATH_KEY to exportResult.apkFile.absolutePath,
+                        EXPORT_PLUGIN_APK_SIGNED_KEY to exportResult.isSigned,
+                        EXPORT_PLUGIN_APK_WARNING_KEY to exportResult.signingErrorMessage
+                    )
                 )
                 dismissAllowingStateLoss()
             }.onFailure {
@@ -315,6 +320,8 @@ class ExportPluginBottomSheetFragment(
     companion object {
         const val EXPORT_PLUGIN_RESULT_KEY = "export_plugin_result"
         const val EXPORT_PLUGIN_APK_PATH_KEY = "export_plugin_apk_path"
+        const val EXPORT_PLUGIN_APK_SIGNED_KEY = "export_plugin_apk_signed"
+        const val EXPORT_PLUGIN_APK_WARNING_KEY = "export_plugin_apk_warning"
 
         private const val STEP_SELECT = 0
         private const val STEP_INFO = 1
