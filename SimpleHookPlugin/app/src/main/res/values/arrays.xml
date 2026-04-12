@@ -1,0 +1,5 @@
+<resources>
+    <string-array name="xposed_scope">
+        <item>me.duck.hooktest</item>
+    </string-array>
+</resources>
