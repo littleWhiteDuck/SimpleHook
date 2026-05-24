@@ -12,7 +12,7 @@ import me.simpleHook.data.local.db.entity.RecordEntity
 
 @Database(
     entities = [RecordEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class RecordDatabase: RoomDatabase() {
@@ -31,6 +31,7 @@ abstract class RecordDatabase: RoomDatabase() {
         )
 
         private val REQUIRED_RECORD_COLUMNS_V5 = REQUIRED_RECORD_COLUMNS + "processName"
+        private val REQUIRED_RECORD_COLUMNS_V6 = REQUIRED_RECORD_COLUMNS_V5 + "sourceKey"
 
         @Volatile
         private var INSTANCE: RecordDatabase? = null
@@ -49,7 +50,13 @@ abstract class RecordDatabase: RoomDatabase() {
                 appContext,
                 RecordDatabase::class.java,
                 RECORD_DB_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            ).addMigrations(
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6
+            )
                 .build()
                 .also {
                     INSTANCE = it
@@ -94,6 +101,17 @@ abstract class RecordDatabase: RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE RecordEntity ADD COLUMN sourceKey TEXT DEFAULT NULL"
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_RecordEntity_sourceKey ON RecordEntity(sourceKey)"
+                )
+            }
+        }
+
         private fun cleanupLegacySearchArtifactsIfNeeded(context: Context) {
             val dbFile = context.getDatabasePath(RECORD_DB_NAME)
             if (!dbFile.exists()) return
@@ -129,10 +147,10 @@ abstract class RecordDatabase: RoomDatabase() {
         }
 
         private fun hasValidRecordSchema(db: SQLiteDatabase): Boolean {
-            val requiredColumns = if (db.version >= 5) {
-                REQUIRED_RECORD_COLUMNS_V5
-            } else {
-                REQUIRED_RECORD_COLUMNS
+            val requiredColumns = when {
+                db.version >= 6 -> REQUIRED_RECORD_COLUMNS_V6
+                db.version >= 5 -> REQUIRED_RECORD_COLUMNS_V5
+                else -> REQUIRED_RECORD_COLUMNS
             }
             return db.rawQuery("PRAGMA table_info(`RecordEntity`)", null).use { cursor ->
                 if (cursor.count == 0) return false

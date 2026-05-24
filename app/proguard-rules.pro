@@ -35,6 +35,11 @@
 -keeppackagenames com.github.kyuubiran.ezxhelper,com.github.kyuubiran.ezxhelper.**
 -keeppackagenames io.github.qauxv,io.github.qauxv.**
 
+# Keep hook bridge frames stable so stack filtering can still match io.github.qauxv.*
+-keep class io.github.qauxv.util.xpcompat.WrappedCallbacks$WrappedHookCallback { *; }
+-keep class io.github.qauxv.loader.sbl.lsp101.Lsp101HookWrapper$Lsp101HookDispatchAgent { *; }
+-keep class io.github.qauxv.loader.sbl.xp51.Xp51HookWrapper$Xp51HookCallback { *; }
+
 -keepattributes Signature
 
 # For using GSON @Expose annotation

@@ -5,9 +5,11 @@ package me.simpleHook.platform.shizuku;
 
 interface IFileService {
 
+    List<String> listFiles(String dirPath);
     boolean copyFile(String scrPath, String desPath);
     boolean writeFile(String path, String content);
     boolean deleteFile(String path);
+    boolean deleteFiles(in List<String> paths);
     void forceStopPackage(String packageName);
     void reLaunchApp(String packageName, String activityName);
 }

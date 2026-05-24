@@ -25,6 +25,12 @@ object SuUtil {
         return Shell.cmd("rm -rf $filePath").exec().isSuccess
     }
 
+    fun listFileNames(dirPath: String): List<String> {
+        val result = Shell.cmd("ls -1 $dirPath").exec()
+        if (!result.isSuccess) return emptyList()
+        return result.out.map { it.trim() }.filter { it.isNotEmpty() }
+    }
+
     fun makeDirs(filePath: String): Boolean {
         return Shell.cmd("mkdir -p $filePath").exec().isSuccess
     }

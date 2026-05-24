@@ -3,8 +3,19 @@ package me.simpleHook.platform.shizuku
 import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.core.utils.FileUtil
 import me.simpleHook.core.utils.SuUtil
+import java.io.File
 
 class FileService : IFileService.Stub() {
+
+    override fun listFiles(dirPath: String): List<String> {
+        return runCatching {
+            if (ShizukuFileManager.rootMode) {
+                File(dirPath).listFiles()?.map { it.name } ?: emptyList()
+            } else {
+                SuUtil.listFileNames(dirPath)
+            }
+        }.onFailure { it.printStackTrace() }.getOrDefault(emptyList())
+    }
 
     override fun copyFile(scrPath: String, desPath: String): Boolean {
         // Android/media directory can use file API directly, no shell command required.
@@ -29,6 +40,10 @@ class FileService : IFileService.Stub() {
             SuUtil.deleteFile(filePath = path)
         }
     }.onFailure { it.printStackTrace() }.getOrDefault(false)
+
+    override fun deleteFiles(paths: List<String>): Boolean {
+        return paths.all(::deleteFile)
+    }
 
     override fun forceStopPackage(packageName: String) {
         SuUtil.forceStopApp(packageName)

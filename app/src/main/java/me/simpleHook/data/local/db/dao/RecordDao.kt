@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import me.simpleHook.data.RecordPackageCount
@@ -18,7 +19,7 @@ interface RecordDao {
     @Query("SELECT * FROM RecordEntity ORDER BY ID DESC")
     fun getAllRecords(): Flow<List<RecordEntity>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRecords(vararg recordEntity: RecordEntity)
 
     @Update
@@ -36,7 +37,7 @@ interface RecordDao {
 
     @Query(
         """
-        SELECT id,type,subType,'' AS record,packageName,processName,isRead,isMark,time
+        SELECT id,type,subType,'' AS record,packageName,processName,isRead,isMark,time,sourceKey
         FROM RecordEntity
         WHERE id = :id
         LIMIT 1

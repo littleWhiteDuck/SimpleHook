@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceCategory
+import androidx.preference.SeekBarPreference
 import me.simpleHook.R
 import me.simpleHook.core.base.BasePreferenceFragment
 import me.simpleHook.data.ExtRecordSettings
@@ -22,6 +23,12 @@ class RecordSettingsFragment : BasePreferenceFragment() {
     private val navController by lazy {
         requireActivity().findNavController(R.id.nav_host_fragment)
     }
+    private companion object {
+        const val MIN_CACHE_MB = 64
+        const val MAX_CACHE_MB = 256
+        const val CACHE_STEP_MB = 32
+    }
+
     private lateinit var recordSettings: ExtRecordSettings
 
     override fun init() {
@@ -74,14 +81,42 @@ class RecordSettingsFragment : BasePreferenceFragment() {
                 true
             }
         }
+        val maxCache = SeekBarPreference(requireContext()).apply {
+            isPersistent = false
+            title = getString(R.string.extension_record_title_max_cache)
+            min = 0
+            max = (MAX_CACHE_MB - MIN_CACHE_MB) / CACHE_STEP_MB
+            value = cacheMbToProgress(recordSettings.maxCacheMb)
+            showSeekBarValue = false
+            isIconSpaceReserved = false
+            summary = cacheSummary(progressToCacheMb(value))
+            setOnPreferenceChangeListener { preference, newValue ->
+                val maxCacheMb = progressToCacheMb(newValue as Int)
+                recordSettings.maxCacheMb = maxCacheMb
+                preference.summary = cacheSummary(maxCacheMb)
+                true
+            }
+        }
         val preferenceCategory = PreferenceCategory(requireContext()).apply {
             title = getString(R.string.extension_record_record)
             isIconSpaceReserved = false
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.addPreferences(stack, base64, hex)
+        preferenceCategory.addPreferences(stack, base64, hex, maxCache)
         setPreferenceScreen(preferenceScreen)
+    }
+
+    private fun progressToCacheMb(progress: Int): Int {
+        return MIN_CACHE_MB + progress.coerceAtLeast(0) * CACHE_STEP_MB
+    }
+
+    private fun cacheMbToProgress(cacheMb: Int): Int {
+        return ((cacheMb.coerceIn(MIN_CACHE_MB, MAX_CACHE_MB) - MIN_CACHE_MB) / CACHE_STEP_MB)
+    }
+
+    private fun cacheSummary(cacheMb: Int): String {
+        return getString(R.string.extension_record_summary_max_cache, cacheMb)
     }
 
     private fun initMenu() {

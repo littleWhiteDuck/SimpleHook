@@ -70,6 +70,7 @@ object RecordOutHelper {
         enableStack = safeSettings.enableStack
         enableBase64 = safeSettings.enableBase64
         enableHex = safeSettings.enableHex
+        RecordLogger.applyRecordSettings(HookHelper.hostPackageName, safeSettings)
     }
 
     fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {

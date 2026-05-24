@@ -765,6 +765,8 @@
     <string name="extension_record_title_add_base64">输出结果增加Base64</string>
     <string name="extension_record_title_add_hex">输出结果增加Hex</string>
     <string name="extension_record_title_add_stack">记录调用堆栈</string>
+    <string name="extension_record_title_max_cache">最大缓存记录</string>
+    <string name="extension_record_summary_max_cache">%1$d MB</string>
     <string name="config_sort_done">保存排序</string>
     <string name="config_auto_tran_param">自动转换参数</string>
     <string name="config_show_note">显示描述</string>

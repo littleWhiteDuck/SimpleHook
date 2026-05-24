@@ -6,3 +6,4 @@ sign.properties
 /app/mapping.txt
 /build/reports/
 /.helloagents/
+.DS_Store

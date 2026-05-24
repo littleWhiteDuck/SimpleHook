@@ -13,7 +13,8 @@ import me.simpleHook.data.record.RecordType
         Index(value = ["packageName", "time"]),
         Index(value = ["type", "time"]),
         Index(value = ["isMark", "packageName", "time"]),
-        Index(value = ["isMark", "type", "time"])
+        Index(value = ["isMark", "type", "time"]),
+        Index(value = ["sourceKey"], unique = true)
     ]
 )
 data class RecordEntity(
@@ -27,4 +28,5 @@ data class RecordEntity(
     val isRead: Boolean = false,
     val isMark: Boolean = false,
     val time: String,
+    val sourceKey: String? = null,
 )
