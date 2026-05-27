@@ -46,7 +46,7 @@ object Constant {
 
     const val CONFIG_IMPORT_MODE = 0
     const val CONFIG_EXPORT_MODE = 1
-    const val CONFIG_EXPORT_JS_MODE = 2
+    const val CONFIG_EXPORT_FRIDA_MODE = 2
     const val CONFIG_EXPORT_PLUGIN_APK_MODE = 3
 
 

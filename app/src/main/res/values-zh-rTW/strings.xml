@@ -246,9 +246,9 @@
     <string-array name="xposed_scope">
         <item>me.duck.hooktest</item>
     </string-array>
-    <string name="main_settings_summary_js_config">僅用於測試，未完全支持</string>
-    <string name="main_settings_title_JS_config">導出為JSHook配置</string>
-    <string name="config_dialog_title_export_js_config">導出為JSHook-Rhino配置</string>
+    <string name="main_settings_summary_frida_config">將目前 Hook 配置轉換為 Frida 腳本，便於調試使用</string>
+    <string name="main_settings_title_frida_config">導出 Frida Hook 腳本</string>
+    <string name="config_dialog_title_export_frida_config">導出 Frida Hook 腳本</string>
     <string name="config_dialog_title_import_config">導入配置</string>
     <string name="config_dialog_title_export_config">導出配置</string>
     <string name="config_dialog_button_invert_selection">反選</string>

@@ -236,9 +236,9 @@ You can try signing it manually with MT Manager or a similar tool before install
         <item>ENGLISH</item>
     </string-array>
     <string name="main_settings_select_language_title">Language</string>
-    <string name="main_settings_title_JS_config">Export as JSHook config</string>
-    <string name="main_settings_summary_js_config">For testing only, not fully supported</string>
-    <string name="config_dialog_title_export_js_config">Export as JSHook-Rhino config</string>
+    <string name="main_settings_title_frida_config">Export Frida hook script</string>
+    <string name="main_settings_summary_frida_config">Convert current hook configs into a Frida script for debugging.</string>
+    <string name="config_dialog_title_export_frida_config">Export Frida hook script</string>
     <string name="config_dialog_title_export_config">Export configuration</string>
     <string name="config_dialog_title_import_config">Import configuration</string>
     <string name="config_dialog_button_invert_selection">Invert selection</string>

@@ -161,9 +161,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-        findPreference<Preference>("toJSConfig")?.apply {
+        findPreference<Preference>("toFridaConfig")?.apply {
             setOnPreferenceClickListener {
-                toJSConfig()
+                toFridaConfig()
                 true
             }
         }
@@ -249,7 +249,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun toJSConfig() {
+    private fun toFridaConfig() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val appConfigItem2s = mutableListOf<AppConfigItem2>()
             viewModel.getConfigs().forEach {
@@ -257,10 +257,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             ConfigDialogFragment(
                 appConfigItem2s,
-                Constant.CONFIG_EXPORT_JS_MODE
+                Constant.CONFIG_EXPORT_FRIDA_MODE
             ).show(
                 requireActivity().supportFragmentManager,
-                "toJS"
+                "toFrida"
             )
         }
     }

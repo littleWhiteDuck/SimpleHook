@@ -27,7 +27,7 @@ import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.feature.config.ui.adapter.ImExportAdapter
 import me.simpleHook.feature.main.ui.MainActivity
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
-import me.simpleHook.core.utils.JsHook
+import me.simpleHook.core.utils.FridaHook
 import me.simpleHook.core.utils.ToolUtil
 import me.simpleHook.core.utils.WindowUtil
 
@@ -68,7 +68,8 @@ class ConfigDialogFragment(
             title.text = when (mode) {
                 Constant.CONFIG_IMPORT_MODE -> getString(R.string.config_dialog_title_import_config)
                 Constant.CONFIG_EXPORT_MODE -> getString(R.string.config_dialog_title_export_config)
-                else -> getString(R.string.config_dialog_title_export_js_config)
+                Constant.CONFIG_EXPORT_FRIDA_MODE -> getString(R.string.config_dialog_title_export_frida_config)
+                else -> getString(R.string.config_dialog_title_export_config)
             }
             confirm.setOnClickListener {
                 var checkIsZero = true
@@ -110,10 +111,10 @@ class ConfigDialogFragment(
                     if (checkIsZero) {
                         requireActivity().showPopup(getString(R.string.config_dialog_selection_empty))
                     } else {
-                        val strConfig =
-                            if (mode == Constant.CONFIG_EXPORT_MODE) getStrConfig(tempList) else JsHook.getStringJSConfig(
-                                tempList
-                            )
+                        val strConfig = when (mode) {
+                            Constant.CONFIG_EXPORT_FRIDA_MODE -> FridaHook.getStringFridaConfig(tempList)
+                            else -> getStrConfig(tempList)
+                        }
                         ToolUtil.toClip(mContext, strConfig)
                         requireActivity().showPopup(getString(R.string.main_home_export_configs_tip))
                         this@ConfigDialogFragment.dismiss()
