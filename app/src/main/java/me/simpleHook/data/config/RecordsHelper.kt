@@ -6,6 +6,9 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import me.simpleHook.core.App
@@ -18,11 +21,13 @@ import me.simpleHook.core.utils.GuiseBase64
 import me.simpleHook.core.utils.LogUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.data.local.db.entity.RecordEntity
+import me.simpleHook.data.record.RecordSource
 import me.simpleHook.platform.shizuku.ShizukuFileManager
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import java.util.zip.GZIPInputStream
 
@@ -31,6 +36,11 @@ object RecordsHelper {
     private const val MAX_RECORDS_PER_RUN = 2000
     private const val MAX_SEGMENTS_PER_RUN = 8
     private const val MAX_RUN_MILLIS = 1500L
+    private const val CUSTOM_MAX_COMPRESSED_RECORD_BYTES = 4 * 1024 * 1024
+    private const val EXTENSION_MAX_COMPRESSED_RECORD_BYTES = 16 * 1024 * 1024
+    private const val LOCK_WAIT_MILLIS = 1000L
+    private const val LOCK_POLL_MILLIS = 100L
+    private const val CANCEL_CHECK_INTERVAL_LINES = 64
 
     private val locks = ConcurrentHashMap<String, ReentrantLock>()
 
@@ -53,17 +63,29 @@ object RecordsHelper {
         packageName: String,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
-        val readyPath = ConfigConstant.RECORD_QUEUE_READY_DIR.formatPath(packageName)
-        val lock = getLock(readyPath)
-        lock.lock()
+        val recordPath = ConfigConstant.RECORD_DIR.formatPath(packageName)
+        val lock = getLock(recordPath)
+        val budget = ReadBudget()
+        val coroutineContext = currentCoroutineContext()
+        if (!lock.tryLockCancellable()) return
         try {
-            if (GlobalValue.isRootWork) {
-                rootReadSegments(packageName, readyPath, onBatch)
-            } else if (GlobalValue.isShizukuWork) {
-                shizukuReadSegments(packageName, readyPath, onBatch)
-            } else {
-                fileReadSegments(packageName, readyPath, context, onBatch)
+            for (source in RecordSource.values()) {
+                coroutineContext.ensureActive()
+                if (shouldStop(budget)) break
+                val readyPath = ConfigConstant.RECORD_SOURCE_READY_DIR.formatPath(
+                    packageName,
+                    source.dirName
+                )
+                if (GlobalValue.isRootWork) {
+                    rootReadSegments(packageName, source, readyPath, budget, onBatch)
+                } else if (GlobalValue.isShizukuWork) {
+                    shizukuReadSegments(packageName, source, readyPath, budget, onBatch)
+                } else {
+                    fileReadSegments(packageName, source, readyPath, context, budget, onBatch)
+                }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             LogUtil.outLog(e.stackTraceToString())
         } finally {
@@ -73,35 +95,34 @@ object RecordsHelper {
 
     private suspend fun shizukuReadSegments(
         packageName: String,
+        source: RecordSource,
         readyPath: String,
+        budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
         val service = ShizukuFileManager.service ?: return
-        val names = service.listFiles(readyPath)
-            ?.filter { it.endsWith(".seg") }
-            ?.sorted()
-            ?.take(MAX_SEGMENTS_PER_RUN)
-            ?: return
+        val cacheRoot = App.externalCacheDir ?: App.cacheDir
+        val cacheDir = cacheRoot.resolve("record_segments").also { it.mkdirs() }
+        val names = shizukuReadManifestNames(packageName, source, cacheDir)
         if (names.isEmpty()) return
 
-        val cacheDir = App.externalCacheDir!!.resolve("record_segments").also { it.mkdirs() }
-        val start = System.currentTimeMillis()
-        var consumedRecords = 0
-
+        val coroutineContext = currentCoroutineContext()
         for (name in names) {
-            if (shouldStop(start, consumedRecords)) break
-            val localFile = File(cacheDir, name)
+            coroutineContext.ensureActive()
+            if (shouldStop(budget)) break
+            val localFile = File(cacheDir, "${source.dirName}_$name")
             val remotePath = "$readyPath/$name"
             if (service.copyFile(remotePath, localFile.path) && localFile.canRead()) {
-                val complete = localFile.inputStream().use { input ->
+                val result = localFile.inputStream().use { input ->
                     emitRecordBatches(
                         input = input,
                         packageName = packageName,
+                        source = source,
                         segmentName = name,
                         onBatch = onBatch
                     )
                 }
-                consumedRecords += complete.recordsRead
+                budget.consume(result)
                 localFile.delete()
                 service.deleteFile(remotePath)
             }
@@ -110,50 +131,107 @@ object RecordsHelper {
 
     private suspend fun rootReadSegments(
         packageName: String,
+        source: RecordSource,
         readyPath: String,
+        budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
-        val readyDir = SuFile.open(readyPath)
-        val segments = readyDir.listFiles()
-            ?.filter { it.isFile && it.name.endsWith(".seg") }
-            ?.sortedBy { it.name }
-            ?.take(MAX_SEGMENTS_PER_RUN)
-            ?: return
-        val start = System.currentTimeMillis()
-        var consumedRecords = 0
+        val names = rootReadManifestNames(packageName, source)
+        if (names.isEmpty()) return
 
-        for (segment in segments) {
-            if (shouldStop(start, consumedRecords)) break
+        val coroutineContext = currentCoroutineContext()
+        for (name in names) {
+            coroutineContext.ensureActive()
+            if (shouldStop(budget)) break
+            val segment = SuFile.open("$readyPath/$name")
+            if (!segment.exists() || !segment.isFile) continue
             val result = SuFileInputStream.open(segment).use { input ->
                 emitRecordBatches(
                     input = input,
                     packageName = packageName,
-                    segmentName = segment.name,
+                    source = source,
+                    segmentName = name,
                     onBatch = onBatch
                 )
             }
-            consumedRecords += result.recordsRead
+            budget.consume(result)
             segment.delete()
         }
     }
 
+    private fun shizukuReadManifestNames(
+        packageName: String,
+        source: RecordSource,
+        cacheDir: File
+    ): List<String> {
+        val service = ShizukuFileManager.service ?: return emptyList()
+        val remotePath = ConfigConstant.RECORD_SOURCE_MANIFEST_PATH.formatPath(
+            packageName,
+            source.dirName
+        )
+        val localFile = File(cacheDir, "manifest_${packageName.hashCode()}_${source.dirName}.txt")
+        if (!service.copyFile(remotePath, localFile.path) || !localFile.canRead()) {
+            localFile.delete()
+            return emptyList()
+        }
+        val names = localFile.bufferedReader(Charsets.UTF_8).useLines { lines ->
+            normalizeSegmentNames(lines)
+        }
+        localFile.delete()
+        return names
+    }
+
+    private fun rootReadManifestNames(
+        packageName: String,
+        source: RecordSource
+    ): List<String> {
+        val manifestPath = ConfigConstant.RECORD_SOURCE_MANIFEST_PATH.formatPath(
+            packageName,
+            source.dirName
+        )
+        val manifestFile = SuFile.open(manifestPath)
+        if (!manifestFile.exists() || !manifestFile.isFile) return emptyList()
+        return SuFileInputStream.open(manifestFile).bufferedReader(Charsets.UTF_8).useLines { lines ->
+            normalizeSegmentNames(lines)
+        }
+    }
+
+    private fun normalizeSegmentNames(lines: Sequence<String>): List<String> {
+        return lines
+            .map { it.trim() }
+            .filter(::isSegmentName)
+            .distinct()
+            .toList()
+    }
+
+    private fun isSegmentName(name: String): Boolean {
+        return name.isNotEmpty() &&
+            name.endsWith(".seg") &&
+            !name.contains("/") &&
+            !name.contains("\\")
+    }
+
     private suspend fun fileReadSegments(
         packageName: String,
+        source: RecordSource,
         readyPath: String,
         context: Context,
+        budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
         if (OSUtil.atLeastR()) {
-            documentReadSegments(packageName, readyPath, context, onBatch)
+            documentReadSegments(packageName, source, readyPath, context, budget, onBatch)
         } else {
-            localFileReadSegments(packageName, readyPath, onBatch)
+            localFileReadSegments(packageName, source, readyPath, budget, onBatch)
         }
     }
 
     private suspend fun documentReadSegments(
         packageName: String,
+        source: RecordSource,
         readyPath: String,
         context: Context,
+        budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
         val rootUri = Constant.ANDROID_DATA_URI.toUriOrNull() ?: return
@@ -162,50 +240,52 @@ object RecordsHelper {
         val segments = readyDir.listFiles()
             .filter { it.isFile && it.name?.endsWith(".seg") == true }
             .sortedBy { it.name.orEmpty() }
-            .take(MAX_SEGMENTS_PER_RUN)
 
-        val start = System.currentTimeMillis()
-        var consumedRecords = 0
+        val coroutineContext = currentCoroutineContext()
         for (segment in segments) {
-            if (shouldStop(start, consumedRecords)) break
+            coroutineContext.ensureActive()
+            if (shouldStop(budget)) break
             val name = segment.name ?: continue
             val input = context.contentResolver.openInputStream(segment.uri) ?: continue
             val result = input.use {
                 emitRecordBatches(
                     input = it,
                     packageName = packageName,
+                    source = source,
                     segmentName = name,
                     onBatch = onBatch
                 )
             }
-            consumedRecords += result.recordsRead
+            budget.consume(result)
             DocumentsContract.deleteDocument(context.contentResolver, segment.uri)
         }
     }
 
     private suspend fun localFileReadSegments(
         packageName: String,
+        source: RecordSource,
         readyPath: String,
+        budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
         val segments = File(readyPath).listFiles { file -> file.isFile && file.extension == "seg" }
             ?.sortedBy { it.name }
-            ?.take(MAX_SEGMENTS_PER_RUN)
             ?: return
-        val start = System.currentTimeMillis()
-        var consumedRecords = 0
 
+        val coroutineContext = currentCoroutineContext()
         for (segment in segments) {
-            if (shouldStop(start, consumedRecords)) break
+            coroutineContext.ensureActive()
+            if (shouldStop(budget)) break
             val result = segment.inputStream().use { input ->
                 emitRecordBatches(
                     input = input,
                     packageName = packageName,
+                    source = source,
                     segmentName = segment.name,
                     onBatch = onBatch
                 )
             }
-            consumedRecords += result.recordsRead
+            budget.consume(result)
             FileUtil.deleteFile(segment)
         }
     }
@@ -213,17 +293,26 @@ object RecordsHelper {
     private suspend fun emitRecordBatches(
         input: InputStream,
         packageName: String,
+        source: RecordSource,
         segmentName: String,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ): SegmentReadResult {
         val batch = ArrayList<RecordEntity>(READ_BATCH_SIZE)
+        val coroutineContext = currentCoroutineContext()
         var recordsRead = 0
         var lineNo = 0
 
         input.bufferedReader(Charsets.UTF_8).useLines { lines ->
             for (str in lines) {
                 lineNo++
-                getRecordEntity(str, "$packageName/$segmentName#$lineNo")?.let { recordEntity ->
+                if (lineNo % CANCEL_CHECK_INTERVAL_LINES == 0) {
+                    coroutineContext.ensureActive()
+                }
+                if (isOversizedRecordLine(source, str)) {
+                    continue
+                }
+                val sourceKey = "$packageName/${source.dirName}/$segmentName#$lineNo"
+                getRecordEntity(str, sourceKey)?.let { recordEntity ->
                     batch.add(recordEntity)
                     recordsRead++
                     if (batch.size >= READ_BATCH_SIZE) {
@@ -240,9 +329,28 @@ object RecordsHelper {
         return SegmentReadResult(recordsRead = recordsRead)
     }
 
-    private fun shouldStop(startTime: Long, recordsRead: Int): Boolean {
-        return recordsRead >= MAX_RECORDS_PER_RUN ||
-            System.currentTimeMillis() - startTime >= MAX_RUN_MILLIS
+    private fun isOversizedRecordLine(source: RecordSource, recordLine: String): Boolean {
+        val maxBytes = when (source) {
+            RecordSource.Custom -> CUSTOM_MAX_COMPRESSED_RECORD_BYTES
+            RecordSource.Extension -> EXTENSION_MAX_COMPRESSED_RECORD_BYTES
+        }
+        return recordLine.length > maxBytes
+    }
+
+    private fun shouldStop(budget: ReadBudget): Boolean {
+        return budget.recordsRead >= MAX_RECORDS_PER_RUN ||
+            budget.segmentsRead >= MAX_SEGMENTS_PER_RUN ||
+            System.currentTimeMillis() - budget.startTime >= MAX_RUN_MILLIS
+    }
+
+    private suspend fun ReentrantLock.tryLockCancellable(): Boolean {
+        val coroutineContext = currentCoroutineContext()
+        val deadline = System.currentTimeMillis() + LOCK_WAIT_MILLIS
+        while (true) {
+            coroutineContext.ensureActive()
+            if (tryLock(LOCK_POLL_MILLIS, TimeUnit.MILLISECONDS)) return true
+            if (System.currentTimeMillis() >= deadline) return false
+        }
     }
 
     private fun getRecordEntity(recordStr: String, sourceKey: String): RecordEntity? {
@@ -259,7 +367,7 @@ object RecordsHelper {
         }
     }.getOrNull()
 
-    private fun String.formatPath(packageName: String): String = String.format(this, packageName)
+    private fun String.formatPath(vararg args: Any): String = String.format(this, *args)
 
     private fun String.toUriOrNull(): Uri? = runCatching {
         toUri()
@@ -268,4 +376,15 @@ object RecordsHelper {
     private data class SegmentReadResult(
         val recordsRead: Int
     )
+
+    private data class ReadBudget(
+        val startTime: Long = System.currentTimeMillis(),
+        var recordsRead: Int = 0,
+        var segmentsRead: Int = 0
+    ) {
+        fun consume(result: SegmentReadResult) {
+            recordsRead += result.recordsRead
+            segmentsRead++
+        }
+    }
 }

@@ -37,6 +37,7 @@ import me.simpleHook.data.record.RecordPopupWindow
 import me.simpleHook.data.record.RecordPopupWindowType
 import me.simpleHook.data.record.RecordReturn
 import me.simpleHook.data.record.RecordSignature
+import me.simpleHook.data.record.RecordSource
 import me.simpleHook.data.record.RecordToast
 import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.RecordValueType
@@ -73,7 +74,12 @@ object RecordOutHelper {
         RecordLogger.applyRecordSettings(HookHelper.hostPackageName, safeSettings)
     }
 
-    fun outputError(throwable: Throwable, hookConfig: HookConfig?, supplement: String? = null) {
+    fun outputError(
+        throwable: Throwable,
+        hookConfig: HookConfig?,
+        supplement: String? = null,
+        source: RecordSource = RecordSource.Custom
+    ) {
         val type = when (throwable) {
             is NoSuchMethodException, is NoSuchMethodError -> RecordErrorType.Method
             is NoSuchFieldException, is NoSuchFieldError -> RecordErrorType.Field
@@ -86,7 +92,7 @@ object RecordOutHelper {
             supplement = supplement,
             stackDetail = formatThrowableStack(throwable)
         )
-        outputRecord(type = RecordType.Error, record = errorRecord)
+        outputRecord(type = RecordType.Error, record = errorRecord, source = source)
     }
 
     data class MethodSignature(
@@ -108,7 +114,8 @@ object RecordOutHelper {
     fun outputFieldRecord(
         fieldValue: Any?,
         hookConfig: HookConfig,
-        signature: MethodSignature? = null
+        signature: MethodSignature? = null,
+        source: RecordSource = RecordSource.Custom
     ) {
         val pureStatic = hookConfig.className.isEmpty() || hookConfig.methodName.isEmpty()
         val instanceHook =
@@ -126,10 +133,14 @@ object RecordOutHelper {
             filedValue = fieldValue.recordValue
         )
 
-        outputRecord(type = RecordType.RecordField, record = fieldRecord)
+        outputRecord(type = RecordType.RecordField, record = fieldRecord, source = source)
     }
 
-    fun outputParamRecord(paramValues: Array<out Any?>, signature: MethodSignature) {
+    fun outputParamRecord(
+        paramValues: Array<out Any?>,
+        signature: MethodSignature,
+        source: RecordSource = RecordSource.Custom
+    ) {
         val paramRecord = RecordParam(
             className = signature.className,
             methodName = signature.methodName,
@@ -137,13 +148,14 @@ object RecordOutHelper {
             paramValues = paramValues.map { it.recordValue },
             callStack = getStackTrace(ignoreSwitch = true)
         )
-        outputRecord(type = RecordType.RecordParam, record = paramRecord)
+        outputRecord(type = RecordType.RecordParam, record = paramRecord, source = source)
     }
 
     fun outputParamReturnRecord(
         paramValues: Array<out Any?>,
         returnValue: Any?,
-        signature: MethodSignature
+        signature: MethodSignature,
+        source: RecordSource = RecordSource.Custom
     ) {
         val paramReturnRecord = RecordParamReturn(
             className = signature.className,
@@ -153,13 +165,14 @@ object RecordOutHelper {
             returnValue = returnValue.recordValue,
             callStack = getStackTrace(ignoreSwitch = true)
         )
-        outputRecord(type = RecordType.RecordParamReturn, record = paramReturnRecord)
+        outputRecord(type = RecordType.RecordParamReturn, record = paramReturnRecord, source = source)
     }
 
 
     fun outputReturnRecord(
         returnValue: Any?,
-        signature: MethodSignature
+        signature: MethodSignature,
+        source: RecordSource = RecordSource.Custom
     ) {
         val returnRecord = RecordReturn(
             className = signature.className,
@@ -168,7 +181,7 @@ object RecordOutHelper {
             returnValue = returnValue.recordValue,
             callStack = getStackTrace(ignoreSwitch = true)
         )
-        outputRecord(type = RecordType.RecordReturn, record = returnRecord)
+        outputRecord(type = RecordType.RecordReturn, record = returnRecord, source = source)
     }
 
     private fun Member.toMethodParams(): List<String> {
@@ -184,7 +197,12 @@ object RecordOutHelper {
     }
 
 
-    fun outputRecord(type: RecordType, record: Record, subType: String? = null) {
+    fun outputRecord(
+        type: RecordType,
+        record: Record,
+        subType: String? = null,
+        source: RecordSource = RecordSource.Extension
+    ) {
         val recordContent = Json.encodeToString(
             RecordEntity(
                 type = type,
@@ -201,7 +219,8 @@ object RecordOutHelper {
         val compressedRecordContent = compressToBase64(recordContent) ?: return
         RecordLogger.write(
             packageName = HookHelper.hostPackageName,
-            content = compressedRecordContent
+            content = compressedRecordContent,
+            source = source
         )
     }
 

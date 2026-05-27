@@ -43,6 +43,7 @@ import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.TimeUtil
+import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.feature.record.viewmodel.RecordSearchState
 import me.simpleHook.feature.record.viewmodel.RecordViewModel
@@ -278,7 +279,10 @@ class RecordActivity : BaseActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             recordAdapter.refresh()
         }, delayTime)
-        readFileLogInsert()
+        readFileLogInsert(
+            reason = RecordIngestReason.RecordListRefresh,
+            skipIfRunning = false
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -1,19 +1,13 @@
 package me.simpleHook.platform.shizuku
 
-import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.core.utils.FileUtil
-import me.simpleHook.core.utils.SuUtil
 import java.io.File
 
 class FileService : IFileService.Stub() {
 
     override fun listFiles(dirPath: String): List<String> {
         return runCatching {
-            if (ShizukuFileManager.rootMode) {
-                File(dirPath).listFiles()?.map { it.name } ?: emptyList()
-            } else {
-                SuUtil.listFileNames(dirPath)
-            }
+            File(dirPath).listFiles()?.map { it.name }.orEmpty()
         }.onFailure { it.printStackTrace() }.getOrDefault(emptyList())
     }
 
@@ -23,22 +17,12 @@ class FileService : IFileService.Stub() {
     }
 
     override fun writeFile(path: String, content: String): Boolean {
-        if (ShizukuFileManager.rootMode) {
-            return FileUtil.outTextToFile(filePath = path, content = content)
-        } else {
-            FileUtil.outTextToFile(filePath = ConfigConstant.TEMP_CONFIG_PATH, content)
-            return SuUtil.mvAndChmod(srcPath = ConfigConstant.TEMP_CONFIG_PATH, destPath = path)
-        }
-
+        return FileUtil.outTextToFile(filePath = path, content = content)
     }
 
 
     override fun deleteFile(path: String): Boolean = runCatching {
-        if (ShizukuFileManager.rootMode) {
-            FileUtil.deleteFile(filePath = path)
-        } else {
-            SuUtil.deleteFile(filePath = path)
-        }
+        FileUtil.deleteFile(filePath = path)
     }.onFailure { it.printStackTrace() }.getOrDefault(false)
 
     override fun deleteFiles(paths: List<String>): Boolean {
@@ -46,12 +30,21 @@ class FileService : IFileService.Stub() {
     }
 
     override fun forceStopPackage(packageName: String) {
-        SuUtil.forceStopApp(packageName)
+        runCommand("am", "force-stop", packageName)
     }
 
     override fun reLaunchApp(packageName: String, activityName: String) {
-        SuUtil.reLaunchApp(packageName = packageName, activityName = activityName)
+        runCommand("am", "force-stop", packageName)
+        runCommand("am", "start", "$packageName/$activityName")
     }
 
+    private fun runCommand(vararg command: String): Boolean {
+        return runCatching {
+            ProcessBuilder(*command)
+                .redirectErrorStream(true)
+                .start()
+                .waitFor() == 0
+        }.onFailure { it.printStackTrace() }.getOrDefault(false)
+    }
 
 }

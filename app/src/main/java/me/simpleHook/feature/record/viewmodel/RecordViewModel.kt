@@ -120,6 +120,22 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         }.flow.cachedIn(viewModelScope)
     }
 
+    suspend fun getLatestRecordIdNow(): Int {
+        return recordDao.getLatestRecordId()
+    }
+
+    fun getFloatRecordsAfter(
+        afterId: Int,
+        startTime: String,
+        limit: Int
+    ): Flow<List<SmallRecordEntity>> {
+        return recordDao.getFloatRecordsAfter(afterId, startTime, limit)
+    }
+
+    suspend fun deleteFloatRecordsAfterNow(afterId: Int, startTime: String) {
+        recordDao.deleteFloatRecordsAfter(afterId, startTime)
+    }
+
 
     fun getMarkedRecordByType(type: String) = recordDao.getMarkedRecordByType(type)
 

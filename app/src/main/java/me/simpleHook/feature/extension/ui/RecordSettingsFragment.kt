@@ -27,6 +27,8 @@ class RecordSettingsFragment : BasePreferenceFragment() {
         const val MIN_CACHE_MB = 64
         const val MAX_CACHE_MB = 256
         const val CACHE_STEP_MB = 32
+        const val MIN_RECORD_MB = 1
+        const val MAX_RECORD_MB = 16
     }
 
     private lateinit var recordSettings: ExtRecordSettings
@@ -97,13 +99,29 @@ class RecordSettingsFragment : BasePreferenceFragment() {
                 true
             }
         }
+        val maxRecord = SeekBarPreference(requireContext()).apply {
+            isPersistent = false
+            title = getString(R.string.extension_record_title_max_record)
+            min = MIN_RECORD_MB
+            max = MAX_RECORD_MB
+            value = recordSettings.maxRecordMb.coerceIn(MIN_RECORD_MB, MAX_RECORD_MB)
+            showSeekBarValue = false
+            isIconSpaceReserved = false
+            summary = recordSummary(value)
+            setOnPreferenceChangeListener { preference, newValue ->
+                val maxRecordMb = (newValue as Int).coerceIn(MIN_RECORD_MB, MAX_RECORD_MB)
+                recordSettings.maxRecordMb = maxRecordMb
+                preference.summary = recordSummary(maxRecordMb)
+                true
+            }
+        }
         val preferenceCategory = PreferenceCategory(requireContext()).apply {
             title = getString(R.string.extension_record_record)
             isIconSpaceReserved = false
         }
         val preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preferenceScreen.addPreference(preferenceCategory)
-        preferenceCategory.addPreferences(stack, base64, hex, maxCache)
+        preferenceCategory.addPreferences(stack, base64, hex, maxCache, maxRecord)
         setPreferenceScreen(preferenceScreen)
     }
 
@@ -117,6 +135,10 @@ class RecordSettingsFragment : BasePreferenceFragment() {
 
     private fun cacheSummary(cacheMb: Int): String {
         return getString(R.string.extension_record_summary_max_cache, cacheMb)
+    }
+
+    private fun recordSummary(recordMb: Int): String {
+        return getString(R.string.extension_record_summary_max_record, recordMb)
     }
 
     private fun initMenu() {

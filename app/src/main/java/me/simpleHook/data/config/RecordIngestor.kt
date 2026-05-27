@@ -1,6 +1,8 @@
 package me.simpleHook.data.config
 
 import android.content.Context
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import me.simpleHook.data.local.db.entity.RecordEntity
 
 object RecordIngestor {
@@ -21,19 +23,7 @@ object RecordIngestor {
         packageNames: Iterable<String>,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
-        val mergedBatch = ArrayList<RecordEntity>(MERGED_BATCH_SIZE)
-        packageNames.forEach { packageName ->
-            RecordsHelper.ingestRecordsFromFile(context, packageName) { batch ->
-                mergedBatch.addAll(batch)
-                if (mergedBatch.size >= MERGED_BATCH_SIZE) {
-                    onBatch(ArrayList(mergedBatch))
-                    mergedBatch.clear()
-                }
-            }
-        }
-        if (mergedBatch.isNotEmpty()) {
-            onBatch(ArrayList(mergedBatch))
-        }
+        ingestPackages(context, packageNames, onBatch)
     }
 
     suspend fun ingestFromPackages(
@@ -41,8 +31,18 @@ object RecordIngestor {
         packageNames: Iterable<String>,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
+        ingestPackages(context, packageNames, onBatch)
+    }
+
+    private suspend fun ingestPackages(
+        context: Context,
+        packageNames: Iterable<String>,
+        onBatch: suspend (List<RecordEntity>) -> Unit
+    ) {
         val mergedBatch = ArrayList<RecordEntity>(MERGED_BATCH_SIZE)
+        val coroutineContext = currentCoroutineContext()
         packageNames.forEach { packageName ->
+            coroutineContext.ensureActive()
             RecordsHelper.ingestRecordsFromFile(context, packageName) { batch ->
                 mergedBatch.addAll(batch)
                 if (mergedBatch.size >= MERGED_BATCH_SIZE) {
@@ -51,6 +51,7 @@ object RecordIngestor {
                 }
             }
         }
+        coroutineContext.ensureActive()
         if (mergedBatch.isNotEmpty()) {
             onBatch(ArrayList(mergedBatch))
         }

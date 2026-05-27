@@ -2,7 +2,6 @@ package me.simpleHook.core.base
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -16,7 +15,6 @@ import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,16 +27,19 @@ import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
 import com.lzf.easyfloat.interfaces.OnPermissionResult
 import com.lzf.easyfloat.permission.PermissionUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
-import me.simpleHook.data.config.RecordIngestor
+import me.simpleHook.data.config.RecordIngestCoordinator
+import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.core.contract.OpenDocumentTreeContract
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
-import me.simpleHook.data.record.RecordType
 import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.core.extension.showToast
@@ -46,7 +47,6 @@ import me.simpleHook.feature.record.viewmodel.RecordViewModel
 import me.simpleHook.feature.record.ui.adapter.FloatRecordAdapter
 import me.simpleHook.feature.record.ui.view.ControlView
 import me.simpleHook.core.utils.AppUtil
-import me.simpleHook.core.utils.FlavorUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.LanguageUtil
 import me.simpleHook.core.utils.LogUtil
@@ -65,25 +65,25 @@ open class BaseActivity : AppCompatActivity() {
             showRecordDetailFromId(smallRecord.id)
         }
     }
-    private val list = ArrayList<SmallRecordEntity>()
     private val handler = Handler(Looper.getMainLooper())
     private var readFileJob: Job? = null
+    private var floatCollectJob: Job? = null
     private var adapterDataObserver: RecyclerView.AdapterDataObserver? = null
     private var dismissFloat = false
-    private var lastRecordId = -1
     private val refresh = object : Runnable {
         override fun run() {
             if (dismissFloat) return
-            readFileLogInsert()
-            updateData()
-            handler.postDelayed(this, 500)
+            readFileLogInsert(
+                reason = RecordIngestReason.FloatRealtime,
+                skipIfRunning = true
+            )
+            handler.postDelayed(this, FLOAT_REFRESH_INTERVAL_MS)
         }
     }
-    private val uri = FlavorUtil.PROVIDER_RECORD_URI.toUri()
     private var stopPrint = false
-    private var currentTime = ""
-    private var startTime = ""
+    private var floatStartRecordId = 0
     private var floatWindowStartTime = ""
+    private var latestFloatRecords = emptyList<SmallRecordEntity>()
     private lateinit var extConfigList: List<ExtensionConfigEntity>
     private lateinit var configs: List<AppConfig>
     private var needCheckPacks = mutableSetOf<String>()
@@ -118,15 +118,26 @@ open class BaseActivity : AppCompatActivity() {
     }
 
 
-    fun readFileLogInsert() {
-        if (readFileJob?.isActive == true) return
+    fun readFileLogInsert(
+        reason: RecordIngestReason = RecordIngestReason.Background,
+        skipIfRunning: Boolean = true
+    ) {
+        if (readFileJob?.isActive == true) {
+            if (skipIfRunning) return
+            readFileJob?.cancel()
+        }
         readFileJob = lifecycleScope.launch(Dispatchers.IO) {
             try {
                 ensureNeedCheckPackages()
-                RecordIngestor.ingestRecordsFromPackages(this@BaseActivity, needCheckPacks) { batch ->
-                    recordViewModel.insertRecordsNow(batch)
-                }
+                RecordIngestCoordinator.requestIngest(
+                    context = this@BaseActivity,
+                    packageNames = needCheckPacks,
+                    reason = reason,
+                    skipIfRunning = skipIfRunning
+                )
 
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 LogUtil.outLog(e.stackTraceToString())
             }
@@ -150,59 +161,6 @@ open class BaseActivity : AppCompatActivity() {
                 needCheckPacks.add(it.packageName)
             }
         }
-    }
-
-    @SuppressLint("Range")
-    private fun updateData() {
-        if (stopPrint) return
-        val newRecords = ArrayList<SmallRecordEntity>()
-        queryRecordCursor()?.use { cursor ->
-            val idIndex = cursor.getColumnIndex("id")
-            val typeIndex = cursor.getColumnIndex("type")
-            val subTypeIndex = cursor.getColumnIndex("subType")
-            val packageNameIndex = cursor.getColumnIndex("packageName")
-            val isReadIndex = cursor.getColumnIndex("isRead")
-            val isMarkIndex = cursor.getColumnIndex("isMark")
-            val timeIndex = cursor.getColumnIndex("time")
-            while (cursor.moveToNext()) {
-                val packageName = cursor.getStringOrEmpty(packageNameIndex)
-                val time = cursor.getStringOrEmpty(timeIndex)
-                if (!isAfterFloatWindowStart(time)) {
-                    continue
-                }
-                val idFromDb = cursor.getIntOrNull(idIndex)
-                val type = enumValues<RecordType>().firstOrNull {
-                    it.name == cursor.getStringOrEmpty(typeIndex)
-                } ?: RecordType.RecordReturn
-                val subType = cursor.getStringOrEmpty(subTypeIndex).ifEmpty { type.name }
-                val recordId = idFromDb ?: (packageName + time + type.name + subType).hashCode()
-                newRecords.add(
-                    SmallRecordEntity(
-                        id = recordId,
-                        packageName = packageName,
-                        time = time,
-                        type = type,
-                        subType = subType,
-                        isRead = cursor.getBooleanOrFalse(isReadIndex),
-                        isMark = cursor.getBooleanOrFalse(isMarkIndex)
-                    )
-                )
-                if (idFromDb != null && idFromDb > lastRecordId) {
-                    lastRecordId = idFromDb
-                }
-                if (time.isNotEmpty()) {
-                    currentTime = time
-                }
-            }
-        }
-        if (newRecords.isEmpty()) {
-            return
-        }
-        list.addAll(newRecords)
-        if (list.size > MAX_FLOAT_RECORD_COUNT) {
-            list.subList(0, list.size - MAX_FLOAT_RECORD_COUNT).clear()
-        }
-        mAdapter.submitList(list.toList())
     }
 
     private fun showRecordDetailFromId(recordId: Int) {
@@ -235,44 +193,6 @@ open class BaseActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun queryRecordCursor(): Cursor? {
-        if (lastRecordId >= 0) {
-            runCatching {
-                contentResolver.query(
-                    uri,
-                    FLOAT_QUERY_PROJECTION,
-                    "id > ?",
-                    arrayOf(lastRecordId.toString()),
-                    "id ASC"
-                )
-            }.getOrNull()?.let {
-                return it
-            }
-            lastRecordId = -1
-        }
-        return runCatching {
-            contentResolver.query(
-                uri,
-                FLOAT_QUERY_PROJECTION,
-                "time > ?",
-                arrayOf(currentTime),
-                "time ASC"
-            )
-        }.getOrNull()
-    }
-
-    private fun initLastRecordId() {
-        lastRecordId = runCatching {
-            contentResolver.query(uri, arrayOf("id"), null, null, "id DESC")?.use {
-                if (it.moveToFirst()) {
-                    it.getInt(0)
-                } else {
-                    0
-                }
-            } ?: 0
-        }.getOrDefault(-1)
-    }
-
     fun initPrintFloat() {
         if (EasyFloat.getFloatView("floatPrint") != null) return
         if (PermissionUtils.checkPermission(this)) {
@@ -294,12 +214,11 @@ open class BaseActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun showPrintFloat() {
         readFileJob?.cancel()
+        floatCollectJob?.cancel()
         dismissFloat = false
+        stopPrint = false
         floatWindowStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
-        currentTime = floatWindowStartTime
-        startTime = currentTime
-        initLastRecordId()
-        list.clear()
+        latestFloatRecords = emptyList()
         mAdapter.submitList(emptyList())
         EasyFloat.with(this).setLayout(R.layout.window_float) {
             val recyclerView = it.findViewById<RecyclerView>(R.id.recyclerView)
@@ -328,20 +247,29 @@ open class BaseActivity : AppCompatActivity() {
             }
             val clearConfig = it.findViewById<ImageButton>(R.id.clear_record)
             clearConfig.setOnClickListener {
-                    recordViewModel.deleteRecordByTimeRange(start = startTime, end = currentTime)
-                    list.clear()
-                    mAdapter.submitList(emptyList())
-                    floatWindowStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
-                    currentTime = floatWindowStartTime
-                    startTime = currentTime
-                    initLastRecordId()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    recordViewModel.deleteFloatRecordsAfterNow(
+                        afterId = floatStartRecordId,
+                        startTime = floatWindowStartTime
+                    )
+                    val nextStartRecordId = recordViewModel.getLatestRecordIdNow()
+                    val nextStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
+                    withContext(Dispatchers.Main) {
+                        floatStartRecordId = nextStartRecordId
+                        floatWindowStartTime = nextStartTime
+                        latestFloatRecords = emptyList()
+                        mAdapter.submitList(emptyList())
+                        if (!dismissFloat) {
+                            startFloatRecordCollection()
+                        }
+                    }
                 }
+            }
             val closeWindow = it.findViewById<ImageButton>(R.id.close_window)
             closeWindow.setOnClickListener {
                 EasyFloat.dismiss("floatPrint")
                 EasyFloat.dismiss("floatControl")
-                dismissFloat = true
-                handler.removeCallbacks(refresh)
+                cleanupFloatWindow()
             }
             val pausePrintRecord = it.findViewById<ImageButton>(R.id.pause_print_record)
             pausePrintRecord.setOnClickListener {
@@ -349,6 +277,9 @@ open class BaseActivity : AppCompatActivity() {
                 val bgId =
                     if (stopPrint) R.drawable.ic_start_float_24 else R.drawable.ic_outline_pause_24
                 pausePrintRecord.setImageResource(bgId)
+                if (!stopPrint) {
+                    mAdapter.submitList(latestFloatRecords)
+                }
             }
             adapterDataObserver?.let {
                 mAdapter.unregisterAdapterDataObserver(it)
@@ -361,54 +292,60 @@ open class BaseActivity : AppCompatActivity() {
                 }
             }
             mAdapter.registerAdapterDataObserver(adapterDataObserver!!)
-            handler.postDelayed(refresh, 500)
+            lifecycleScope.launch {
+                floatStartRecordId = withContext(Dispatchers.IO) {
+                    recordViewModel.getLatestRecordIdNow()
+                }
+                if (dismissFloat) return@launch
+                startFloatRecordCollection()
+                readFileLogInsert(
+                    reason = RecordIngestReason.FloatRealtime,
+                    skipIfRunning = true
+                )
+                handler.postDelayed(refresh, FLOAT_REFRESH_INTERVAL_MS)
+            }
         }.setTag("floatPrint").setShowPattern(ShowPattern.ALL_TIME).setDragEnable(false)
             .setSidePattern(SidePattern.DEFAULT).setLocation(100, 100)
             .setMatchParent(widthMatch = false, heightMatch = false).setAnimator(DefaultAnimator())
             .registerCallback {
                 dismiss {
-                    dismissFloat = true
-                    handler.removeCallbacks(refresh)
-                    adapterDataObserver?.let {
-                        mAdapter.unregisterAdapterDataObserver(it)
-                    }
-                    adapterDataObserver = null
-                    list.clear()
+                    cleanupFloatWindow()
                 }
             }.show()
     }
 
-    private fun Cursor.getStringOrEmpty(index: Int): String {
-        if (index == -1 || isNull(index)) return ""
-        return getString(index) ?: ""
+    private fun startFloatRecordCollection() {
+        floatCollectJob?.cancel()
+        floatCollectJob = lifecycleScope.launch {
+            recordViewModel.getFloatRecordsAfter(
+                afterId = floatStartRecordId,
+                startTime = floatWindowStartTime,
+                limit = MAX_FLOAT_RECORD_COUNT
+            ).collectLatest { records ->
+                latestFloatRecords = records
+                if (!stopPrint) {
+                    mAdapter.submitList(records)
+                }
+            }
+        }
     }
 
-    private fun Cursor.getIntOrNull(index: Int): Int? {
-        if (index == -1 || isNull(index)) return null
-        return getInt(index)
-    }
-
-    private fun Cursor.getBooleanOrFalse(index: Int): Boolean {
-        if (index == -1 || isNull(index)) return false
-        return getInt(index) == 1
-    }
-
-    private fun isAfterFloatWindowStart(time: String): Boolean {
-        if (time.isEmpty() || floatWindowStartTime.isEmpty()) return true
-        return time >= floatWindowStartTime
+    private fun cleanupFloatWindow() {
+        dismissFloat = true
+        handler.removeCallbacks(refresh)
+        floatCollectJob?.cancel()
+        floatCollectJob = null
+        adapterDataObserver?.let {
+            mAdapter.unregisterAdapterDataObserver(it)
+        }
+        adapterDataObserver = null
+        latestFloatRecords = emptyList()
+        mAdapter.submitList(emptyList())
     }
 
     companion object {
         private const val MAX_FLOAT_RECORD_COUNT = 300
-        private val FLOAT_QUERY_PROJECTION = arrayOf(
-            "id",
-            "type",
-            "subType",
-            "packageName",
-            "isRead",
-            "isMark",
-            "time"
-        )
+        private const val FLOAT_REFRESH_INTERVAL_MS = 500L
     }
 
     private fun initControlFloat() {

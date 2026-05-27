@@ -126,6 +126,7 @@ data class ExtRecordSettings(
     var enableBase64: Boolean = true,
     var enableHex: Boolean = true,
     var maxCacheMb: Int = 64,
+    var maxRecordMb: Int = 4,
 )
 
 

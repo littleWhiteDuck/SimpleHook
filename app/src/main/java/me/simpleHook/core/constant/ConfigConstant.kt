@@ -6,14 +6,17 @@ object ConfigConstant {
     const val ROOT_EXTENSION_CONFIG_PATH =
         "/storage/self/primary/Android/media/%s/SimpleHook/config/extensionConfig.json"
 
-    const val RECORD_PATH = "/storage/self/primary/Android/media/%s/SimpleHook/record/record.log"
-    const val RECORD_QUEUE_DIR = "/storage/self/primary/Android/media/%s/SimpleHook/record/queue"
-    const val RECORD_QUEUE_READY_DIR =
-        "/storage/self/primary/Android/media/%s/SimpleHook/record/queue/ready"
-    const val RECORD_QUEUE_TMP_DIR =
-        "/storage/self/primary/Android/media/%s/SimpleHook/record/queue/tmp"
-    const val RECORD_QUEUE_STATS_PATH =
-        "/storage/self/primary/Android/media/%s/SimpleHook/record/queue/stats.json"
+    const val RECORD_DIR = "/storage/self/primary/Android/media/%s/SimpleHook/record"
+    const val RECORD_SOURCE_DIR =
+        "/storage/self/primary/Android/media/%s/SimpleHook/record/%s"
+    const val RECORD_SOURCE_READY_DIR =
+        "/storage/self/primary/Android/media/%s/SimpleHook/record/%s/ready"
+    const val RECORD_SOURCE_TMP_DIR =
+        "/storage/self/primary/Android/media/%s/SimpleHook/record/%s/tmp"
+    const val RECORD_SOURCE_STATS_PATH =
+        "/storage/self/primary/Android/media/%s/SimpleHook/record/%s/stats.json"
+    const val RECORD_SOURCE_MANIFEST_PATH =
+        "/storage/self/primary/Android/media/%s/SimpleHook/record/%s/manifest.txt"
     const val TEMP_CONFIG_PATH = "/storage/self/primary/Android/media/me.simpleHook/cache/config.json"
 
     const val ROOT_DEX_PATH = "/storage/self/primary/Android/media/%s/SimpleHook/dex/"

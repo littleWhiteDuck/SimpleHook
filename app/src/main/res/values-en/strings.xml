@@ -530,6 +530,8 @@ You can try signing it manually with MT Manager or a similar tool before install
     <string name="extension_record_title_add_stack">Record call stack</string>
     <string name="extension_record_title_max_cache">Maximum record cache</string>
     <string name="extension_record_summary_max_cache">%1$d MB</string>
+    <string name="extension_record_title_max_record">Single record limit</string>
+    <string name="extension_record_summary_max_record">%1$d MB</string>
     <string name="config_sort_done">Save sort</string>
     <string name="config_auto_tran_param">Auto conversion params</string>
     <string name="config_show_note">Show note</string>

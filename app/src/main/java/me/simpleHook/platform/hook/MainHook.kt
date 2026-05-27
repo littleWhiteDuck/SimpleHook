@@ -19,6 +19,7 @@ import me.simpleHook.data.ExtensionConfig
 import me.simpleHook.data.HookConfig
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.core.extension.random
+import me.simpleHook.data.record.RecordSource
 import me.simpleHook.platform.hook.extension.ADBHook
 import me.simpleHook.platform.hook.extension.ApplicationHook
 import me.simpleHook.platform.hook.extension.Base64Hook
@@ -257,7 +258,12 @@ object MainHook {
                 ExitHook
             )
         } catch (e: Throwable) {
-            RecordOutHelper.outputError(throwable = e, supplement = strConfig, hookConfig = null)
+            RecordOutHelper.outputError(
+                throwable = e,
+                supplement = strConfig,
+                hookConfig = null,
+                source = RecordSource.Extension
+            )
         }
     }
 

@@ -26,7 +26,8 @@ import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.LogUtil
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
-import me.simpleHook.data.config.RecordIngestor
+import me.simpleHook.data.config.RecordIngestCoordinator
+import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 import me.simpleHook.feature.main.ui.MainActivity
 import me.simpleHook.feature.record.ui.delegate.RecordPackDelegate
@@ -43,6 +44,7 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
     private var recordSummaryOfItemMenu: Any? = null
     private var refreshJob: Job? = null
+    private var refreshGeneration = 0
 
     private val multiTypeAdapter = MultiTypeAdapter()
 
@@ -71,7 +73,6 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
             }
 
             root.progressBar.hide()
-            root.swipeRefreshLayout.isRefreshing = false
         }
 
         if (root.swipeRefreshLayout.isRefreshing) {
@@ -199,10 +200,12 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
 
     private fun refreshData(showRefresh: Boolean = true, preAction: (suspend () -> Unit)? = null) {
-        if (!root.swipeRefreshLayout.isRefreshing && showRefresh) root.swipeRefreshLayout.isRefreshing =
-            true
+        val generation = ++refreshGeneration
         val appContext = requireContext().applicationContext
         refreshJob?.cancel()
+        if (showRefresh) {
+            root.swipeRefreshLayout.isRefreshing = true
+        }
         refreshJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -214,21 +217,26 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
                 throw e
             } catch (e: Exception) {
                 LogUtil.outLog(e.stackTraceToString())
-                root.swipeRefreshLayout.isRefreshing = false
+            } finally {
+                if (refreshGeneration == generation && view != null) {
+                    root.progressBar.hide()
+                    root.swipeRefreshLayout.isRefreshing = false
+                }
             }
         }
     }
 
     private suspend fun ingestRecords(context: Context) {
-        RecordIngestor.ingestFromPackages(
+        RecordIngestCoordinator.requestIngest(
             context = context,
-            packageNames = appConfigViewModel.getEnabledPackageNames()
-        ) { recordEntities ->
-            recordViewModel.insertRecordsNow(recordEntities)
-        }
+            packageNames = appConfigViewModel.getEnabledPackageNames(),
+            reason = RecordIngestReason.SummaryRefresh,
+            skipIfRunning = false
+        )
     }
 
     override fun onDestroyView() {
+        refreshGeneration++
         refreshJob?.cancel()
         refreshJob = null
         super.onDestroyView()

@@ -19,6 +19,31 @@ interface RecordDao {
     @Query("SELECT * FROM RecordEntity ORDER BY ID DESC")
     fun getAllRecords(): Flow<List<RecordEntity>>
 
+    @Query("SELECT COALESCE(MAX(id), 0) FROM RecordEntity")
+    suspend fun getLatestRecordId(): Int
+
+    @Query(
+        """
+        SELECT id,type,subType,packageName,isRead,isMark,time
+        FROM (
+            SELECT id,type,subType,packageName,isRead,isMark,time
+            FROM RecordEntity
+            WHERE id > :afterId AND time >= :startTime
+            ORDER BY id DESC
+            LIMIT :limit
+        ) AS recent
+        ORDER BY id ASC
+        """
+    )
+    fun getFloatRecordsAfter(
+        afterId: Int,
+        startTime: String,
+        limit: Int
+    ): Flow<List<SmallRecordEntity>>
+
+    @Query("DELETE FROM RecordEntity WHERE id > :afterId AND time >= :startTime")
+    suspend fun deleteFloatRecordsAfter(afterId: Int, startTime: String)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRecords(vararg recordEntity: RecordEntity)
 

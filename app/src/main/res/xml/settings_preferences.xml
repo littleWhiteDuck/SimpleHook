@@ -1,8 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/main_settings_title_necessary_permission_status">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_necessary_permission_status">
         <Preference
+            app:icon="@drawable/ic_settings_verified_user_24"
             app:key="necessary_permission"
             app:summary="@string/main_settings_summary_storage_permission"
             app:title="@string/main_settings_title_storage_permission" />
@@ -10,52 +13,66 @@
             android:entries="@array/main_settings_work_mode_item_entries"
             android:entryValues="@array/main_settings_work_mode_item_entries"
             app:defaultValue="Root"
+            app:icon="@drawable/ic_settings_work_24"
             app:isPreferenceVisible="false"
             app:key="workMode"
             app:summary="Root"
             app:title="@string/main_settings_work_mode_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/main_settings_title_custom">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_custom">
         <me.simpleHook.core.ui.custom.MaterialSwitchPreference
             android:key="bottomConfigDialog"
             android:title="@string/main_settings_title_bottom_config_dialog"
             app:defaultValue="false"
+            app:icon="@drawable/ic_settings_chat_24"
             app:summary="@string/main_settings_summary_bottom_config_dialog" />
         <me.simpleHook.core.ui.custom.MaterialSwitchPreference
             android:key="checkPermission"
             android:title="@string/main_settings_title_bottom_check_permission"
             app:defaultValue="true"
+            app:icon="@drawable/ic_settings_fact_check_24"
             app:summary="@string/main_settings_summary_check_permission" />
     </PreferenceCategory>
-    <PreferenceCategory app:title="@string/main_settings_title_experiment">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_experiment">
         <me.simpleHook.core.ui.custom.MaterialSwitchPreference
             app:defaultValue="true"
+            app:icon="@drawable/ic_settings_code_24"
             app:key="smali2Config"
             app:summary="@string/main_settings_summary_to_config"
             app:title="@string/main_settings_title_to_config" />
         <Preference
+            app:icon="@drawable/ic_settings_article_24"
             app:key="toJSConfig"
             app:summary="@string/main_settings_summary_js_config"
             app:title="@string/main_settings_title_JS_config" />
     </PreferenceCategory>
-    <PreferenceCategory app:title="@string/main_settings_title_normal">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_normal">
 
         <rikka.preference.SimpleMenuPreference
             app:defaultValue="system"
             app:entries="@array/main_settings_theme_mode_item_entries"
             app:entryValues="@array/main_settings_theme_mode_item_values"
+            app:icon="@drawable/ic_settings_dark_mode_24"
             app:key="themeMode"
             app:summary="%s"
             app:title="@string/main_settings_ui_mode_title" />
         <me.simpleHook.core.ui.custom.MaterialSwitchPreference
             android:key="enableSystemAccent"
             android:title="@string/main_settings_follow_system_theme_color"
-            app:defaultValue="true" />
+            app:defaultValue="true"
+            app:icon="@drawable/ic_settings_palette_24" />
         <rikka.preference.SimpleMenuPreference
             android:entries="@array/main_settings_language_item_entries"
             app:defaultValue="system"
             app:entryValues="@array/main_settings_language_item_values"
+            app:icon="@drawable/ic_settings_language_24"
             app:key="language"
             app:summary="%s"
             app:title="@string/main_settings_select_language_title" />
@@ -63,6 +80,7 @@
             app:enableSelected="false"
             app:entries="@array/main_settings_clear_item_entries"
             app:entryValues="@array/main_settings_clear_item_values"
+            app:icon="@drawable/ic_settings_delete_sweep_24"
             app:key="clearConfigData"
             app:summary="@string/main_settings_clear_data_summary"
             app:title="@string/main_settings_clear_data_title" />
@@ -70,31 +88,41 @@
             app:enableSelected="false"
             app:entries="@array/main_settings_left_config_select_item"
             app:entryValues="@array/main_settings_left_config_select_values"
+            app:icon="@drawable/ic_settings_folder_open_24"
             app:key="leftConfig"
             app:summary="@string/main_settings_left_config_summary"
             app:title="@string/main_settings_left_config_title" />
     </PreferenceCategory>
-    <PreferenceCategory app:title="@string/main_settings_title_backup_restore">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_backup_restore">
         <Preference
+            app:icon="@drawable/ic_settings_backup_24"
             app:key="backup_and_restore"
             app:summary="@string/main_settings_summary_backup_and_restore"
             app:title="@string/main_settings_title_backup_and_restore" />
     </PreferenceCategory>
 
 
-    <PreferenceCategory app:title="@string/main_settings_title_other">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/main_settings_title_other">
         <Preference
+            app:icon="@drawable/ic_settings_info_24"
             app:key="about"
             app:title="@string/main_settings_title_about" />
         <Preference
+            app:icon="@drawable/ic_settings_history_24"
             app:key="updateRecord"
             app:summary="@string/main_settings_summary_update_record"
             app:title="@string/main_settings_title_update_record" />
         <Preference
+            app:icon="@drawable/ic_settings_help_24"
             app:key="help"
             app:summary="@string/main_settings_summary_help"
             app:title="@string/main_settings_title_help" />
         <Preference
+            app:icon="@drawable/ic_settings_gavel_24"
             app:key="termsOfUse"
             app:title="@string/main_settings_title_terms_of_use" />
     </PreferenceCategory>
