@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
 import me.simpleHook.core.GlobalValue
@@ -78,6 +79,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _recordDetailItems = MutableLiveData<List<RDItem>>(emptyList())
     val recordDetailItems: LiveData<List<RDItem>> = _recordDetailItems
+    private var currentRecord: Record? = null
 
     private val pagingConfig =
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
@@ -264,12 +266,32 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     private fun Int.string() = application.getString(this)
     private fun Int.string(vararg formatArgs: Any) = application.getString(this, *formatArgs)
 
-    fun fetchRecordDetail(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchRecordDetail(id: Int, cardStyle: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         val recordEntity = getRecordByID(id) ?: return@launch
         _recordEntity.postValue(recordEntity)
         val record = Json.decodeFromString<Record>(recordEntity.record)
-        fetchCodeStyleDetail(record)
-        fetchCardStyleDetail(record)
+        currentRecord = record
+        if (cardStyle) {
+            fetchCardStyleDetail(record)
+        } else {
+            fetchCodeStyleDetail(record)
+        }
+    }
+
+    fun fetchCodeStyleDetailIfNeeded() = viewModelScope.launch(Dispatchers.IO) {
+        val record = currentRecord ?: return@launch
+        if (_recordDetail.value.isEmpty()) fetchCodeStyleDetail(record)
+    }
+
+    fun fetchCardStyleDetailIfNeeded() = viewModelScope.launch(Dispatchers.IO) {
+        val record = currentRecord ?: return@launch
+        if (_recordDetailItems.value.isNullOrEmpty()) fetchCardStyleDetail(record)
+    }
+
+    suspend fun getCodeStyleTextNow(): String = withContext(Dispatchers.IO) {
+        val record = currentRecord ?: return@withContext ""
+        if (_recordDetail.value.isEmpty()) fetchCodeStyleDetail(record)
+        _recordDetail.value.joinToString("\n")
     }
 
     private fun fetchCardStyleDetail(record: Record) {

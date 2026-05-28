@@ -71,6 +71,49 @@ data class ExAlgorithmConfig(
     val messageDigest: Boolean = false,
     val hmac: Boolean = false,
     val cipher: Boolean = false,
+    val messageDigestOptions: ExMessageDigestOptions = ExMessageDigestOptions(),
+    val hmacOptions: ExHmacOptions = ExHmacOptions(),
+    val cipherOptions: ExCipherOptions = ExCipherOptions(),
+)
+
+@Serializable
+data class ExMessageDigestOptions(
+    var md5: Boolean = true,
+    var sha1: Boolean = true,
+    var sha224: Boolean = true,
+    var sha256: Boolean = true,
+    var sha384: Boolean = true,
+    var sha512: Boolean = true,
+    var sha3: Boolean = true,
+    var sm3: Boolean = true,
+    var other: Boolean = true,
+)
+
+@Serializable
+data class ExHmacOptions(
+    var hmacMd5: Boolean = true,
+    var hmacSha1: Boolean = true,
+    var hmacSha224: Boolean = true,
+    var hmacSha256: Boolean = true,
+    var hmacSha384: Boolean = true,
+    var hmacSha512: Boolean = true,
+    var hmacSha3: Boolean = true,
+    var hmacSm3: Boolean = true,
+    var other: Boolean = true,
+)
+
+@Serializable
+data class ExCipherOptions(
+    var aes: Boolean = true,
+    var des: Boolean = true,
+    var tripleDes: Boolean = true,
+    var rsa: Boolean = true,
+    var sm2: Boolean = true,
+    var sm4: Boolean = true,
+    var chacha20: Boolean = true,
+    var rc4: Boolean = true,
+    var pbe: Boolean = true,
+    var other: Boolean = true,
 )
 
 @Serializable

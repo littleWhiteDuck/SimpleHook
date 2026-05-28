@@ -4,7 +4,6 @@ import me.simpleHook.core.GlobalValue
 import me.simpleHook.data.config.ConfigSystem
 import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.core.utils.AppUtil
-import me.simpleHook.core.utils.FileUtil
 import me.simpleHook.core.utils.SuFileUtil
 import me.simpleHook.core.utils.SuUtil
 
@@ -24,7 +23,7 @@ class SuConfigHelper : ConfigSystem {
         if (!AppUtil.isAppInstalled(packageName)) return true
         val customPath = String.format(ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, packageName)
         val extensionPath = String.format(ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, packageName)
-        return if (FileUtil.isFileExists(extensionPath)) {
+        return if (SuFileUtil.isFileExists(extensionPath)) {
             SuFileUtil.deleteFile(customPath)
         } else {
             SuUtil.deleteFile(getSimpleHookRootPath(packageName))
@@ -41,7 +40,7 @@ class SuConfigHelper : ConfigSystem {
         if (!AppUtil.isAppInstalled(packageName)) return true
         val customPath = String.format(ConfigConstant.ROOT_CUSTOM_CONFIG_PATH, packageName)
         val extensionPath = String.format(ConfigConstant.ROOT_EXTENSION_CONFIG_PATH, packageName)
-        return if (FileUtil.isFileExists(customPath)) {
+        return if (SuFileUtil.isFileExists(customPath)) {
             SuFileUtil.deleteFile(extensionPath)
         } else {
             SuUtil.deleteFile(getSimpleHookRootPath(packageName))

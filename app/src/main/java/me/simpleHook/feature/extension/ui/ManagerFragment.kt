@@ -2,6 +2,7 @@ package me.simpleHook.feature.extension.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Menu
@@ -188,7 +189,28 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
             TAG_RECORD -> {
                 navController.navigate(R.id.action_managerFragment_to_recordSettingsFragment)
             }
+
+            TAG_MESSAGE_DIGEST -> {
+                openAlgorithmSettings(AlgorithmSettingsFragment.TYPE_DIGEST)
+            }
+
+            TAG_HMAC -> {
+                openAlgorithmSettings(AlgorithmSettingsFragment.TYPE_HMAC)
+            }
+
+            TAG_CIPHER -> {
+                openAlgorithmSettings(AlgorithmSettingsFragment.TYPE_CIPHER)
+            }
         }
+    }
+
+    private fun openAlgorithmSettings(type: String) {
+        navController.navigate(
+            R.id.action_managerFragment_to_algorithmSettingsFragment,
+            Bundle().apply {
+                putString(AlgorithmSettingsFragment.ARG_TYPE, type)
+            }
+        )
     }
 
     private fun onItemClick(tag: String, checked: Boolean) {
@@ -368,7 +390,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     )
                 )
                 add(
-                    ExtensionItem(
+                    ExtensionSubItem(
                         getString(R.string.extension_item_title_digest_algorithm),
                         algorithmConfig.messageDigest,
                         ExConfigTag.MASSAGE_DIGEST,
@@ -376,7 +398,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     )
                 )
                 add(
-                    ExtensionItem(
+                    ExtensionSubItem(
                         getString(R.string.extension_item_title_hmac),
                         algorithmConfig.hmac,
                         ExConfigTag.HMAC,
@@ -384,7 +406,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
                     )
                 )
                 add(
-                    ExtensionItem(
+                    ExtensionSubItem(
                         getString(R.string.extension_item_title_crypt_algorithm),
                         algorithmConfig.cipher,
                         ExConfigTag.CIPHER,
@@ -628,6 +650,9 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         private const val TAG_FILE_MONITOR = ExConfigTag.FILE_MONITOR
         private const val TAG_APP_EXIT = ExConfigTag.BLOCK_EXIT
         private const val TAG_RECORD = "record"
+        private const val TAG_MESSAGE_DIGEST = ExConfigTag.MASSAGE_DIGEST
+        private const val TAG_HMAC = ExConfigTag.HMAC
+        private const val TAG_CIPHER = ExConfigTag.CIPHER
     }
 
 }

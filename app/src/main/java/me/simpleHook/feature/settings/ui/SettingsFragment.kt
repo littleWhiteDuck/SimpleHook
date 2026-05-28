@@ -235,7 +235,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     else -> AppUtil.getPackageNames()
                 }
                 val appPackageNames = viewModel.getAllPackageNames()
-                val extensionPackageNames = viewModel.getAllPackageNames()
+                val extensionPackageNames = viewModel.getAllExtPackageNames()
                 for (i in apps.indices) {
                     if (apps[i] !in appPackageNames) {
                         ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, apps[i])

@@ -96,7 +96,7 @@ class RecordDetailActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun initData() {
         val id = intent.getIntExtra(KEY_RECORD_ID, -1)
-        recordViewModel.fetchRecordDetail(id)
+        recordViewModel.fetchRecordDetail(id, GlobalValue.sp.recordCardStyle)
 
         recordViewModel.recordEntity.observe(this) { entity ->
             recordEntity = entity ?: return@observe
@@ -232,8 +232,14 @@ class RecordDetailActivity : BaseActivity() {
             android.R.id.home -> onBackPressedDispatcher.onBackPressed()
 
             R.id.copy_text -> {
-                ToolUtil.toClip(this, currentText)
-                showPopup(getString(R.string.main_home_export_configs_tip))
+                lifecycleScope.launch {
+                    val text = currentText.ifBlank {
+                        recordViewModel.getCodeStyleTextNow()
+                    }
+                    currentText = text
+                    ToolUtil.toClip(this@RecordDetailActivity, text)
+                    showPopup(getString(R.string.main_home_export_configs_tip))
+                }
             }
 
             R.id.copy_json -> {
@@ -248,6 +254,11 @@ class RecordDetailActivity : BaseActivity() {
             R.id.menu_card_style -> {
                 item.isChecked = !item.isChecked
                 GlobalValue.sp.recordCardStyle = item.isChecked
+                if (item.isChecked) {
+                    recordViewModel.fetchCardStyleDetailIfNeeded()
+                } else {
+                    recordViewModel.fetchCodeStyleDetailIfNeeded()
+                }
                 switchDetailStyle()
             }
 

@@ -9,6 +9,7 @@ import me.simpleHook.data.ExtBlockDialog
 import me.simpleHook.data.ExtExitConfig
 import me.simpleHook.data.ExtFileMonitorConfig
 import me.simpleHook.data.ExtRecordSettings
+import me.simpleHook.data.ExAlgorithmConfig
 import me.simpleHook.data.ExtensionConfig
 
 class ExViewModel : ViewModel() {
@@ -50,6 +51,10 @@ class ExViewModel : ViewModel() {
 
     fun updateRecordSettings(recordSettings: ExtRecordSettings) {
         _extensionConfig.value = extensionConfig.value!!.copy(recordSettings = recordSettings)
+    }
+
+    fun updateAlgorithmConfig(algorithmConfig: ExAlgorithmConfig) {
+        _extensionConfig.value = extensionConfig.value!!.copy(algorithmConfig = algorithmConfig)
     }
 
     fun updateDialogBlock(dialogBlock: ExtBlockDialog) {

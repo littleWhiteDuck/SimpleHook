@@ -116,6 +116,8 @@
     <string name="main_settings_title_start_float">悬浮窗</string>
     <string name="main_settings_title_bottom_config_dialog">配置弹窗</string>
     <string name="main_settings_summary_bottom_config_dialog">配置弹窗在底部</string>
+    <string name="main_settings_title_record_card_style">记录详情卡片模式</string>
+    <string name="main_settings_summary_record_card_style">开启后记录详情默认使用卡片展示，关闭时优先使用纯文本展示</string>
     <string name="main_settings_left_config_summary">详细说明见常见问题第7条</string>
     <string name="main_settings_left_config_title">删除遗留配置</string>
     <string-array name="main_settings_clear_item_entries">
@@ -769,6 +771,13 @@
     <string name="extension_record_summary_max_cache">%1$d MB</string>
     <string name="extension_record_title_max_record">单条记录上限</string>
     <string name="extension_record_summary_max_record">%1$d MB</string>
+    <string name="extension_algorithm_settings_title">算法记录子项</string>
+    <string name="extension_algorithm_title_digest_options">信息摘要算法</string>
+    <string name="extension_algorithm_title_hmac_options">哈希消息认证码</string>
+    <string name="extension_algorithm_title_cipher_options">加密解密算法</string>
+    <string name="extension_algorithm_other_digest">其他摘要算法</string>
+    <string name="extension_algorithm_other_hmac">其他 HMAC</string>
+    <string name="extension_algorithm_other_cipher">其他加密算法</string>
     <string name="config_sort_done">保存排序</string>
     <string name="config_auto_tran_param">自动转换参数</string>
     <string name="config_show_note">显示描述</string>

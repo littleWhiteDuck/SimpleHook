@@ -49,6 +49,9 @@ import java.util.zip.GZIPOutputStream
 
 
 object RecordOutHelper {
+    private const val BYTES_PER_MB = 1024 * 1024
+    private const val RAW_CAPTURE_DIVISOR = 4
+
     private val gson by lazy(LazyThreadSafetyMode.NONE) { Gson() }
     private val defaultRecordSettings = ExtRecordSettings()
     private val stackTraceFilterPrefixes = listOf(
@@ -66,11 +69,15 @@ object RecordOutHelper {
     @Volatile
     private var enableHex: Boolean = defaultRecordSettings.enableHex
 
+    @Volatile
+    private var rawCaptureLimitBytes: Int = rawCaptureLimitBytes(defaultRecordSettings.maxRecordMb)
+
     fun applyRecordSettings(settings: ExtRecordSettings?) {
         val safeSettings = settings ?: defaultRecordSettings
         enableStack = safeSettings.enableStack
         enableBase64 = safeSettings.enableBase64
         enableHex = safeSettings.enableHex
+        rawCaptureLimitBytes = rawCaptureLimitBytes(safeSettings.maxRecordMb)
         RecordLogger.applyRecordSettings(HookHelper.hostPackageName, safeSettings)
     }
 
@@ -447,18 +454,19 @@ object RecordOutHelper {
 
     val ByteArray.recordValue: Map<RecordValueType, String>
         get() {
+            val bytes = captureBytes(this@recordValue)
             return buildMap {
-                put(RecordValueType.BytesToString, String(this@recordValue))
+                put(RecordValueType.BytesToString, String(bytes))
                 if (enableBase64) {
                     put(
                         RecordValueType.Base64, GuiseBase64.encodeToString(
-                            this@recordValue,
+                            bytes,
                             GuiseBase64.DEFAULT
                         )
                     )
                 }
                 if (enableHex) {
-                    put(RecordValueType.Hex, this@recordValue.toHex())
+                    put(RecordValueType.Hex, bytes.toHex())
                 }
             }
         }
@@ -488,14 +496,39 @@ object RecordOutHelper {
         off: Int = 0,
         len: Int = data.size
     ) {
-        // 1MB
-        val remain = 1024 * 1024 - stream.size()
+        val remain = rawCaptureLimitBytes - stream.size()
         if (remain <= 0) return
-        val toWrite = kotlin.math.min(len, remain)
+        val safeOffset = off.coerceIn(0, data.size)
+        val safeLen = len.coerceAtLeast(0)
+        val maxLen = data.size - safeOffset
+        val toWrite = kotlin.math.min(kotlin.math.min(safeLen, maxLen), remain)
+        if (toWrite <= 0) return
         try {
-            stream.write(data, off, toWrite)
+            stream.write(data, safeOffset, toWrite)
         } catch (_: Throwable) {
 
         }
+    }
+
+    fun captureBytes(data: ByteArray, off: Int = 0, len: Int = data.size): ByteArray {
+        val safeOffset = off.coerceIn(0, data.size)
+        val safeLen = len.coerceAtLeast(0)
+        val maxLen = data.size - safeOffset
+        val toCopy = kotlin.math.min(kotlin.math.min(safeLen, maxLen), rawCaptureLimitBytes)
+        if (toCopy <= 0) return ByteArray(0)
+        if (safeOffset == 0 && toCopy == data.size) return data
+        return data.copyOfRange(safeOffset, safeOffset + toCopy)
+    }
+
+    fun captureBytes(buffer: java.nio.ByteBuffer): ByteArray {
+        val duplicate = buffer.duplicate()
+        val toCopy = kotlin.math.min(duplicate.remaining(), rawCaptureLimitBytes)
+        if (toCopy <= 0) return ByteArray(0)
+        return ByteArray(toCopy).also { duplicate.get(it) }
+    }
+
+    private fun rawCaptureLimitBytes(maxRecordMb: Int): Int {
+        val safeMb = maxRecordMb.coerceAtLeast(1)
+        return (safeMb * BYTES_PER_MB / RAW_CAPTURE_DIVISOR).coerceAtLeast(1)
     }
 }

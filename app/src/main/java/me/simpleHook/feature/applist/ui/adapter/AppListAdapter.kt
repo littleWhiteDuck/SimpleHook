@@ -6,16 +6,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.simpleHook.R
 import me.simpleHook.data.AppListItem
 import me.simpleHook.core.extension.dp
 import me.simpleHook.core.extension.marquee
 import me.simpleHook.feature.applist.ui.view.AppItemView
-import me.simpleHook.core.utils.AppUtil
 
 class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
     ListAdapter<AppListItem, AppListAdapter.ViewHolder>(AppDiffCallback) {
@@ -48,16 +43,7 @@ class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
         with(holder) {
           with(appItem) {
               Glide.with(ivIcon).load(packageName).into(ivIcon)
-              if (name.isEmpty()) {
-                  CoroutineScope(Dispatchers.IO).launch {
-                      val result = AppUtil.getAppName(packageName)
-                      withContext(Dispatchers.Main) {
-                          tvAppName.text = result
-                      }
-                  }
-              } else {
-                  tvAppName.text = name
-              }
+              tvAppName.text = name.ifEmpty { packageName }
               tvAppName.marquee()
               tvPackageName.text = packageName
               tvPackageName.marquee()
@@ -77,7 +63,7 @@ class AppListAdapter(val onItemClick: (AppListItem) -> Unit) :
             oldItem.packageName == newItem.packageName
 
         override fun areContentsTheSame(oldItem: AppListItem, newItem: AppListItem): Boolean =
-            oldItem.name == newItem.name && oldItem.packageName == newItem.packageName && oldItem.versionName == newItem.versionName && oldItem.installedTime == newItem.installedTime
+            oldItem == newItem
 
     }
 

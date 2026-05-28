@@ -10,9 +10,11 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import me.simpleHook.R
 import me.simpleHook.core.base.BaseActivity
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_INSTALLED_TIME
@@ -21,7 +23,6 @@ import me.simpleHook.core.constant.Constant.APP_LIST_BY_PACKAGE_NAME
 import me.simpleHook.core.constant.Constant.APP_LIST_BY_TARGET_API
 import me.simpleHook.core.constant.Constant.CLICK_TIME
 import me.simpleHook.core.ui.custom.customDialog
-import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.SPUtil
 import me.simpleHook.data.AppListItem
 import me.simpleHook.databinding.ActivityAppListBinding
@@ -92,27 +93,31 @@ class AppListActivity : BaseActivity() {
         appListViewModel.selectAppListItem.observe(this) {
             if (it != null) clickResponse(it)
         }
+        appListViewModel.isLoading.observe(this) {
+            binding.swipeRefreshLayout.isRefreshing = it
+        }
 
     }
 
     private fun clickResponse(appListItem: AppListItem) {
-        val appName =
-            appListItem.name.ifEmpty { AppUtil.getAppName(appListItem.packageName) }
-        if (isFromAssist) {
-            val intent = Intent().also {
-                it.putExtra("appName", appName)
-                it.putExtra("packageName", appListItem.packageName)
+        lifecycleScope.launch {
+            val appName = appListViewModel.resolveAppName(appListItem)
+            if (isFromAssist) {
+                val intent = Intent().also {
+                    it.putExtra("appName", appName)
+                    it.putExtra("packageName", appListItem.packageName)
+                }
+                setResult(RESULT_OK, intent)
+            } else {
+                val intent = Intent().also {
+                    it.putExtra("appName", appName)
+                    it.putExtra("packageName", appListItem.packageName)
+                    it.putExtra("versionName", appListItem.versionName)
+                }
+                setResult(RESULT_OK, intent)
             }
-            setResult(RESULT_OK, intent)
-        } else {
-            val intent = Intent().also {
-                it.putExtra("appName", appName)
-                it.putExtra("packageName", appListItem.packageName)
-                it.putExtra("versionName", appListItem.versionName)
-            }
-            setResult(RESULT_OK, intent)
+            finish()
         }
-        finish()
     }
 
 
@@ -124,8 +129,7 @@ class AppListActivity : BaseActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String): Boolean {
-                appListViewModel.queryPattern.value = newText.trim()
-                appListViewModel.filerAppItems(newText.trim())
+                appListViewModel.filerAppItems(newText)
                 return true
             }
 

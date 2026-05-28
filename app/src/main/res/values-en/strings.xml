@@ -542,6 +542,15 @@ You can try signing it manually with MT Manager or a similar tool before install
     <string name="record_show_line_number">Show line number</string>
     <string name="record_enable_magnifier">Enable magnifier</string>
     <string name="record_card_style">Card style</string>
+    <string name="main_settings_title_record_card_style">Record detail card style</string>
+    <string name="main_settings_summary_record_card_style">Use card layout by default in record detail. Turn off for lightweight text display.</string>
+    <string name="extension_algorithm_settings_title">Algorithm record filters</string>
+    <string name="extension_algorithm_title_digest_options">Message digest algorithms</string>
+    <string name="extension_algorithm_title_hmac_options">HMAC algorithms</string>
+    <string name="extension_algorithm_title_cipher_options">Encrypt/decrypt algorithms</string>
+    <string name="extension_algorithm_other_digest">Other digest algorithms</string>
+    <string name="extension_algorithm_other_hmac">Other HMAC</string>
+    <string name="extension_algorithm_other_cipher">Other cipher algorithms</string>
     <string name="no_shizuku_tip">Unavailable, please check if Shizuku is installed</string>
     <string name="main_settings_work_mode_title">Working mode</string>
     <string-array name="main_settings_work_mode_item_entries">

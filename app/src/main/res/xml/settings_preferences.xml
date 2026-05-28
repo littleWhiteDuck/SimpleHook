@@ -35,6 +35,12 @@
             app:defaultValue="true"
             app:icon="@drawable/ic_settings_fact_check_24"
             app:summary="@string/main_settings_summary_check_permission" />
+        <me.simpleHook.core.ui.custom.MaterialSwitchPreference
+            android:key="recordCardStyle"
+            android:title="@string/main_settings_title_record_card_style"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_settings_article_24"
+            app:summary="@string/main_settings_summary_record_card_style" />
     </PreferenceCategory>
     <PreferenceCategory
         app:iconSpaceReserved="false"

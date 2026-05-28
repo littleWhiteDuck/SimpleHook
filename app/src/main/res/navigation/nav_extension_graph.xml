@@ -53,6 +53,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_algorithmSettingsFragment"
+            app:destination="@id/algorithmSettingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/guiseSignFragment"
@@ -79,5 +86,9 @@
         android:id="@+id/recordSettingsFragment"
         android:name="me.simpleHook.feature.extension.ui.RecordSettingsFragment"
         android:label="@string/label_record" />
+    <fragment
+        android:id="@+id/algorithmSettingsFragment"
+        android:name="me.simpleHook.feature.extension.ui.AlgorithmSettingsFragment"
+        android:label="@string/extension_algorithm_settings_title" />
 
 </navigation>

@@ -151,6 +151,7 @@ class AppConfigViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getAllExtConfigs() = extensionConfigDao.getAllExtConfigs()
     fun getExtConfigs() = extensionConfigDao.getExtConfigs()
+    fun getAllExtPackageNames() = extensionConfigDao.getAllExtPackageNames()
 
     /**
      * @return packageName set of custom config + extension config
