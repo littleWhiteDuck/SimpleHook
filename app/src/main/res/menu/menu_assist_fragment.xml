@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/startFloat"
+        android:icon="@drawable/ic_start_float_24"
+        android:title="@string/extension_start_float_window"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/create_model"
+        android:title="@string/main_extension_menu_create_model"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/show_model"
+        android:title="@string/main_extension_menu_show_model"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/about_model"
+        android:title="@string/main_extension_menu_about_model"
+        app:showAsAction="never" />
+</menu>

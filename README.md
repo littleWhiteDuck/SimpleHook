@@ -1,645 +1,199 @@
- **这里是SimpleHook的hook部分代码**
+# SimpleHook
 
-# simpleHook使用说明
+**中文** | [English](README_EN.md)
 
-**中文文档**|[English](README_EN.md)
+SimpleHook 是用于 Android 应用调试与研究的 Xposed/LSPosed 模块。它提供可配置的 Java/Smali Hook、调用记录、运行时分析与配置导出工具。
 
-> [simpleHook.apk](https://wwp.lanzoub.com/b0177tlri)(密码：simple)
->
-> TG交流群: @simpleHook
->
-> 本软件主打简单，如名字一样，如果你追求更复杂的hook操作，推荐使用 [jsHook（你可以实现更复杂的功能）](https://github.com/Xposed-Modules-Repo/me.jsonet.jshook)、[曲境（电脑端浏览器操作）](https://github.com/Mocha-L/QuJing)；如果你追求更多的扩展功能，推荐使用算法助手等等类似应用
->
-> 功能概述：自定义返回值、参数值等，记录常见各种加密算法、toast、dialog、popupwindow、JSONObject创建增加等
+仅可在你拥有或明确获授权测试的应用上使用。记录内容可能包含账号、令牌、输入数据或密钥材料，请妥善保管并遵守适用法律、服务条款及隐私要求。
 
+## 开始使用
 
-## 1. 功能说明
+1. 安装并启用支持 Xposed API 51+ 或 libxposed API 101 的框架，例如 LSPosed。
+2. 在框架管理器中启用 SimpleHook，并将目标应用加入模块作用域。
+3. 打开 SimpleHook，在首页点击添加配置，选择目标应用后进入配置页。
+4. 在配置页添加 Hook 项或在扩展页启用所需功能，保存配置。
+5. 完全结束并重新启动目标应用，在记录页或悬浮窗查看结果。
 
-### 页面介绍
+配置保存后会同步到目标应用可读取的位置。若修改未生效，先确认模块作用域、框架日志和所需的存储/Root/Shizuku 授权，再重启目标应用。
 
-**首页**
+## 填写 Hook 配置
 
-<img src="images\main_home_screenshot.png" width = "200" />
+### 定位类、方法和字段
 
-点击加号，可添加配置，点击添加配置进入下面页面
+手动填写时使用 Java 格式：
 
-**配置页面**
-
-<img src="images/config_screenshot.png" width = "200" />
-
-点击‘搜索样式’图标，可进入AppList页面，进行选择应用
-
-点击‘下载样式’图标，可保存配置
-
-点击右下角加号，可在弹出窗口填写配置
-
-<img src="images\config_dialog_screenshot.png" width = "200" />
-
-有多种模式可以选择，输入类名前建议了解设置页面（smali to config），它可以简化填写
-
-**扩展页面**
-
-<img src="images\main_extension_screenshot.png" width = "200" />
-
-**具体功能**
-
-<img src="images\extension_main_features_shot.png" width = "200" />
-
-点击“播放样式”按钮，可打开悬浮窗（需要授予悬浮窗权限），然后打开目标应用，可以显示一些信息（开启了打印参数值、返回值、扩展页面大部分功能）
-
-悬浮窗
-
-<img src="images\main_extension_print_dialog.png" width = "200" />
-
-## 2.自定义Hook编写规则
-
-下面是编写规则：（你可以下载*[HookTest.apk](https://github.com/littleWhiteDuck/HookTest/releases)*，此App应用了所有情况，并内附有配置）
-
-> 使用前请先了解设置页【smali转配置】，它可以简化你的操作(配合MT管理器等逆向分析软件)
-
-### 简要的基本介绍
-
-- 支持Java语法和Smali语法填写配置信息
-
-  ```java
-  // java
-  me.simplehook.MainActivty
-  // smali
-  Lme/simplehook/MainActivity; //一定要有 --> ; <--
-  ```
-
-- 支持基本类型和其它类型参数
-
-  ```java
-  // 类型 主要用于填写参数类型和变量类型
-  // 基本类型你可以使用java语法这样填
-  boolean int long short char byte float double
-  // 基本类型你也可以使用smali语法这样填
-  Z I J S C B F D
-  // 其他类型你可以使用java语法这样填
-  java.lang.String android.content.Context 
-  // 其他类型你也可以使用smali语法这样填
-  Ljava/lang/String; Landroid/content/Context; //一定要有 --> ; <--
-  ```
-
-
-### 结果值的填写规则
-
-  > 此处应注意，本软件不像其他软件一样需要填写返回值、参数值类型，本软件并不需要，你只需要**按照规则填写**，自动判断
-
-#### 2.1. 基本类型
-
-| 类型(java、smali)  | 值的例子             | 注意事项                       |
-| ------------------ | -------------------- | ------------------------------ |
-| 布尔值(boolean、Z) | true、false          |                                |
-| 整数(int、I)       | 1、2、3              |                                |
-| 长整型(long、J)    | 1l、120000L、123456l | 要注意：数字 + L               |
-| 短整型(short、S)   | 1short、2short       | 要注意：数字 + short           |
-| 字符(char、C)      | 195c                 | 要注意：符合char类型的字符 + c |
-| 字节(byte、B)      | 2b、3b               | 要注意：符合byte类型的字符 + b |
-| 单浮点(float、F)   | 2f、3f、3.0f         | 要注意：数字 + f               |
-| 双浮点(double、D)  | 2d、3d、3.0d         | 要注意：数字 + d               |
-
-#### 2.2. null
-
-> 其他类型只能返回null(字符串除外)，null
-
-#### 2.3. 字符串
-
-##### 2.3.1 一般情况
-
-> 不符合基本类型和null的全部转化为字符串类型
-
-##### 2.3.2 特殊情况
-
-| 特殊的字符串 | 值的例子                         | 注意事项                                                     |
-| ------------ | -------------------------------- | ------------------------------------------------------------ |
-| 数字         | 111s, 2002s                      | 常见于 "111111" 这种，但是本软件你需要在数字后面加入s，如果你不加s，会被转成数字，可能导致目标应用崩溃 |
-| 布尔         | trues、falses                    | 常见于 "true" 、"false" 这种，但是本软件你需要在布尔值后面加入s，如果你不加s，会被转成布尔值，可能导致目标应用崩溃 |
-| null         | nulls                            | 常见于 "null"这种，但是本软件你需要在null后面加入s，如果你不加s，会被转成null，可能导致目标应用空指针 |
-| 空字符串     | 英文单词'empty' 或者中文汉字'空' | 如果你直接填空，将无法保存配置，这样做是为了预防你在使用时不填修改值导致无法正常Hook |
-
-##### 2.3.3 随机文本返回值
-
-> 仅用于返回值，返回值填写下面json代码
->
-> ```json
->    {
-> 	    "random": "abcdefgh123456789",
-> 	    "length": 9,
-> 	    "key": "key",
-> 	    "updateTime": 100,
-> 	    "defaultValue": ""
->     }
-> ```
->
-> 上述json格式代码介绍：
-> 	random：字符串，填写随机文本由哪些字符组成
->
-> ​	length：整数，代表需要生成多长的随机文本
->
-> ​	key：字符串，唯一识别码，可以随便填写，但是一个软件中用到多个随机返回值时需要填不一样的
->
-> ​	updateTime：整数，代表着间隔多长时间更新一下随机文本，单位秒， -1代表每次都更新
->
-> ​	defaultValue：非必填项
-
-## 3.具体的hook模式
-
-#### hook返回值
-
-```java
-//  例如1
-  import simple.example;
-  Class Example{
-    public static boolean isFun() {
-      boolean result = true;
-      ...
-       ...
-      return result
-    }
-  }
-  /*
-  模式选择 Hook返回值
-  类名应填：simple.example.Example
-  方法名应填：isFun
-  参数类型应填：（此处留空，因为没有参数）
-  修改值应填：true 或者 false
-  */
-
-/*
-多个参数参数类型的填法(用英语逗号分开，参数类型支持数组)：
-boolean,int,android.content.Context
-*/
-// 例如2
-  import simple.example;
-  class Example{
-    public static String isFun(Sring str, Context context, boolean b) {
-      String result = str;
-      ...
-       ...
-      return result
-    }
-  }
-/*
-  模式选择 Hook返回值
-  类名应填：simple.example.Example
-  方法名应填：isFun
-  参数类型应填:
-    java语法： java.lang.String,android.content.Context,boolean   (使用参数间使用英文逗号分开，仅一个参数不需要加逗号)
-    smali语法：Ljava/lang/String;,Landroid/content/Context;,Z
-  修改值应填：是个字符串 （应符合结果值的填写规则，不需要加引号）
-*/
+```text
+类名: me.example.LoginService
+方法名: checkLogin
+参数类型: java.lang.String,int,byte[]
 ```
 
-#### hook返回值+
+- 无参数方法的“参数类型”留空。
+- 多个参数使用英文逗号分隔，不要加入空格以外的额外字符。
+- `*` 作为参数类型表示该方法的全部重载；方法名为 `*` 表示该类的全部方法。
+- 构造方法的名称是 `<init>`。构造方法通常优先使用“Hook 参数值”或记录模式，替换返回值、拦截执行可能导致目标应用异常。
+- 可使用设置中的“Smali 转配置”，粘贴诸如 `Lme/example/LoginService;->checkLogin(Ljava/lang/String;I)Z` 的成员签名或调用语句，再由应用转换为配置。手动填写参数类型时仍建议使用 Java 格式。
 
->此功能可以将json转为对象(使用Gson)，你如果不知道这个对象的Json格式是什么样子的，可以使用【记录返回值】功能，复制返回值即可。这个功能并不是万能的，不适用所有情况，简单的数据类应该是没有问题的，暂不支持数组。
->
->模式：hook返回值+
->
->返回值的类名：填返回值的类名
->
->修改值：填json代码，如
->
->```json
->{"isHook":false,"level":10000}
->```
-> 举个例子：
->
->```java
->import simple.example;
->
->// 数据类
->public class UserBean {
->    private boolean isHook;
->    private int level;
->
->    public UserBean(boolean isHook, int level) {
->        this.isHook = isHook;
->        this.level = level;
->    }
->}
->
->public class Example{
->    public static UserBean isFun() {
->      UserBean userBean = new UserBean(true, 10);
->      ...
->       ...
->      return userBean
->    }
->  }
->/*
->假如hook isFun的返回值
->模式：hook返回值+
->类名：simple.example.Example
->方法名：isFun
->参数类型：
->返回值的类名：simple.example.UserBean
->结果值：{"isHook":false,"level":10000}
->*/
->
->```
->
->
+字段模式中，`Hook 点` 指定字段读写操作相对触发方法的位置：`before` 是方法执行前，留空或 `after` 是执行后。
 
-#### hook参数值
+### 修改值规则
 
-```java
-// 类型值同 hook返回值类型
-//特殊用法，如下面一段代码
-public boolean isModuleLive(Context context, String str, int level){
-  
-    retrun true
-}
-//如果你只想要hook level的值，你可以在修改值那一栏向下面这样填
-,,99
-//如果你只想要hook str的值，你可以在修改值那一栏向下面这样填
-,啦啦啦,
-//如果你只想要hook str、level的值，你可以在修改值那一栏向下面这样填
-,啦啦啦,99
-//如果你想要全部hook，你可以在修改值那一栏向下面这样填
-null,啦啦啦,99 // context为null也许导致闪退
-/*
-多个参数参数类型的填法(用英语逗号分开)：
-android.content.Context,jave.lang.String,int
-或者如下填写
-Landroid/content/Context;,Ljave/lang/String;int
-*/
+SimpleHook 根据文本自动转换基本类型；不需要另填类型。下表中的后缀用于消除歧义。
+
+| 目标值 | 填写示例 |
+| --- | --- |
+| 布尔值 | `true`、`false` |
+| int | `42`、`-1` |
+| long | `42L` |
+| float / double | `3.14f`、`3.14d` |
+| byte / short | `7b`、`12short` |
+| char | `ac`，即字符 `a` 后加 `c` |
+| null | `null` |
+| 空字符串 | `empty` |
+| 普通字符串 | 直接填写，例如 `premium` |
+| 看起来像数字的字符串 | `10086s` |
+| `true`、`false`、`null` 字符串 | `trues`、`falses`、`nulls` |
+| 空字符串列表 | `empty_list_string` |
+
+参数替换值以英文逗号对应参数位置，空位表示不修改该参数。例如方法参数为 `(Context, String, int)`：
+
+```text
+,,99             # 只将第三个参数改为 99
+,hello,99        # 修改第二、第三个参数
 ```
 
-#### 中断执行
+### 随机字符串返回值
 
-```java
-// 此模式会拦截方法执行
-// 如hook返回值或者hook参数值一样填，不需要填写返回值、参数值
-public void printString() {
-    System.out.println("start");
-    testBreakMethod();
-    System.out.println("end");
-
-    /*
-      输出结果为
-      start
-      end
-
-      test Break Mode 没有被输出
-    */
-}
-
-// 假如:此方法被中断
-public void testBreakMethod() {
-    System.out.println("test Break Mode")
-}
-```
-
-#### Hook所有同名方法
-
-```java
-/*
-  Hook一个类所有同名方法，参数类型填写 * 即可
-*/
-```
-
-#### Hook一个类中所有方法
-
-```java
-/*
-  Hook一个类所有方法，方法名填写 * 即可；参数类型可随意填写，有些h不可为空
-*/
-```
-
-#### 构造方法
-
-```java
-// 方法名填写：<init>
-import simple.example;
-public class Example{
-  int a;
-  int b;
-  public Example(int a, boolean b) {
-    this.a = a;
-    this.b = b
-  }
-}
-// Hook模式，根据自己的需求选择，一般为hook参数值/记录参数值，其他模式可能造成软件闪退
-/*
-  方法名填写：<init>
-  例如修改两个参数值
-    类名填写：simple.example.Example
-    方法名填写： <init> 
-    参数类型填写：int,int
-    结果值填写：88,99
- */
-```
-
-#### HOOK静态变量
-
-```java
-import simple.example;
-public class Example{
-  public static boolean isTest = false;
-}
-
-import simple.example;
-public class MainActivity extends Acitvity {
-  @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initData();
-        initView();
-    }
-
-    private void initData(){
-      Example.isTest = false;
-    }
-
-    private void initView() {
-      //你想要修改 isTest为true,所以你应当再这个变量被赋值后再去hook
-      System.out.println(Example.isTest); 
-    }
-}
-// 具体的值只支持基本类型，和字符串
-// 无需填写变量类型；要符合[结果值]填写规则
-/*
-  模式选择 Hook静态变量
-  hook点：after/before  根据需要填写，默认after
-  类名应填：simple.example.MainActivity;
-  方法名应填: initData
-  参数类型应填：（什么都是不填，因为这个方法没有参数）
-  变量所在类名：simple.example.Example
-  变量名应填：isTest
-  修改值应填：true/false
-*/
-```
-
-#### HOOK实例变量
-
-```java
-import simple.example;
-public class UseBean {
-    private boolean isHook;
-    private int level;
-
-    public UseBean(boolean isHook, int level) {
-        this.isHook = isHook;
-        this.level = level;
-    }
-
-    public boolean isHook() {
-        return isHook;
-    }
-
-    public void setHook(boolean hook) {
-        isHook = hook;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-}
-
-import simple.example;
-public class MainActivity extends Acitvity {
-  private User user;
-  @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initData();
-        initView();
-    }
-
-    private void initData(){
-      user = new User(true, 100);
-    }
-
-    private void initView() {
-      //你想要修改isHook、level,所以你应当再这个变量被赋值后再去hook
-      System.out.println(user.isHook()); 
-      System.out.println(user.getLevel()); 
-    }
-}
-// 具体的值只支持基本类型，和字符串
-// 无需填写变量类型；要符合[结果值]填写规则
-/*
-  模式选择 Hook变量
-  hook点：after/before  根据需要填写，默认是after
-  类名应填：simple.example.UseBean;
-  方法名应填: <init>   // <init>  表示构造方法
-  参数类型应填：boolean,int
-  变量名应填：isHook
-  修改值应填：true/false
-
-  实例变量/成员变量：不支持像静态变量一样跨类hook，只能在本类的某个方法执行后，再去hook变量值
-*/
-```
-
-#### 记录参数值
-
-> 方法的参数值会被记录，前往记录页面可以查看、
-> 若参数是数组或者list会被转成json格式
-
-#### 记录返回值
-
-> 方法的返回值会被记录，前往记录页面可以查看
-> 若结果是数组或者list会被转成json格式
-
-#### 记录参返
-
-> 方法的参数值、返回值会被一同记录，前往记录页面可以查看
-> 若结果是数组或者list会被转成json格式
-> 若参数是数组或者list会被转成json格式
-
-#### 扩展Hook
-
-> 切记**打开总开关**
-> 功能请前往app查看
-
-## 4.常见问题(FAQ)
-
-### 1.hook没有效果
-
-> - 可看框架日志，是否有报错等
-> - 储存文件更新配置某些情况下需要手动刷新，开启、关闭、编辑保存即可刷新
-> - 请授予所需权限（android11以下：储存权限，android11及以上：ROOT权限）
-
-
-### 2.什么是smali转配置
-
->  开启此实验功能后，配置页面顶部会增加‘粘贴板’图标，点击可将应用调用代码或签名，转化为配置（防止手动输入错误），增加配置后你需要手动选择合适的模式以及结果值
->   调用代码例子：
->
-> ```smali
->  iget v0, p0, Lme/duck/hooktest/bean/UseBean;->level:I
->  invoke-virtual {v0}, Lme/duck/hooktest/bean/UseBean;->isHook()Z
-> ```
->
->   方法签名、字段签名例子：
->
-> ```smali
-> Lme/duck/hooktest/bean/UseBean;->level:I
-> Lme/duck/hooktest/bean/UseBean;->isHook()Z
-> ```
->
-> 上述可在MT管理器导航中长按字段或方法选择**复制签名**或者**查找调用**
-
-### 3.为什么目标应用运行很慢
-
-> 请关闭不必要的扩展HOOK和记录参数、返回值功能, 例如：md5、base64等，这些功能会产生大量的Log
-
-### 4.
-
-### 5.
-
-### 6.什么是hook点
-
-> hook静态变量、实例变量支持手动填写hook点，hook点就是在方法执行前hook还是在方法执行后hook
->
-> before：方法执行前hook;
-> after：方法执行后hook
-
-### 7.什么是删除遗留配置
-
-> 当你卸载本应用或者清除数据时，目标应用配置文件仍然可能保存在储存文件中
->
-> 1. /data/local/tmp/simpleHook/目标应用包名/config/
-> 2. /storage/emluated/0/Android/data/目标应用包名/simpleHook/config/ 
->
-> 这个功能就是遍历所有的应用目录并删除无用的配置(本应用内未显示其配置)
->
-> 因为需要遍历所有应用会比较慢
-
-
-### 8.配置说明
+“Hook 返回值”可填写以下 JSON 来生成随机字符串。`key` 在同一目标应用内应唯一；`updateTime` 的单位为秒，`-1` 表示每次调用都重新生成。
 
 ```json
 {
-  "packageName": "包名",
-  "appName": "应用名",
-  "versionName": "版本名",
-  "description": "描述",
-  "configs": "配置",
-  "enable": true,
-  "id": 0
-},
-configs 为下列字符串形式
-[
-  {
-    "mode": 0,
-    "className": "类名",
-    "methodName": "方法名",
-    "params": "参数类型",
-    "fieldName": "变量名",
-    "fieldClassName": "变量所在类名",
-    "resultValues": "返回值",
-    "hookPoint": "hook点",
-    "returnClassName": "返回值类名",
-    "fieldType": "变量类型",
-    "enable": true
-  }
-]
+  "random": "abcdefgh123456789",
+  "length": 9,
+  "key": "session-id",
+  "updateTime": 60,
+  "defaultValue": ""
+}
 ```
 
-#### mode
+## Hook 模式教程
 
-- 0：
+### 1. Hook 返回值
 
-   > 代表Hook返回值,
-   >
-   > 有效：mode、className、methodName、params、resultValues、enable
-   >
-   > params: 多个参数为**,**隔开
-   >
-   > resultValues：返回值
+在目标方法执行前直接返回指定值。适合修改布尔判断、数值结果或字符串。
 
-- 1：
+```java
+public boolean isVip() { return false; }
+```
 
-   >代表Hook参数值，
-   >
-   >有效：mode、className、methodName、params、resultValues、enable
-   >
-   >params: 多个参数为**,**隔开
-   >
-   >resultValues：多个参数值**,**隔开，留空不hook这个参数
+```text
+模式: Hook 返回值
+类名: me.example.Account
+方法名: isVip
+参数类型:
+修改值: true
+```
 
-- 2：
+### 2. Hook 返回值+
 
-   >代表替换/拦截方法执行
-   >
-   >有效：mode、className、methodName、params、enable
+该模式使用 Gson 将 JSON 转换为指定类的对象并作为结果返回，适合简单数据类。填写目标方法所在类和方法、参数类型、返回值类名及 JSON；数组或需要特殊构造过程的对象不保证适用。转换失败时会按普通返回值规则处理。
 
-- 3：
+```text
+模式: Hook 返回值+
+类名: me.example.Account
+方法名: profile
+返回值类名: me.example.Profile
+修改值: {"vip":true,"level":99}
+```
 
-   > 代表Hook静态变量
-   >
-   > 有效1：mode、className、resultValues、enable、fieldName
-   >
-   > ​	直接Hook变量：
-   >
-   > ​		resultValues:变量值
-   >
-   > 
-   >
-   > 有效2：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName、hookPoint
-   >
-   > ​	某方法Hook前后hook变量：
-   >
-   > ​		resultValues: 变量值
-   >
-   > ​		hookPoint: before、after
+可先使用“记录返回值”获取对象的大致 JSON 结构。
 
-- 4：
+### 3. Hook 参数值
 
-   >代表Hook实例变量
-   >
-   >有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName
+在方法执行前替换参数。必须填写参数类型，用逗号分隔的修改值与参数逐一对应。要保留某个参数，在对应位置留空。
 
-- 5：
+### 4. 拦截执行
 
-   >记录参数值
-   >
-   >有效：mode、className、methodName、params、enable
+跳过目标方法执行。填写类名、方法名和必要的参数定位即可，不需要修改值。优先从不会影响初始化或资源释放的调用点开始测试。
 
-- 6：
+### 5. Hook 静态变量
 
-   >记录返回值
-   >
-   >有效：mode、className、methodName、params、enable
+可直接设置静态字段，也可在某个方法前后设置。
 
-- 7：
+```text
+模式: Hook 静态变量
+变量所在类名: me.example.Flags
+变量名: enabled
+修改值: true
+```
 
-   > 记录参数值和返回值
-   >
-   > 有效：mode、className、methodName、params、enable
+若字段会在运行时被重新赋值，再补充触发类、触发方法、参数类型和 Hook 点。例如在 `MainActivity.initData()` 后设置字段，触发类填 `me.example.MainActivity`，方法名填 `initData`，Hook 点填 `after`。
 
-- 8：
+### 6. Hook 实例变量
 
-   > 记录静态变量
-   >
-   > 有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassName
+实例字段必须依附于该实例的某个方法或构造方法。填写实例所属类、触发方法、字段名和修改值；字段会在指定 Hook 点被修改。通常选择字段已初始化之后的 `after`。
 
-- 9：
+### 7. 记录参数值、返回值和参返
 
-    > 记录实例变量
-    >
-    > 有效：mode、className、methodName、params、resultValues、enable、fieldName、fieldClassNam
+这三种模式不会修改调用结果，分别记录参数、返回值或两者。记录在方法执行后写入记录页；可搜索、标记、查看详情或打开悬浮窗观察实时输出。
 
-- 10
+### 8. 记录静态变量和实例变量
 
-    > Hook返回值+
-    >
-    > 有效：mode、className、methodName、params、resultValues、enable、returnClassName
-    >
-    > 通过Gson将json转为returnClassName的对象
-    >
-    > resultValues: json字符串
-    
-     
+字段记录模式与字段修改模式的定位方式相同，但只读取字段值。
 
+- 静态字段可以直接填“变量所在类名”和“变量名”，也可以绑定到触发方法前后。
+- 实例字段需要填写实例所属类、触发方法和字段名。
 
+## 扩展功能
+
+扩展页的“总开关”必须开启，保存后才会对目标应用生效。按需打开功能，避免同时启用不必要的全局 Hook。
+
+| 分类 | 功能 |
+| --- | --- |
+| 算法分析 | Base64、消息摘要、HMAC、Cipher 加解密记录；摘要、HMAC 与 Cipher 可按算法筛选。 |
+| 界面与交互 | Dialog、PopupWindow、Toast、点击事件、Intent 记录；Dialog/PopupWindow 可取消或按关键词、View ID 拦截。 |
+| Web 与 JSON | WebView URL 与请求头记录、WebView 调试开关、`JSONObject`/`JSONArray` 创建和写入记录。 |
+| 环境与安全 | 应用入口与签名读取记录、签名伪装、剪贴板读取/写入过滤、联系人拦截、传感器禁用、ADB/VPN 检测处理。 |
+| 运行控制 | 退出/结束/杀进程调用记录或拦截、崩溃记录、文件访问监控、热修复 DEX 加载。 |
+
+算法、参数、返回值和调用栈记录可能产生大量数据。可在“记录设置”中关闭调用栈、Base64 或 Hex 表示，并按需要降低缓存和单条记录大小。不要在生产环境长期记录敏感内容。
+
+## 调试与导出
+
+- **DEX 浏览器**：选择已安装应用或 APK，浏览类、方法、字段，并将目标信息带入配置。
+- **Smali 转配置**：粘贴字段/方法签名或调用语句，减少手工填写错误。
+- **配置收藏与模板**：复用常用 Hook 组合；支持导入、导出、备份和恢复。
+- **Frida 脚本导出**：在设置中选择导出 Frida Hook 脚本，将当前自定义配置转换为可调整的 Frida Java 脚本。
+- **插件 APK 导出**：从首页导出时选择插件 APK，勾选要包含的应用配置，填写插件名称、包名与版本。导出的插件使用项目内置的公开默认签名材料签名；该签名不是 SimpleHook 应用的发布签名。
+
+## 常见问题
+
+### 配置没有生效
+
+确认模块已启用、目标应用在作用域中、配置本身已启用且已保存。完全结束目标应用后重新启动，并查看框架日志或记录页中的错误记录。对于系统目录或受限存储环境，按应用提示授予 Root、Shizuku 或目录权限。
+
+### 应用变慢、记录过多或内存占用增加
+
+关闭不需要的扩展，尤其是算法、参数/返回值和调用栈记录；收窄到具体方法和参数签名，而不是使用全部方法或全部重载；在记录设置中限制缓存和单条记录体积。
+
+### 如何选择 Hook 点
+
+普通方法的返回值和参数模式由模式本身决定执行时机。字段模式才使用 `before` / `after`：字段应在方法开始前覆盖时选 `before`，字段会在方法中被赋值时通常选 `after`。
+
+## 从源码构建
+
+使用 JDK 17 与 Android SDK（`compileSdk = 36`）：
+
+```bash
+git clone --recurse-submodules https://github.com/littleWhiteDuck/SimpleHook.git
+cd SimpleHook
+bash ./gradlew :app:assembleRootDebug
+```
+
+不提供 `sign.properties` 时，debug 构建会使用 Android 默认 debug keystore。发布签名可参考 `sign.properties.example` 创建本地 `sign.properties`；它已被 Git 忽略，切勿提交个人发布密钥。
+
+## 许可证
+
+本项目采用 [Apache License 2.0](LICENSE)，第三方代码与依赖保留各自许可证。
+
+<sub>交流：TG 群 [@simpleHook](https://t.me/simpleHook)</sub>

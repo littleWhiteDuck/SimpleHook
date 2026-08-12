@@ -1,0 +1,8 @@
+# Optional release-signing configuration. Copy this file to sign.properties and fill it in.
+# Without sign.properties, debug builds use Android's default debug keystore.
+beta=false
+verName=0.0.0-dev
+alias=your-key-alias
+keyPassword=your-key-password
+file=/absolute/path/to/your-keystore.jks
+password=your-keystore-password

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/collect"
+        android:icon="@drawable/ic_config_collect"
+        android:title="@string/config_menu_collect_config"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_dex_browser"
+        android:icon="@drawable/ic_wand_stars_24"
+        android:title="@string/dex_browser_title"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/config_smali_to_config"
+        android:icon="@drawable/ic_config_paste"
+        android:title="@string/config_config_smali_to_config"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/save_config"
+        android:icon="@drawable/ic_config_save"
+        android:title="@string/config_menu_save_config"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+</menu>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/config_dialog_title"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/config_dialog_mode_select"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <Spinner
+            android:id="@+id/modeSelectSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/config_select_hook_mode"
+            android:minHeight="48dp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView2"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/hook_point_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_hook_point_input_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/modeSelectSpinner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/hookPointEdit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/config_dialog_hook_point_edit_tip"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:textColorHint="#757575" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/classNameInput"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_class_input_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/hook_point_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/classNameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/config_dialog_class_edit_tip"
+                android:imeOptions="actionNext"
+                android:maxLines="2"
+                android:textColorHint="#757575" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/method_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_method_input_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/classNameInput">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/methodNameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_method_input_tip"
+                android:imeOptions="actionNext"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/params_type_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_params_input_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/method_name_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/paramsTypeEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_params_input_tip"
+                android:imeOptions="actionNext"
+                android:maxLines="3" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/field_class_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_field_class_name_input_tip"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/params_type_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/field_class_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_field_class_name_edit_hint"
+                android:imeOptions="actionNext"
+                android:maxLines="3" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/field_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_field_name_input_tip"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/field_class_name_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/fieldNameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_field_name_edit_hint"
+                android:imeOptions="actionNext"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/return_class_name_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_return_class_name_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/field_name_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/return_class_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_return_class_name_tip"
+                android:imeOptions="actionNext"
+                android:maxLines="2" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/result_value_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_return_value_input_helper"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/return_class_name_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/resultValueEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_return_value_input_tip"
+                android:imeOptions="actionDone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_item_desc_input"
+            style="@style/config_dialog_input_layout_style"
+            app:helperText="@string/config_dialog_config_item_desc_input"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/result_value_input">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_item_desc_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/config_dialog_config_item_desc_edit" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

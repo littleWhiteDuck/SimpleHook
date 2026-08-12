@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_collect"
+        android:title="@string/collect" />
+    <item
+        android:id="@+id/menu_copy"
+        android:title="@string/copy_config" />
+    <item
+        android:id="@+id/menu_duplicate"
+        android:title="@string/duplicate_config" />
+    <item
+        android:id="@+id/menu_delete_same_type"
+        android:title="@string/delete_same_type" />
+
+</menu>

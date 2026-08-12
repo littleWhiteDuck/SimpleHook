@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="config_dialog_input_layout_style">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="endIconMode">clear_text</item>
+    </style>
+
+    <style name="text_view_title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:letterSpacing">0.009375</item>
+        <item name="lineHeight">24sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="text_view_item" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="text_view_item_secondary" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?android:textColorSecondary</item>
+    </style>
+
+    <style name="text_view_subtitle1" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.009375</item>
+    </style>
+
+    <style name="text_view_subtitle2" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.00714285714</item>
+    </style>
+
+    <style name="text_view_caption" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.0333333333</item>
+    </style>
+
+    <style name="text_view_sans_serif" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+    <style name="card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardPreventCornerOverlap">true</item>
+    </style>
+
+    <style name="TransparentText" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#00000000</item>
+    </style>
+
+    <style name="CustomBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheet</item>
+    </style>
+
+    <style name="CustomBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
+    </style>
+
+    <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+    </style>
+
+    <style name="PreferenceFragment.Material" tools:ignore="PrivateResource">
+        <item name="android:divider">@drawable/preference_list_divider_material</item>
+    </style>
+
+
+    <style name="BottomModelTitle">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="BottomModelButton">
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.OutlinedButton
+        </item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Toolbar_Style">
+        <item name="android:theme">@style/ToolBarTheme</item>
+        <item name="popupTheme">@style/ToolBarThemePopup</item>
+        <item name="subtitleTextColor">?colorOnPrimary</item>
+        <item name="titleTextColor">?colorOnPrimary</item>
+    </style>
+
+    <style name="TextInput" parent="Widget.Material3.TextInputLayout.FilledBox"></style>
+</resources>

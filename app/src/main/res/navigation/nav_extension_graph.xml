@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/managerFragment">
+
+    <fragment
+        android:id="@+id/managerFragment"
+        android:name="me.simpleHook.feature.extension.ui.ManagerVBFragment"
+        android:label="fragment_extension_manager"
+        tools:layout="@layout/fragment_extension_manager">
+        <action
+            android:id="@+id/action_managerFragment_to_guiseSignFragment"
+            app:destination="@id/guiseSignFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="extension_config"/>
+        <action
+            android:id="@+id/action_managerFragment_to_clipboardFragment"
+            app:destination="@id/clipboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_fileMonitorFragment"
+            app:destination="@id/fileMonitorFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_disableDialogFragment"
+            app:destination="@id/dialogCancelFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_exitFragment"
+            app:destination="@id/exitFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_recordSettingsFragment"
+            app:destination="@id/recordSettingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_managerFragment_to_algorithmSettingsFragment"
+            app:destination="@id/algorithmSettingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/guiseSignFragment"
+        android:name="me.simpleHook.feature.extension.ui.GuiseSignVBFragment"
+        android:label="@string/guise_signature"
+        tools:layout="@layout/fragment_guise_sign" />
+    <fragment
+        android:id="@+id/clipboardFragment"
+        android:name="me.simpleHook.feature.extension.ui.ClipboardFragment"
+        android:label="@string/label_clipboard" />
+    <fragment
+        android:id="@+id/fileMonitorFragment"
+        android:name="me.simpleHook.feature.extension.ui.FileMonitorFragment"
+        android:label="@string/label_file" />
+    <fragment
+        android:id="@+id/dialogCancelFragment"
+        android:name="me.simpleHook.feature.extension.ui.DisableDialogFragment"
+        android:label="@string/label_dialog" />
+    <fragment
+        android:id="@+id/exitFragment"
+        android:name="me.simpleHook.feature.extension.ui.ExitFragment"
+        android:label="@string/label_exit" />
+    <fragment
+        android:id="@+id/recordSettingsFragment"
+        android:name="me.simpleHook.feature.extension.ui.RecordSettingsFragment"
+        android:label="@string/label_record" />
+    <fragment
+        android:id="@+id/algorithmSettingsFragment"
+        android:name="me.simpleHook.feature.extension.ui.AlgorithmSettingsFragment"
+        android:label="@string/extension_algorithm_settings_title" />
+
+</navigation>

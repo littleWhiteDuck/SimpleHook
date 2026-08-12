@@ -1,0 +1,125 @@
+[
+  {
+    "name": "Kotlin",
+    "author": "JetBrains",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/JetBrains/Kotlin"
+  },
+  {
+    "name": "AndroidX",
+    "author": "Google",
+    "type": "Apache Software License 2.0",
+    "url": "https://source.google.com"
+  },
+  {
+    "name": "Android Jetpack",
+    "author": "Google",
+    "type": "Apache Software License 2.0",
+    "url": "https://source.google.com"
+  },
+  {
+    "name": "material-components-android",
+    "author": "Google",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/material-components/material-components-android"
+  },
+  {
+    "name": "EasyFloat",
+    "author": "princekin-f",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/princekin-f/EasyFloat"
+  },
+  {
+    "name": "gson",
+    "author": "Google",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/google/gson"
+  },
+  {
+    "name": "XposedBridge",
+    "author": "rovo89",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/rovo89/XposedBridge"
+  },
+  {
+    "name": "libsu",
+    "author": "topjohnwu",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/topjohnwu/libsu"
+  },
+  {
+    "name": "Glide",
+    "author": "Sam Judd",
+    "type": "BSD, part MIT and Apache 2.0",
+    "url": "https://github.com/bumptech/glide"
+  },
+  {
+    "name": "SwipeDelMenuLayout",
+    "author": "mcxtzhang",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/mcxtzhang/SwipeDelMenuLayout"
+  },
+  {
+    "name": "EzXHelper",
+    "author": "KyuubiRan",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/KyuubiRan/EzXHelper"
+  },
+  {
+    "name": "SimpleMenuPreference",
+    "author": "RikkaX",
+    "type": "MIT License",
+    "url": "https://github.com/RikkaApps/RikkaX/tree/master/preference/simplemenu-preference"
+  },
+  {
+    "name": "MultiType",
+    "author": "drakeet",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/drakeet/MultiType"
+  },  {
+    "name": "Kotlin multiplatform / multi-format reflectionless serialization",
+    "author": "JetBrains",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/Kotlin/kotlinx.serialization"
+  },  {
+    "name": "sardine-android",
+    "author": "thegrizzlylabs",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/thegrizzlylabs/sardine-android"
+  },  {
+    "name": "QAuxiliary",
+    "author": "cinit",
+    "type": "General License Agreement, CC BY-NC-SA 4.0",
+    "url": "https://github.com/cinit/QAuxiliary"
+  },  {
+    "name": "Shizuku-API",
+    "author": "Rikka",
+    "type": "MIT License",
+    "url": "https://github.com/RikkaApps/Shizuku"
+  },  {
+    "name": "smali",
+    "author": "JesusFreke",
+    "type": "BSD 3-clause",
+    "url": "https://github.com/JesusFreke/smali"
+  },  {
+    "name": "sora-editor",
+    "author": "Rosemoe",
+    "type": "LGPL-2.1 license",
+    "url": "https://github.com/Rosemoe/sora-editor"
+  },  {
+    "name": "libxposed",
+    "author": "libxposed",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/libxposed"
+  },  {
+    "name": "apksig",
+    "author": "The Android Open Source Project",
+    "type": "Apache Software License 2.0",
+    "url": "http://tools.android.com/"
+  },  {
+    "name": "ARSCLib",
+    "author": "REAndroid",
+    "type": "Apache Software License 2.0",
+    "url": "https://github.com/REAndroid/ARSCLib"
+  }
+]

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search_toolbar_24"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always|collapseActionView"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:title="@string/record_detail_menu_copy">
+        <menu>
+            <item
+                android:id="@+id/copy_text"
+                android:icon="@drawable/ic_copy"
+                android:title="@string/record_detail_menu_copy_text" />
+            <item
+                android:id="@+id/copy_json"
+                android:icon="@drawable/ic_copy"
+                android:title="@string/record_detail_menu_copy_json_format" />
+        </menu>
+
+    </item>
+    <item
+        android:id="@+id/menu_word_wrap"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/record_detail_word_wrap" />
+    <item
+        android:id="@+id/menu_line_number"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_show_line_number" />
+    <item
+        android:id="@+id/menu_magnifier"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_enable_magnifier" />
+    <item
+        android:id="@+id/menu_card_style"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/record_card_style" />
+</menu>

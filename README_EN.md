@@ -1,516 +1,199 @@
-**Here is the code for the hook part of SimpleHook**
+# SimpleHook
 
-# simpleHook instructions
+[Chinese](README.md) | **English**
 
-[Chinese](README.md)|**English**
+SimpleHook is an Xposed/LSPosed module for Android application debugging and research. It provides configurable Java/Smali hooks, call recording, runtime analysis, and configuration export tools.
 
-> [simpleHook.apk](https://wwp.lanzoub.com/b0177tlri)(password: simple)
->
-> TG Group: @simpleHook
->
-> **SimpleHook** is mainly simple, just like the name. If you pursue more complex hook operation, it is recommended to use **[jsHook (You can implement very powerful Hook)](https://github.com/Xposed-Modules-Repo/me.jsonet.jshook)**, [Qujing (computer browser operation)](https://github.com/Mocha-L/QuJing); if you pursue more extended functions, it is recommended to use [算法助手]
->
-> Function overview: custom return value, parameter value, etc., record common encryption algorithms, toast, dialog, popupwindow, JSONObject creation and put, etc.
->
+Use it only with applications that you own or are explicitly authorized to test. Records may contain accounts, tokens, input data, or key material. Handle them carefully and comply with applicable law, service terms, and privacy requirements.
 
-## 1. Function description
+## Quick Start
 
-### Page Introduction
+1. Install and enable a framework supporting Xposed API 51+ or libxposed API 101, such as LSPosed.
+2. Enable SimpleHook in the framework manager and add the target app to its module scope.
+3. Open SimpleHook, add a configuration from the home screen, and select the target app.
+4. Add custom hook entries on the configuration page or enable the required items on the extension page, then save.
+5. Fully stop and relaunch the target app. Inspect results in the record view or floating window.
 
-**front page**
+Saved configurations are synchronized to a location that the target app can read. If a change does not take effect, verify module scope, framework logs, and required storage/Root/Shizuku permissions, then restart the target app.
 
-<img src="images\main_home_screenshot.png" width = "200" />
+## Writing Hook Configurations
 
-Click the plus sign to add configuration, click Add configuration to enter the following page
+### Classes, methods, and fields
 
-**Configuration page**
+For manual input, use Java notation:
 
-<img src="images/config_screenshot.png" width = "200" />
+```text
+Class: me.example.LoginService
+Method: checkLogin
+Parameter types: java.lang.String,int,byte[]
+```
 
-Click the 'Search Style' icon to enter the AppList page and select an application
+- Leave parameter types blank for a no-argument method.
+- Separate multiple parameter types with commas.
+- Use `*` as parameter types to target every overload; use `*` as the method name to target every method in the class.
+- Constructors use `<init>` as the method name. Parameter replacement and record modes are generally safer for constructors; return replacement or interception can break target initialization.
+- Use the Smali-to-config tool in Settings to paste a member signature or call such as `Lme/example/LoginService;->checkLogin(Ljava/lang/String;I)Z`. The app converts it to a configuration. Java notation remains recommended for manually entered parameter types.
 
-Click the 'Download Style' icon to save the configuration
+For field modes, `Hook point` controls the point relative to the trigger method: `before` runs before it; blank or `after` runs after it.
 
-Click the plus sign in the lower right corner to fill in the configuration in the pop-up window
+### Value rules
 
-<img src="images\config_dialog_screenshot.png" width = "200" />
+SimpleHook infers primitive values from text, so a separate value type is unnecessary. Suffixes resolve ambiguous values.
 
-There are multiple modes to choose from. Before entering the class name, it is recommended to understand the settings page (smali to config), which can simplify filling.
+| Target value | Input examples |
+| --- | --- |
+| Boolean | `true`, `false` |
+| int | `42`, `-1` |
+| long | `42L` |
+| float / double | `3.14f`, `3.14d` |
+| byte / short | `7b`, `12short` |
+| char | `ac`, character `a` followed by `c` |
+| null | `null` |
+| Empty string | `empty` |
+| Normal string | Plain text, for example `premium` |
+| Numeric-looking string | `10086s` |
+| String `true`, `false`, or `null` | `trues`, `falses`, `nulls` |
+| Empty string list | `empty_list_string` |
 
-**Extended page**
+For parameter replacement, comma-separated values map to argument positions; an empty position leaves that argument untouched. For a method with `(Context, String, int)`:
 
-<img src="images\main_extension_screenshot.png" width = "200" />
+```text
+,,99             # change only the third argument
+,hello,99        # change the second and third arguments
+```
 
-**Specific function**
+### Random string return values
 
-<img src="images\extension_main_features_shot.png" width = "200" />
+Use the following JSON in the Hook return value mode to generate a random string. `key` should be unique within one target app. `updateTime` is measured in seconds; `-1` generates a value for every call.
 
-Click the "Play Style" button to open the floating window (you need to grant the permission of the floating window), and then open the target application, you can display some information (the print parameter value, return value, and most functions of the extended page are enabled)
-
-Floating window
-
-<img src="images\main_extension_print_dialog.png" width = "200" />
-
-## 2. Custom Hook writing rules
-
-The following are the writing rules: (You can download *[HookTest.apk](https://github.com/littleWhiteDuck/HookTest/releases)*, this App applies all the situations and includes configuration)
-
-> Please understand the setting page **[smali to config]** before use, it can simplify your operation (with decompiler apps such as **MT manager**)
-
-### A brief basic introduction
-
-- Support Java syntax and Smali syntax to fill in configuration information
-
-  ````java
-  // java
-  me.simplehook.MainActivty
-  // smali
-  Lme/simplehook/MainActivity; //must have --> ; <--
-  ````
-
-- Support for primitive types and other type parameters
-
-  ````java
-  // Type is mainly used to fill in the parameter type and variable type
-  // Basic types you can fill in using java syntax like this
-  boolean int long short char byte float double
-  // You can also use smali syntax to fill in basic types like this
-  Z I J S C B F D
-  // For other types, you can use java syntax to fill in
-  jave.lang.String android.content.Context
-  // You can also use smali syntax to fill in other types like this
-  Ljava/lang/String; Landroid/content/Context; //must have --> ; <--
-  ````
-
-
-### Filling rules for result values
-
-  > It should be noted here that this software does not need to fill in the return value and parameter value type like other software, this software does not need it, you only need to **fill in according to the rules**, automatic judgment
-
-#### 2.1. Primitive type
-
-| Type (java, smali) | Examples of value ​​ | Note |
-| ------------------ | -------------------- | ------------- |
-| boolean (boolean, Z) | true, false | |
-| int(int, I) | 1, 2, 3 | |
-| long(long, J) | 1l, 120000L, 123456l | Note: Number + 'L' |
-| short(short, S) | 1short, 2short | Note: number + 'short' |
-| char(char, C) | 195c | Note: conforms to char type string + 'c' |
-| byte(byte, B) | 2b, 3b | Note: conforms to byte type string + 'b' |
-| float(float, F) | 2f, 3f, 3.0f | Note: number + 'f' |
-| double(double, D) | 2d, 3d, 3.0d | Note: number + 'd' |
-
-#### 2.2. null
-
-> Other types can only return null (except strings), null
-
-#### 2.3 Strings
-
-##### 2.3.1 General
-
-> Convert everything that does not conform to the primitive type and null to string type
-
-##### 2.3.2 Special cases
-
-| Special Strings | Examples of Values ​​| Notes |
-| ------------ | -------------------------------- | ------------------------------------------ |
-| Number | 111s, 2002s | Commonly seen in "111111", but in this software you need to add s after the number, if you don't add s, it will be converted into a number, which may cause the target application to crash |
-| Boolean | trues, falses | Common in "true" and "false", but in this software, you need to add s after the boolean value. If you do not add s, it will be converted to a boolean value, which may cause the target application to crash |
-| null | nulls | Commonly seen in "null", but in this software, you need to add s after null. If you do not add s, it will be converted to null, which may lead to a null pointer in the target application |
-| Empty string | English word 'empty' or Chinese character '空' | If you fill in the blank directly, you will not be able to save the configuration, this is to prevent you from not filling in the modified value when you use it, which will cause the normal Hook |
-
-##### 2.3.3 Random text return value
-
-> Fill in the following json code for the return value, for return value only
->
-> ```json
-> {
-> "random": "abcdefgh123456789",
-> "length": 9,
-> "key": "key",
-> "updateTime": 100,
-> "defaultValue": ""
-> }
-> ````
->
-> Introduction to the above json format code:
->
-> ```json
-> "random": string, fill in which characters the random text consists of
-> "length": an integer representing how long random text needs to be generated
-> "key": string, unique identification code, can be filled in casually, but when multiple random return values are used in a software, different ones need to be filled in
-> "updateTime": an integer, representing how long to update the random text at intervals, in seconds, -1 means update every time
-> "defaultValue": optional
-> ```
-
-## 3. Hook mode
-
-#### hook return value
-
-````java
- //  eg 1
-  import simple.example;
-  public class Example{
-    public static boolean isFun() {
-      boolean result = true;
-      ...
-       ...
-      return result
-    }
-  }
- /*
-  Mode: Hook return value
-  The class name should be filled in:  simple.example.Example
-  The method name should be filled in:  isFun
-  The parameter type should be filled in: Fill in nothing, because this method has no parameters
-  The modified value should be filled in: true or false
- */
-
-/*
-Filling method of multiple parameter parameter types (separated by English commas, parameter types support arrays):
-boolean,int,android.content.Context
-*/
-
-// eg 2
-  import simple.example;
-  public class Example{
-    public static String isFun(Sring str, Context context, boolean b) {
-      String result = str;
-      ...
-       ...
-      return result;
-    }
-  }
-/*
-  Mode：Hook return value
-  The class name should be filled in: simple.example.Example
-  The method name should be filled in: isFun
-  Parameter type should be filled in:
-    java syntax: java.lang.String,android.content.Context,boolean (use commas to separate the parameters, only one parameter does not need a comma)
-    smali syntax: Ljava/lang/String;,Landroid/content/Context;,Z
-  The modified value should be filled: it is a string (should meet the filling rules of the result value, no quotation marks are required)
-*/
-````
-
-#### hook return value+
-
->This function can convert json to object (use **Gson**). If you don't know what the Json format of this object looks like, you can use the function [record return value] and copy the return value. This function is not omnipotent and does not apply to all situations. Simple data classes should be no problem, and arrays are not supported for the time being.
->
->Mode: hook return value+
->
->Class name of the return value: fill in the class name of the return value
->
->Modify the value: fill in the json code, such as
->
->````json
->{"isHook":false,"level":10000}
->````
->For example:
->
->```java
->import simple.example;
->
->// data class
->public class UserBean {
->     private boolean isHook;
->     private int level;
->
->     public UserBean(boolean isHook, int level) {
->         this.isHook = isHook;
->         this.level = level;
->     }
->}
->
->public class Example{
->     public static UserBean isFun() {
->       UserBean userBean = new UserBean(true, 10);
->       ...
->        ...
->       return userBean;
->     }
->   }
->/*
->If the return value of hook isFun
->Mode: hook return value +
->Class name: simple.example.Example
->Method name: isFun
->Parameter Type:
->The class name of the return value: simple.example.UserBean
->Result value: {"isHook":false,"level":10000}
->*/
->```
->
->
-
-#### hook parameter value
-
-````java
-// The type value is the same as the hook return value type
-//Special usage, such as the following code
-public boolean isModuleLive(Context context, String str, int level){
-  
-    retrun true
+```json
+{
+  "random": "abcdefgh123456789",
+  "length": 9,
+  "key": "session-id",
+  "updateTime": 60,
+  "defaultValue": ""
 }
-//If you only want the value of the hook level, you can fill in the following in the column to modify the value
-,,99
-//If you only want the value of hook str, you can fill in the following in the column to modify the value
-,hahaha,
-//If you only want the value of hook str and level, you can fill in the following in the column to modify the value
-,hahaha,99
-//If you want all hooks, you can fill in the following in the modified value column
-null,hahaha, 99 // context being null may cause a crash
-/*
-Filling method of multiple parameter parameter types (separated by English commas):
-android.content.Context,jave.lang.String,int
-Or fill in as follows
-Landroid/content/Context;,Ljave/lang/String;int
-*/
-````
+```
 
-#### break execution
+## Hook Mode Guide
 
-````java
-// This mode will intercept method execution
-// Fill in the same as the hook return value or hook parameter value, do not need to fill in the return value and parameter value
-public void printString() {
-    System.out.println("start");
-    testBreakMethod();
-    System.out.println("end");
+### 1. Hook return value
 
-    /*
-      The output is
-      start
-      end
+Returns the configured value before the target method executes. This is useful for boolean checks, numeric results, and strings.
 
-      test Break Mode is not output
-    */
-}
+```java
+public boolean isVip() { return false; }
+```
 
-// if: this method is interrupted
-public void testBreakMethod() {
-    System.out.println("test Break Mode")
-}
-````
+```text
+Mode: Hook return value
+Class: me.example.Account
+Method: isVip
+Parameter types:
+Value: true
+```
 
-#### Hook all methods with the same name
+### 2. Hook return value+
 
-````java
-/*
-  Hook all methods of the same name in a class, fill in * for the parameter type
-*/
-````
+This mode uses Gson to deserialize JSON into the configured return class. It works best for simple data classes. Fill in the target class and method, parameter types, return class name, and JSON. Arrays and objects needing specialized construction are not guaranteed to work. If conversion fails, SimpleHook falls back to normal return-value rules.
 
-#### Hook all methods in a class
+```text
+Mode: Hook return value+
+Class: me.example.Account
+Method: profile
+Return class: me.example.Profile
+Value: {"vip":true,"level":99}
+```
 
-````java
-/*
-  Hook all methods in a class, fill in * for the method name.
-  The parameter type can be filled in freely, some hook types cannot be empty.
-*/
-````
+Record the return value first when you need to inspect an object's approximate JSON structure.
 
-#### Construction method
+### 3. Hook parameter value
 
-````java
-// Fill in the method name: <init>
-import simple.example;
-public class Example{
-  int a;
-  int b;
-public Example(int a, boolean b) {
-    this.a = a;
-    this.b = b
-  }
-}
-// Hook mode, choose according to your own needs, generally the hook parameter value/record parameter value, other modes may cause the software to crash
-/*
-  Fill in the method name: <init>
-  For example, modify two parameter values
-    Fill in the class name: simple.example.Example
-    Fill in the method name: <init>
-    Fill in the parameter type: int, int
-    Fill in the result value: 88,99
- */
-````
+Replaces arguments before execution. Parameter types are required. Comma-separated values map to parameters one by one; leave a position empty to preserve it.
 
-#### HOOK static field
+### 4. Intercept execution
 
-````java
-import simple.example;
-public class Example{
-  public static boolean isTest = false;
-}
+Skips the target method. Supply the class, method, and enough parameter information to locate it; no value is needed. Start with calls that do not initialize state or release resources.
 
-import simple.example;
-public class MainActivity extends Acitvity {
-  @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initData();
-        initView();
-    }
+### 5. Hook static field
 
-    private void initData(){
-      Example.isTest = false;
-    }
+Set a static field directly, or set it before or after a trigger method.
 
-    private void initView() {
-      //You want to change isTest to true, so you should hook this field after assigning a value
-      System.out.println(Example.isTest);
-    }
-}
-// Concrete values only support primitive types, and strings
-// There is no need to fill in the field type; it must comply with the [result value] filling rules
-/*
-  Mode: Hook static field
-  Hook point: after/before fill in as needed, default after
-  The class name should be filled in: simple.example.MainActivity;
-  The method name should be filled in: initData
-  The parameter type should be filled in: (nothing is filled in, because this method has no parameters)
-  The class name where the variable is located: simple.example.Example
-  The variable name should be filled in: isTest
-  The modified value should be filled in: true/false
-*/
-````
+```text
+Mode: Hook static field
+Field class: me.example.Flags
+Field name: enabled
+Value: true
+```
 
-#### HOOK instance field
+If the field is assigned again at runtime, also provide the trigger class, method, parameter types, and hook point. For example, set the field after `MainActivity.initData()` by using trigger class `me.example.MainActivity`, method `initData`, and hook point `after`.
 
-````java
-import simple.example;
-public class UseBean {
-    private boolean isHook;
-    private int level;
+### 6. Hook instance field
 
-    public UseBean(boolean isHook, int level) {
-        this.isHook = isHook;
-        this.level = level;
-    }
+An instance field must be attached to a method or constructor on that instance. Provide the instance class, trigger method, field name, and value. Choose `after` when the field is initialized by the trigger method.
 
-    public boolean isHook() {
-        return isHook;
-    }
+### 7. Record parameters, return value, or both
 
-    public void setHook(boolean hook) {
-        isHook = hook;
-    }
+These modes do not modify calls. They write parameters, return values, or both to the record view after execution. Records can be searched, marked, inspected in detail, or watched in the floating window.
 
-    public int getLevel() {
-        return level;
-    }
+### 8. Record static and instance fields
 
-    public void setLevel(int level) {
-        this.level = level;
-    }
-}
+Field record modes use the same lookup rules as field replacement but only read values.
 
-import simple.example;
-public class MainActivity extends Acitvity {
-  private User user;
-  @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initData();
-        initView();
-    }
+- A static field can be recorded directly with field class and field name, or around a trigger method.
+- An instance field requires its instance class, trigger method, and field name.
 
-    private void initData(){
-      user = new User(true, 100);
-    }
+## Extensions
 
-    private void initView() {
-      //You want to modify isHook, level, so you should go to hook after this variable is assigned
-      System.out.println(user.isHook());
-      System.out.println(user.getLevel());
-    }
-}
-// Concrete values only support primitive types, and strings
-// There is no need to fill in the field type; it must comply with the [result value] filling rules
-/*
-  Mode: Hook instance field
-  Hook point: after/before fill in as needed, the default is after
-  The class name should be filled in: simple.example.UseBean;
-  The method name should be filled in: <init> // <init> represents the constructor
-  The parameter type should be filled in: boolean, int
-  The variable name should be filled in: isHook
-  The modified value should be filled in: true/false
+The extension page's master switch must be enabled and saved before its features take effect. Enable only what you need; each item may install broad runtime hooks.
 
-  Instance field/member field: cross-class hooks like static field are not supported. You can only hook the field value after a method of this class is executed.
-*/
-````
+| Area | Features |
+| --- | --- |
+| Algorithm analysis | Base64, message digest, HMAC, and Cipher operation records, with algorithm-level filters for digest, HMAC, and Cipher. |
+| UI and interaction | Dialog, PopupWindow, Toast, click-event, and Intent records; Dialogs/PopupWindows can be cancellable or blocked by keyword and View ID. |
+| Web and JSON | WebView URL/request-header records, WebView debugging, and `JSONObject`/`JSONArray` creation and write records. |
+| Environment and security | Application-entry and signature-read records, signature spoofing, clipboard controls, contact blocking, sensor disabling, and ADB/VPN check handling. |
+| Runtime controls | Exit/finish/kill-process records or interception, crash records, file-access monitoring, and hot-fix DEX loading. |
 
-#### record parameter value
+Algorithm, parameter/return, and stack-trace records can create substantial data. In Record settings, disable stack traces, Base64, or Hex output as needed, and limit cache and per-record size. Do not leave sensitive recording enabled in production use.
 
-> The parameter values of the method will be recorded, go to the record page to view,
-> If the parameter is an array or list, it will be converted to json format
+## Debugging and Export
 
-#### record return value
+- **DEX browser**: browse installed apps or APKs, inspect classes/methods/fields, and send targets into a configuration.
+- **Smali-to-config**: paste field/method signatures or call statements to avoid manual input mistakes.
+- **Collections and templates**: reuse hook groups; configurations can be imported, exported, backed up, and restored.
+- **Frida script export**: choose Frida Hook script export in Settings to turn custom configurations into an adjustable Frida Java script.
+- **Plugin APK export**: choose plugin APK from the home-screen export action, select configurations, then supply plugin name, package name, and version. Exported plugins use the repository's public default signing material, which is not the SimpleHook application release key.
 
-> The return value of the method will be recorded, go to the record page to view
-> If the result is an array or list, it will be converted to json format
+## Troubleshooting
 
-#### record return
+### A configuration has no effect
 
-> The parameter value and return value of the method will be recorded together, go to the record page to view
-> If the result is an array or list, it will be converted to json format
-> If the parameter is an array or list, it will be converted to json format
+Confirm that the module and target scope are enabled, the configuration itself is enabled and saved, and the target app was fully restarted. Check framework logs and error records. For protected storage environments, grant the Root, Shizuku, or directory permission requested by the app.
 
-#### Extending Hook
+### The target becomes slow or produces too many records
 
-> Remember to **turn on the main switch**
-> Please go to the app to view the functions
+Disable unused extensions, especially algorithm, parameter/return, and stack-trace recording. Target specific methods and parameter signatures instead of all methods or overloads. Limit cache and per-record size in Record settings.
 
-## Frequently Asked Questions (FAQ)
+### Choosing a hook point
 
-### 1.hook has no effect
+Return-value and parameter modes determine their own timing. `before` / `after` applies to field modes: choose `before` when a field must be overwritten before the trigger begins; choose `after` when the trigger assigns the field.
 
-> - You can see the xposed framework(example: LSPosed) log, whether there is an error, etc.
->- In some cases, the storage file update configuration needs to be manually refreshed, open, close, edit and save to refresh
-> - Please grant the required permissions (below android11: storage permission, android11 and above: ROOT permission)
+## Build from Source
 
+Use JDK 17 and the Android SDK (`compileSdk = 36`):
 
-### 2. What is smali transfer configuration
+```bash
+git clone --recurse-submodules https://github.com/littleWhiteDuck/SimpleHook.git
+cd SimpleHook
+bash ./gradlew :app:assembleRootDebug
+```
 
-> After this experimental function is enabled, a 'pasteboard' icon will be added to the top of the configuration page. Click to convert the application code or signature into a configuration (to prevent manual input errors). After adding the configuration, you need to manually select the appropriate mode and result value.
-> Example of calling code:
->
-> ```smali
-> iget v0, p0, Lme/duck/hooktest/bean/UseBean;->level:I
-> invoke-virtual {v0}, Lme/duck/hooktest/bean/UseBean;->isHook()Z
-> ````
->
-> Example of method signature and field signature:
->
-> ```smali
-> Lme/duck/hooktest/bean/UseBean;->level:I
-> Lme/duck/hooktest/bean/UseBean;->isHook()Z
-> ````
->
-> The above can be selected by long-pressing a field or method in the MT Manager navigation to select **Copy Signature** or **Find Call**
+Without `sign.properties`, debug builds use Android's default debug keystore. For release signing, create a local `sign.properties` from `sign.properties.example`; it is ignored by Git, so never commit a personal release key.
 
-### 3. Why the target application is running slowly
+## License
 
-> Please turn off unnecessary **EXTENSION HOOK** and **record parameters**, **record return value**...etc, such as: md5, base64, etc., these functions will generate a lot of Log
+Licensed under the [Apache License 2.0](LICENSE). Third-party code and dependencies retain their respective licenses.
 
-### 4.
-
-### 5.
-
-### 6. What is hook point
-
-> Some hooks support manually filling in the hook point. The hook point is the hook before the method is executed or the hook after the method is executed.
->
-> before: hook before method execution;
-> after: hook after the method is executed
-
-### 7. What is [Remove interfering configuration]
-
-> When you uninstall the app or clear data, the target app configuration file may still be saved in the storage file
->
-> 1. /data/local/tmp/simpleHook/target application package name/config/
-> 2. /storage/emluated/0/Android/data/target application package name/simpleHook/config/
->
-> This function is to traverse all application directories and delete useless configurations (the configuration is displayed in this application).
->
-> Because it needs to traverse all applications will be slower
+<sub>Community: TG group [@simpleHook](https://t.me/simpleHook)</sub>

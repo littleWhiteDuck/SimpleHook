@@ -1,0 +1,64 @@
+package me.simpleHook.core.constant
+
+object Constant {
+    // 方法Hook模式
+    const val HOOK_RETURN = 0
+    const val HOOK_PARAM = 1
+    const val HOOK_BREAK = 2
+    const val HOOK_STATIC_FIELD = 3
+    const val HOOK_FIELD = 4
+    const val HOOK_RECORD_PARAMS = 5
+    const val HOOK_RECORD_RETURN = 6
+    const val HOOK_RECORD_PARAMS_RETURN = 7
+    const val HOOK_RECORD_STATIC_FIELD = 8
+    const val HOOK_RECORD_INSTANCE_FIELD = 9
+    const val HOOK_RETURN2 = 10
+
+    //目录
+    const val ROOT_CONFIG_MAIN_DIRECTORY = "/storage/self/primary/Android/media/"
+    const val RECORD_TEMP_DIRECTORY = "logTemp/log.txt"
+    const val CONFIG_DIRECTORY = "/SimpleHook/config/"
+
+
+    // Android/media
+    const val ANDROID_DATA_URI =
+        "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia"
+    const val ANDROID_DATA_PATH = "/storage/self/primary/Android/media/"
+
+
+    //应用列表排序
+    const val APP_LIST_BY_NAME = 0
+    const val APP_LIST_BY_PACKAGE_NAME = 1
+    const val APP_LIST_BY_INSTALLED_TIME = 2
+    const val APP_LIST_BY_TARGET_API = 3
+
+    //两次点击间隔时间
+    const val CLICK_TIME = 500L
+
+    const val CUSTOM_CONFIG_NORMAL_NAME = "customConfig.json"
+    const val EXTENSION_CONFIG_NORMAL_NAME = "extensionConfig.json"
+
+    //
+    const val MODEL_EXTENSION_CONFIG = "模板配置"
+
+
+    // importConfig exportConfig
+
+    const val CONFIG_IMPORT_MODE = 0
+    const val CONFIG_EXPORT_MODE = 1
+    const val CONFIG_EXPORT_FRIDA_MODE = 2
+    const val CONFIG_EXPORT_PLUGIN_APK_MODE = 3
+
+
+    //
+    const val SIMPLE_HOOK_ERROR = "SimpleHook Error"
+
+    //HomeFragment  item click type
+    const val HOME_ITEM_CLICK_NORMAL = 0
+    const val HOME_ITEM_CLICK_LONG = 1
+    const val HOME_ITEM_CLICK_EDIT = 2
+    const val HOME_ITEM_CLICK_COPY = 3
+    const val HOME_ITEM_CLICK_DELETE = 4
+    const val HOME_ITEM_CLICK_SHARE = 5
+
+}

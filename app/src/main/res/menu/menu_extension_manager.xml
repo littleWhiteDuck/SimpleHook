@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_save_config"
+        android:icon="@drawable/ic_save_toolbar_24"
+        android:title="@string/config_menu_save_config"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_launch"
+        android:title="@string/launch_app" />
+    <item
+        android:id="@+id/menu_force_stop"
+        android:title="@string/force_stop" />
+    <item
+        android:id="@+id/menu_relaunch"
+        android:title="@string/relaunch_app" />
+    <item
+        android:id="@+id/menu_app_info"
+        android:title="@string/app_info" />
+    <item
+        android:id="@+id/menu_open_float"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/extension_manager_open_float_window" />
+</menu>

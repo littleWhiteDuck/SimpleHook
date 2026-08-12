@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
+
+    <!--
+      Manifest merger failed : uses-sdk:minSdkVersion 24 cannot be smaller than version 26 declared in library [io.github.libxposed:service:101.0.0]
+      API 101 要求 minSdk >= 26，为了保持 legacy API 在旧版本系统的运行，作覆盖处理
+      -->
+    <uses-sdk tools:overrideLibrary="io.github.libxposed.service, io.github.libxposed.service.interfaces" />
+
+    <application
+        android:name=".core.SimpleHookApp"
+        android:allowBackup="false"
+        android:description="@string/xposed_description"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".feature.dexbrowser.ui.DexBrowserActivity"
+            android:exported="false"
+            android:label="@string/dex_browser_title"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".feature.record.ui.RecordDetailActivity"
+            android:exported="false"
+            android:label="@string/app_record" />
+        <activity
+            android:name=".feature.record.ui.RecordActivity"
+            android:exported="false"
+            android:label="@string/app_record" />
+        <activity
+            android:name=".feature.about.ui.AboutActivity"
+            android:label="@string/app_about"
+            android:theme="@style/AppTheme.About" />
+        <activity
+            android:name=".feature.extension.ui.ExtensionActivity"
+            android:label="@string/app_extension"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".feature.applist.ui.AppListActivity"
+            android:label="@string/app_select_app"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".feature.config.ui.ConfigActivity"
+            android:label="@string/app_config"
+            android:theme="@style/AppTheme"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".feature.main.ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppSplashScreen"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".feature.backup.ui.BackupActivity"
+            android:exported="true"
+            android:label="@string/title_activity_backup">
+            <intent-filter
+                android:label="@string/label_activity_backup"
+                tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.shbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.shbackup" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name=".platform.provider.RecordProvider"
+            android:authorities="${PROVIDER}"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+        <meta-data
+            android:name="xposeddescription"
+            android:value="@string/xposed_description" />
+        <meta-data
+            android:name="xposedminversion"
+            android:value="53" />
+        <meta-data
+            android:name="xposedscope"
+            android:resource="@array/xposed_scope" />
+        <meta-data
+            android:name="${FLAVOR}"
+            android:value="true" />
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+    </application>
+
+</manifest>
