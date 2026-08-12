@@ -7,8 +7,6 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
         maven("https://jitpack.io")
     }
 }
@@ -26,11 +24,10 @@ dependencyResolutionManagement {
             filter {
                 includeGroupByRegex("androidx\\..*")
                 includeGroupByRegex("com\\.android\\..*")
+                includeGroup("com.google.android.material")
             }
         }
         mavenCentral()
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
         mavenLocal()
         maven("https://jitpack.io")
         maven("https://api.xposed.info/")
