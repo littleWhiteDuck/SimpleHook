@@ -103,6 +103,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           name: ${{ steps.release_version.outputs.version_name }}
+          prerelease: false
           generate_release_notes: true
           body: |
             > **推荐使用 [HookNext](https://github.com/littleWhiteDuck/HookNextHome)**：它是 SimpleHook 的全新迭代升级版本，提供持续的功能演进与更好的使用体验。
