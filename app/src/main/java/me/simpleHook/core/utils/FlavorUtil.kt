@@ -8,5 +8,4 @@ object FlavorUtil {
     const val AUTHORITIES = "me.simplehook.provider." + BuildConfig.FLAVOR
     const val PROVIDER_RECORD_URI =
         "content://me.simplehook.provider." + BuildConfig.FLAVOR + "/records"
-    const val betaVersion = BuildConfig.IS_BETA
 }

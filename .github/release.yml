@@ -1,0 +1,14 @@
+changelog:
+  categories:
+    - title: New features
+      labels: [feature, enhancement]
+    - title: Bug fixes
+      labels: [bug, fix]
+    - title: Improvements
+      labels: [performance, refactor]
+    - title: Documentation and build
+      labels: [documentation, build, ci]
+    - title: Other changes
+      labels: ["*"]
+  exclude:
+    labels: [skip-changelog]

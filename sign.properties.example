@@ -1,6 +1,7 @@
 # Optional release-signing configuration. Copy this file to sign.properties and fill it in.
-# Without sign.properties, debug builds use Android's default debug keystore.
-beta=false
+# Local values take priority over SIGNING_* environment variables.
+# Without either signing source, debug builds use Android's default debug keystore.
+# In GitHub Actions, SIGNING_STORE_FILE should point to a temporary decoded keystore.
 verName=0.0.0-dev
 alias=your-key-alias
 keyPassword=your-key-password

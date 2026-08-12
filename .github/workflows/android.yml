@@ -1,0 +1,116 @@
+name: Android build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify debug build
+    if: github.ref_type != 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Run unit tests
+        run: bash ./gradlew :app:testRootDebugUnitTest --stacktrace
+
+      - name: Assemble debug APK
+        run: bash ./gradlew :app:assembleRootDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleHook-debug
+          path: app/build/outputs/apk/root/debug/*.apk
+          if-no-files-found: error
+
+  release:
+    name: Build and publish release
+    if: github.ref_type == 'tag'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
+      SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set release version
+        id: release_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version_name="${GITHUB_REF_NAME#v}"
+          test -n "$version_name"
+          echo "VERSION_NAME=$version_name" >> "$GITHUB_ENV"
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+
+      - name: Restore release signing keystore
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64"
+          test -n "$SIGNING_ALIAS"
+          test -n "$SIGNING_KEY_PASSWORD"
+          test -n "$SIGNING_STORE_PASSWORD"
+          keystore_path="$RUNNER_TEMP/simplehook-release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          echo "SIGNING_STORE_FILE=$keystore_path" >> "$GITHUB_ENV"
+
+      - name: Run unit tests
+        run: bash ./gradlew :app:testRootDebugUnitTest --stacktrace
+
+      - name: Assemble signed release APK
+        run: bash ./gradlew :app:assembleRootRelease --stacktrace
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.release_version.outputs.version_name }}
+          generate_release_notes: true
+          body: |
+            > **推荐使用 [HookNext](https://github.com/littleWhiteDuck/HookNextHome)**：它是 SimpleHook 的全新迭代升级版本，提供持续的功能演进与更好的使用体验。
+
+            更新记录
+
+          files: app/build/outputs/apk/root/release/*.apk
+
+      - name: Remove temporary keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/simplehook-release.jks"

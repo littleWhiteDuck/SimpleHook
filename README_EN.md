@@ -2,6 +2,8 @@
 
 [Chinese](README.md) | **English**
 
+> **[HookNext](https://github.com/littleWhiteDuck/HookNextHome) is recommended.** It is a complete iterative upgrade of SimpleHook, with ongoing feature development and an improved user experience.
+
 SimpleHook is an Xposed/LSPosed module for Android application debugging and research. It provides configurable Java/Smali hooks, call recording, runtime analysis, and configuration export tools.
 
 Use it only with applications that you own or are explicitly authorized to test. Records may contain accounts, tokens, input data, or key material. Handle them carefully and comply with applicable law, service terms, and privacy requirements.
@@ -190,10 +192,32 @@ cd SimpleHook
 bash ./gradlew :app:assembleRootDebug
 ```
 
-Without `sign.properties`, debug builds use Android's default debug keystore. For release signing, create a local `sign.properties` from `sign.properties.example`; it is ignored by Git, so never commit a personal release key.
+Without `sign.properties` or signing environment variables, debug builds use Android's default debug keystore. For release signing, create a local `sign.properties` from `sign.properties.example`; it is ignored by Git, so never commit a personal release key.
+
+GitHub Actions runs unit tests and builds a debug APK for pushes to `main` and pull requests. Pushing a tag such as `v1.2.0` automatically builds a signed release APK, creates a GitHub Release with that tag, and uploads the APK. The tag without its leading `v` becomes the Android `versionName`. The release build reads these GitHub Secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `KEYSTORE_BASE64` | Base64-encoded keystore file |
+| `SIGNING_ALIAS` | Key alias |
+| `SIGNING_KEY_PASSWORD` | Key password |
+| `SIGNING_STORE_PASSWORD` | Keystore password |
+
+The workflow decodes the keystore into a temporary directory and passes its path through `SIGNING_STORE_FILE`. Gradle also accepts `SIGNING_ALIAS`, `SIGNING_KEY_PASSWORD`, `SIGNING_STORE_FILE`, `SIGNING_STORE_PASSWORD`, and `VERSION_NAME` directly. Values in local `sign.properties` take precedence.
 
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE). Third-party code and dependencies retain their respective licenses.
+
+## Acknowledgements
+
+Thanks to the following open-source projects and their maintainers for frameworks, compatibility layers, or implementation foundations:
+
+- [XposedBridge](https://github.com/rovo89/XposedBridge), [LSPosed](https://github.com/LSPosed/LSPosed), and [libxposed](https://github.com/libxposed)
+- [QAuxiliary](https://github.com/cinit/QAuxiliary) for loader compatibility code
+- [EzXHelper](https://github.com/KyuubiRan/EzXHelper) and [ARSCLib](https://github.com/REAndroid/ARSCLib)
+- [RikkaX](https://github.com/RikkaApps/RikkaX), [Shizuku](https://github.com/RikkaApps/Shizuku), AndroidX, Kotlin, and Material Components
+
+See the [in-app manifest](app/src/main/assets/lib_license.json) for the complete third-party dependency and license list.
 
 <sub>Community: TG group [@simpleHook](https://t.me/simpleHook)</sub>

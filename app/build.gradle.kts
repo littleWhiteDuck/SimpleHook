@@ -1,15 +1,63 @@
 ﻿import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 import java.io.FileInputStream
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.dsl.ApplicationExtension
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
-import java.util.Random
 import java.util.TimeZone
+import javax.inject.Inject
 
-fun String.capitalizedCompat(): String = replaceFirstChar {
-    if (it.isLowerCase()) it.titlecase() else it.toString()
+abstract class OptimizeReleaseResources @Inject constructor(
+    private val execOperations: ExecOperations
+) : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val aapt2: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val resourceArchive: RegularFileProperty
+
+    @TaskAction
+    fun optimize() {
+        val archive = resourceArchive.get().asFile
+        val executable = aapt2.get().asFile
+        if (!executable.exists()) {
+            throw GradleException("aapt2 not found at: $executable")
+        }
+        if (!archive.exists()) {
+            throw GradleException("Resource archive not found: ${archive.absolutePath}")
+        }
+
+        val optimizedArchive = File("${archive.absolutePath}.opt")
+        val result = execOperations.exec {
+            commandLine(
+                executable.absolutePath,
+                "optimize",
+                "--collapse-resource-names",
+                "--enable-sparse-encoding",
+                "-o",
+                optimizedArchive.absolutePath,
+                archive.absolutePath
+            )
+            isIgnoreExitValue = true
+        }
+
+        if (result.exitValue != 0 || !optimizedArchive.exists()) {
+            throw GradleException("aapt2 resource optimization failed with exit code ${result.exitValue}")
+        }
+        if (!archive.delete() || !optimizedArchive.renameTo(archive)) {
+            throw GradleException("Failed to replace resource archive with optimized output")
+        }
+        logger.lifecycle("Optimized release resources: ${archive.absolutePath}")
+    }
 }
 
 val signingProperties = Properties()
@@ -18,8 +66,23 @@ if (signingPropertiesFile.isFile) {
     FileInputStream(signingPropertiesFile).use(signingProperties::load)
 }
 
-val hasReleaseSigning = listOf("alias", "keyPassword", "file", "password")
-    .all(signingProperties::containsKey)
+fun configurationValue(propertyName: String, environmentName: String): String? =
+    signingProperties.getProperty(propertyName)?.takeIf(String::isNotBlank)
+        ?: System.getenv(environmentName)?.takeIf(String::isNotBlank)
+
+val signingConfig = mapOf(
+    "alias" to configurationValue("alias", "SIGNING_ALIAS"),
+    "keyPassword" to configurationValue("keyPassword", "SIGNING_KEY_PASSWORD"),
+    "file" to configurationValue("file", "SIGNING_STORE_FILE"),
+    "password" to configurationValue("password", "SIGNING_STORE_PASSWORD")
+)
+val hasSigningValues = signingConfig.values.any { it != null }
+val hasReleaseSigning = signingConfig.values.all { it != null }
+
+require(!hasSigningValues || hasReleaseSigning) {
+    "Release signing is incomplete. Configure alias, keyPassword, file, and password " +
+        "in sign.properties or through SIGNING_* environment variables."
+}
 
 plugins {
     alias(libs.plugins.android.application)
@@ -28,27 +91,29 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-val beta = signingProperties.getProperty("beta", "false").toBoolean()
-val verName = signingProperties.getProperty("verName", "0.0.0-dev")
+val verName = configurationValue("verName", "VERSION_NAME") ?: "0.0.0-dev"
 val verCode = run {
     val sdf = SimpleDateFormat("yyMMddHH")
     sdf.timeZone = TimeZone.getTimeZone("GMT+08:00")
     sdf.format(Date()).toInt()
 }
+val androidSdkDirectory = objects.directoryProperty()
 
 extensions.configure<ApplicationExtension>("android") {
     signingConfigs {
         if (hasReleaseSigning) {
             create("keyStore") {
-                keyAlias = signingProperties.getProperty("alias")
-                keyPassword = signingProperties.getProperty("keyPassword")
-                storeFile = File(signingProperties.getProperty("file"))
-                storePassword = signingProperties.getProperty("password")
+                keyAlias = signingConfig.getValue("alias")
+                keyPassword = signingConfig.getValue("keyPassword")
+                storeFile = File(signingConfig.getValue("file"))
+                storePassword = signingConfig.getValue("password")
                 enableV3Signing = true
             }
         }
     }
     compileSdk = 36
+    buildToolsVersion = "36.0.0"
+    androidSdkDirectory.set(androidComponents.sdkComponents.sdkDirectory)
     defaultConfig {
 
         @Suppress("UnstableApiUsage")
@@ -80,7 +145,6 @@ extensions.configure<ApplicationExtension>("android") {
             if (signConfig != null) {
                 signingConfig = signConfig
             }
-            versionNameSuffix = Random().nextInt(1000).toString()
         }
     }
     compileOptions {
@@ -99,11 +163,8 @@ extensions.configure<ApplicationExtension>("android") {
             isDefault = true
             manifestPlaceholders["PROVIDER"] = "me.simplehook.provider.root"
             manifestPlaceholders["FLAVOR"] = "SimpleHookR"
-            versionName = verName + if (beta) "_beta" else ""
+            versionName = verName
             buildConfigField("java.lang.String", "APP_NAME", "\"SimpleHookR\"")
-        }
-        this.forEach {
-            it.buildConfigField(Boolean::class.java.name, "IS_BETA", beta.toString())
         }
     }
 
@@ -134,106 +195,7 @@ extensions.configure<ApplicationExtension>("android") {
                 "root" -> "SimpleHookR"
                 else -> "SimpleHook"
             }
-            val tempVerName = verName + if (beta) "_beta" else ""
-            it.outputFileName.set("$name-${variant.flavorName}-${tempVerName}-${verCode}.apk")
-        }
-    }
-
-    extensions.findByType(ApplicationAndroidComponentsExtension::class)?.let { androidComponents ->
-        androidComponents.onVariants { variant ->
-            if (variant.buildType == "release") {
-                val flavorName = variant.flavorName.orEmpty()
-                val taskName = if (flavorName.isNotEmpty()) {
-                    "optimize${flavorName.capitalizedCompat()}ReleaseRes"
-                } else {
-                    "optimizeReleaseRes"
-                }
-
-                val optimizeTask = tasks.register(taskName) {
-                    doLast {
-                        val androidComponentsExt = project.extensions.findByType(
-                            ApplicationAndroidComponentsExtension::class.java
-                        )
-                            ?: throw GradleException("ApplicationAndroidComponentsExtension not found")
-
-                        val sdkDir = androidComponentsExt.sdkComponents.sdkDirectory.get().asFile
-                        val buildToolsVersion = project.extensions.findByType(
-                            ApplicationExtension::class.java
-                        )?.buildToolsVersion ?: throw GradleException("BuildToolsVersion not found")
-
-                        val aapt2Path = sdkDir.resolve("build-tools/$buildToolsVersion/aapt2")
-                        val aapt2File = if (aapt2Path.exists()) {
-                            aapt2Path
-                        } else {
-                            sdkDir.resolve("build-tools/$buildToolsVersion/aapt2.exe")
-                        }
-                        if (!aapt2File.exists()) {
-                            throw GradleException("aapt2 not found at: $aapt2File")
-                        }
-
-                        val flavorPath =
-                            if (flavorName.isNotEmpty()) "${flavorName}Release/" else "release/"
-                        val optimizeDir = if (flavorName.isNotEmpty()) {
-                            "optimize${flavorName.capitalizedCompat()}ReleaseResources"
-                        } else {
-                            "optimizeReleaseResources"
-                        }
-                        val resourceFileName = if (flavorName.isNotEmpty()) {
-                            "resources-${flavorName}-release-optimize.ap_"
-                        } else {
-                            "resources-release-optimize.ap_"
-                        }
-
-                        val zipFile = project.layout.buildDirectory
-                            .file("intermediates/optimized_processed_res/$flavorPath$optimizeDir/$resourceFileName")
-                            .get().asFile
-
-                        if (!zipFile.exists()) {
-                            throw GradleException("Resource file not found: ${zipFile.absolutePath}")
-                        }
-
-                        val optimizedFile = File("${zipFile.absolutePath}.opt")
-                        val result = project.providers.exec {
-                            commandLine(
-                                aapt2File.absolutePath,
-                                "optimize",
-                                "--collapse-resource-names",
-                                "--enable-sparse-encoding",
-                                "-o",
-                                optimizedFile.absolutePath,
-                                zipFile.absolutePath
-                            )
-                            isIgnoreExitValue = true
-                        }.result.get()
-
-                        val exitCode = result.exitValue
-                        if (exitCode == 0 && optimizedFile.exists()) {
-                            if (zipFile.delete()) {
-                                if (optimizedFile.renameTo(zipFile)) {
-                                    logger.lifecycle("Successfully optimized resources: ${zipFile.absolutePath}")
-                                } else {
-                                    throw GradleException("Failed to rename optimized file to original name")
-                                }
-                            } else {
-                                throw GradleException("Failed to delete original resource file")
-                            }
-                        } else {
-                            throw GradleException("aapt2 optimization failed with exit code $exitCode")
-                        }
-                    }
-                }
-
-                tasks.configureEach {
-                    val optimizeReleaseResourcesTaskName = if (flavorName.isNotEmpty()) {
-                        "optimize${flavorName.capitalizedCompat()}ReleaseResources"
-                    } else {
-                        "optimizeReleaseResources"
-                    }
-                    if (name == optimizeReleaseResourcesTaskName) {
-                        finalizedBy(optimizeTask)
-                    }
-                }
-            }
+            it.outputFileName.set("$name-${variant.flavorName}-${verName}-${verCode}.apk")
         }
     }
 
@@ -243,6 +205,28 @@ extensions.configure<ApplicationExtension>("android") {
         }
     }
 
+}
+
+val optimizeRootReleaseRes = tasks.register<OptimizeReleaseResources>("optimizeRootReleaseRes") {
+    group = "build"
+    description = "Optimizes root release resources with aapt2."
+    aapt2.set(
+        androidSdkDirectory.map { sdkDir ->
+            sdkDir.file("build-tools/36.0.0/aapt2")
+        }
+    )
+    resourceArchive.set(
+        layout.buildDirectory.file(
+            "intermediates/optimized_processed_res/rootRelease/" +
+                "optimizeRootReleaseResources/resources-root-release-optimize.ap_"
+        )
+    )
+}
+
+tasks.configureEach {
+    if (name == "optimizeRootReleaseResources") {
+        finalizedBy(optimizeRootReleaseRes)
+    }
 }
 
 
@@ -315,8 +299,4 @@ dependencies {
     implementation(libs.apksig)
 
     debugImplementation(libs.glance)
-
-
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-
 }

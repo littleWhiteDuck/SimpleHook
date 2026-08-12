@@ -2,6 +2,8 @@
 
 **中文** | [English](README_EN.md)
 
+> **推荐使用 [HookNext](https://github.com/littleWhiteDuck/HookNextHome)**：它是 SimpleHook 的全新迭代升级版本，提供持续的功能演进与更好的使用体验。
+
 SimpleHook 是用于 Android 应用调试与研究的 Xposed/LSPosed 模块。它提供可配置的 Java/Smali Hook、调用记录、运行时分析与配置导出工具。
 
 仅可在你拥有或明确获授权测试的应用上使用。记录内容可能包含账号、令牌、输入数据或密钥材料，请妥善保管并遵守适用法律、服务条款及隐私要求。
@@ -190,10 +192,32 @@ cd SimpleHook
 bash ./gradlew :app:assembleRootDebug
 ```
 
-不提供 `sign.properties` 时，debug 构建会使用 Android 默认 debug keystore。发布签名可参考 `sign.properties.example` 创建本地 `sign.properties`；它已被 Git 忽略，切勿提交个人发布密钥。
+不提供 `sign.properties` 或签名环境变量时，debug 构建会使用 Android 默认 debug keystore。发布签名可参考 `sign.properties.example` 创建本地 `sign.properties`；它已被 Git 忽略，切勿提交个人发布密钥。
+
+GitHub Actions 会在推送到 `main` 和提交 PR 时执行单元测试、构建 debug APK。推送形如 `v1.2.0` 的标签时，会自动构建签名 release APK、创建同名 GitHub Release 并上传 APK；该标签去掉 `v` 后即为 Android `versionName`。release 构建读取以下 GitHub Secrets：
+
+| Secret | 用途 |
+| --- | --- |
+| `KEYSTORE_BASE64` | 经 Base64 编码的 keystore 文件 |
+| `SIGNING_ALIAS` | 密钥别名 |
+| `SIGNING_KEY_PASSWORD` | 密钥密码 |
+| `SIGNING_STORE_PASSWORD` | keystore 密码 |
+
+工作流会将 keystore 解码到临时目录，并通过 `SIGNING_STORE_FILE` 传给 Gradle。Gradle 也可直接读取 `SIGNING_ALIAS`、`SIGNING_KEY_PASSWORD`、`SIGNING_STORE_FILE`、`SIGNING_STORE_PASSWORD` 和 `VERSION_NAME` 环境变量；同名本地 `sign.properties` 值优先。
 
 ## 许可证
 
 本项目采用 [Apache License 2.0](LICENSE)，第三方代码与依赖保留各自许可证。
+
+## 致谢
+
+感谢下列开源项目及其维护者提供框架、兼容层或实现基础：
+
+- [XposedBridge](https://github.com/rovo89/XposedBridge)、[LSPosed](https://github.com/LSPosed/LSPosed) 与 [libxposed](https://github.com/libxposed)
+- [QAuxiliary](https://github.com/cinit/QAuxiliary) 的加载器兼容实现
+- [EzXHelper](https://github.com/KyuubiRan/EzXHelper)、[ARSCLib](https://github.com/REAndroid/ARSCLib)
+- [RikkaX](https://github.com/RikkaApps/RikkaX)、[Shizuku](https://github.com/RikkaApps/Shizuku)、AndroidX、Kotlin 与 Material Components
+
+完整的第三方依赖与许可证清单见 [应用内清单](app/src/main/assets/lib_license.json)。
 
 <sub>交流：TG 群 [@simpleHook](https://t.me/simpleHook)</sub>

@@ -176,7 +176,6 @@ class MainActivity : BaseActivity(), IMenuProvider {
     }
 
     private fun checkUpdate() {
-        if (BuildConfig.VERSION_NAME.contains("beta")) return
         lifecycleScope.launch(Dispatchers.Main) {
             val result =
                 fetchJson("https://api.github.com/repos/littleWhiteDuck/SimpleHook/releases/latest")
