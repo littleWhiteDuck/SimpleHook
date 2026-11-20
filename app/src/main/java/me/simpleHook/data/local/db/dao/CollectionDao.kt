@@ -8,21 +8,21 @@ import me.simpleHook.data.local.db.entity.CollectionEntity
 @Dao
 interface CollectionDao {
     @Insert
-    fun insertCollections(vararg collection: CollectionEntity)
+    suspend fun insertCollections(vararg collection: CollectionEntity)
 
     @Update
-    fun updateCollections(vararg collection: CollectionEntity)
+    suspend fun updateCollections(vararg collection: CollectionEntity)
 
     @Delete
-    fun deleteCollections(vararg collection: CollectionEntity)
+    suspend fun deleteCollections(vararg collection: CollectionEntity)
 
     @Query("DELETE FROM CollectionEntity")
-    fun deleteAllCollections()
+    suspend fun deleteAllCollections()
 
     @Query("SELECT * FROM CollectionEntity ORDER BY ID DESC")
     fun queryAll(): LiveData<List<CollectionEntity>>
 
     @Query("SELECT * FROM CollectionEntity ORDER BY ID DESC")
-    fun getAll(): List<CollectionEntity>
+    suspend fun getAll(): List<CollectionEntity>
 
 }

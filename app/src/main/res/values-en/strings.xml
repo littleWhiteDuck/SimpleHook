@@ -751,4 +751,5 @@ You can try signing it manually with MT Manager or a similar tool before install
     <string name="record_type_signature">Signature read</string>
     <string name="record_type_dialog">Dialog</string>
     <string name="record_type_popup_window">PopupWindow</string>
+    <string name="config_sync_partial">Saved to the database, but external sync failed. Please save again to retry.</string>
 </resources>

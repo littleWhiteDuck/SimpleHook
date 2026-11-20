@@ -3,6 +3,8 @@ package me.simpleHook.feature.extension.ui
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.RecyclerView
 import me.simpleHook.R
 import me.simpleHook.core.base.BaseBottomViewFragment
@@ -30,8 +32,10 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
 
     private fun onItemClick(position: Int, mode: Int) {
         if (mode == 1) {
-            viewModel.deleteExtConfigs(modelList[position])
-            dismiss()
+            val operation = viewModel.deleteExtConfigs(modelList[position])
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (operation.await().isSuccess) dismiss()
+            }
         } else if (mode == 0) {
             val extensionConfig = modelList[position]
             if (label == "edit") {
@@ -62,8 +66,10 @@ class ModelBottomViewFragment(private val label: String) : BaseBottomViewFragmen
             adapter.notifyDataSetChanged()
         }
         root.clearAll.setOnClickListener {
-            viewModel.deleteExtConfigsByPackageName(Constant.MODEL_EXTENSION_CONFIG)
-            dismiss()
+            val operation = viewModel.deleteExtConfigsByPackageName(Constant.MODEL_EXTENSION_CONFIG)
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (operation.await().isSuccess) dismiss()
+            }
         }
         root.closeButton.setOnClickListener { dismiss() }
     }

@@ -8,54 +8,43 @@ import kotlinx.coroutines.withContext
 import me.simpleHook.data.local.db.RecordDatabase
 
 object RecordIngestCoordinator {
-    private const val INSERT_BATCH_SIZE = 200
-
     private val mutex = Mutex()
 
     suspend fun requestIngest(
         context: Context,
         packageNames: Iterable<String>,
-        reason: RecordIngestReason,
         skipIfRunning: Boolean = false
-    ): Boolean {
+    ): RecordIngestResult {
         val packages = packageNames.toSet()
-        if (packages.isEmpty()) return false
+        if (packages.isEmpty()) return RecordIngestResult.Skipped
 
         if (skipIfRunning) {
-            if (!mutex.tryLock()) return false
+            if (!mutex.tryLock()) return RecordIngestResult.Skipped
             return try {
-                ingestLocked(context.applicationContext, packages, reason)
-                true
+                ingestLocked(context.applicationContext, packages)
             } finally {
                 mutex.unlock()
             }
         }
 
-        mutex.withLock {
-            ingestLocked(context.applicationContext, packages, reason)
+        return mutex.withLock {
+            ingestLocked(context.applicationContext, packages)
         }
-        return true
     }
 
     private suspend fun ingestLocked(
         context: Context,
-        packageNames: Set<String>,
-        @Suppress("UNUSED_PARAMETER") reason: RecordIngestReason
-    ) {
-        withContext(Dispatchers.IO) {
-            val recordDao = RecordDatabase.getDatabase(context).recordDao()
-            RecordIngestor.ingestFromPackages(context, packageNames) { records ->
-                records.chunked(INSERT_BATCH_SIZE).forEach { batch ->
-                    recordDao.insertRecords(*batch.toTypedArray())
-                }
-            }
+        packageNames: Set<String>
+    ): RecordIngestResult = withContext(Dispatchers.IO) {
+        val recordDao = RecordDatabase.getDatabase(context).recordDao()
+        val failures = RecordIngestor.ingestFromPackages(context, packageNames) { records ->
+            recordDao.insertRecords(*records.toTypedArray())
         }
+        RecordIngestResult.Completed(failures)
     }
 }
 
-enum class RecordIngestReason {
-    SummaryRefresh,
-    RecordListRefresh,
-    FloatRealtime,
-    Background
+sealed interface RecordIngestResult {
+    data object Skipped : RecordIngestResult
+    data class Completed(val failures: Map<String, Exception>) : RecordIngestResult
 }

@@ -10,6 +10,9 @@ import com.reandroid.arsc.value.Entry
 import com.reandroid.arsc.value.array.ArrayBag
 import com.reandroid.arsc.value.array.ArrayBagItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import java.util.UUID
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.simpleHook.data.local.db.entity.AppConfig
@@ -46,26 +49,24 @@ class PluginApkExporter(private val context: Context) {
         require(isValidVersionCode(request.pluginVersionCode)) { "plugin version code is invalid" }
         require(request.configs.isNotEmpty()) { "configs is empty" }
 
-        val exportDir = File(context.cacheDir, EXPORT_DIRECTORY_NAME).apply {
-            mkdirs()
-            listFiles()?.forEach { child ->
-                if (child.isFile) {
-                    child.delete()
-                }
-            }
+        val exportDir = File(context.cacheDir, "$EXPORT_DIRECTORY_NAME/${UUID.randomUUID()}").apply {
+            check(mkdirs())
         }
         val templateApk = File(exportDir, TEMPLATE_COPY_FILE_NAME)
         val unsignedApk = File(exportDir, UNSIGNED_FILE_NAME)
         val signedApk = File(exportDir, buildExportFileName(request, signed = true))
         val unsignedOutputApk = File(exportDir, buildExportFileName(request, signed = false))
 
-        copyAssetToFile(TEMPLATE_ASSET_NAME, templateApk)
         try {
+            currentCoroutineContext().ensureActive()
+            copyAssetToFile(TEMPLATE_ASSET_NAME, templateApk)
             rebuildTemplateApk(templateApk, unsignedApk, request)
+            currentCoroutineContext().ensureActive()
             val signingFailure = runCatching {
                 signApk(unsignedApk, signedApk)
             }.exceptionOrNull()
 
+            currentCoroutineContext().ensureActive()
             if (signingFailure == null) {
                 unsignedApk.delete()
                 PluginExportResult(
@@ -80,6 +81,9 @@ class PluginApkExporter(private val context: Context) {
                     signingErrorMessage = signingFailure.toReadableMessage()
                 )
             }
+        } catch (error: Exception) {
+            exportDir.deleteRecursively()
+            throw error
         } finally {
             templateApk.delete()
         }

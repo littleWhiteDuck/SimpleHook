@@ -7,7 +7,6 @@ import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import me.simpleHook.R
 import me.simpleHook.core.base.BaseActivity
-import me.simpleHook.feature.backup.ui.BackupFragment
 
 
 class BackupActivity : BaseActivity() {
@@ -19,7 +18,7 @@ class BackupActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         val uri = initReceiveFileUri()
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.settings, BackupFragment(uri))
+            supportFragmentManager.beginTransaction().replace(R.id.settings, BackupFragment.newInstance(uri))
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

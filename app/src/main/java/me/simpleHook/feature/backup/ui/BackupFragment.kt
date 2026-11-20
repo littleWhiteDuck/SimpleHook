@@ -1,6 +1,8 @@
 package me.simpleHook.feature.backup.ui
 
 import android.net.Uri
+import kotlinx.coroutines.CancellationException
+import me.simpleHook.feature.backup.domain.BackupContents
 import android.os.Bundle
 import android.util.Patterns
 import android.view.LayoutInflater
@@ -21,30 +23,28 @@ import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.core.contract.OpenDocumentTreeContract
-import me.simpleHook.data.local.db.entity.AppConfig
-import me.simpleHook.data.local.db.entity.CollectionEntity
-import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.core.ui.custom.LoadingDialog
 import me.simpleHook.core.ui.custom.customDialog
 import me.simpleHook.core.utils.PermissionUtil
 import me.simpleHook.core.utils.TimeUtil
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
-import me.simpleHook.feature.config.viewmodel.CollectionViewModel
 import me.simpleHook.feature.backup.domain.BackupHelper
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
-class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
+class BackupFragment : PreferenceFragmentCompat() {
+
+    companion object {
+        private const val ARG_BACKUP_URI = "backup_uri"
+
+        fun newInstance(uri: Uri?) = BackupFragment().apply {
+            arguments = Bundle().apply { putString(ARG_BACKUP_URI, uri?.toString()) }
+        }
+    }
 
     private val appConfigViewModel by viewModels<AppConfigViewModel>()
-    private val collViewModel by viewModels<CollectionViewModel>()
     private val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             if (uri == Uri.EMPTY) return@registerForActivityResult
@@ -72,7 +72,8 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setDividerHeight(0)
-        initExternalBackup()
+        // Recreating the page must not offer the original import again after it was handled.
+        if (savedInstanceState == null) initExternalBackup()
         findPreference<Preference>("backup_path")?.apply {
             summary = GlobalValue.sp.backup_path.toString()
                 .ifEmpty { getString(R.string.backup_summary_backup_path) }
@@ -163,6 +164,7 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
     }
 
     private fun initExternalBackup() {
+        val uri = arguments?.getString(ARG_BACKUP_URI)?.toUri()
         if (uri != null) {
             val document = DocumentFile.fromSingleUri(requireContext(), uri) ?: return
             showRestoreLocal(
@@ -239,110 +241,34 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
             }).show()
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    private fun restoreConfigFromCloud(url: String) {
-        val loadingDialog = LoadingDialog(requireActivity(), "Recovering... ")
-        loadingDialog.show()
-        runCatching {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                var customConfigs: List<AppConfig> = emptyList()
-                var extensionConfigs: List<ExtensionConfigEntity> = emptyList()
-                var collections: List<CollectionEntity> = emptyList()
-                val sardine = OkHttpSardine()
-                sardine.setCredentials(GlobalValue.sp.web_dav_account, GlobalValue.sp.web_dav_pw)
-                val inputStream = sardine.get(url)
-                val zipInputStream = ZipInputStream(inputStream)
-                zipInputStream.use {
-                    var entry: ZipEntry?
-                    while ((it.nextEntry.also { zipEntry: ZipEntry? ->
-                            entry = zipEntry
-                        }) != null) {
-                        if (entry?.name == "custom_config.json") {
-                            customConfigs = Json.decodeFromStream(it)
-                        }
-                        runCatching {
-                            if (entry?.name == "extension_config.json") {
-                                extensionConfigs = Json.decodeFromStream(it)
-                            }
-                        }
-                        if (entry?.name == "collection_config.json") {
-                            collections = Json.decodeFromStream(it)
-                        }
-                    }
-                }
-                customConfigs.forEach {
-                    it.id = 0
-                }
-                extensionConfigs.forEach {
-                    it.id = 0
-                }
-                collections.forEach {
-                    it.id = 0
-                }
-                appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appConfigViewModel.insertExtConfigs(*extensionConfigs.toTypedArray())
-                collViewModel.insertCollections(*collections.toTypedArray())
-            }
-        }.onSuccess {
-            loadingDialog.dismiss()
-            requireActivity().showPopup(getString(R.string.backup_tip_restore_success))
-        }.onFailure {
-            loadingDialog.dismiss()
-            requireActivity().showPopup(getString(R.string.backup_tip_restore_failure))
-        }
+    private fun restoreConfigFromCloud(url: String) = restoreConfig(url) {
+        val sardine = OkHttpSardine()
+        sardine.setCredentials(GlobalValue.sp.web_dav_account, GlobalValue.sp.web_dav_pw)
+        BackupContents.read(sardine.get(url))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     private fun restoreConfigFromUri(uri: Uri) {
-        val loadingDialog = LoadingDialog(requireActivity(), "Recovering... ")
-        loadingDialog.show()
-        runCatching {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                var customConfigs: List<AppConfig> = emptyList()
-                var extensionConfigs: List<ExtensionConfigEntity> = emptyList()
-                var collections: List<CollectionEntity> = emptyList()
-                val zipInputStream =
-                    ZipInputStream(requireActivity().contentResolver.openInputStream(uri))
-                zipInputStream.use {
-                    var entry: ZipEntry?
-                    while ((it.nextEntry.also { zipEntry: ZipEntry? ->
-                            entry = zipEntry
-                        }) != null) {
-                        if (entry?.name == "custom_config.json") {
-                            customConfigs = Json.decodeFromStream(it)
-                        }
-                        runCatching {
-                            if (entry?.name == "extension_config.json") {
-                                extensionConfigs = Json.decodeFromStream(it)
-                            }
-                        }
-                        if (entry?.name == "collection_config.json") {
-                            collections = Json.decodeFromStream(it)
-                        }
-                    }
-                }
-                customConfigs.forEach {
-                    it.id = 0
-                }
-                extensionConfigs.forEach {
-                    it.id = 0
-                }
-                collections.forEach {
-                    it.id = 0
-                }
-                appConfigViewModel.insertConfigs(*customConfigs.toTypedArray())
-                appConfigViewModel.insertExtConfigs(*extensionConfigs.toTypedArray())
-                collViewModel.insertCollections(*collections.toTypedArray())
+        val resolver = requireContext().contentResolver
+        restoreConfig(uri.toString()) { BackupContents.read(checkNotNull(resolver.openInputStream(uri))) }
+    }
 
+    private fun restoreConfig(source: String, read: suspend () -> BackupContents) {
+        if (restoreJob?.isActive == true) return
+        val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.main_loading))
+        loadingDialog.show()
+        restoreJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                if (appConfigViewModel.restore(source, read).await().isSuccess) {
+                    appConfigViewModel.acknowledgeRestore(source)
+                    requireActivity().showPopup(getString(R.string.backup_tip_restore_success))
+                }
+            } finally {
+                loadingDialog.dismiss()
             }
-        }.onSuccess {
-            loadingDialog.dismiss()
-            requireActivity().showPopup(getString(R.string.backup_tip_restore_success))
-        }.onFailure {
-            loadingDialog.dismiss()
-            requireActivity().showPopup(getString(R.string.backup_tip_restore_failure))
         }
     }
+
+    private var restoreJob: kotlinx.coroutines.Job? = null
 
     override fun onCreateRecyclerView(
         inflater: LayoutInflater, parent: ViewGroup, savedInstanceState: Bundle?
@@ -367,25 +293,27 @@ class BackupFragment(private val uri: Uri?) : PreferenceFragmentCompat() {
         if ((backUri != null || local && isLocalBackupEnable()) || (cloud && isCloudBackupEnable())) {
             val loadingDialog = LoadingDialog(requireActivity(), "saving... ")
             loadingDialog.show()
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val scope = GlobalValue.sp.backup_scope
-                val success = BackupHelper.startBackupConfig(
-                    requireContext(),
-                    scope == "BACKUP_SCOPE_CUSTOM",
-                    scope == "BACKUP_SCOPE_EXTENSION",
-                    scope == "BACKUP_SCOPE_COLLECTION",
-                    scope == "BACKUP_SCOPE_ALL",
-                    local = local,
-                    cloud = cloud,
-                    backUri = backUri
-                )
-                withContext(Dispatchers.Main) {
-                    loadingDialog.dismiss()
+            val appContext = requireContext().applicationContext
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val scope = GlobalValue.sp.backup_scope
+                    val success = BackupHelper.startBackupConfig(
+                        appContext,
+                        scope == "BACKUP_SCOPE_CUSTOM",
+                        scope == "BACKUP_SCOPE_EXTENSION",
+                        scope == "BACKUP_SCOPE_COLLECTION",
+                        scope == "BACKUP_SCOPE_ALL",
+                        local = local,
+                        cloud = cloud,
+                        backUri = backUri
+                    )
                     if (success) {
                         requireActivity().showPopup(getString(R.string.backup_tip_backup_success))
                     } else {
                         requireActivity().showPopup(getString(R.string.backup_tip_backup_failure))
                     }
+                } finally {
+                    loadingDialog.dismiss()
                 }
             }
         }

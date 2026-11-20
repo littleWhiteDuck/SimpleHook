@@ -50,8 +50,7 @@ object DocumentCompat {
             val uri = generateFileUri(packageName, filePath)
             if (isFileExists(App, uri)) {
                 DocumentsContract.deleteDocument(App.contentResolver, uri)
-            }
-            true
+            } else true
         }.getOrDefault(false)
     }
 

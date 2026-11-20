@@ -903,4 +903,5 @@
     <string name="record_intent_separator">=============================</string>
 
 
+    <string name="config_sync_partial">配置已保存到数据库，但外部同步失败。请重试保存。</string>
 </resources>

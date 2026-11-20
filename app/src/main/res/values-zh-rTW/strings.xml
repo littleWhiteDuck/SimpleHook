@@ -759,4 +759,5 @@
     <string name="record_type_signature">簽章讀取</string>
     <string name="record_type_dialog">對話方塊(Dialog)</string>
     <string name="record_type_popup_window">彈出視窗(PopupWindow)</string>
+    <string name="config_sync_partial">設定已儲存到資料庫，但外部同步失敗。請重新儲存以重試。</string>
 </resources>

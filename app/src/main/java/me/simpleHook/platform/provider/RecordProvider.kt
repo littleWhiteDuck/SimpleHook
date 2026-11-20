@@ -36,6 +36,8 @@ class RecordProvider : ContentProvider() {
                     SQLiteDatabase.CONFLICT_NONE,
                     values ?: ContentValues()
                 )
+                if (newLogId < 0) return@let null
+                notifyRecordsChanged(uri)
                 "content://$authority/RecordEntity/$newLogId".toUri()
             }
 
@@ -70,7 +72,9 @@ class RecordProvider : ContentProvider() {
                         append(sortOrder)
                     }
                 }
-                db.query(SimpleSQLiteQuery(sql, selectionArgs ?: emptyArray()))
+                db.query(SimpleSQLiteQuery(sql, selectionArgs ?: emptyArray())).also {
+                    context?.contentResolver?.let { resolver -> it.setNotificationUri(resolver, uri) }
+                }
             }
             else -> null
         }
@@ -92,14 +96,24 @@ class RecordProvider : ContentProvider() {
             }
             else -> 0
         }
+        if (updateRows > 0) notifyRecordsChanged(uri)
         updateRows
     } ?: 0
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         val db = writableDb() ?: return 0
         return when (uriMatcher.match(uri)) {
-            recordsCode -> db.delete("RecordEntity", selection, selectionArgs)
+            recordsCode -> db.delete("RecordEntity", selection, selectionArgs).also {
+                if (it > 0) notifyRecordsChanged(uri)
+            }
             else -> 0
+        }
+    }
+
+    private fun notifyRecordsChanged(uri: Uri) {
+        context?.let {
+            RecordDatabase.getDatabase(it).invalidationTracker.refreshVersionsAsync()
+            it.contentResolver.notifyChange(uri, null)
         }
     }
 

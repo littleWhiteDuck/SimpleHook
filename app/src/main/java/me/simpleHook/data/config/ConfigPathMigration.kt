@@ -2,6 +2,9 @@ package me.simpleHook.data.config
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import me.simpleHook.core.utils.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -10,17 +13,17 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.local.db.AppDatabase
 
 object ConfigPathMigration {
-    @Volatile
-    private var running = false
+    private var migrationJob: Job? = null
 
-    fun migrateIfNeeded(context: Context) {
-        if (GlobalValue.sp.mediaPathConfigMigrated || running) return
-        running = true
-        CoroutineScope(Dispatchers.IO).launch {
+    fun migrateIfNeeded(context: Context, scope: CoroutineScope) {
+        if (GlobalValue.sp.mediaPathConfigMigrated || migrationJob?.isActive == true) return
+        migrationJob = scope.launch(Dispatchers.IO) {
             try {
-                runMigration(context.applicationContext)
-            } finally {
-                running = false
+                ConfigWriteCoordinator.write { runMigration(context.applicationContext) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                LogUtil.outLog(error.stackTraceToString())
             }
         }
     }
@@ -35,7 +38,7 @@ object ConfigPathMigration {
             if (!appConfig.enable) return@forEach
             if (!migratedCustomPackages.add(appConfig.packageName)) return@forEach
             val content = Json.encodeToString(appConfig)
-            if (!ConfigRemoteSyncHelper.saveCustomConfig(configSystem, appConfig.packageName, content)) {
+            if (!ConfigRemoteSyncHelper.saveCustomConfig(configSystem, appConfig.packageName, content).isComplete) {
                 allSuccess = false
             }
         }
@@ -49,7 +52,7 @@ object ConfigPathMigration {
                     configSystem,
                     extConfig.packageName,
                     extConfig.config
-                )
+                ).isComplete
             ) {
                 allSuccess = false
             }

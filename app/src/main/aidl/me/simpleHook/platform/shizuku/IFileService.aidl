@@ -12,4 +12,5 @@ interface IFileService {
     boolean deleteFiles(in List<String> paths);
     void forceStopPackage(String packageName);
     void reLaunchApp(String packageName, String activityName);
+    boolean isFileMissing(String path);
 }

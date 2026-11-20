@@ -752,4 +752,5 @@ Mantenha o botão de mais pressionado: selecionar app sem modelo</string>
     <string name="record_intent_key_format">Chave: %1$s</string>
     <string name="record_intent_value_to_string_format">Valor (toString): %1$s</string>
     <string name="record_intent_separator">=============================</string>
+    <string name="config_sync_partial">Salvo no banco de dados, mas a sincronização externa falhou. Salve novamente para tentar outra vez.</string>
 </resources>

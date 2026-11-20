@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.flowWithLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import me.simpleHook.R
@@ -98,7 +99,7 @@ class DexBrowserActivity : BaseActivity() {
 
     private fun collectUiState() {
         lifecycleScope.launch {
-            viewModel.uiState.collect(::render)
+            viewModel.uiState.flowWithLifecycle(lifecycle).collect(::render)
         }
     }
 

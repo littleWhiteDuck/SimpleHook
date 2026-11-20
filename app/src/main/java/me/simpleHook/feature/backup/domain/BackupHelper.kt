@@ -1,5 +1,14 @@
 package me.simpleHook.feature.backup.domain
 
+import androidx.room.withTransaction
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import me.simpleHook.data.local.db.AppDatabase
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -15,7 +24,6 @@ import kotlinx.serialization.json.Json
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.compat.DocumentCompat
 import me.simpleHook.data.local.db.AppRepository
-import me.simpleHook.core.utils.FileUtil
 import me.simpleHook.core.utils.TimeUtil
 import java.io.BufferedOutputStream
 import java.io.File
@@ -24,6 +32,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 object BackupHelper {
+    private val backupMutex = Mutex()
     private val json = Json {
         prettyPrint = true
     }
@@ -45,8 +54,7 @@ object BackupHelper {
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    @Synchronized
-    fun startBackupConfig(
+    suspend fun startBackupConfig(
         context: Context,
         backupCustom: Boolean,
         backupExtension: Boolean,
@@ -55,69 +63,74 @@ object BackupHelper {
         local: Boolean = false,
         cloud: Boolean = false,
         backUri: Uri? = null
-    ): Boolean {
-        return runCatching {
-            val cacheBackupDir = context.externalCacheDir!!.resolve("backup").also {
-                it.mkdir()
-            }
-            val appRepository = AppRepository(context)
-            val customConfigs =
-                if (backupAll || backupCustom) appRepository.getConfigs() else emptyList()
-            val extensionConfigs =
-                if (backupAll || backupExtension) appRepository.getExtConfigs() else emptyList()
-            val collections =
-                if (backupAll || backupCollection) appRepository.getCollections() else emptyList()
-            if (customConfigs.isEmpty() && extensionConfigs.isEmpty() && collections.isEmpty()) return@runCatching true
-            val backupName =
-                "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-Co(${collections.size})-${getTime()}-${Build.MODEL}.shbackup"
-            val cacheFile = cacheBackupDir.resolve(backupName)
-            val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
-            zipOutputStream.use {
-                if (backupAll || backupCustom) {
-                    val zipEntry = ZipEntry("custom_config.json")
-                    zipOutputStream.putNextEntry(zipEntry)
-                    zipOutputStream.write(json.encodeToString(customConfigs).toByteArray())
+    ): Boolean = backupMutex.withLock {
+        withContext(Dispatchers.IO) {
+            val cacheBackupDir = File(context.cacheDir, "backup-${UUID.randomUUID()}")
+            try {
+                check(cacheBackupDir.mkdirs())
+                val appRepository = AppRepository(context)
+                val snapshot = AppDatabase.getDatabase(context).withTransaction {
+                    Triple(
+                        if (backupAll || backupCustom) appRepository.getConfigs() else emptyList(),
+                        if (backupAll || backupExtension) appRepository.getExtConfigs() else emptyList(),
+                        if (backupAll || backupCollection) appRepository.getCollections() else emptyList()
+                    )
                 }
-                if (backupAll || backupExtension) {
-                    val zipEntry = ZipEntry("extension_config.json")
-                    zipOutputStream.putNextEntry(zipEntry)
-                    zipOutputStream.write(json.encodeToString(extensionConfigs).toByteArray())
+                val (customConfigs, extensionConfigs, collections) = snapshot
+                currentCoroutineContext().ensureActive()
+                val backupName =
+                    "SimpleHook-Custom(${customConfigs.size})-Ex(${extensionConfigs.size})-Co(${collections.size})-${getTime()}-${Build.MODEL}.shbackup"
+                val cacheFile = cacheBackupDir.resolve(backupName)
+                val zipOutputStream = ZipOutputStream(BufferedOutputStream(cacheFile.outputStream()))
+                zipOutputStream.use {
+                    if (backupAll || backupCustom) {
+                        val zipEntry = ZipEntry("custom_config.json")
+                        zipOutputStream.putNextEntry(zipEntry)
+                        zipOutputStream.write(json.encodeToString(customConfigs).toByteArray())
+                    }
+                    if (backupAll || backupExtension) {
+                        val zipEntry = ZipEntry("extension_config.json")
+                        zipOutputStream.putNextEntry(zipEntry)
+                        zipOutputStream.write(json.encodeToString(extensionConfigs).toByteArray())
+                    }
+                    if (backupAll || backupCollection) {
+                        val zipEntry = ZipEntry("collection_config.json")
+                        zipOutputStream.putNextEntry(zipEntry)
+                        zipOutputStream.write(json.encodeToString(collections).toByteArray())
+                    }
                 }
-                if (backupAll || backupCollection) {
-                    val zipEntry = ZipEntry("collection_config.json")
-                    zipOutputStream.putNextEntry(zipEntry)
-                    zipOutputStream.write(json.encodeToString(collections).toByteArray())
-                }
-            }
-            var result = true
-            if (local) {
-                result = runCatching {
-                    val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(
-                        context,
-                        GlobalValue.sp.backup_path!!.toUri(),
-                        "SimpleHook/Backups",
-                        backupName,
-                        "application/shbackup"
-                    )!!
-                    context.contentResolver.openOutputStream(tempUri).use { output ->
-                        cacheFile.inputStream().use {
-                            if (output != null) {
+                var result = true
+                if (local) {
+                    result = runCatching {
+                        val tempUri = backUri ?: DocumentCompat.getFileUriOrCreate(
+                            context,
+                            GlobalValue.sp.backup_path!!.toUri(),
+                            "SimpleHook/Backups",
+                            backupName,
+                            "application/shbackup"
+                        )!!
+                        checkNotNull(context.contentResolver.openOutputStream(tempUri)).use { output ->
+                            cacheFile.inputStream().use {
                                 it.copyTo(output)
                             }
                         }
-                    }
-                    true
-                }.getOrDefault(false)
+                        true
+                    }.getOrDefault(false)
+                }
+                if (cloud) {
+                    currentCoroutineContext().ensureActive()
+                    result = cloudBackup(cacheFile) && result
+                }
+                result
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Log.d("littleWhiteDuck", "backup: ${error.stackTraceToString()}")
+                false
+            } finally {
+                cacheBackupDir.deleteRecursively()
             }
-            if (cloud) {
-                result = cloudBackup(cacheFile)
-            }
-            result
-        }.onFailure {
-            Log.d("littleWhiteDuck", "backup: ${it.stackTraceToString()}")
-            FileUtil.deleteDir(context.externalCacheDir!!.resolve("backup")) }
-            .onSuccess { FileUtil.deleteDir(context.externalCacheDir!!.resolve("backup")) }
-            .getOrDefault(false)
+        }
     }
 
     private fun getTime(): String {

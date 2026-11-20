@@ -1,6 +1,8 @@
 package me.simpleHook.platform.lsposed
 
 import android.os.ParcelFileDescriptor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import io.github.libxposed.service.XposedService
 import me.simpleHook.core.constant.ConfigConstant
 import java.nio.ByteBuffer
@@ -45,10 +47,6 @@ object LSPosedHelper {
         }
     }
 
-    suspend fun writeConfig(pkgName: String, config: String): Boolean {
-        return writeCustomConfig(pkgName, config)
-    }
-
     suspend fun writeCustomConfig(pkgName: String, config: String): Boolean {
         return writeRemoteConfig(ConfigConstant.customRemoteConfigFileName(pkgName), config)
     }
@@ -65,24 +63,27 @@ object LSPosedHelper {
         return deleteRemoteConfig(ConfigConstant.extensionRemoteConfigFileName(pkgName))
     }
 
-    private fun writeRemoteConfig(fileName: String, config: String): Boolean {
-        service ?: return false
-        return runCatching {
-            val parcelFileDescriptor = service!!.openRemoteFile(fileName)
+    private suspend fun writeRemoteConfig(fileName: String, config: String): Boolean = withContext(Dispatchers.IO) {
+        val activeService = service ?: return@withContext false
+        runCatching {
+            val parcelFileDescriptor = activeService.openRemoteFile(fileName)
             ParcelFileDescriptor.AutoCloseOutputStream(parcelFileDescriptor).use { outputStream ->
                 outputStream.channel.use { fileChannel ->
                     fileChannel.truncate(0)
-                    fileChannel.write(ByteBuffer.wrap(config.toByteArray()))
+                    val buffer = ByteBuffer.wrap(config.toByteArray())
+                    while (buffer.hasRemaining()) fileChannel.write(buffer)
                 }
             }
             true
         }.getOrDefault(false)
     }
 
-    private fun deleteRemoteConfig(fileName: String): Boolean {
-        service ?: return false
-        return runCatching {
-            service!!.deleteRemoteFile(fileName)
+    private suspend fun deleteRemoteConfig(fileName: String): Boolean = withContext(Dispatchers.IO) {
+        val activeService = service ?: return@withContext false
+        runCatching {
+            activeService.deleteRemoteFile(fileName)
+            // The API returns false for an already absent file; deletion is idempotent.
+            true
         }.getOrDefault(false)
     }
 

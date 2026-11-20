@@ -6,19 +6,15 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import me.simpleHook.core.App
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.core.compat.DocumentCompat
 import me.simpleHook.core.constant.ConfigConstant
 import me.simpleHook.core.constant.Constant
-import me.simpleHook.core.utils.FileUtil
 import me.simpleHook.core.utils.GuiseBase64
-import me.simpleHook.core.utils.LogUtil
 import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.data.record.RecordSource
@@ -26,9 +22,6 @@ import me.simpleHook.platform.shizuku.ShizukuFileManager
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
 import java.util.zip.GZIPInputStream
 
 object RecordsHelper {
@@ -38,58 +31,30 @@ object RecordsHelper {
     private const val MAX_RUN_MILLIS = 1500L
     private const val CUSTOM_MAX_COMPRESSED_RECORD_BYTES = 4 * 1024 * 1024
     private const val EXTENSION_MAX_COMPRESSED_RECORD_BYTES = 16 * 1024 * 1024
-    private const val LOCK_WAIT_MILLIS = 1000L
-    private const val LOCK_POLL_MILLIS = 100L
     private const val CANCEL_CHECK_INTERVAL_LINES = 64
 
-    private val locks = ConcurrentHashMap<String, ReentrantLock>()
-
-    fun getLock(filePath: String): ReentrantLock {
-        return locks.computeIfAbsent(filePath) { ReentrantLock() }
-    }
-
-    fun insertRecordsFromFile(context: Context, packageName: String): List<RecordEntity> {
-        val records = mutableListOf<RecordEntity>()
-        runBlocking {
-            ingestRecordsFromFile(context, packageName) { batch ->
-                records.addAll(batch)
-            }
-        }
-        return records
-    }
-
-    suspend fun ingestRecordsFromFile(
+    // Called only while RecordIngestCoordinator owns its coroutine Mutex and IO context.
+    internal suspend fun ingestRecordsFromFile(
         context: Context,
         packageName: String,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
-        val recordPath = ConfigConstant.RECORD_DIR.formatPath(packageName)
-        val lock = getLock(recordPath)
         val budget = ReadBudget()
         val coroutineContext = currentCoroutineContext()
-        if (!lock.tryLockCancellable()) return
-        try {
-            for (source in RecordSource.values()) {
-                coroutineContext.ensureActive()
-                if (shouldStop(budget)) break
-                val readyPath = ConfigConstant.RECORD_SOURCE_READY_DIR.formatPath(
-                    packageName,
-                    source.dirName
-                )
-                if (GlobalValue.isRootWork) {
-                    rootReadSegments(packageName, source, readyPath, budget, onBatch)
-                } else if (GlobalValue.isShizukuWork) {
-                    shizukuReadSegments(packageName, source, readyPath, budget, onBatch)
-                } else {
-                    fileReadSegments(packageName, source, readyPath, context, budget, onBatch)
-                }
+        for (source in RecordSource.values()) {
+            coroutineContext.ensureActive()
+            if (shouldStop(budget)) break
+            val readyPath = ConfigConstant.RECORD_SOURCE_READY_DIR.formatPath(
+                packageName,
+                source.dirName
+            )
+            if (GlobalValue.isRootWork) {
+                rootReadSegments(packageName, source, readyPath, budget, onBatch)
+            } else if (GlobalValue.isShizukuWork) {
+                shizukuReadSegments(packageName, source, readyPath, budget, onBatch)
+            } else {
+                fileReadSegments(packageName, source, readyPath, context, budget, onBatch)
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            LogUtil.outLog(e.stackTraceToString())
-        } finally {
-            lock.unlock()
         }
     }
 
@@ -100,7 +65,7 @@ object RecordsHelper {
         budget: ReadBudget,
         onBatch: suspend (List<RecordEntity>) -> Unit
     ) {
-        val service = ShizukuFileManager.service ?: return
+        val service = checkNotNull(ShizukuFileManager.service) { "Shizuku service unavailable" }
         val cacheRoot = App.externalCacheDir ?: App.cacheDir
         val cacheDir = cacheRoot.resolve("record_segments").also { it.mkdirs() }
         val names = shizukuReadManifestNames(packageName, source, cacheDir)
@@ -112,7 +77,13 @@ object RecordsHelper {
             if (shouldStop(budget)) break
             val localFile = File(cacheDir, "${source.dirName}_$name")
             val remotePath = "$readyPath/$name"
-            if (service.copyFile(remotePath, localFile.path) && localFile.canRead()) {
+            try {
+                if (!service.copyFile(remotePath, localFile.path)) {
+                    // Acknowledged segments can remain in the producer's manifest.
+                    if (service.isFileMissing(remotePath)) continue
+                    error("Cannot read $remotePath")
+                }
+                check(localFile.canRead()) { "Cannot read $remotePath" }
                 val result = localFile.inputStream().use { input ->
                     emitRecordBatches(
                         input = input,
@@ -123,8 +94,10 @@ object RecordsHelper {
                     )
                 }
                 budget.consume(result)
+                coroutineContext.ensureActive()
+                check(service.deleteFile(remotePath)) { "Unable to acknowledge $remotePath" }
+            } finally {
                 localFile.delete()
-                service.deleteFile(remotePath)
             }
         }
     }
@@ -155,7 +128,8 @@ object RecordsHelper {
                 )
             }
             budget.consume(result)
-            segment.delete()
+            coroutineContext.ensureActive()
+            check(segment.delete()) { "Unable to acknowledge ${segment.path}" }
         }
     }
 
@@ -246,7 +220,7 @@ object RecordsHelper {
             coroutineContext.ensureActive()
             if (shouldStop(budget)) break
             val name = segment.name ?: continue
-            val input = context.contentResolver.openInputStream(segment.uri) ?: continue
+            val input = checkNotNull(context.contentResolver.openInputStream(segment.uri))
             val result = input.use {
                 emitRecordBatches(
                     input = it,
@@ -257,7 +231,8 @@ object RecordsHelper {
                 )
             }
             budget.consume(result)
-            DocumentsContract.deleteDocument(context.contentResolver, segment.uri)
+            coroutineContext.ensureActive()
+            check(DocumentsContract.deleteDocument(context.contentResolver, segment.uri))
         }
     }
 
@@ -286,7 +261,8 @@ object RecordsHelper {
                 )
             }
             budget.consume(result)
-            FileUtil.deleteFile(segment)
+            coroutineContext.ensureActive()
+            check(segment.delete()) { "Unable to acknowledge ${segment.path}" }
         }
     }
 
@@ -341,16 +317,6 @@ object RecordsHelper {
         return budget.recordsRead >= MAX_RECORDS_PER_RUN ||
             budget.segmentsRead >= MAX_SEGMENTS_PER_RUN ||
             System.currentTimeMillis() - budget.startTime >= MAX_RUN_MILLIS
-    }
-
-    private suspend fun ReentrantLock.tryLockCancellable(): Boolean {
-        val coroutineContext = currentCoroutineContext()
-        val deadline = System.currentTimeMillis() + LOCK_WAIT_MILLIS
-        while (true) {
-            coroutineContext.ensureActive()
-            if (tryLock(LOCK_POLL_MILLIS, TimeUnit.MILLISECONDS)) return true
-            if (System.currentTimeMillis() >= deadline) return false
-        }
     }
 
     private fun getRecordEntity(recordStr: String, sourceKey: String): RecordEntity? {

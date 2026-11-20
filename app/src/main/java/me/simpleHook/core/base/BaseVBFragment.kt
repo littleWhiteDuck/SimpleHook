@@ -31,6 +31,11 @@ abstract class BaseVBFragment<VB : ViewBinding> : BaseFragment(), IBinding<VB> {
         init()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
 
     }

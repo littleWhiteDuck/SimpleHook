@@ -2,11 +2,9 @@ package me.simpleHook.data.local.db.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import me.simpleHook.data.RecordPackageCount
 import me.simpleHook.data.RecordTypeCount
 import me.simpleHook.data.local.db.entity.RecordEntity
@@ -14,10 +12,15 @@ import me.simpleHook.data.record.SmallRecordEntity
 import kotlinx.coroutines.flow.Flow
 
 
+data class MarkedRecordKey(val id: Int, val time: String)
+
 @Dao
 interface RecordDao {
-    @Query("SELECT * FROM RecordEntity ORDER BY ID DESC")
-    fun getAllRecords(): Flow<List<RecordEntity>>
+    @Query("""SELECT id, time FROM RecordEntity WHERE isMark = 1 AND id <= :upperBound
+        AND (:lastTime IS NULL OR time < :lastTime OR (time = :lastTime AND id < :beforeId))
+        AND ((:isType = 1 AND type = :filter) OR (:isType = 0 AND packageName = :filter))
+        ORDER BY time DESC, id DESC LIMIT :limit""")
+    suspend fun getMarkedIds(filter: String, isType: Boolean, lastTime: String?, beforeId: Int, upperBound: Int, limit: Int): List<MarkedRecordKey>
 
     @Query("SELECT COALESCE(MAX(id), 0) FROM RecordEntity")
     suspend fun getLatestRecordId(): Int
@@ -47,18 +50,11 @@ interface RecordDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRecords(vararg recordEntity: RecordEntity)
 
-    @Update
-    suspend fun updateRecords(vararg recordEntity: RecordEntity)
-
     @Query("UPDATE RecordEntity SET isRead = :isRead WHERE id = :id AND isRead != :isRead")
     suspend fun updateRecordReadById(id: Int, isRead: Boolean)
 
     @Query("UPDATE RecordEntity SET isMark = :isMark WHERE id = :id AND isMark != :isMark")
     suspend fun updateRecordMarkById(id: Int, isMark: Boolean)
-
-    @Delete
-    suspend fun deleteRecords(vararg recordEntity: RecordEntity)
-
 
     @Query(
         """
@@ -68,19 +64,13 @@ interface RecordDao {
         LIMIT 1
         """
     )
-    fun getRecordMetaById(id: Int): RecordEntity?
+    suspend fun getRecordMetaById(id: Int): RecordEntity?
 
     @Query("SELECT packageName, COUNT(*) AS count FROM RecordEntity GROUP BY packageName ORDER BY COUNT(*) DESC")
     suspend fun getRecordCountByPack(): List<RecordPackageCount>
 
     @Query("SELECT type, COUNT(*) AS count FROM RecordEntity GROUP BY type ORDER BY COUNT(*) DESC")
     suspend fun getRecordCountByType(): List<RecordTypeCount>
-
-    @Query("SELECT record FROM RecordEntity WHERE type = :type and isMark = 1 ORDER BY time DESC")
-    fun getMarkedRecordByType(type: String): List<String>
-
-    @Query("SELECT record FROM RecordEntity WHERE packageName = :packageName and isMark = 1 ORDER BY time DESC")
-    fun getMarkedRecordByPack(packageName: String): List<String>
 
     @Query(
         """
@@ -168,9 +158,6 @@ interface RecordDao {
 
     @Query("DELETE FROM RecordEntity WHERE isRead = :isRead")
     suspend fun deleteReadRecord(isRead: Boolean)
-
-    @Query("DELETE FROM RecordEntity WHERE time BETWEEN :start and :end")
-    suspend fun deleteRecordByTimeRange(start: String, end: String)
 
     @Query("DELETE FROM RecordEntity WHERE type = :type")
     suspend fun deleteRecordByType(type: String)

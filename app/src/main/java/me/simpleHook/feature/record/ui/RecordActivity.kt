@@ -8,8 +8,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -22,6 +20,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.flowWithLifecycle
+import kotlinx.coroutines.CancellationException
+import me.simpleHook.data.config.RecordIngestCoordinator
+import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +45,6 @@ import me.simpleHook.core.utils.AppUtil
 import me.simpleHook.core.utils.FastScrollerUtil
 import me.simpleHook.core.utils.JsonUtil
 import me.simpleHook.core.utils.TimeUtil
-import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.feature.record.viewmodel.RecordSearchState
 import me.simpleHook.feature.record.viewmodel.RecordViewModel
@@ -79,7 +80,6 @@ class RecordActivity : BaseActivity() {
     }
 
     private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private var recordCollectJob: Job? = null
     private var searchLoadingDialog: LoadingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +102,12 @@ class RecordActivity : BaseActivity() {
     }
 
     private fun updateTitle() {
+        val query = recordViewModel.searchState.value.query
+        if (query.isNotEmpty()) {
+            supportActionBar?.title = query
+            supportActionBar?.subtitle = null
+            return
+        }
         if (isType) {
             supportActionBar?.title =
                 if (typeOrPackageName.startsWith("Error")) getString(R.string.record_type_error) else typeOrPackageName
@@ -124,7 +130,6 @@ class RecordActivity : BaseActivity() {
                     binding.swipeRefreshLayout.isRefreshing = true
                     recordViewModel.searchState.value = RecordSearchState()
                     updateTitle()
-                    collectRecordPaging()
                 }
             }
         }
@@ -253,13 +258,8 @@ class RecordActivity : BaseActivity() {
 
 
     private fun initData() {
-        collectRecordPaging()
-    }
-
-    private fun collectRecordPaging() {
-        recordCollectJob?.cancel()
-        recordCollectJob = lifecycleScope.launch {
-            recordViewModel.getRecordEntity(typeOrPackageName, isType).collectLatest {
+        lifecycleScope.launch {
+            recordViewModel.getRecordEntity(typeOrPackageName, isType).flowWithLifecycle(lifecycle).collectLatest {
                 recordAdapter.submitData(it)
             }
         }
@@ -275,14 +275,28 @@ class RecordActivity : BaseActivity() {
         recordViewModel.updateRecordMarkById(recordEntity.id, !recordEntity.isMark)
     }
 
-    private fun refreshData(delayTime: Long = 500) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            recordAdapter.refresh()
-        }, delayTime)
-        readFileLogInsert(
-            reason = RecordIngestReason.RecordListRefresh,
-            skipIfRunning = false
-        )
+    private var refreshJob: Job? = null
+    private val configViewModel by viewModels<AppConfigViewModel>()
+
+    private fun refreshData() {
+        refreshJob?.cancel()
+        refreshJob = lifecycleScope.launch {
+            try {
+                val result = RecordIngestCoordinator.requestIngest(
+                    this@RecordActivity, configViewModel.getEnabledPackageNames()
+                )
+                if (result is me.simpleHook.data.config.RecordIngestResult.Completed && result.failures.isNotEmpty()) {
+                    showPopup(getString(R.string.common_failed))
+                }
+                recordAdapter.refresh()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                showPopup(getString(R.string.common_failed))
+            } finally {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -374,30 +388,29 @@ class RecordActivity : BaseActivity() {
         val loadingDialog =
             LoadingDialog(this, getString(R.string.record_loading_saving_marked_record))
         loadingDialog.show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            val result = runCatching {
-                contentResolver.openFileDescriptor(uri, "rwt")?.use { parcel ->
-                    val list =
-                        if (isType) recordViewModel.getMarkedRecordByType(typeOrPackageName) else recordViewModel.getMarkedRecordByPack(
-                            typeOrPackageName
-                        )
-                    FileOutputStream(parcel.fileDescriptor).bufferedWriter().use { writer ->
-                        list.forEach {
-                            val content = JsonUtil.formatJson(it.replace("\\u003e", "> "))
-                            writer.appendLine(content)
+        lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    checkNotNull(contentResolver.openFileDescriptor(uri, "rwt")).use { parcel ->
+                        FileOutputStream(parcel.fileDescriptor).bufferedWriter().use { writer ->
+                            recordViewModel.forEachMarked(typeOrPackageName, isType) { record ->
+                                val content = withContext(Dispatchers.Default) {
+                                    JsonUtil.formatJson(record.replace("\\u003e", "> "))
+                                }
+                                writer.appendLine(content)
+                            }
                         }
                     }
                 }
-                true
-            }.getOrDefault(false)
-            withContext(Dispatchers.Main) {
+                showPopup(getString(R.string.record_save_marked_record_tip))
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                showPopup(getString(R.string.common_failed))
+            } finally {
                 loadingDialog.dismiss()
-                if (result) {
-                    showPopup(getString(R.string.record_save_marked_record_tip))
-                }
             }
         }
-
     }
 
     private fun showSearchDialog() {
@@ -407,19 +420,15 @@ class RecordActivity : BaseActivity() {
         RecordSearchBottomSheetFragment().apply {
             initialState = currentSearchState
             onSearchConfirmed = { searchState ->
-                recordViewModel.searchState.value = searchState
-                if (searchState.query.isNotEmpty()) {
-                    supportActionBar?.title = searchState.query
-                    supportActionBar?.subtitle = ""
-                } else {
+                if (searchState != recordViewModel.searchState.value) {
+                    searchLoadingDialog?.dismiss()
+                    searchLoadingDialog =
+                        LoadingDialog(this@RecordActivity, getString(R.string.record_loading_tip_searching)).also {
+                            it.show()
+                        }
+                    recordViewModel.searchState.value = searchState
                     updateTitle()
                 }
-                searchLoadingDialog?.dismiss()
-                searchLoadingDialog =
-                    LoadingDialog(this@RecordActivity, getString(R.string.record_loading_tip_searching)).also {
-                        it.show()
-                    }
-                collectRecordPaging()
             }
         }.show(supportFragmentManager, RecordSearchBottomSheetFragment.TAG)
     }
@@ -430,7 +439,6 @@ class RecordActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        recordCollectJob?.cancel()
         searchLoadingDialog?.dismiss()
         searchLoadingDialog = null
         super.onDestroy()

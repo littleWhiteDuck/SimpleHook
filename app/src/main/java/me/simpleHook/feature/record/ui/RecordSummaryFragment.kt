@@ -2,6 +2,7 @@ package me.simpleHook.feature.record.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import me.simpleHook.core.extension.showPopup
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
@@ -27,7 +28,6 @@ import me.simpleHook.core.utils.LogUtil
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
 import me.simpleHook.data.config.RecordIngestCoordinator
-import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
 import me.simpleHook.feature.main.ui.MainActivity
 import me.simpleHook.feature.record.ui.delegate.RecordPackDelegate
@@ -227,12 +227,17 @@ class RecordSummaryFragment : BaseViewFragment<RecordSummaryFragmentView>() {
     }
 
     private suspend fun ingestRecords(context: Context) {
-        RecordIngestCoordinator.requestIngest(
+        val result = RecordIngestCoordinator.requestIngest(
             context = context,
             packageNames = appConfigViewModel.getEnabledPackageNames(),
-            reason = RecordIngestReason.SummaryRefresh,
             skipIfRunning = false
         )
+        if (result is me.simpleHook.data.config.RecordIngestResult.Completed && result.failures.isNotEmpty()) {
+            result.failures.values.forEach { LogUtil.outLog(it.stackTraceToString()) }
+            withContext(Dispatchers.Main) {
+                requireActivity().showPopup(getString(R.string.common_failed))
+            }
+        }
     }
 
     override fun onDestroyView() {

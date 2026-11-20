@@ -5,8 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
@@ -40,7 +38,6 @@ import me.simpleHook.core.base.BaseActivity
 import me.simpleHook.core.compat.BundleCompat
 import me.simpleHook.core.compat.getParcelableExtraCompat
 import me.simpleHook.data.config.ConfigSystemUtil
-import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.HookConfig
 import me.simpleHook.data.FieldInfo
@@ -603,6 +600,8 @@ class ConfigActivity : BaseActivity() {
         }.show(supportFragmentManager, "collect")
     }
 
+    private var saveJob: kotlinx.coroutines.Job? = null
+
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = true) {
         if (configList.isEmpty()) {
@@ -613,34 +612,24 @@ class ConfigActivity : BaseActivity() {
             showPopup(getString(R.string.config_app_info_is_empty_tip))
             return
         }
+        if (saveJob?.isActive == true) return
         val loadingDialog = LoadingDialog(this, getString(R.string.main_loading))
         loadingDialog.show()
-        lifecycleScope.launch(Dispatchers.Main) {
-            val appConfig = getAppConfig()
-            val configStr = Json.encodeToString(appConfig)
-            if (modify) {
-                appConfigViewModel.updateConfigs(appConfig)
-            } else {
-                appConfigViewModel.insertConfigs(appConfig)
-            }
-            withContext(Dispatchers.IO) {
-                saveConfig(appConfig.packageName, configStr)
-                if (tempPackageName.isNotEmpty() && tempPackageName != appConfig.packageName) {
-                    ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, tempPackageName)
-                }
+        val appConfig = getAppConfig()
+        saveJob = lifecycleScope.launch {
+            try {
+                val result = appConfigViewModel.saveConfig(appConfig)
+                val outcome = result.await()
+                configId = appConfigViewModel.editingConfigId ?: appConfig.id
+                modify = configId != 0
+                if (!outcome.isSuccess) return@launch
+                modify = true
+                tempConfigStr = getAppConfig().copy(enable = true).toString()
+                if (exit) finish()
+            } finally {
+                loadingDialog.dismiss()
             }
         }
-        Handler(Looper.getMainLooper()).postDelayed({
-            loadingDialog.dismiss()
-            tempConfigStr = getAppConfig().copy(enable = true).toString()
-            if (exit) {
-                finish()
-            }
-        }, 800)
-    }
-
-    private suspend fun saveConfig(packageName: String, configStr: String) {
-        ConfigRemoteSyncHelper.saveCustomConfig(configSystem, packageName, configStr)
     }
 
     private fun initBack() {

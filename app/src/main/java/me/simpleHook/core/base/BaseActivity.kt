@@ -30,16 +30,14 @@ import com.lzf.easyfloat.permission.PermissionUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
 import me.simpleHook.data.config.RecordIngestCoordinator
-import me.simpleHook.data.config.RecordIngestReason
 import me.simpleHook.core.contract.OpenDocumentTreeContract
-import me.simpleHook.data.local.db.entity.AppConfig
-import me.simpleHook.data.local.db.entity.ExtensionConfigEntity
 import me.simpleHook.data.record.SmallRecordEntity
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.core.extension.showToast
@@ -68,13 +66,20 @@ open class BaseActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var readFileJob: Job? = null
     private var floatCollectJob: Job? = null
+    private var floatInitJob: Job? = null
+    private var floatClearJob: Job? = null
+    private var floatDetailJob: Job? = null
+    private var floatDetailDialog: androidx.appcompat.app.AlertDialog? = null
+    private val floatErrors = CoroutineExceptionHandler { _, error ->
+        LogUtil.outLog(error.stackTraceToString())
+        if (!isDestroyed) showToast(getString(R.string.common_failed))
+    }
     private var adapterDataObserver: RecyclerView.AdapterDataObserver? = null
     private var dismissFloat = false
     private val refresh = object : Runnable {
         override fun run() {
             if (dismissFloat) return
             readFileLogInsert(
-                reason = RecordIngestReason.FloatRealtime,
                 skipIfRunning = true
             )
             handler.postDelayed(this, FLOAT_REFRESH_INTERVAL_MS)
@@ -84,9 +89,6 @@ open class BaseActivity : AppCompatActivity() {
     private var floatStartRecordId = 0
     private var floatWindowStartTime = ""
     private var latestFloatRecords = emptyList<SmallRecordEntity>()
-    private lateinit var extConfigList: List<ExtensionConfigEntity>
-    private lateinit var configs: List<AppConfig>
-    private var needCheckPacks = mutableSetOf<String>()
     protected val startActivityForData =
         registerForActivityResult(OpenDocumentTreeContract()) { uri ->
             PermissionUtil.takePersistableUriPermission(this, uri)
@@ -119,7 +121,6 @@ open class BaseActivity : AppCompatActivity() {
 
 
     fun readFileLogInsert(
-        reason: RecordIngestReason = RecordIngestReason.Background,
         skipIfRunning: Boolean = true
     ) {
         if (readFileJob?.isActive == true) {
@@ -128,13 +129,16 @@ open class BaseActivity : AppCompatActivity() {
         }
         readFileJob = lifecycleScope.launch(Dispatchers.IO) {
             try {
-                ensureNeedCheckPackages()
-                RecordIngestCoordinator.requestIngest(
+                val packages = appConfigViewModel.getEnabledPackageNames()
+                    .filter(AppUtil::isAppInstalled).toSet()
+                val result = RecordIngestCoordinator.requestIngest(
                     context = this@BaseActivity,
-                    packageNames = needCheckPacks,
-                    reason = reason,
+                    packageNames = packages,
                     skipIfRunning = skipIfRunning
                 )
+                if (result is me.simpleHook.data.config.RecordIngestResult.Completed) {
+                    result.failures.values.forEach { LogUtil.outLog(it.stackTraceToString()) }
+                }
 
             } catch (e: CancellationException) {
                 throw e
@@ -144,39 +148,26 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun ensureNeedCheckPackages() {
-        if (::extConfigList.isInitialized && ::configs.isInitialized && needCheckPacks.isNotEmpty()) {
-            return
-        }
-        extConfigList = appConfigViewModel.getExtConfigs()
-        configs = appConfigViewModel.getConfigs()
-        needCheckPacks.clear()
-        extConfigList.forEach {
-            if (it.enable && AppUtil.isAppInstalled(it.packageName)) {
-                needCheckPacks.add(it.packageName)
-            }
-        }
-        configs.forEach {
-            if (it.enable && AppUtil.isAppInstalled(it.packageName)) {
-                needCheckPacks.add(it.packageName)
-            }
-        }
-    }
-
     private fun showRecordDetailFromId(recordId: Int) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val message = runCatching {
-                val recordEntity = recordViewModel.getRecordByID(recordId)
-                    ?: error("record not found")
-                JsonUtil.formatJson(recordEntity.record.replace("\\u003e", ">"))
-            }.getOrDefault("failed to load record detail")
-            launch(Dispatchers.Main) {
-                showFloatDetailDialog(message)
+        floatDetailJob?.cancel()
+        floatDetailJob = lifecycleScope.launch {
+            try {
+                val entity = recordViewModel.getRecordByID(recordId) ?: error("Record not found")
+                val message = withContext(Dispatchers.Default) {
+                    JsonUtil.formatJson(entity.record.replace("\\u003e", ">"))
+                }
+                if (!dismissFloat) showFloatDetailDialog(message)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                LogUtil.outLog(error.stackTraceToString())
+                if (!dismissFloat) showToast(getString(R.string.common_failed))
             }
         }
     }
 
     private fun showFloatDetailDialog(message: String) {
+        floatDetailDialog?.dismiss()
         val dialog = MaterialAlertDialogBuilder(this).setMessage(message)
             .setPositiveButton(getString(R.string.record_detail_menu_copy)) { dialog, _ ->
                 ToolUtil.toClip(this, message)
@@ -190,6 +181,8 @@ open class BaseActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             dialog.window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         }
+        floatDetailDialog = dialog
+        dialog.setOnDismissListener { if (floatDetailDialog === dialog) floatDetailDialog = null }
         dialog.show()
     }
 
@@ -201,6 +194,7 @@ open class BaseActivity : AppCompatActivity() {
             showPopup(message = getString(R.string.float_window_require_permission))
             PermissionUtils.requestPermission(this, object : OnPermissionResult {
                 override fun permissionResult(isOpen: Boolean) {
+                    if (isDestroyed || isFinishing) return
                     if (isOpen) {
                         showPrintFloat()
                     } else {
@@ -247,21 +241,23 @@ open class BaseActivity : AppCompatActivity() {
             }
             val clearConfig = it.findViewById<ImageButton>(R.id.clear_record)
             clearConfig.setOnClickListener {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    recordViewModel.deleteFloatRecordsAfterNow(
-                        afterId = floatStartRecordId,
-                        startTime = floatWindowStartTime
-                    )
-                    val nextStartRecordId = recordViewModel.getLatestRecordIdNow()
-                    val nextStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
-                    withContext(Dispatchers.Main) {
+                floatClearJob?.cancel()
+                floatClearJob = lifecycleScope.launch {
+                    try {
+                        recordViewModel.deleteFloatRecordsAfterNow(
+                            afterId = floatStartRecordId,
+                            startTime = floatWindowStartTime
+                        )
+                        val nextStartRecordId = recordViewModel.getLatestRecordIdNow()
                         floatStartRecordId = nextStartRecordId
-                        floatWindowStartTime = nextStartTime
+                        floatWindowStartTime = TimeUtil.getCurrentTime("yy-MM-dd HH:mm:ss")
                         latestFloatRecords = emptyList()
                         mAdapter.submitList(emptyList())
-                        if (!dismissFloat) {
-                            startFloatRecordCollection()
-                        }
+                        if (!dismissFloat) startFloatRecordCollection()
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        LogUtil.outLog(error.stackTraceToString())
                     }
                 }
             }
@@ -292,14 +288,12 @@ open class BaseActivity : AppCompatActivity() {
                 }
             }
             mAdapter.registerAdapterDataObserver(adapterDataObserver!!)
-            lifecycleScope.launch {
-                floatStartRecordId = withContext(Dispatchers.IO) {
-                    recordViewModel.getLatestRecordIdNow()
-                }
+            floatInitJob?.cancel()
+            floatInitJob = lifecycleScope.launch(floatErrors) {
+                floatStartRecordId = recordViewModel.getLatestRecordIdNow()
                 if (dismissFloat) return@launch
                 startFloatRecordCollection()
                 readFileLogInsert(
-                    reason = RecordIngestReason.FloatRealtime,
                     skipIfRunning = true
                 )
                 handler.postDelayed(refresh, FLOAT_REFRESH_INTERVAL_MS)
@@ -316,7 +310,7 @@ open class BaseActivity : AppCompatActivity() {
 
     private fun startFloatRecordCollection() {
         floatCollectJob?.cancel()
-        floatCollectJob = lifecycleScope.launch {
+        floatCollectJob = lifecycleScope.launch(floatErrors) {
             recordViewModel.getFloatRecordsAfter(
                 afterId = floatStartRecordId,
                 startTime = floatWindowStartTime,
@@ -331,6 +325,16 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     private fun cleanupFloatWindow() {
+        floatClearJob?.cancel()
+        floatClearJob = null
+        floatDetailJob?.cancel()
+        floatDetailJob = null
+        floatDetailDialog?.dismiss()
+        floatDetailDialog = null
+        floatInitJob?.cancel()
+        floatInitJob = null
+        readFileJob?.cancel()
+        readFileJob = null
         dismissFloat = true
         handler.removeCallbacks(refresh)
         floatCollectJob?.cancel()
@@ -341,6 +345,15 @@ open class BaseActivity : AppCompatActivity() {
         adapterDataObserver = null
         latestFloatRecords = emptyList()
         mAdapter.submitList(emptyList())
+    }
+
+    override fun onDestroy() {
+        if (floatCollectJob != null || floatInitJob != null || adapterDataObserver != null) {
+            cleanupFloatWindow()
+            EasyFloat.dismiss("floatPrint")
+            EasyFloat.dismiss("floatControl")
+        }
+        super.onDestroy()
     }
 
     companion object {

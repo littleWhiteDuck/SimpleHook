@@ -9,6 +9,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.UUID
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -35,6 +44,8 @@ import org.jf.dexlib2.Opcodes
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.LinkedHashSet
 import java.util.Locale
 import java.util.zip.ZipEntry
@@ -60,9 +71,32 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
     val uiState: StateFlow<DexUiState> = _uiState.asStateFlow()
 
     private var rootNode: PackageNode? = null
+    private var loadJob: Job? = null
+    private val loadMutex = Mutex()
+    private val workspaceName = "${WORKSPACE_ROOT}/${UUID.randomUUID()}"
+
+    init {
+        // The ViewModel owns the import session. Cleanup waits for blocking readers to exit.
+        viewModelScope.launch {
+            try {
+                awaitCancellation()
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) {
+                    loadMutex.withLock { clearImportWorkspace() }
+                }
+            }
+        }
+    }
+
+    private fun startLoad(block: suspend () -> Unit) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            loadMutex.withLock { block() }
+        }
+    }
 
     fun onFilePicked(uri: Uri) {
-        viewModelScope.launch {
+        startLoad {
             startLoading(R.string.dex_browser_loading_processing)
             try {
                 val pickedInfo = withContext(Dispatchers.IO) { resolvePickedFileInfo(uri) }
@@ -94,6 +128,8 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
                         throw LocalizedDexException(R.string.dex_browser_picker_unsupported_type)
                     }
                 }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (e: Exception) {
                 handleLoadError(e)
             }
@@ -101,13 +137,15 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
     }
 
     fun onInstalledAppPicked(packageName: String, appName: String) {
-        viewModelScope.launch {
+        startLoad {
             startLoading(R.string.dex_browser_loading_extracting)
             try {
                 val candidates = withContext(Dispatchers.IO) {
                     buildDexCandidatesFromInstalledApp(packageName)
                 }
                 showDexSelection(candidates, appName.ifBlank { packageName })
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (e: Exception) {
                 handleLoadError(e)
             }
@@ -152,7 +190,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
             .filter { it.id in current.selectedDexCandidateIds }
             .map { it.file }
 
-        viewModelScope.launch {
+        startLoad {
             _uiState.value = current.copy(
                 isLoading = true,
                 loadingMessageResId = R.string.dex_browser_loading_parsing,
@@ -164,6 +202,8 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
             )
             try {
                 parseAndPublishDexFiles(selectedFiles)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (e: Exception) {
                 handleLoadError(e)
             }
@@ -181,10 +221,6 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         }
     }
 
-    override fun onCleared() {
-        clearImportWorkspace()
-        super.onCleared()
-    }
 
     private fun startLoading(messageResId: Int) {
         rootNode = null
@@ -205,21 +241,23 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
     }
 
     private suspend fun parseAndPublishDexFiles(dexFiles: List<File>) {
-        val root = withContext(Dispatchers.Default) {
+        val (root, visibleItems) = withContext(Dispatchers.Default) {
             val classes = parseDexFilesInParallel(dexFiles).distinctBy { it.name }
-            buildTree(classes).also(::sortTree)
+            currentCoroutineContext().ensureActive()
+            val tree = buildTree(classes).also(::sortTree)
+            tree to buildVisibleItems(tree)
         }
         rootNode = root
         _uiState.value = DexUiState(
             isLoading = false,
-            items = buildVisibleItems(root),
+            items = visibleItems,
             hasLoadedSource = true
         )
     }
 
     private suspend fun parseDexFilesInParallel(dexFiles: List<File>): List<ClassInfo> = coroutineScope {
         if (dexFiles.size <= 1) {
-            return@coroutineScope dexFiles.flatMap(::parseDex)
+            return@coroutineScope dexFiles.flatMap { parseDex(it) }
         }
 
         val maxConcurrency = minOf(
@@ -277,24 +315,34 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
     }
 
     private fun clearImportWorkspace() {
-        File(application.cacheDir, WORKSPACE_ROOT).deleteRecursively()
+        File(application.cacheDir, workspaceName).deleteRecursively()
     }
 
     private fun createImportWorkspace(prefix: String): File {
-        val root = File(application.cacheDir, WORKSPACE_ROOT).apply { mkdirs() }
-        return File(root, "${prefix}_${System.currentTimeMillis()}").apply { mkdirs() }
+        val root = File(application.cacheDir, workspaceName).apply { mkdirs() }
+        return File(root, "${prefix}_${UUID.randomUUID()}").apply { mkdirs() }
     }
 
-    private fun copyUriToFile(uri: Uri, outFile: File): File {
+    private suspend fun copyCancellable(input: InputStream, output: OutputStream) {
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        while (true) {
+            currentCoroutineContext().ensureActive()
+            val count = input.read(buffer)
+            if (count < 0) return
+            output.write(buffer, 0, count)
+        }
+    }
+
+    private suspend fun copyUriToFile(uri: Uri, outFile: File): File {
         application.contentResolver.openInputStream(uri)?.use { input ->
             FileOutputStream(outFile).use { output ->
-                input.copyTo(output)
+                copyCancellable(input, output)
             }
         } ?: throw LocalizedDexException(R.string.common_unknown_error)
         return outFile
     }
 
-    private fun buildDexCandidatesFromApk(uri: Uri, displayName: String): List<DexCandidate> {
+    private suspend fun buildDexCandidatesFromApk(uri: Uri, displayName: String): List<DexCandidate> {
         clearImportWorkspace()
         val workspace = createImportWorkspace("apk")
         val sourceApk = copyUriToFile(uri, File(workspace, displayName))
@@ -313,7 +361,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         }
     }
 
-    private fun buildDexCandidatesFromApks(uri: Uri, displayName: String): List<DexCandidate> {
+    private suspend fun buildDexCandidatesFromApks(uri: Uri, displayName: String): List<DexCandidate> {
         clearImportWorkspace()
         val workspace = createImportWorkspace("apks")
         val sourceApks = copyUriToFile(uri, File(workspace, displayName))
@@ -326,7 +374,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         return collectDexCandidatesFromApkFiles(innerApkFiles, workspace)
     }
 
-    private fun buildDexCandidatesFromInstalledApp(packageName: String): List<DexCandidate> {
+    private suspend fun buildDexCandidatesFromInstalledApp(packageName: String): List<DexCandidate> {
         clearImportWorkspace()
         val workspace = createImportWorkspace("installed")
         val extractOutputDir = File(workspace, "apk_from_app").apply { mkdirs() }
@@ -349,7 +397,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         return collectDexCandidatesFromApkFiles(apkFiles, workspace)
     }
 
-    private fun collectDexCandidatesFromApkFiles(
+    private suspend fun collectDexCandidatesFromApkFiles(
         apkFiles: List<File>,
         workspace: File
     ): List<DexCandidate> {
@@ -372,7 +420,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         return result
     }
 
-    private fun extractTopLevelFilesByExtension(
+    private suspend fun extractTopLevelFilesByExtension(
         zipFile: File,
         outputDir: File,
         extension: String
@@ -382,6 +430,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         ZipInputStream(BufferedInputStream(zipFile.inputStream())).use { input ->
             var entry: ZipEntry? = input.nextEntry
             while (entry != null) {
+                currentCoroutineContext().ensureActive()
                 val entryName = entry.name
                 val isTopLevel = !entryName.contains('/')
                 val isTargetFile = !entry.isDirectory &&
@@ -396,7 +445,7 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
                     }
                     outFile.parentFile?.mkdirs()
                     outFile.outputStream().use { output ->
-                        input.copyTo(output)
+                        copyCancellable(input, output)
                     }
                     result += outFile
                 }
@@ -563,9 +612,10 @@ class DexBrowserViewModel(private val application: Application) : ViewModel() {
         return "method:$className:${method.name}:$params:${method.returnType}:${method.isStatic}"
     }
 
-    fun parseDex(dexFile: File): List<ClassInfo> {
-        val dexBackedFile = DexFileFactory.loadDexFile(dexFile, Opcodes.getDefault())
+    suspend fun parseDex(dexFile: File): List<ClassInfo> {
+        val dexBackedFile = withContext(Dispatchers.IO) { DexFileFactory.loadDexFile(dexFile, Opcodes.getDefault()) }
         return dexBackedFile.classes.map { classDef ->
+            currentCoroutineContext().ensureActive()
             val className = classDef.type.removePrefix("L").removeSuffix(";").replace("/", ".")
             val isInterface = (classDef.accessFlags and 0x200) != 0
             val methods = classDef.methods.map { method ->

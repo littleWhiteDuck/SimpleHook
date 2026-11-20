@@ -11,6 +11,19 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import me.simpleHook.core.extension.showToast
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
+import me.simpleHook.data.local.db.RecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +34,6 @@ import me.simpleHook.core.GlobalValue
 import me.simpleHook.data.RecordShowItem
 import me.simpleHook.data.RecordShowPack
 import me.simpleHook.data.RecordShowType
-import me.simpleHook.data.local.db.RecordDatabase
 import me.simpleHook.data.local.db.entity.RecordEntity
 import me.simpleHook.data.record.Base64Operation
 import me.simpleHook.data.record.Record
@@ -64,8 +76,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    private val recordDatabase = RecordDatabase.getDatabase(application)
-    private val recordDao = recordDatabase.recordDao()
+    private val repository = RecordRepository(application)
+    private val errors = CoroutineExceptionHandler { _, error ->
+        me.simpleHook.core.utils.LogUtil.outLog(error.stackTraceToString())
+        application.showToast(application.getString(R.string.common_failed))
+    }
 
     private var _recordShowItems = MutableLiveData<List<RecordShowItem>>()
     val recordShowItems: LiveData<List<RecordShowItem>> get() = _recordShowItems
@@ -85,10 +100,32 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         PagingConfig(pageSize = 30, prefetchDistance = 3, enablePlaceholders = true, maxSize = 200)
 
 
-    fun getRecordEntity(
-        typeOrPack: String, isType: Boolean
+    private val queryTarget = MutableStateFlow("" to false)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val records = combine(queryTarget, searchState) { target, search -> target to search }
+        .flatMapLatest { (target, search) ->
+            flow {
+                val dao = repository.dao()
+                emitAll(createPager(dao, target.first, target.second, search))
+            }.catch { error ->
+                if (error is CancellationException) throw error
+                me.simpleHook.core.utils.LogUtil.outLog(error.stackTraceToString())
+                getApplication<Application>().showToast(getApplication<Application>().getString(R.string.common_failed))
+                emit(PagingData.empty())
+            }
+        }.cachedIn(viewModelScope)
+
+    fun getRecordEntity(typeOrPack: String, isType: Boolean): Flow<PagingData<SmallRecordEntity>> {
+        queryTarget.value = typeOrPack to isType
+        return records
+    }
+
+    private fun createPager(
+        recordDao: me.simpleHook.data.local.db.dao.RecordDao,
+        typeOrPack: String,
+        isType: Boolean,
+        search: RecordSearchState
     ): Flow<PagingData<SmallRecordEntity>> {
-        val search = searchState.value
         val pattern = search.query.trim()
         val jsonPattern = pattern.toJsonStringContent()
         val normalizedPattern = pattern.lowercase()
@@ -119,11 +156,11 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                     )
                 }
             }
-        }.flow.cachedIn(viewModelScope)
+        }.flow
     }
 
     suspend fun getLatestRecordIdNow(): Int {
-        return recordDao.getLatestRecordId()
+        return repository.dao().getLatestRecordId()
     }
 
     fun getFloatRecordsAfter(
@@ -131,40 +168,30 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         startTime: String,
         limit: Int
     ): Flow<List<SmallRecordEntity>> {
-        return recordDao.getFloatRecordsAfter(afterId, startTime, limit)
+        return flow { emitAll(repository.dao().getFloatRecordsAfter(afterId, startTime, limit)) }
     }
 
     suspend fun deleteFloatRecordsAfterNow(afterId: Int, startTime: String) {
-        recordDao.deleteFloatRecordsAfter(afterId, startTime)
+        repository.dao().deleteFloatRecordsAfter(afterId, startTime)
     }
 
 
-    fun getMarkedRecordByType(type: String) = recordDao.getMarkedRecordByType(type)
+    suspend fun forEachMarked(filter: String, isType: Boolean, consume: suspend (String) -> Unit) =
+        repository.forEachMarked(filter, isType, consume)
 
-    fun getMarkedRecordByPack(packageName: String) = recordDao.getMarkedRecordByPack(packageName)
-
-    fun getRecordByID(id: Int): RecordEntity? {
-        val recordMeta = recordDao.getRecordMetaById(id) ?: return null
-        val recordContent = recordDatabase.openHelper.readableDatabase
-            .compileStatement("SELECT record FROM RecordEntity WHERE id = ? LIMIT 1")
-            .apply {
-                bindLong(1, id.toLong())
-            }
-            .simpleQueryForString() ?: return null
-        return recordMeta.copy(record = recordContent)
-    }
+    suspend fun getRecordByID(id: Int): RecordEntity? = repository.getRecord(id)
 
     suspend fun refreshRecordShowItemsNow() {
         val showByType = GlobalValue.sp.showByType
 
         val showItems = if (showByType) {
-            recordDao.getRecordCountByType().mapNotNull { row ->
+            repository.dao().getRecordCountByType().mapNotNull { row ->
                 runCatching { RecordType.valueOf(row.type) }.getOrNull()?.let { type ->
                     RecordShowType(type = type, subType = "", count = row.count)
                 }
             }
         } else {
-            recordDao.getRecordCountByPack().map { row ->
+            repository.dao().getRecordCountByPack().map { row ->
                 RecordShowPack(packageName = row.packageName, count = row.count)
             }
         }
@@ -173,128 +200,123 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    fun updateRecord(recordEntity: RecordEntity) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.updateRecords(recordEntity)
+    fun updateRecordReadById(id: Int, isRead: Boolean) = viewModelScope.launch(errors) {
+        repository.dao().updateRecordReadById(id = id, isRead = isRead)
     }
 
-    fun updateRecordReadById(id: Int, isRead: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.updateRecordReadById(id = id, isRead = isRead)
-    }
-
-    fun updateRecordMarkById(id: Int, isMark: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.updateRecordMarkById(id = id, isMark = isMark)
-    }
-
-    fun insertRecords(vararg recordEntity: RecordEntity) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.insertRecords(*recordEntity)
-    }
-
-    suspend fun insertRecordsNow(recordEntities: List<RecordEntity>) {
-        if (recordEntities.isEmpty()) return
-        recordEntities.chunked(200).forEach { batch ->
-            recordDao.insertRecords(*batch.toTypedArray())
-        }
-    }
-
-
-    fun deleteAllRecords() = viewModelScope.launch {
-        recordDao.deleteAllRecords()
+    fun updateRecordMarkById(id: Int, isMark: Boolean) = viewModelScope.launch(errors) {
+        repository.dao().updateRecordMarkById(id = id, isMark = isMark)
     }
 
     suspend fun deleteAllRecordsNow() {
-        recordDao.deleteAllRecords()
+        repository.dao().deleteAllRecords()
     }
 
 
-    fun deleteRecordByTimeRange(start: String, end: String) =
-        viewModelScope.launch(Dispatchers.IO) {
-            recordDao.deleteRecordByTimeRange(start = start, end = end)
-        }
-
-    fun deleteRecordById(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.deleteRecordById(id)
+    fun deleteRecordById(id: Int) = viewModelScope.launch(errors) {
+        repository.dao().deleteRecordById(id)
     }
 
-    fun deleteRecordByType(type: String) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.deleteRecordByType(type)
+    fun deleteRecordByType(type: String) = viewModelScope.launch(errors) {
+        repository.dao().deleteRecordByType(type)
     }
 
     suspend fun deleteRecordByTypeNow(type: String) {
-        recordDao.deleteRecordByType(type)
+        repository.dao().deleteRecordByType(type)
     }
 
-    fun deleteRecordByPack(packageName: String) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.deleteRecordByPack(packageName)
+    fun deleteRecordByPack(packageName: String) = viewModelScope.launch(errors) {
+        repository.dao().deleteRecordByPack(packageName)
     }
 
     suspend fun deleteRecordByPackNow(packageName: String) {
-        recordDao.deleteRecordByPack(packageName)
-    }
-
-    fun deleteRecordByRead(read: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        recordDao.deleteReadRecord(isRead = read)
+        repository.dao().deleteRecordByPack(packageName)
     }
 
     suspend fun deleteRecordByReadNow(read: Boolean) {
-        recordDao.deleteReadRecord(isRead = read)
+        repository.dao().deleteReadRecord(isRead = read)
     }
 
-    fun deleteReadRecordByPack(read: Boolean, packageName: String) = viewModelScope.launch(
-        Dispatchers.IO
-    ) {
-        recordDao.deleteReadRecordByPack(read, packageName)
+    fun deleteReadRecordByPack(read: Boolean, packageName: String) = viewModelScope.launch(errors) {
+        repository.dao().deleteReadRecordByPack(read, packageName)
     }
 
     fun deleteReadRecordByType(read: Boolean, type: String) =
-        viewModelScope.launch(Dispatchers.IO) {
-            recordDao.deleteReadRecordByType(read, type)
+        viewModelScope.launch(errors) {
+            repository.dao().deleteReadRecordByType(read, type)
         }
 
-    fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String) = viewModelScope.launch(
-        Dispatchers.IO
-    ) {
-        recordDao.deleteMarkedRecordByPack(isMark, packageName)
+    fun deleteMarkedRecordByPack(isMark: Boolean, packageName: String) = viewModelScope.launch(errors) {
+        repository.dao().deleteMarkedRecordByPack(isMark, packageName)
     }
 
-    fun deleteMarkedRecordByType(isMark: Boolean, type: String) = viewModelScope.launch(
-        Dispatchers.IO
-    ) {
-        recordDao.deleteMarkedRecordByType(isMark, type)
+    fun deleteMarkedRecordByType(isMark: Boolean, type: String) = viewModelScope.launch(errors) {
+        repository.dao().deleteMarkedRecordByType(isMark, type)
     }
 
 
     private fun Int.string() = application.getString(this)
     private fun Int.string(vararg formatArgs: Any) = application.getString(this, *formatArgs)
 
-    fun fetchRecordDetail(id: Int, cardStyle: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        val recordEntity = getRecordByID(id) ?: return@launch
-        _recordEntity.postValue(recordEntity)
-        val record = Json.decodeFromString<Record>(recordEntity.record)
-        currentRecord = record
-        if (cardStyle) {
-            fetchCardStyleDetail(record)
-        } else {
-            fetchCodeStyleDetail(record)
+    val detailFailed = MutableLiveData(false)
+    private var detailJob: Job? = null
+
+    fun fetchRecordDetail(id: Int, cardStyle: Boolean) {
+        detailJob?.cancel()
+        currentRecord = null
+        detailFailed.value = false
+        _recordEntity.value = null
+        _recordDetail.value = emptyList()
+        _recordDetailItems.value = emptyList()
+        detailJob = viewModelScope.launch(errors) {
+            try {
+                val entity = getRecordByID(id) ?: error("Record no longer exists")
+                val record = withContext(Dispatchers.Default) { Json.decodeFromString<Record>(entity.record) }
+                _recordEntity.value = entity
+                currentRecord = record
+                if (cardStyle) loadCardStyle(record) else loadCodeStyle(record)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                detailFailed.value = true
+                me.simpleHook.core.utils.LogUtil.outLog(error.stackTraceToString())
+            }
         }
     }
 
-    fun fetchCodeStyleDetailIfNeeded() = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchCodeStyleDetailIfNeeded() = viewModelScope.launch(errors) {
         val record = currentRecord ?: return@launch
-        if (_recordDetail.value.isEmpty()) fetchCodeStyleDetail(record)
+        if (_recordDetail.value.isEmpty()) loadCodeStyle(record)
     }
 
-    fun fetchCardStyleDetailIfNeeded() = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchCardStyleDetailIfNeeded() = viewModelScope.launch(errors) {
         val record = currentRecord ?: return@launch
-        if (_recordDetailItems.value.isNullOrEmpty()) fetchCardStyleDetail(record)
+        if (_recordDetailItems.value.isNullOrEmpty()) loadCardStyle(record)
     }
 
-    suspend fun getCodeStyleTextNow(): String = withContext(Dispatchers.IO) {
+    suspend fun getCodeStyleTextNow(): String = withContext(Dispatchers.Main.immediate) {
+        detailJob?.join()
         val record = currentRecord ?: return@withContext ""
-        if (_recordDetail.value.isEmpty()) fetchCodeStyleDetail(record)
-        _recordDetail.value.joinToString("\n")
+        if (_recordDetail.value.isEmpty()) loadCodeStyle(record)
+        withContext(Dispatchers.Default) { _recordDetail.value.joinToString("\n") }
     }
 
-    private fun fetchCardStyleDetail(record: Record) {
+    private val cardMutex = Mutex()
+    private val codeMutex = Mutex()
+
+    private suspend fun loadCardStyle(record: Record) = cardMutex.withLock {
+        if (currentRecord !== record || !_recordDetailItems.value.isNullOrEmpty()) return@withLock
+        val items = withContext(Dispatchers.Default) { buildCardStyleDetail(record) }
+        if (currentRecord === record) _recordDetailItems.value = items
+    }
+
+    private suspend fun loadCodeStyle(record: Record) = codeMutex.withLock {
+        if (currentRecord !== record || _recordDetail.value.isNotEmpty()) return@withLock
+        val items = withContext(Dispatchers.Default) { buildCodeStyleDetail(record) }
+        if (currentRecord === record) _recordDetail.value = items
+    }
+
+    private fun buildCardStyleDetail(record: Record): List<RDItem> {
         val list = mutableListOf<RDItem>()
         with(list) {
             val labelType = R.string.record_label_type.string()
@@ -625,12 +647,10 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
-        _recordDetailItems.postValue(
-            list.map { it.toCardPreview(maxLength = CARD_CONTENT_PREVIEW_LIMIT) }
-        )
+        return list.map { it.toCardPreview(maxLength = CARD_CONTENT_PREVIEW_LIMIT) }
     }
 
-    private fun fetchCodeStyleDetail(record: Record) {
+    private fun buildCodeStyleDetail(record: Record): List<String> {
         val items = mutableListOf<String>()
 
         with(items) {
@@ -901,7 +921,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
-        _recordDetail.value = items
+        return items
     }
 
     private fun MutableList<RDItem>.addStackDetailIfPresent(stackDetail: String) {

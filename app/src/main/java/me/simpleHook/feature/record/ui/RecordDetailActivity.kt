@@ -12,6 +12,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.flowWithLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -98,6 +99,12 @@ class RecordDetailActivity : BaseActivity() {
         val id = intent.getIntExtra(KEY_RECORD_ID, -1)
         recordViewModel.fetchRecordDetail(id, GlobalValue.sp.recordCardStyle)
 
+        recordViewModel.detailFailed.observe(this) { failed ->
+            if (failed) {
+                binding.progressBar.hide()
+                showPopup(getString(R.string.common_failed))
+            }
+        }
         recordViewModel.recordEntity.observe(this) { entity ->
             recordEntity = entity ?: return@observe
             updateToolbar(entity.packageName, entity.processName)
@@ -111,14 +118,12 @@ class RecordDetailActivity : BaseActivity() {
             }
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            recordViewModel.recordDetail.collect {
+        lifecycleScope.launch {
+            recordViewModel.recordDetail.flowWithLifecycle(lifecycle).collect {
                 if (it.isNotEmpty()) {
-                    currentText = it.joinToString("\n")
-                    withContext(Dispatchers.Main) {
-                        updateEditorView()
-                        binding.progressBar.hide()
-                    }
+                    currentText = withContext(Dispatchers.Default) { it.joinToString("\n") }
+                    updateEditorView()
+                    binding.progressBar.hide()
                 }
             }
         }

@@ -26,6 +26,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import java.io.File
+import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.simpleHook.core.GlobalValue
@@ -85,11 +90,6 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
 
 
     private val loadingDialog by lazy { LoadingDialog(requireActivity(), "loading...") }
-    private val cacheFile by lazy {
-        requireActivity().getExternalFilesDir(null)!!.resolve("apk").also {
-            it.mkdir()
-        }
-    }
     private val dispatcher by lazy { requireActivity().onBackPressedDispatcher }
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
@@ -166,45 +166,49 @@ class GuiseSignVBFragment : BaseVBFragment<FragmentGuiseSignBinding>() {
         }
     }
 
-    private fun readApkSignInfo(uri: Uri) {
-        loadingDialog.show()
-        runCatching {
-            var result: String? = null
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val apk = DocumentFile.fromSingleUri(requireContext(), uri)
-                    ?: throw IOException("IO is null")
-                val outputFile = cacheFile.resolve(apk.name!!)
-                val input = requireActivity().contentResolver.openInputStream(uri)
-                    ?: throw IOException("uri is null")
-                input.use {
-                    outputFile.outputStream().use { output ->
-                        it.copyTo(output)
-                    }
-                }
-                ZipFile(outputFile).use { zipFile ->
-                    val entries: Enumeration<out ZipEntry> = zipFile.entries()
-                    while (entries.hasMoreElements()) {
-                        val entry = entries.nextElement()
-                        if (entry.name.matches(Regex("(META-INF/.*)\\.(RSA|DSA|EC)"))) {
-                            val `is`: InputStream = zipFile.getInputStream(entry)
-                            val certFactory = CertificateFactory.getInstance("X509")
-                            val x509Cert = certFactory.generateCertificate(`is`) as X509Certificate
-                            result = byteToHexString(x509Cert.encoded)
-                            break
-                        }
-                    }
-                }
-                FileUtil.deleteDir(cacheFile)
-                withContext(Dispatchers.Main) {
-                    viewModel.signInfoEdit.value = result ?: ""
-                    loadingDialog.dismiss()
-                }
-            }
+    private var signJob: kotlinx.coroutines.Job? = null
 
-        }.onFailure {
-            requireActivity().showPopup(getString(R.string.common_failed))
-        }.recoverCatching {
-            FileUtil.deleteDir(cacheFile)
+    private fun readApkSignInfo(uri: Uri) {
+        if (signJob?.isActive == true) return
+        val context = requireContext().applicationContext
+        loadingDialog.show()
+        signJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    val outputFile = File(context.cacheDir, "signature-${UUID.randomUUID()}.apk")
+                    try {
+                        checkNotNull(context.contentResolver.openInputStream(uri)).use { input ->
+                            outputFile.outputStream().use { input.copyTo(it) }
+                        }
+                        var signature: String? = null
+                        ZipFile(outputFile).use { zip ->
+                            val entries = zip.entries()
+                            while (entries.hasMoreElements()) {
+                                currentCoroutineContext().ensureActive()
+                                val entry = entries.nextElement()
+                                if (entry.name.matches(Regex("(META-INF/.*)\\.(RSA|DSA|EC)"))) {
+                                    signature = zip.getInputStream(entry).use {
+                                        val cert = CertificateFactory.getInstance("X509")
+                                            .generateCertificate(it) as X509Certificate
+                                        byteToHexString(cert.encoded)
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                        checkNotNull(signature) { "No supported signature in APK" }
+                    } finally {
+                        outputFile.delete()
+                    }
+                }
+                viewModel.signInfoEdit.value = result
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                requireActivity().showPopup(getString(R.string.common_failed))
+            } finally {
+                loadingDialog.dismiss()
+            }
         }
     }
 

@@ -2,7 +2,6 @@ package me.simpleHook.data.local.db
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.data.local.db.entity.CollectionEntity
 
 class AppRepository(context: Context) {
@@ -12,53 +11,32 @@ class AppRepository(context: Context) {
 
     private val collectionDao = AppDatabase.getDatabase(context).getCollectionDao()
 
-    suspend fun insertConfigs(vararg appConfig: AppConfig) {
-        appConfigDao.insertConfigs(*appConfig)
-    }
-
-    suspend fun updateConfigs(vararg appConfig: AppConfig) {
-        appConfigDao.updateConfigs(*appConfig)
-    }
-
-    suspend fun deleteConfigs(vararg appConfig: AppConfig) {
-        appConfigDao.deleteConfigs(*appConfig)
-
-    }
-
-    suspend fun getEnabledCustomCountByPackageName(packageName: String): Int {
-        return appConfigDao.getEnabledCountByPackageName(packageName)
-    }
-
     suspend fun getEnabledPackageNames(): Set<String> {
         return appConfigDao.getEnabledPackageNames().toSet()
     }
 
-    fun deleteAllConfigs() {
-        appConfigDao.deleteAllConfigs()
-    }
-
     fun getAllConfigs() = appConfigDao.queryAll()
-    fun getConfigs() = appConfigDao.getAll()
+    suspend fun getConfigs() = appConfigDao.getAll()
 
-    fun getAllPackageNames() = appConfigDao.getAllPackageNames()
+    suspend fun getAllPackageNames() = appConfigDao.getAllPackageNames()
 
-    fun getExtConfigs() = extConfigDao.getExtConfigs()
+    suspend fun getExtConfigs() = extConfigDao.getExtConfigs()
 
     // collection
 
-    fun insertCollections(vararg collectionEntity: CollectionEntity) {
+    suspend fun insertCollections(vararg collectionEntity: CollectionEntity) {
         collectionDao.insertCollections(*collectionEntity)
     }
 
-    fun updateCollections(vararg collectionEntity: CollectionEntity) {
+    suspend fun updateCollections(vararg collectionEntity: CollectionEntity) {
         collectionDao.updateCollections(*collectionEntity)
     }
 
-    fun deleteCollections(vararg collectionEntity: CollectionEntity) {
+    suspend fun deleteCollections(vararg collectionEntity: CollectionEntity) {
         collectionDao.deleteCollections(*collectionEntity)
     }
 
-    fun deleteAllCollections() {
+    suspend fun deleteAllCollections() {
         collectionDao.deleteAllCollections()
     }
 
@@ -66,7 +44,7 @@ class AppRepository(context: Context) {
         return collectionDao.queryAll()
     }
 
-    fun getCollections(): List<CollectionEntity> {
+    suspend fun getCollections(): List<CollectionEntity> {
         return collectionDao.getAll()
     }
 }

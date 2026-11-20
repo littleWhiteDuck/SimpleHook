@@ -5,7 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import me.simpleHook.core.GlobalValue
 import me.simpleHook.R
@@ -13,9 +13,9 @@ import me.simpleHook.core.utils.OSUtil
 import me.simpleHook.feature.backup.domain.BackupHelper.startBackupConfig
 
 class BackupWorker(private val context: Context, workerParams: WorkerParameters) :
-    Worker(context, workerParams) {
+    CoroutineWorker(context, workerParams) {
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val scope = GlobalValue.sp.backup_scope
         val result = startBackupConfig(context,
             scope == "BACKUP_SCOPE_CUSTOM",
@@ -27,7 +27,7 @@ class BackupWorker(private val context: Context, workerParams: WorkerParameters)
         return if (result) Result.success() else Result.failure()
     }
 
-    override fun getForegroundInfo(): ForegroundInfo {
+    override suspend fun getForegroundInfo(): ForegroundInfo {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -59,6 +60,11 @@ class ExportPluginBottomSheetFragment(
         initButtons()
         renderStep()
         updatePrimaryButtonState()
+    }
+
+    override fun onDestroyView() {
+        isExporting = false
+        super.onDestroyView()
     }
 
     override fun onStart() {
@@ -163,7 +169,7 @@ class ExportPluginBottomSheetFragment(
         val request = buildExportRequest() ?: return
         setExporting(true)
         val appContext = requireContext().applicationContext
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             runCatching {
                 PluginApkExporter(appContext).export(request)
             }.onSuccess { exportResult: PluginExportResult ->
@@ -177,6 +183,7 @@ class ExportPluginBottomSheetFragment(
                 )
                 dismissAllowingStateLoss()
             }.onFailure {
+                if (it is CancellationException) throw it
                 setExporting(false)
                 requireActivity().showPopup(
                     getString(

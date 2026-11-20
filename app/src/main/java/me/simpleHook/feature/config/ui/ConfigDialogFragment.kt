@@ -10,10 +10,10 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import kotlinx.coroutines.Deferred
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.simpleHook.R
@@ -21,12 +21,12 @@ import me.simpleHook.core.constant.Constant
 import me.simpleHook.core.extension.showPopup
 import me.simpleHook.data.AppConfigItem2
 import me.simpleHook.data.config.ConfigSystemUtil
-import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.databinding.FragmentConfigImExportBinding
 import me.simpleHook.feature.config.ui.adapter.ImExportAdapter
 import me.simpleHook.feature.main.ui.MainActivity
 import me.simpleHook.feature.config.viewmodel.AppConfigViewModel
+import me.simpleHook.feature.config.viewmodel.ConfigWriteResult
 import me.simpleHook.core.utils.FridaHook
 import me.simpleHook.core.utils.ToolUtil
 import me.simpleHook.core.utils.WindowUtil
@@ -56,6 +56,8 @@ class ConfigDialogFragment(
         return binding.root
     }
 
+    private var importOperation: Deferred<ConfigWriteResult>? = null
+
     private fun initView() {
         mAdapter.setDataList(configsList)
         binding.recyclerView.apply {
@@ -79,26 +81,35 @@ class ConfigDialogFragment(
                         val isEnableSave = configSystem.isEnableSave(item.appConfig.packageName)
                         if (item.isChecked) {
                             checkIsZero = false
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                if (isEnableSave) ConfigRemoteSyncHelper.saveCustomConfig(
-                                    configSystem,
-                                    item.appConfig.packageName,
-                                    Json.encodeToString(item.appConfig)
-                                )
-                            }
                             tempList.add(item.appConfig.copy(enable = isEnableSave))
                         }
                     }
                     tempList.reverse()
-                    viewModel.insertConfigs(*tempList.toTypedArray())
                     if (checkIsZero) {
                         requireActivity().showPopup(getString(R.string.config_dialog_selection_empty))
                     } else {
-                        requireActivity().showPopup(getString(R.string.config_dialog_import_success))
-                        this@ConfigDialogFragment.dismiss()
-                    }
-                    if (tag == "from text import") {
-                        goMainActivity()
+                        confirm.isEnabled = false
+                        selectAll.isEnabled = false
+                        mAdapter.setSelectionEnabled(false)
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            try {
+                                val previous = importOperation?.await()
+                                val operation = if (previous?.databaseCommitted == true) viewModel.retrySync()
+                                    else viewModel.insertConfigs(*tempList.toTypedArray())
+                                importOperation = operation
+                                val outcome = operation.await()
+                                if (!outcome.databaseCommitted) {
+                                    selectAll.isEnabled = true
+                                    mAdapter.setSelectionEnabled(true)
+                                }
+                                if (!outcome.isSuccess) return@launch
+                                requireActivity().showPopup(getString(R.string.config_dialog_import_success))
+                                if (tag == "from text import") goMainActivity()
+                                this@ConfigDialogFragment.dismiss()
+                            } finally {
+                                _binding?.confirm?.isEnabled = true
+                            }
+                        }
                     }
                 } else {
                     val tempList = ArrayList<AppConfigItem2>()

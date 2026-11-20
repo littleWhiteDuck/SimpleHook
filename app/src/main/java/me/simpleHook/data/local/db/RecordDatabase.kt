@@ -2,6 +2,8 @@ package me.simpleHook.data.local.db
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabaseCorruptException
+import android.database.DatabaseErrorHandler
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -42,6 +44,9 @@ abstract class RecordDatabase: RoomDatabase() {
         private var INSTANCE: RecordDatabase? = null
 
         private const val RECORD_DB_NAME = "records.db"
+        private val preserveCorruptDatabase = DatabaseErrorHandler {
+            throw SQLiteDatabaseCorruptException("Records database is corrupt; original files preserved")
+        }
 
         @Synchronized
         fun getDatabase(context: Context): RecordDatabase {
@@ -63,6 +68,7 @@ abstract class RecordDatabase: RoomDatabase() {
                 MIGRATION_5_6,
                 MIGRATION_6_7
             )
+                .openHelperFactory(PreservingOpenHelperFactory())
                 .build()
                 .also {
                     INSTANCE = it
@@ -134,7 +140,8 @@ abstract class RecordDatabase: RoomDatabase() {
                 SQLiteDatabase.openDatabase(
                     dbFile.path,
                     null,
-                    SQLiteDatabase.OPEN_READWRITE
+                    SQLiteDatabase.OPEN_READWRITE,
+                    preserveCorruptDatabase
                 ).use { db ->
                     if (hasLegacySearchArtifacts(db)) {
                         dropLegacySearchArtifacts(db::execSQL)
@@ -147,16 +154,15 @@ abstract class RecordDatabase: RoomDatabase() {
             val dbFile = context.getDatabasePath(RECORD_DB_NAME)
             if (!dbFile.exists()) return
 
-            val isValid = runCatching {
-                SQLiteDatabase.openDatabase(
+            val isValid = SQLiteDatabase.openDatabase(
                     dbFile.path,
                     null,
-                    SQLiteDatabase.OPEN_READONLY
+                    SQLiteDatabase.OPEN_READONLY,
+                    preserveCorruptDatabase
                 ).use(::hasValidRecordSchema)
-            }.getOrDefault(false)
 
-            if (!isValid) {
-                context.deleteDatabase(RECORD_DB_NAME)
+            check(isValid) {
+                "Invalid records database schema; original database preserved at ${dbFile.path}"
             }
         }
 

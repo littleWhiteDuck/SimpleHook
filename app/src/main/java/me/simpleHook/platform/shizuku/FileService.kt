@@ -1,5 +1,8 @@
 package me.simpleHook.platform.shizuku
 
+import android.system.ErrnoException
+import android.system.Os
+import android.system.OsConstants
 import me.simpleHook.core.utils.FileUtil
 import java.io.File
 
@@ -36,6 +39,14 @@ class FileService : IFileService.Stub() {
     override fun reLaunchApp(packageName: String, activityName: String) {
         runCommand("am", "force-stop", packageName)
         runCommand("am", "start", "$packageName/$activityName")
+    }
+
+    override fun isFileMissing(path: String): Boolean = try {
+        Os.stat(path)
+        false
+    } catch (error: ErrnoException) {
+        if (error.errno == OsConstants.ENOENT) true
+        else throw IllegalStateException("Cannot stat $path", error)
     }
 
     private fun runCommand(vararg command: String): Boolean {

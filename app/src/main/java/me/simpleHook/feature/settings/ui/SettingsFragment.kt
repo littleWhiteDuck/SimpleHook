@@ -11,6 +11,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import me.simpleHook.data.config.ConfigWriteCoordinator
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -227,30 +229,39 @@ class SettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.main_delete_left_config_loading_tip)
         )
         loadingDialog.show()
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-            withContext(Dispatchers.IO) {
-                val apps = when (mode) {
-                    "user" -> AppUtil.getUserPackageNames()
-                    "system" -> AppUtil.getSystemPackageNames()
-                    else -> AppUtil.getPackageNames()
-                }
-                val appPackageNames = viewModel.getAllPackageNames()
-                val extensionPackageNames = viewModel.getAllExtPackageNames()
-                for (i in apps.indices) {
-                    if (apps[i] !in appPackageNames) {
-                        ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, apps[i])
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                ConfigWriteCoordinator.write {
+                    withContext(Dispatchers.IO) {
+                        val apps = when (mode) {
+                            "user" -> AppUtil.getUserPackageNames()
+                            "system" -> AppUtil.getSystemPackageNames()
+                            else -> AppUtil.getPackageNames()
+                        }
+                        val appPackageNames = viewModel.getAllPackageNames()
+                        val extensionPackageNames = viewModel.getAllExtPackageNames()
+                        for (name in apps) {
+                            if (name !in appPackageNames) {
+                                check(ConfigRemoteSyncHelper.deleteCustomConfig(configSystem, name).isComplete)
+                            }
+                            if (name !in extensionPackageNames) {
+                                check(ConfigRemoteSyncHelper.deleteExtensionConfig(configSystem, name).isComplete)
+                            }
+                        }
                     }
-                    if (apps[i] !in extensionPackageNames) {
-                        ConfigRemoteSyncHelper.deleteExtensionConfig(configSystem, apps[i])
-                    }
                 }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                requireActivity().showPopup(getString(R.string.common_failed))
+            } finally {
+                loadingDialog.dismiss()
             }
-            loadingDialog.dismiss()
         }
     }
 
     private fun toFridaConfig() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch {
             val appConfigItem2s = mutableListOf<AppConfigItem2>()
             viewModel.getConfigs().forEach {
                 appConfigItem2s.add(AppConfigItem2(it))
@@ -266,13 +277,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun clearHookConfig(mode: Int) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             when (mode) {
                 0 -> {
                     val deleteConfigs = viewModel.getConfigs().filter {
                         configSystem.isEnableDelete(it.packageName)
                     }
-                    viewModel.deleteConfigs(*deleteConfigs.toTypedArray())
+                    viewModel.deleteConfigs(*deleteConfigs.toTypedArray()).await()
                 }
 
                 1 -> {
@@ -283,15 +294,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             tempConfigs.add(it)
                         }
                     }
-                    viewModel.deleteExtConfigs(*tempConfigs.toTypedArray())
+                    viewModel.deleteExtConfigs(*tempConfigs.toTypedArray()).await()
                 }
 
                 2 -> {
-                    recordViewModel.deleteAllRecords()
+                    recordViewModel.deleteAllRecordsNow()
                 }
 
                 3 -> {
-                    collViewModel.deleteAllCollections()
+                    collViewModel.deleteAllCollectionsNow()
                 }
             }
         }

@@ -61,13 +61,13 @@ class MainActivity : BaseActivity(), IMenuProvider {
         checkUpdate()
         initBackup()
         initPermission()
-        ConfigPathMigration.migrateIfNeeded(this)
+        ConfigPathMigration.migrateIfNeeded(this, lifecycleScope)
         initLSPosedService()
     }
 
     override fun onResume() {
         super.onResume()
-        ConfigPathMigration.migrateIfNeeded(this)
+        ConfigPathMigration.migrateIfNeeded(this, lifecycleScope)
     }
 
     private fun initLSPosedService() {

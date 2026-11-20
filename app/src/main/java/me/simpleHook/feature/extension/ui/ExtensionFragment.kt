@@ -184,13 +184,22 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
                 })
             }
         }
-        mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        configObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                root.recyclerView.scrollToPosition(0)
+                if (view != null) root.recyclerView.scrollToPosition(0)
             }
-        })
+        }.also(mAdapter::registerAdapterDataObserver)
         FastScrollerUtil.bind(root.recyclerView)
+    }
+
+    private var configObserver: RecyclerView.AdapterDataObserver? = null
+
+    override fun onDestroyView() {
+        configObserver?.let(mAdapter::unregisterAdapterDataObserver)
+        configObserver = null
+        root.recyclerView.adapter = null
+        super.onDestroyView()
     }
 
     private fun showFab() {
@@ -210,28 +219,29 @@ class ExtensionFragment : BaseViewFragment<ExtensionFragmentView>() {
 
     private fun itemOnLongClick(extConfigEntity: ExtensionConfigEntity) {
         if (configSystem.isEnableDelete(extConfigEntity.packageName)) {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                appConfigViewModel.deleteExtConfigs(extConfigEntity)
-            }
-            Snackbar.make(
-                root.addConfig,
-                getString(R.string.main_extension_delete_config_tip),
-                Snackbar.LENGTH_LONG
-            ).apply {
-                anchorView = bottomNavigationView
-            }.addCallback(object : Snackbar.Callback() {
-                override fun onShown(sb: Snackbar?) {
-                    super.onShown(sb)
-                    if (isFabShow) upFab()
-                }
+            val operation = appConfigViewModel.deleteExtConfigs(extConfigEntity)
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (!operation.await().databaseCommitted) return@launch
+                Snackbar.make(
+                    root.addConfig,
+                    getString(R.string.main_extension_delete_config_tip),
+                    Snackbar.LENGTH_LONG
+                ).apply {
+                    anchorView = bottomNavigationView
+                }.addCallback(object : Snackbar.Callback() {
+                    override fun onShown(sb: Snackbar?) {
+                        super.onShown(sb)
+                        if (view != null && isFabShow) upFab()
+                    }
 
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    super.onDismissed(transientBottomBar, event)
-                    if (isFabShow) showFab()
-                }
-            }).setAction(getString(R.string.main_extension_undo_delete_config)) {
-                saveConfig(extConfigEntity)
-            }.show()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+                        if (view != null && isFabShow) showFab()
+                    }
+                }).setAction(getString(R.string.main_extension_undo_delete_config)) {
+                    saveConfig(extConfigEntity)
+                }.show()
+            }
         } else {
             requirePermission(extConfigEntity.packageName)
         }

@@ -3,7 +3,8 @@ package me.simpleHook.feature.home.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Looper
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import android.util.Patterns
 import android.view.ContextMenu
 import android.view.Menu
@@ -34,7 +35,6 @@ import me.simpleHook.core.base.BaseExtensionVBFragment
 import me.simpleHook.core.constant.Constant
 import me.simpleHook.data.AppConfigItem
 import me.simpleHook.data.AppConfigItem2
-import me.simpleHook.data.config.ConfigRemoteSyncHelper
 import me.simpleHook.data.local.db.entity.AppConfig
 import me.simpleHook.databinding.FragmentHomeBinding
 import me.simpleHook.core.extension.dp
@@ -57,6 +57,7 @@ import me.simpleHook.feature.pluginexport.domain.PluginApkShareHelper
 import me.simpleHook.feature.pluginexport.ui.ExportPluginBottomSheetFragment
 import me.simpleHook.platform.shizuku.ShizukuFileManager
 import java.io.File
+import java.util.IdentityHashMap
 import kotlin.math.min
 
 
@@ -66,6 +67,7 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     private val viewModel: AppConfigViewModel by activityViewModels()
     private var filterConfigs: List<AppConfigItem> = ArrayList()
     private var tempConfigs = ArrayList<AppConfigItem>()
+    private val originalSortIds = IdentityHashMap<AppConfig, Int>()
     private var currentPattern = ""
     private lateinit var configOfItemMenu: AppConfig
     private val mAdapter: HomeAdapter by lazy {
@@ -125,14 +127,19 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     }
 
     override fun onDestroyView() {
+        configObserver?.let(mAdapter::unregisterAdapterDataObserver)
+        configObserver = null
+        binding.mainRecycler.adapter = null
         pluginExportSuccessDialog?.dismiss()
         pluginExportSuccessDialog = null
         super.onDestroyView()
     }
 
+    private var configObserver: RecyclerView.AdapterDataObserver? = null
+
     private fun initData() {
         registerPluginExportResultListener()
-        viewModel.getAllConfigs().observe(requireActivity()) {
+        viewModel.getAllConfigs().observe(viewLifecycleOwner) {
             binding.emptyTip.isVisible = it.isEmpty()
             filterConfigs = it.map { appConfig -> AppConfigItem(appConfig) }
             if (currentPattern.isEmpty()) {
@@ -142,12 +149,12 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 toFilterData(currentPattern)
             }
         }
-        mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        configObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                binding.mainRecycler.scrollToPosition(0)
+                if (view != null) binding.mainRecycler.scrollToPosition(0)
             }
-        })
+        }.also(mAdapter::registerAdapterDataObserver)
         with(binding.mainRecycler) {
             adapter = mAdapter
             layoutManager = LinearLayoutManager(requireContext())
@@ -196,28 +203,31 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
 
     private fun deleteConfig(appConfig: AppConfig) {
         if (configSystem.isEnableDelete(appConfig.packageName)) {
-            viewModel.deleteConfigs(appConfig)
-            Snackbar.make(
-                binding.fab,
-                getString(R.string.main_home_delete_config_tip),
-                Snackbar.LENGTH_LONG
-            ).apply {
-                anchorView = bottomNavigationView
-            }.addCallback(object : Snackbar.Callback() {
-                override fun onShown(sb: Snackbar?) {
-                    super.onShown(sb)
-                    if (isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
-                        DecelerateInterpolator(1.5f)
-                }
+            val operation = viewModel.deleteConfigs(appConfig)
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (!operation.await().databaseCommitted) return@launch
+                Snackbar.make(
+                    binding.fab,
+                    getString(R.string.main_home_delete_config_tip),
+                    Snackbar.LENGTH_LONG
+                ).apply {
+                    anchorView = bottomNavigationView
+                }.addCallback(object : Snackbar.Callback() {
+                    override fun onShown(sb: Snackbar?) {
+                        super.onShown(sb)
+                        if (view != null && isFabShow) binding.fab.animate().translationY((-50f).dp).interpolator =
+                            DecelerateInterpolator(1.5f)
+                    }
 
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    super.onDismissed(transientBottomBar, event)
-                    if (isFabShow) binding.fab.animate().translationY(0f).interpolator =
-                        DecelerateInterpolator(1.5f)
-                }
-            }).setAction(getString(R.string.main_home_undo_delete_config)) {
-                saveConfig(appConfig)
-            }.show()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+                        if (view != null && isFabShow) binding.fab.animate().translationY(0f).interpolator =
+                            DecelerateInterpolator(1.5f)
+                    }
+                }).setAction(getString(R.string.main_home_undo_delete_config)) {
+                    saveConfig(appConfig)
+                }.show()
+            }
         } else {
             requirePermission(appConfig.packageName)
         }
@@ -310,10 +320,11 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
                 progressBar.isVisible = true
                 sortDone.isVisible = false
                 fab.isVisible = true
-                viewModel.updateConfigs(
-                    *tempConfigs.map { it.appConfig }.toTypedArray(),
-                    needWriteToFile = false
+                viewModel.reorderConfigs(
+                    tempConfigs.map { it.appConfig },
+                    originalSortIds.entries.associate { (config, originalId) -> originalId to config.id }
                 )
+                originalSortIds.clear()
                 isDrag = false
             }
         }
@@ -619,21 +630,18 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
             }
 
             JsonUtil.isJsonObject(configs) -> {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    runCatching {
-                        val appConfig = Json.decodeFromString<AppConfig>(configs)
-                        appConfig.id = 0
-                        viewModel.insertConfigs(appConfig)
-                        ConfigRemoteSyncHelper.saveCustomConfig(
-                            configSystem,
-                            appConfig.packageName,
-                            configs
-                        )
-                    }.onFailure {
-                        Looper.prepare()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val appConfig = try {
+                        withContext(Dispatchers.Default) {
+                            Json.decodeFromString<AppConfig>(configs).copy(id = 0)
+                        }
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
                         requireActivity().showPopup(getString(R.string.main_home_import_incorrect_format_tip))
-                        Looper.loop()
+                        return@launch
                     }
+                    viewModel.insertConfigs(appConfig).await()
                 }
             }
 
@@ -708,11 +716,14 @@ class HomeFragment : BaseExtensionVBFragment<FragmentHomeBinding>(), HideScrollL
     }
 
     private fun startDragSort() {
+        if (isDrag) return
         binding.fab.isVisible = false
         binding.sortDone.isVisible = true
         isDrag = true
         tempConfigs.clear()
+        originalSortIds.clear()
         filterConfigs.forEach {
+            originalSortIds[it.appConfig] = it.appConfig.id
             tempConfigs.add(it.copy(drag = true))
         }
         mAdapter.submitList(tempConfigs)

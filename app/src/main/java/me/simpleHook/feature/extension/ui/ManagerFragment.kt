@@ -3,8 +3,8 @@ package me.simpleHook.feature.extension.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -82,7 +82,7 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
 
     private fun initData() {
         exViewModel.initExtensionConfig(extensionConfig)
-        exViewModel.extensionConfig.observe(requireActivity()) {
+        exViewModel.extensionConfig.observe(viewLifecycleOwner) {
             extensionConfig = it
         }
     }
@@ -281,27 +281,31 @@ class ManagerVBFragment : BaseExtensionVBFragment<FragmentExtensionManagerBindin
         return true
     }
 
+    private var saveJob: kotlinx.coroutines.Job? = null
+
     @SuppressLint("Range")
     private fun saveConfig(exit: Boolean = false): Boolean {
-        if (!checkPermission()) return false
+        if (!checkPermission() || saveJob?.isActive == true) return false
         val loadingDialog = LoadingDialog(requireActivity(), getString(R.string.main_loading))
         loadingDialog.show()
         val config = Json.encodeToString(extensionConfig)
-        tempConfigStr = extensionConfig.toString()
+        val savedConfigStr = extensionConfig.toString()
         extensionConfigEntity.config = config
         extensionConfigEntity.enable = extensionConfig.all
-        if (editMode) {
-            appConfigViewModel.updateExtConfigs(extensionConfigEntity)
-        } else {
-            appConfigViewModel.insertExtConfigs(extensionConfigEntity)
-        }
-        Handler(Looper.getMainLooper()).postDelayed({
-            getString(R.string.extension_save_success).snack(binding.recyclerView)
-            loadingDialog.quickDismiss()
-            if (exit) {
-                backPressed()
+        val operation = appConfigViewModel.saveExtConfig(
+            extensionConfigEntity.copy(id = if (editMode) extensionConfigEntity.id else 0)
+        )
+        saveJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                if (!operation.await().isSuccess) return@launch
+                editMode = true
+                tempConfigStr = savedConfigStr
+                getString(R.string.extension_save_success).snack(binding.recyclerView)
+                if (exit) backPressed()
+            } finally {
+                loadingDialog.quickDismiss()
             }
-        }, 500)
+        }
         return true
     }
 
