@@ -117,7 +117,7 @@ extensions.configure<ApplicationExtension>("android") {
     defaultConfig {
 
         @Suppress("UnstableApiUsage")
-        androidResources.localeFilters += setOf("en", "zh-rCN", "zh-rTW")
+        androidResources.localeFilters += setOf("en", "zh-rCN", "zh-rTW", "pt-rBR")
         applicationId = "me.simpleHook"
         minSdk = 24
         targetSdk = 36

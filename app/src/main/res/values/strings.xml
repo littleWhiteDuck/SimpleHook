@@ -156,13 +156,15 @@
         <item>中文（简体）</item>
         <item>中文（繁體）</item>
         <item>English</item>
+        <item>Português (Brasil)</item>
     </string-array>
 
-    <string-array name="main_settings_language_item_values">
+    <string-array name="main_settings_language_item_values" translatable="false">
         <item>system</item>
         <item>zh_CN</item>
         <item>zh_TW</item>
         <item>en</item>
+        <item>pt_BR</item>
     </string-array>
 
     <string-array name="main_settings_left_config_select_item">

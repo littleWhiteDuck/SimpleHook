@@ -26,13 +26,15 @@ object LanguageUtil {
     private const val TAG = "LanguageUtil"
 
     /**
-     * 默认支持的语言，英语、法语、阿拉伯语
+     * 支持简体中文、繁体中文、英语和巴西葡萄牙语
      */
     private val supportLanguage: HashMap<String, Locale> = object : HashMap<String, Locale>(4) {
         init {
             put(Locale.SIMPLIFIED_CHINESE.toString(), Locale.SIMPLIFIED_CHINESE)
             put(Locale.TRADITIONAL_CHINESE.toString(), Locale.TRADITIONAL_CHINESE)
             put(Locale.ENGLISH.toString(), Locale.ENGLISH)
+            val brazilianPortuguese = Locale.forLanguageTag("pt-BR")
+            put(brazilianPortuguese.toString(), brazilianPortuguese)
         }
     }
 

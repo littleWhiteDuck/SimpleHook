@@ -125,6 +125,7 @@
         <item>中文（简体）</item>
         <item>中文（繁體）</item>
         <item>English</item>
+        <item>Português (Brasil)</item>
     </string-array>
 
     <string name="main_share_config_cancel">取消</string>

@@ -134,6 +134,7 @@ Você pode tentar assiná-lo manualmente com o MT Manager ou uma ferramenta seme
         <item>中文（简体）</item>
         <item>中文（繁體）</item>
         <item>English</item>
+        <item>Português (Brasil)</item>
     </string-array>
     <string-array name="main_settings_left_config_select_item">
         <item>Verificar apps do usuário</item>
@@ -183,16 +184,16 @@ Você pode tentar assiná-lo manualmente com o MT Manager ou uma ferramenta seme
     <string name="record_type_format">Tipo: %s</string>
     <string name="record_call_stack">Pilha de chamadas:</string>
     <string name="record_raw_data_format_type">Dados brutos (%s)</string>
-    <string name="record_raw_data_format_type_value">Dados brutos (%s): %s</string>
+    <string name="record_raw_data_format_type_value">Dados brutos (%1$s): %2$s</string>
     <string name="record_application_name_format">Nome de entrada da Application: %s</string>
     <string name="record_base64_code_type_format">Codificação/Decodificação: %s</string>
     <string name="record_base64_encode">Codificar</string>
     <string name="record_base64_decode">Decodificar</string>
-    <string name="record_result_data_format_type2">Resultado de %s (%s)</string>
-    <string name="record_result_data_format_type2_value">Resultado de %s (%s): %s</string>
-    <string name="record_key_format">Chave (%s): %s</string>
-    <string name="record_iv_format">Vetor de inicialização (IV) (%s): %s</string>
-    <string name="record_aad_format">Dados autenticados adicionais (AAD) (%s): %s</string>
+    <string name="record_result_data_format_type2">Resultado de %1$s (%2$s)</string>
+    <string name="record_result_data_format_type2_value">Resultado de %1$s (%2$s): %3$s</string>
+    <string name="record_key_format">Chave (%1$s): %2$s</string>
+    <string name="record_iv_format">Vetor de inicialização (IV) (%1$s): %2$s</string>
+    <string name="record_aad_format">Dados autenticados adicionais (AAD) (%1$s): %2$s</string>
     <string name="record_cipher_crypt_type_format">Criptografia/Descriptografia: %s</string>
     <string name="record_cipher_encrypt">Criptografar</string>
     <string name="record_cipher_decrypt">Descriptografar</string>
@@ -203,19 +204,19 @@ Você pode tentar assiná-lo manualmente com o MT Manager ou uma ferramenta seme
     <string name="record_callback_class_format">Classe de callback: %s</string>
     <string name="record_id_format">ID: %s</string>
     <string name="record_text_format">Texto: %s</string>
-    <string name="record_signature_type_format">Assinatura (%s): %s</string>
+    <string name="record_signature_type_format">Assinatura (%1$s): %2$s</string>
     <string name="record_type_web_url">Link carregado na Web</string>
     <string name="record_url_format">Link: %s</string>
     <string name="record_type_return_value">Registrar valor de retorno</string>
     <string name="record_class_name_format">Nome da classe: %s</string>
     <string name="record_method_sign_format">Método (parâmetros): %s</string>
-    <string name="record_return_value_format">Valor de retorno (%s): %s</string>
+    <string name="record_return_value_format">Valor de retorno (%1$s): %2$s</string>
     <string name="record_type_param_value">Registrar valor do parâmetro</string>
-    <string name="record_param_value_format">Valor do parâmetro %d (%s): %s</string>
+    <string name="record_param_value_format">Valor do parâmetro %1$d (%2$s): %3$s</string>
     <string name="record_type_field_value">Registrar valor da variável</string>
     <string name="record_field_class_name_format">Nome da classe onde está a variável: %s</string>
     <string name="record_field_name_format">Nome da variável: %s</string>
-    <string name="record_field_value_format">Valor da variável (%s): %s</string>
+    <string name="record_field_value_format">Valor da variável (%1$s): %2$s</string>
     <string name="record_type_exit">Saída</string>
     <string name="record_exit_type_format">Tipo de saída: %s</string>
     <string name="record_type_crash">Falha</string>
@@ -391,7 +392,7 @@ Você pode tentar assiná-lo manualmente com o MT Manager ou uma ferramenta seme
     <string name="copy_config">Copiar configuração</string>
     <string name="delete_config">Excluir configuração</string>
     <string name="edit_config">Editar configuração</string>
-    <string name="config_version_support">Instalado: %s, Suportado: %s</string>
+    <string name="config_version_support">Instalado: %1$s, Suportado: %2$s</string>
     <string name="save_config_warning">Aviso</string>
     <string name="save_config_warning_message">A configuração foi alterada, mas não foi salva. Deseja salvá-la? </string>
     <string name="save_and_exit">Salvar e sair</string>
@@ -603,7 +604,7 @@ Mantenha o botão de mais pressionado: selecionar app sem modelo</string>
     <string name="backup_tip_restore_failure">Falha na restauração</string>
     <string name="backup_dialog_title_restore_local_backup">Restaurar backup local</string>
     <string name="backup_dialog_title_restore_cloud_backup">Restaurar backup na nuvem</string>
-    <string name="backup_dialog_message">Restaurar: %s, feito em: %s</string>
+    <string name="backup_dialog_message">Restaurar: %1$s, feito em: %2$s</string>
     <string name="backup_tip_cloud_info_is_empty">Preencha as informações do backup na nuvem</string>
     <string name="backup_tip_backup_path_is_empty">Selecione o diretório de backup primeiro</string>
     <string name="backup_tip_running_backup">Fazendo backup</string>

@@ -234,6 +234,7 @@ You can try signing it manually with MT Manager or a similar tool before install
         <item>中文（简体）</item>
         <item>中文（繁體）</item>
         <item>ENGLISH</item>
+        <item>Português (Brasil)</item>
     </string-array>
     <string name="main_settings_select_language_title">Language</string>
     <string name="main_settings_title_frida_config">Export Frida hook script</string>
